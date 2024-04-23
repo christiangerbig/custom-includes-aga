@@ -1,0 +1,49 @@
+; Includedatei: "normsource-includes/sys-structures.i"
+; Datum:        27.10.2023
+; Version:      1.9
+
+; ## Speicherstellen für Tabellen und Strukturen ##
+; -------------------------------------------------
+
+  IFND sys_taken_over
+
+; ** Easy-Struktur für TCP-Stack-Abfrage **
+; -----------------------------------------
+    IFNE INTENABITS&INTF_PORTS
+      CNOP 0,4
+tcp_request_structure
+      DS.B EasyStruct_SIZEOF
+    ENDC
+  
+; ** Easy-Struktur für Monitorabfrage **
+; --------------------------------------
+    IFEQ requires_multiscan_monitor
+      CNOP 0,4
+vga_request_monitor_structure
+      DS.B EasyStruct_SIZEOF
+    ENDC
+  
+; ** Timer-Request-Struktur für Timer-Device **
+; ---------------------------------------------
+    CNOP 0,4
+timer_request_structure
+    DS.B IOTV_SIZE
+  
+; ** Tagliste für Spriteauflösung **
+; ----------------------------------
+    CNOP 0,4
+spr_taglist
+    DS.B (ti_SIZEOF*1)+4
+  
+; ** Tagliste für Screen **
+; -------------------------
+    CNOP 0,4
+downgrade_screen_taglist
+    DS.B screen_taglist_size
+
+; ** Struktur für Fehlermeldungen **
+; ----------------------------------
+    CNOP 0,4
+custom_error_table
+    DS.B custom_error_entry_SIZE*custom_error_number
+  ENDC
