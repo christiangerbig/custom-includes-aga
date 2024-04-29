@@ -658,6 +658,13 @@ MULUF MACRO
     add.\0   \2,\2
     add.\0   \2,\2
   ENDC
+  IFEQ (\1)-94               ;*94
+    move.\0  \2,\3
+    add.\0   \3,\3
+    add.\0   \3,\2
+    lsl.\0   #5,\2
+    sub.\0   \3,\2
+  ENDC
   IFEQ (\1)-96               ;*96
     move.\0  \2,\3
     add.\0   \2,\2
