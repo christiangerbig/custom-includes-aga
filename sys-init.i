@@ -2731,7 +2731,6 @@ start_own_display
     moveq   #TRUE,d0
     move.w  d0,COPJMP1-DMACONR(a6) ;sicherheitshalber
   ENDC
-  bsr     wait_beam_position
   move.w  #DMABITS&(DMAF_SPRITE|DMAF_COPPER|DMAF_RASTER|DMAF_SETCLR),DMACON-DMACONR(a6) ;Sprite/Copper/Bitplane-DMA an
   rts
 
