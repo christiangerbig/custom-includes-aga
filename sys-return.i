@@ -64,10 +64,10 @@ clear_important_registers2
     moveq   #$7f,d0
     move.b  d0,CIAICR(a4)    ;CIA-A-Interrupts aus
     move.b  d0,CIAICR(a5)    ;CIA-B-Interrupts aus
-    IFNE CIAAICRBITS-$80
+    IFNE CIAAICRBITS-CIAICRF_SETCLR
       move.b  CIAICR(a4),d0  ;CIA-A-Interrupts löschen
     ENDC
-    IFNE CIABICRBITS-$80
+    IFNE CIABICRBITS-CIAICRF_SETCLR
       move.b  CIAICR(a5),d0  ;CIA-B-Interrupts löschen
     ENDC
     rts
@@ -213,8 +213,7 @@ update_clock
     move.b  VBlankFrequency(a6),d1 ;Frequenz ermitteln
     lea     timer_request_structure(pc),a1 ;Zeiger auf Timer-Request-Struktur
     divu.w  d1,d0            ;/Vertikalfrequenz (50Hz) = Sekunden, Rest Microsekunden
-    moveq   #TR_SETSYSTIME,d1
-    move.w  d1,IO_command(a1) ;Befehl für Timer-Device
+    move.w  #TR_SETSYSTIME,IO_command(a1) ;Befehl für Timer-Device
     move.l  d0,d1            ;retten
     ext.l   d0               ;Auf 32 Bit erweitern
     swap    d1               ;Rest der Division

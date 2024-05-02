@@ -48,7 +48,7 @@ GET_LINE_PARAMETERS MACRO
     MULUF.W (\4)/2,d1,d4     ;Y-Offset in Bild
   ENDC
   add.w   d0,d1              ;Y + X-Offset
-  MULUF.W 2,d1               ;X/Y-Offset korrigieren
+  MULUF.L 2,d1               ;X/Y-Offset korrigieren
   cmp.w   d2,d3              ;dx <= dy ?
   ble.s   \1_draw_lines_delta_positive  ;Ja  -> verzweige
   SUBF.W  BLTCON1F_SUD,d5
