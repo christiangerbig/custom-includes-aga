@@ -1037,6 +1037,15 @@ MULUF MACRO
     add.\0   \3,\2
     lsl.\0   #7,\2
   ENDC
+  IFEQ (\1)-704              ;*704
+    move.\0  \2,\3
+    add.\0   \3,\3
+    add.\0   \3,\2
+    add.\0   \3,\3
+    add.\0   \3,\3
+    add.\0   \3,\2
+    lsl.\0   #6,\2
+  ENDC
   IFEQ (\1)-768              ;*768
     move.\0  \2,\3
     add.\0   \2,\2
@@ -1107,6 +1116,10 @@ MULUF MACRO
     lsl.\0   #8,\2
     add.\0   \2,\2
     add.\0   \2,\2
+  ENDC
+  IFEQ (\1)-8192             ;*8192
+    swap     \2
+    asr.l    #3,\2
   ENDC
   ENDM
 
@@ -1319,41 +1332,41 @@ INIT_CHARACTERS_OFFSETS MACRO
     FAIL Makro INIT_CHARACTERS_OFFSETS: Größenangabe W/L fehlt
   ENDC
   IFC "W","\0"
-    moveq   #TRUE,d0         ;X-Offset erstes Zeichen in Zeichen-Bildvorlage
-    moveq   #\1_image_plane_width,d1 ;X-Offset letztes Zeichen in Zeichen-Bildvorlage
+    moveq   #TRUE,d0         ;X-Offset erstes Zeichen in Zeichen-Playfieldvorlage
+    moveq   #\1_image_plane_width,d1 ;X-Offset letztes Zeichen in Zeichen-Playfieldvorlage
     move.w  d1,d2            ;X-Offset Resetwert
-    MOVEF.W \1_image_plane_width*\1_image_depth*(\1_origin_character_y_size+1),d3              ;Y-Offset für nächste Reihe der Zeichen in Zeichen-Bildvorlage
-    lea     \1_characters_offsets(pc),a0 ;Offsets der Zeichen in Zeichen-Bildvorlage
+    MOVEF.W \1_image_plane_width*\1_image_depth*(\1_origin_character_y_size+1),d3              ;Y-Offset für nächste Reihe der Zeichen in Zeichen-Playfieldvorlage
+    lea     \1_characters_offsets(pc),a0 ;Offsets der Zeichen in Zeichen-Playfieldvorlage
     moveq   #\1_ASCII_end-\1_ASCII-1,d7 ;Anzahl der Zeichen des Fonts
 \1_init_characters_offsets_loop
     move.w  d0,(a0)+         ;X+Y-Offset des Zeichens eintragen
     addq.w  #\1_origin_character_x_size/8,d0 ;X-Offset des nächsten Zeichens
-    cmp.w   d1,d0            ;Letztes Zeichen der Zeile in Zeichen-Bildvorlage?
+    cmp.w   d1,d0            ;Letztes Zeichen der Zeile in Zeichen-Playfieldvorlage?
     bne.s   \1_no_x_offset_reset ;Nein -> verzweige
 \1_x_offset_reset
     sub.w   d2,d0            ;X-Offset zurücksetzen (Erstes Zeichen in Zeile)
     add.w   d3,d1            ;+ Y-Offset
-    add.w   d3,d0            ;Y-Offset = Beginn nächste Reihe in Zeichen-Bildvorlage
+    add.w   d3,d0            ;Y-Offset = Beginn nächste Reihe in Zeichen-Playfieldvorlage
 \1_no_x_offset_reset
     dbf     d7,\1_init_characters_offsets_loop
     rts
   ENDC
   IFC "L","\0"
-    lea     \1_characters_offsets(pc),a0 ;Offsets der Zeichen in Zeichen-Bildvorlage
-    moveq   #TRUE,d0         ;X-Offset erstes Zeichen in Zeichen-Bildvorlage
-    moveq   #\1_image_plane_width,d1 ;X-Offset letztes Zeichen in Zeichen-Bildvorlage
+    lea     \1_characters_offsets(pc),a0 ;Offsets der Zeichen in Zeichen-Playfieldvorlage
+    moveq   #TRUE,d0         ;X-Offset erstes Zeichen in Zeichen-Playfieldvorlage
+    moveq   #\1_image_plane_width,d1 ;X-Offset letztes Zeichen in Zeichen-Playfieldvorlage
     move.l  d1,d2            ;X-Offset Resetwert
-    move.l  #\1_image_plane_width*\1_image_depth*(\1_origin_character_y_size),d3              ;Y-Offset für nächste Reihe der Zeichen in Zeichen-Bildvorlage
+    move.l  #\1_image_plane_width*\1_image_depth*(\1_origin_character_y_size),d3              ;Y-Offset für nächste Reihe der Zeichen in Zeichen-Playfieldvorlage
     moveq   #\1_ASCII_end-\1_ASCII-1,d7 ;Anzahl der Zeichen des Fonts
 \1_init_characters_offsets_loop
     move.l  d0,(a0)+         ;X+Y-Offset des Zeichens eintragen
     add.l   #\1_origin_character_x_size/8,d0 ;X-Offset des nächsten Zeichens
-    cmp.l   d1,d0            ;Letztes Zeichen der Zeile in Zeichen-Bildvorlage?
+    cmp.l   d1,d0            ;Letztes Zeichen der Zeile in Zeichen-Playfieldvorlage?
     bne.s   \1_no_x_offset_reset ;Nein -> verzweige
 \1_x_offset_reset
     sub.l   d2,d0            ;X-Offset zurücksetzen (Erstes Zeichen in Zeile)
     add.l   d3,d1            ;+ Y-Offset
-    add.l   d3,d0            ;Y-Offset = Beginn nächste Reihe in Zeichen-Bildvorlage
+    add.l   d3,d0            ;Y-Offset = Beginn nächste Reihe in Zeichen-Playfieldvorlage
 \1_no_x_offset_reset
     dbf     d7,\1_init_characters_offsets_loop
     rts
@@ -1457,7 +1470,7 @@ GET_NEW_CHARACTER_IMAGE MACRO
 ; \2 LABEL:  Sub-Routine zusätzliche Checks für Steuerungs-Codes
 ; \3 STRING: "NORESTART" für Schriften, die nicht endlos sind
 ; \4 STRING: "BACKWARDS"
-; Rückgabewert: [d0: POINTER] Zeiger auf Zeichen-Bild
+; Rückgabewert: [d0: POINTER] Zeiger auf Zeichen-Playfield
   CNOP 0,4
 \1_get_new_character_image
   move.w  \1_text_table_start(a3),d1 ;Offset für bestimmtes Zeichen im Text
@@ -1506,14 +1519,14 @@ GET_NEW_CHARACTER_IMAGE MACRO
     ENDC
   ENDC
   sub.w   d6,d0              ;Anzahl der Zeichen - Schleifenzähler
-  lea     \1_characters_offsets(pc),a0 ;Zeiger auf Tabelle mit Offsets der Zeichen-Bilder
+  lea     \1_characters_offsets(pc),a0 ;Zeiger auf Tabelle mit Offsets der Zeichen-Playfields
   IFC "","\0"
-    move.w  (a0,d0.w*2),d0   ;Offset des Zeichen-Bildes holen
+    move.w  (a0,d0.w*2),d0   ;Offset des Zeichen-Playfieldes holen
   ENDC
   IFC "L","\0"
-    move.l  (a0,d0.w*4),d0   ;Offset des Zeichen-Bildes holen
+    move.l  (a0,d0.w*4),d0   ;Offset des Zeichen-Playfieldes holen
   ENDC
-  add.l   \1_image(a3),d0 ;Adresse der Zeichen-Bildvorlage ergänzen
+  add.l   \1_image(a3),d0 ;Adresse der Zeichen-Playfieldvorlage ergänzen
   IFNC "BACKWARDS","\4"
     IFEQ \1_origin_character_x_size-32
       IFEQ \1_text_character_x_size-16
@@ -2059,7 +2072,7 @@ INIT_DISPLAY_PATTERN MACRO
   moveq   #TRUE,d0           ;Spaltenzähler-Startwert
   moveq   #TRUE,d1           ;Langwortzugriff
   moveq   #1,d3              ;Farbnummer
-  move.l  pf1_display(a3),a0 ;Bild
+  move.l  pf1_display(a3),a0 ;Playfield
   move.l  (a0),a0            ;Bitplane0
   moveq   #(cl2_display_width)-1,d7 ;Anzahl der Spalten
 \1_init_display_pattern_loop1
@@ -2146,7 +2159,7 @@ GET_SINE_BARS_YZ_COORDINATES MACRO
     addq.b  #\1_y_angle_speed,d0
     move.w  d0,\1_y_angle(a3) ;retten
     MOVEF.W \1_y_distance,d3
-    lea     sine_table(pc),a0 ;Zeiger auf Sinus-Tabelle
+    lea     sine_table(pc),a0 
     lea     \1_yz_coordinates(pc),a1 ;Zeiger auf Y+Z-Koords-Tabelle
     move.w  #\1_y_center,a2
     moveq   #\1_bars_number-1,d7 ;Anzahl der Stangen
@@ -2177,7 +2190,7 @@ GET_SINE_BARS_YZ_COORDINATES MACRO
     move.w  d0,\1_y_angle(a3) ;retten
     MOVEF.W sine_table_length/2,d4 ;180 Grad
     MOVEF.W \1_y_distance,d5
-    lea     sine_table(pc),a0 ;Zeiger auf Sinus-Tabelle
+    lea     sine_table(pc),a0 
     lea     \1_yz_coordinates(pc),a1 ;Zeiger auf Y+Z-Koords-Tabelle
     move.w  #\1_y_center,a2
     moveq   #\1_bars_number-1,d7 ;Anzahl der Stangen
@@ -2212,7 +2225,7 @@ GET_SINE_BARS_YZ_COORDINATES MACRO
     move.w  d0,\1_y_angle(a3) ;retten
     MOVEF.W \1_y_distance,d3
     MOVEF.W sine_table_length/2,d4 ;180 Grad
-    lea     sine_table(pc),a0 ;Zeiger auf Sinus-Tabelle
+    lea     sine_table(pc),a0 
     lea     \1_yz_coordinates(pc),a1 ;Zeiger auf Y+Z-Koords-Tabelle
     move.w  #\1_y_center,a2
     moveq   #\1_bars_number-1,d7 ;Anzahl der Stangen
@@ -2259,7 +2272,7 @@ GET_TWISTED_BARS_YZ_COORDINATES MACRO
     addq.b  #\1_y_angle_speed,d0
     move.w  d0,\1_y_angle(a3) ;retten
     MOVEF.W \1_y_distance,d3
-    lea     sine_table(pc),a0 ;Zeiger auf Sinus-Tabelle
+    lea     sine_table(pc),a0 
     lea     \1_yz_coordinates(pc),a1 ;Zeiger auf Y+Z-Koords-Tabelle
     move.w  #\1_y_center,a2
     moveq   #\*LEFT(\3,3)_display_width-1,d7 ;Anzahl der Spalten
@@ -2298,7 +2311,7 @@ GET_TWISTED_BARS_YZ_COORDINATES MACRO
     move.w  d0,\1_y_angle(a3) ;retten
     MOVEF.W sine_table_length/2,d4 ;180 Grad
     MOVEF.W \1_y_distance,d5
-    lea     sine_table(pc),a0 ;Zeiger auf Sinus-Tabelle
+    lea     sine_table(pc),a0 
     lea     \1_yz_coordinates(pc),a1 ;Zeiger auf Y+Z-Koords-Tabelle
     move.w  #\1_y_center,a2
     moveq   #\*LEFT(\3,3)_display_width-1,d7 ;Anzahl der Spalten

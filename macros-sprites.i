@@ -186,7 +186,7 @@ INIT_ATTACHED_SPRITES_CLUSTER MACRO
     ENDC
 
     IFNC "BLANK","\8"
-      lea     \1_image_data,a1 ;Zeiger auf Bild (1. Spalte 64 Pixel)
+      lea     \1_image_data,a1 ;Zeiger auf Playfield (1. Spalte 64 Pixel)
       bsr     \1_init_sprite_bitmap
     ENDC
     move.l  (a5)+,a0           ;Sprite1-Struktur
@@ -282,7 +282,7 @@ INIT_ATTACHED_SPRITES_CLUSTER MACRO
       MOVEF.W SPRCTLF_ATT,d3
     ENDC
     IFNC "BLANK","\8"
-      lea     \1_image_data+16,a1 ;Zeiger auf Bild (3. Spalte 64 Pixel)
+      lea     \1_image_data+16,a1 ;Zeiger auf Playfield (3. Spalte 64 Pixel)
       bsr     \1_init_sprite_bitmap
     ENDC
     move.l  (a5)+,a0           ;Sprite1-Struktur

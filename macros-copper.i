@@ -209,7 +209,7 @@ COP_SET_BITPLANE_POINTERS MACRO
       moveq   #\3-1,d7           ;Anzahl der Bitplanes
 \1_set_bitplane_pointers_loop
       move.w  (a1)+,(a0)         ;High-Wert
-      addq.w  #8,a0              ;nächter Bildzeiger
+      addq.w  #8,a0              ;nächter Playfieldzeiger
       move.w  (a1)+,4-8(a0)      ;Low-Wert
       dbf     d7,\1_set_bitplane_pointers_loop
     ELSE
@@ -237,7 +237,7 @@ COP_SET_BITPLANE_POINTERS MACRO
     moveq   #\3-1,d7           ;Anzahl der Bitplanes
 \1_set_bitplane_pointers_loop1
     move.w  (a2)+,(a0)         ;BPLxPTH
-    ADDF.W  16,a0              ;übernächter Bildzeiger
+    ADDF.W  16,a0              ;übernächter Playfieldzeiger
     move.w  (a2)+,4-16(a0)     ;BPLxPTL
     dbf     d7,\1_set_bitplane_pointers_loop1
 
@@ -246,7 +246,7 @@ COP_SET_BITPLANE_POINTERS MACRO
     moveq   #\4-1,d7           ;Anzahl der Bitplanes
 \1_set_bitplane_pointers_loop2
     move.w  (a2)+,(a1)         ;BPLxPTH
-    ADDF.W  16,a1              ;übernächter Bildzeiger
+    ADDF.W  16,a1              ;übernächter Playfieldzeiger
     move.w  (a2)+,4-16(a1)     ;BPLxPTL
     dbf     d7,\1_set_bitplane_pointers_loop2
   ENDC
@@ -724,7 +724,7 @@ CONVERT_IMAGE_TO_RGB4_CHUNKY MACRO
 \1_convert_image_data
   move.l  a4,-(a7)
   lea     \1_image_data,a0 ;Quellbild
-  lea     \1_image_color_table(pc),a1 ;RGB-Farbwerte des Bildes
+  lea     \1_image_color_table(pc),a1 ;RGB-Farbwerte des Playfieldes
   IFC "","\2"
     lea   \1_\2(\3),a2
   ELSE
@@ -732,7 +732,7 @@ CONVERT_IMAGE_TO_RGB4_CHUNKY MACRO
   ENDC
   move.w  #\1_image_plane_width*(\1_image_depth-1),a4
   moveq   #16,d1             ;COLOR16
-  MOVEF.W \1_image_y_size-1,d7 ;Höhe des Bildes
+  MOVEF.W \1_image_y_size-1,d7 ;Höhe des Playfieldes
 \1_convert_image_data_loop1
   moveq   #\1_image_plane_width-1,d6 ;Breite des Quellbildes in Bytes
 \1_convert_image_data_loop2
@@ -797,7 +797,7 @@ CONVERT_IMAGE_TO_HAM6_CHUNKY MACRO
 \1_convert_image_data
   movem.l a4-a6,-(a7)
   lea     \1_image_data,a0   ;Quellbild
-  lea     \1_image_color_table(pc),a1 ;Farbwerte des Bildes
+  lea     \1_image_color_table(pc),a1 ;Farbwerte des Playfieldes
   IFC "","\2"
     lea   \1_\2(\3),a2
   ELSE
@@ -808,7 +808,7 @@ CONVERT_IMAGE_TO_HAM6_CHUNKY MACRO
   move.w  #\1_image_plane_width*(\1_image_depth-1),a6
   moveq   #$30,d3
   moveq   #$f,d4             ;Maske für Farbbits
-  MOVEF.W \1_image_y_size-1,d7 ;Höhe des Bildes
+  MOVEF.W \1_image_y_size-1,d7 ;Höhe des Playfieldes
 \1_convert_image_data_loop1
   moveq   #TRUE,d2           ;RGB4-Wert zurücksetzen (COLOR00)
   moveq   #\1_image_plane_width-1,d6 ;Breite des Quellbildes in Bytes
@@ -902,7 +902,7 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY MACRO
   moveq   #16,d3             ;COLOR16
   move.w  #$0f0f,d4          ;Maske
   lea     \1_image_data,a0  ;Quellbild
-  lea     \1_image_color_table(pc),a1 ;Farbwerte des Bildes
+  lea     \1_image_color_table(pc),a1 ;Farbwerte des Playfieldes
   IFC "","\2"
     lea   \1_color_table(pc),a2
   ELSE
@@ -911,7 +911,7 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY MACRO
   move.w  #32,a4             ;COLOR32
   move.w  #64,a5             ;COLOR64
   move.w  #128,a6            ;COLOR128
-  MOVEF.W \1_image_y_size-1,d7 ;Höhe des Bildes
+  MOVEF.W \1_image_y_size-1,d7 ;Höhe des Playfieldes
 \1_convert_image_loop1
   moveq   #\1_image_plane_width-1,d6 ;Breite des Quellbildes in Bytes
 \1_convert_image_loop2
@@ -1001,7 +1001,7 @@ CONVERT_IMAGE_TO_HAM8_CHUNKY MACRO
   MOVEF.W $c0,d3             ;Maske für HAM-Bits
   move.w  #$0f0f,d4          ;Maske
   lea     \1_image_data,a0   ;Quellbild
-  lea     \1_image_color_table(pc),a1 ;Farbwerte des Bildes
+  lea     \1_image_color_table(pc),a1 ;Farbwerte des Playfieldes
   move.l  a7,save_a7(a3)     ;Stackpointer retten
   IFC "","\2"
     lea   \1_color_table(pc),a2
@@ -1013,7 +1013,7 @@ CONVERT_IMAGE_TO_HAM8_CHUNKY MACRO
   move.w  #64,a5             ;COLOR64
   move.w  #128,a6            ;COLOR128
   move.w  #\1_image_plane_width*(\1_image_depth-1),a7
-  MOVEF.W \1_image_y_size-1,d7 ;Höhe des Bildes
+  MOVEF.W \1_image_y_size-1,d7 ;Höhe des Playfieldes
 \1_translate_image_data_loop1
   moveq   #TRUE,d2           ;RGB-Wert zurücksetzen (COLOR00)
   moveq   #\1_image_plane_width-1,d6 ;Breite des Quellbildes in Bytes
@@ -1139,7 +1139,7 @@ CONVERT_IMAGE_TO_BPLCON4_CHUNKY MACRO
   IFGE \1_image_depth-4
     move.w  #\1_image_plane_width*(\1_image_depth-1),a2
   ENDC
-  MOVEF.W \1_image_y_size-1,d7 ;Höhe des Bildes
+  MOVEF.W \1_image_y_size-1,d7 ;Höhe des Playfieldes
 \1_translate_image_data_loop1
   moveq   #\1_image_plane_width-1,d6 ;Breite des Quellbildes in Bytes
 \1_translate_image_data_loop2

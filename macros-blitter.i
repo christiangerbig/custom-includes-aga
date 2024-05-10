@@ -17,7 +17,7 @@ GET_LINE_PARAMETERS MACRO
 ; \1 STRING: Labels-Prefix der Routine
 ; \2 STRING: "AREAFILL" (optional)
 ; \3 STRING: "COPPERUSE" (optional)
-; \4 WORD: Multiplikator für Y-Offset in Bild
+; \4 WORD: Multiplikator für Y-Offset in Playfield
   IFC "","\1"
     FAIL Makro GET_LINE_PARAMETERS: Labels-Prefix fehlt
   ENDC
@@ -43,9 +43,9 @@ GET_LINE_PARAMETERS MACRO
   sub.w   d1,d3              ;dy = y2-y1
   ror.l   #4,d0              ;Shift-Bits in richtige Position bringen
   IFC "","\4"
-    MULUF.W (pf1_plane_width*pf1_depth3)/2,d1,d4 ;Y-Offset in Bild
+    MULUF.W (pf1_plane_width*pf1_depth3)/2,d1,d4 ;Y-Offset in Playfield
   ELSE
-    MULUF.W (\4)/2,d1,d4     ;Y-Offset in Bild
+    MULUF.W (\4)/2,d1,d4     ;Y-Offset in Playfield
   ENDC
   add.w   d0,d1              ;Y + X-Offset
   MULUF.L 2,d1               ;X/Y-Offset korrigieren
