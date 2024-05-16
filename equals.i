@@ -885,7 +885,7 @@ HSTOP_192_pixel                     EQU $181
 HSTOP_224_pixel_left_aligned        EQU $161
 HSTOP_224_pixel                     EQU $191
 HSTOP_240_pixel_left_aligned        EQU $171
-HSTOP_240_pixel                     EQU $1b9
+HSTOP_240_pixel                     EQU $199
 HSTOP_256_pixel_left_aligned        EQU $181
 HSTOP_256_pixel                     EQU $1a1
 HSTOP_320_pixel                     EQU $1c1

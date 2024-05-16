@@ -2717,10 +2717,10 @@ turn_off_drive_motors
 ; -----------------------------
   CNOP 0,4
 start_own_display
-  moveq   #COPCONBITS,d0     ;Copper kann ggf. auf Blitteregister zurückgreifen
-  move.w  d0,COPCON-DMACONR(a6)
   bsr     wait_vbi
   bsr     wait_vbi           ;Muß sein !
+  moveq   #COPCONBITS,d0     ;Copper kann ggf. auf Blitteregister zurückgreifen
+  move.w  d0,COPCON-DMACONR(a6)
   IFNE cl2_size3
     IFD own_display_set_second_copperlist
       move.l  cl2_display(a3),COP2LC-DMACONR(a6) ;2. Copperliste eintragen
