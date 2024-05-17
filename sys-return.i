@@ -781,6 +781,7 @@ close_graphics_library
 print_error_message
     move.w  custom_error_code(a3),d4 ;Ist ein eigener Fehler aufgetreten ?
     beq.s   no_print_error_message ;Nein -> verzweige
+    CALLINT WBenchToFront
     lea     file_name(pc),a0
     move.l  a0,d1            ;Zeiger auf Dateiname
     move.l  #MODE_OLDFILE,d2 ;Modus: Alt (Muﬂ sein!)
