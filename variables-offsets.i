@@ -171,6 +171,15 @@ extra_pf_bitmap4         RS.L 1
     IFGE extra_pf_number-5
 extra_pf_bitmap5         RS.L 1
     ENDC
+    IFGE extra_pf_number-6
+extra_pf_bitmap6         RS.L 1
+    ENDC
+    IFGE extra_pf_number-7
+extra_pf_bitmap7         RS.L 1
+    ENDC
+    IFGE extra_pf_number-8
+extra_pf_bitmap8         RS.L 1
+    ENDC
     IFGE extra_pf_number-1
 extra_pf1                RS.L 1
     ENDC
@@ -185,6 +194,15 @@ extra_pf4                RS.L 1
     ENDC
     IFGE extra_pf_number-5
 extra_pf5                RS.L 1
+    ENDC
+    IFGE extra_pf_number-6
+extra_pf6                RS.L 1
+    ENDC
+    IFGE extra_pf_number-7
+extra_pf7                RS.L 1
+    ENDC
+    IFGE extra_pf_number-8
+extra_pf8                RS.L 1
     ENDC
   ENDC
 

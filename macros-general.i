@@ -2008,9 +2008,9 @@ no_last_segment\@
 
 COPY_IMAGE_TO_BITPLANE MACRO
 ; \1 STRING: Labels-Prefix der Routine
-; \2 WORD: X-Offset in Pixeln optional
-; \3 WORD: Y-Offset in Zeilen optional
-; \4 POINTER: Zielbild
+; \2 WORD: X-Offset in Pixeln optional (optional)
+; \3 WORD: Y-Offset in Zeilen optional (optional)
+; \4 POINTER: Zielbild (optional)
   CNOP 0,4
 \1_copy_image_to_bitplane
   movem.l a4-a6,-(a7)

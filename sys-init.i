@@ -1025,6 +1025,36 @@ init_extra_pf_structure
         move.l  d0,(a0)+
       ENDC
     ENDC
+    IFGE extra_pf_number-6
+      move.l  #extra_pf6_x_size,(a0)+
+      move.l  #extra_pf6_y_size,(a0)+
+      moveq   #extra_pf6_depth,d0
+      IFEQ extra_pf_number-6
+        move.l  d0,(a0)
+      ELSE
+        move.l  d0,(a0)+
+      ENDC
+    ENDC
+    IFGE extra_pf_number-7
+      move.l  #extra_pf7_x_size,(a0)+
+      move.l  #extra_pf7_y_size,(a0)+
+      moveq   #extra_pf7_depth,d0
+      IFEQ extra_pf_number-7
+        move.l  d0,(a0)
+      ELSE
+        move.l  d0,(a0)+
+      ENDC
+    ENDC
+    IFGE extra_pf_number-8
+      move.l  #extra_pf8_x_size,(a0)+
+      move.l  #extra_pf8_y_size,(a0)+
+      moveq   #extra_pf8_depth,d0
+      IFEQ extra_pf_number-8
+        move.l  d0,(a0)
+      ELSE
+        move.l  d0,(a0)+
+      ENDC
+    ENDC
     rts
   ENDC
 
