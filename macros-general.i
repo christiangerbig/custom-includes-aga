@@ -137,6 +137,9 @@ ADDF MACRO
   IFC "","\2"
     FAIL Makro ADDF: Ziel fehlt
   ENDC
+  IFEQ \1
+    MEXIT
+  ENDC
   IFC "B","\0"
     IFGE (\1)-$8000          ;Wenn Zahl > $7fff, dann
       add.b   #\1,\2
@@ -203,6 +206,9 @@ SUBF MACRO
   ENDC
   IFC "","\2"
     FAIL Makro SUBF: Ziel fehlt
+  ENDC
+  IFEQ \1
+    MEXIT
   ENDC
   IFC "B","\0"
     IFLE (\1)-8              ;Wenn Zahl <= $0008, dann
@@ -2670,9 +2676,9 @@ COPY_COLOR_TABLE_TO_COPPERLIST MACRO
   bne.s   \1_no_copy_color_table ;Ja -> verzweige
   move.w  #$0f0f,d3          ;Maske für RGB-Nibbles
   IFGT \1_colors_number-32
-    moveq   #\1_start_color*8,d4 ;Color-Bank Farbregisterzähler
+    MOVEF.W \1_start_color*8,d4 ;Color-Bank Farbregisterzähler
   ENDC
-  lea     \2_color_table+(\1_start_color*LONGWORDSIZE)(pc),a0 ;Puffer für Farbwerte
+  lea     \2_color_table+(\1_color_table_offset*LONGWORDSIZE)(pc),a0 ;Puffer für Farbwerte
   move.l  \3_display(a3),a1
   IFC "","\6"
     ADDF.W  \4+2,a1
