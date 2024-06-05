@@ -239,7 +239,7 @@ swap_playfield\*RIGHT(\1,1)_loop
       move.l  \1_construction2(a3),a2
       move.l  \1_display(a3),\1_construction1(a3)
       move.l  a1,\1_construction2(a3)
-      ADDF.W  cl1_BPL1PTH+2,a0   ;CL
+      ADDF.W  cl1_BPL1PTH+2,a0   
       move.l  a2,\1_display(a3)
       moveq   #\3-1,d7         ;Anzahl der Planes
 swap_playfield\*RIGHT(\1,1)_loop
@@ -255,7 +255,7 @@ swap_playfield\*RIGHT(\1,1)_loop
       move.l  \1_display(a3),\1_construction1(a3)
       MOVEF.L (\4/8)+(\5*\1_plane_width*\1_depth3),d1
       move.l  a1,\1_construction2(a3)
-      ADDF.W  cl1_BPL1PTH+2,a0   ;CL
+      ADDF.W  cl1_BPL1PTH+2,a0   
       move.l  a2,\1_display(a3)
       moveq   #\3-1,d7         ;Anzahl der Planes
 swap_playfield\*RIGHT(\1,1)_loop

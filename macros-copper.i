@@ -207,7 +207,7 @@ COP_SET_BITPLANE_POINTERS MACRO
 \1_set_bitplane_pointers
   IFC "","\4"
     IFC "","\5"
-      move.l  \1_\2(a3),a0       ;CL
+      move.l  \1_\2(a3),a0       
       ADDF.W  \1_BPL1PTH+2,a0
       move.l  pf1_display(a3),a1 ;Zeiger auf erste Plane
       moveq   #\3-1,d7           ;Anzahl der Bitplanes
@@ -217,7 +217,7 @@ COP_SET_BITPLANE_POINTERS MACRO
       move.w  (a1)+,4-8(a0)      ;Low-Wert
       dbf     d7,\1_set_bitplane_pointers_loop
     ELSE
-      move.l  \1_\2(a3),a0       ;CL
+      move.l  \1_\2(a3),a0       
       ADDF.W  \1_BPL1PTH+2,a0
       move.l  pf1_display(a3),a1 ;Zeiger auf erste Plane
       MOVEF.L (\5/8)+(\6*pf1_plane_width*pf1_depth3),d1
@@ -232,7 +232,7 @@ COP_SET_BITPLANE_POINTERS MACRO
       dbf     d7,\1_set_bitplane_pointers_loop
     ENDC
   ELSE
-    move.l  \1_\2(a3),a0         ;CL
+    move.l  \1_\2(a3),a0         
     lea     \1_BPL2PTH+2(a0),a1
     ADDF.W  \1_BPL1PTH+2,a0
     move.l  pf1_display(a3),a2 ;Zeiger auf erste Plane
@@ -292,7 +292,7 @@ COP_SET_SPRITE_POINTERS MACRO
   ENDC
   CNOP 0,4
 \1_set_sprite_pointers
-  move.l  \1_\2(a3),a0       ;CL
+  move.l  \1_\2(a3),a0       
   IFC "","\4"
     lea     spr_pointers_display(pc),a1 ;Zeiger auf Sprites
     ADDF.W  \1_SPR0PTH+2,a0
@@ -971,7 +971,7 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY MACRO
 \1_no_bitplane7
   ENDC
   move.l  (a1,d0.l*4),d0     ;RGB8-Farbwert lesen
-  move.l  d0,d2              ;retten
+  move.l  d0,d2              
   RGB8_TO_RGB4HI d0,d1,d4
   move.w  d0,(a2)+           ;High-Bits
   RGB8_TO_RGB4LO d2,d1,d4
@@ -1308,7 +1308,7 @@ CLEAR_COLOR00_SCREEN MACRO
       move.w  #COLOR00HIGHBITS,d0
       move.w  #COLOR00LOWBITS,d1
       MOVEF.L \2_\4_SIZE*16,d2
-      move.l  \2_\3(a3),a0 ;CL
+      move.l  \2_\3(a3),a0 
       ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+2,a0
       moveq   #(\2_display_y_size/16)-1,d7
 \1_clear_first_copperlist_loop
@@ -1352,7 +1352,7 @@ CLEAR_COLOR00_SCREEN MACRO
       move.w  #COLOR00HIGHBITS,d0
       move.w  #COLOR00LOWBITS,d1
       MOVEF.L \2_\4_SIZE*32,d2
-      move.l  \2_\3(a3),a0 ;CL
+      move.l  \2_\3(a3),a0 
       ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+2,a0
       moveq   #(\2_display_y_size/32)-1,d7
 \1_clear_first_copperlist_loop
@@ -1433,7 +1433,7 @@ CLEAR_COLOR00_SCREEN MACRO
       move.w  #COLOR00HIGHBITS,d0
       move.w  #COLOR00LOWBITS,d1
       MOVEF.L \2_\4_SIZE*16,d2
-      move.l  \2_\3(a3),a0 ;CL
+      move.l  \2_\3(a3),a0 
       ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+2,a0
       moveq   #(\2_display_y_size/16)-1,d7
 \1_clear_second_copperlist_loop
@@ -1477,7 +1477,7 @@ CLEAR_COLOR00_SCREEN MACRO
       move.w  #COLOR00HIGHBITS,d0
       move.w  #COLOR00LOWBITS,d1
       MOVEF.L \2_\4_SIZE*32,d2
-      move.l  \2_\3(a3),a0 ;CL
+      move.l  \2_\3(a3),a0 
       ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+2,a0
       moveq   #(\2_display_y_size/32)-1,d7
 \1_clear_second_copperlist_loop
@@ -1579,7 +1579,7 @@ CLEAR_BPLCON4_CHUNKY_SCREEN MACRO
   CNOP 0,4
   IFC "cl1","\2"
 \1_clear_first_copperlist
-    move.l  \2_\3(a3),a0 ;CL
+    move.l  \2_\3(a3),a0 
     WAITBLITTER
     move.l  #(BC0F_DEST+ANBNC+ANBC+ABNC+ABC)<<16,BLTCON0-DMACONR(a6) ;Minterm D=A
     moveq   #FALSE,d0
@@ -1599,7 +1599,7 @@ CLEAR_BPLCON4_CHUNKY_SCREEN MACRO
   ENDC
   IFC "cl2","\2"
 \1_clear_second_copperlist
-    move.l  \2_\3(a3),a0 ;CL
+    move.l  \2_\3(a3),a0 
     WAITBLITTER
     move.l  #(BC0F_DEST+ANBNC+ANBC+ABNC+ABC)<<16,BLTCON0-DMACONR(a6) ;Minterm D=A
     moveq   #FALSE,d0
@@ -1651,7 +1651,7 @@ restore_first_copperlist
         IFC "16","\5"
           moveq   #-2,d0       ;2. Wort des WAIT-Befehls
           MOVEF.L \2_\4_SIZE*16,d1
-          move.l  \2_\3(a3),a0 ;CL
+          move.l  \2_\3(a3),a0 
           ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
           moveq   #(\2_display_y_size/16)-1,d7
 restore_first_copperlist_loop
@@ -1679,7 +1679,7 @@ restore_first_copperlist_loop
         IFC "32","\5"
           moveq   #-2,d0             ;2. Wort des WAIT-Befehls
           MOVEF.L \2_\4_SIZE*32,d1
-          move.l  \2_\3(a3),a0 ;CL
+          move.l  \2_\3(a3),a0 
           ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
           moveq   #(\2_display_y_size/32)-1,d7
 restore_first_copperlist_loop
@@ -1723,7 +1723,7 @@ restore_first_copperlist_loop
     ENDC
     IFEQ \1_restore_cl_by_blitter
       IFC "","\7"
-        move.l  \2_\3(a3),a0   ;CL
+        move.l  \2_\3(a3),a0   
         WAITBLITTER
         ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
         move.l  a0,BLTDPT-DMACONR(a6) ;Ziel = Copperliste
@@ -1742,7 +1742,7 @@ restore_second_copperlist
         IFC "16","\5"
           moveq   #-2,d0       ;2. Wort des WAIT-Befehls
           MOVEF.L \2_\4_SIZE*16,d1
-          move.l  \2_\3(a3),a0 ;CL
+          move.l  \2_\3(a3),a0 
           ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
           moveq   #(\2_display_y_size/16)-1,d7
 restore_second_copperlist_loop
@@ -1770,7 +1770,7 @@ restore_second_copperlist_loop
         IFC "32","\5"
           moveq   #-2,d0             ;2. Wort des WAIT-Befehls
           MOVEF.L \2_\4_SIZE*32,d1
-          move.l  \2_\3(a3),a0 ;CL
+          move.l  \2_\3(a3),a0 
           ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
           moveq   #(\2_display_y_size/32)-1,d7
 restore_second_copperlist_loop
@@ -1814,7 +1814,7 @@ restore_second_copperlist_loop
     ENDC
     IFEQ \1_restore_cl_by_blitter
       IFC "","\7"
-        move.l  \2_\3(a3),a0   ;CL
+        move.l  \2_\3(a3),a0   
         WAITBLITTER
         ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
         move.l  a0,BLTDPT-DMACONR(a6) ;Ziel = Copperliste
@@ -1871,7 +1871,7 @@ SET_TWISTED_BACKGROUND_BARS MACRO
     moveq   #\1_bar_height*BYTESIZE,d4
   ENDC
   lea     \1_yz_coordinates(pc),a0 ;Zeiger auf YZ-Koords
-  move.l  \2_\3(a3),a2       ;CL
+  move.l  \2_\3(a3),a2       
   ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_BPLCON4_1+2,a2
   IFC "pc","\7"
     lea   \1_\6(\7),a5       ;Zeiger auf Tabelle mit Switchwerten
@@ -1958,7 +1958,7 @@ SET_TWISTED_FOREGROUND_BARS MACRO
     moveq   #\1_bar_height*BYTESIZE,d4
   ENDC
   lea     \1_yz_coordinates(pc),a0 ;Zeiger auf YZ-Koords
-  move.l  \2_\3(a3),a2       ;CL
+  move.l  \2_\3(a3),a2       
   ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_BPLCON4_1+2,a2
   IFC "pc","\7"
     lea   \1_\6(\7),a5       ;Zeiger auf Tabelle mit Switchwerten

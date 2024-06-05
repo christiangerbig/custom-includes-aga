@@ -149,7 +149,7 @@ CIAB_TB_no_continuous
 no_tod_overflow
     sub.l   d0,d1            ;Normale Differenz
 tod_okay
-    move.l  d1,tod_time_save(a3) ;retten
+    move.l  d1,tod_time_save(a3) 
   
     IFD save_BEAMCON0
       move.w  os_BEAMCON0(a3),BEAMCON0-DMACONR(a6)
@@ -214,7 +214,7 @@ update_clock
     lea     timer_request_structure(pc),a1 ;Zeiger auf Timer-Request-Struktur
     divu.w  d1,d0            ;/Vertikalfrequenz (50Hz) = Sekunden, Rest Microsekunden
     move.w  #TR_SETSYSTIME,IO_command(a1) ;Befehl für Timer-Device
-    move.l  d0,d1            ;retten
+    move.l  d0,d1            
     ext.l   d0               ;Auf 32 Bit erweitern
     swap    d1               ;Rest der Division
     add.l   d0,IO_SIZE+TV_SECS(a1) ;Unix-Time Sekunden setzen

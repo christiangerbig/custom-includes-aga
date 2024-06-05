@@ -1228,7 +1228,7 @@ check_system
     blt.s   system_error1      ;Nein -> verzweige
 check_cpu
     move.w  AttnFlags(a6),d0   ;Prozessor-Flags holen
-    move.w  d0,cpu_flags(a3)   ;retten
+    move.w  d0,cpu_flags(a3)   
     and.b   #AFF_68020,d0      ;68020+ ?
     beq.s   system_error2      ;Nein -> verzweige
     move.l  _GFXBase(pc),a2    ;GFX-Base holen
@@ -2306,7 +2306,7 @@ check_downgrade_screen_mode
   
 get_os_view_parameters
     CALLINT ViewAddress      ;Viewadresse holen
-    move.l  d0,os_view(a3)   ;retten
+    move.l  d0,os_view(a3)   
     IFD save_BEAMCON0
       move.l  d0,a0
       CALLGRAF GfxLookUp     ;ViewExtra-Struktur holen
@@ -2635,7 +2635,7 @@ copy_exception_vectors_loop2
     dbf     d7,copy_exception_vectors_loop2
     CALLEXEC CacheClearU
     move.l  exception_vectors_base(a3),d0 ;neuen Inhalt in VBR schreiben
-    move.l  d0,vbr_save(a3)  ;retten
+    move.l  d0,vbr_save(a3)  
     lea     write_vbr(pc),a5 ;Zeiger auf Supervisor-Routine
     CALLLIBQ Supervisor      ;Routine ausführen
     CNOP 0,4
@@ -2675,7 +2675,7 @@ save_hardware_registers
     move.b  CIATODMID(a4),d0 ;CIA-A TOD-clock Bits 15-8
     lsl.w   #8,d0            ;Bits in richtige Position bringen
     move.b  CIATODLOW(a4),d0 ;CIA-A TOD-clock Bits 7-0
-    move.l  d0,tod_time_save(a3) ;retten
+    move.l  d0,tod_time_save(a3) 
   
     move.b  CIAPRB(a5),os_CIABPRB(a3) ;OS-CIA-B PRB
     move.b  CIACRA(a5),d0

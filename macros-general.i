@@ -2020,7 +2020,7 @@ INIT_COLOR_GRADIENT_RGB8 MACRO
 ; \1 HEXNUMBER: RGB8 Startwert/Istwert
 ; \2 HEXNUMBER: RGB8 Endwert/Sollwert
 ; \3 BYTE SIGNED: Anzahl der Farbwerte
-; \4 NUMBER: Color-Step-Wert für RGB
+; \4 NUMBER: Color-Step-Wert für RGB (optional)
 ; \5 POINTER: Zeiger auf Farbtabelle(optional)
 ; \6 STRING: Pointer-Base [pc, a3] (optional)
 ; \7 LONGWORD: Offset Anfang Farbtabelle (optional)
@@ -2033,9 +2033,6 @@ INIT_COLOR_GRADIENT_RGB8 MACRO
   ENDC              c
   IFC "","\3"
     FAIL Makro COLOR_GRADIENT_RGB8: Anzahl der Farbwerte fehlt
-  ENDC
-  IFC "","\4"
-    FAIL Makro COLOR_GRADIENT_RGB8: Color-Step-Wert für RGB fehlt
   ENDC
   move.l  #\1,d0             ;RGB-Istwert
   move.l  #\2,d6             ;RGB-Sollwert
@@ -2050,9 +2047,11 @@ INIT_COLOR_GRADIENT_RGB8 MACRO
   IFNC "","\7"
     add.l   #(\7)*LONGWORDSIZE,a0 ;Nur Offset addieren
   ENDC
-  move.l  #(\4)<<16,a1       ;Additions-/Subtraktionswert für Rot
-  move.w  #(\4)<<8,a2        ;Additions-/Subtraktionswert für Grün
-  move.w  #\4,a4             ;Additions-/Subtraktionswert für Grün
+  IFNC "","\4"
+    move.l  #(\4)<<16,a1       ;Additions-/Subtraktionswert für Rot
+    move.w  #(\4)<<8,a2        ;Additions-/Subtraktionswert für Grün
+    move.w  #\4,a4             ;Additions-/Subtraktionswert für Grün
+  ENDC
   IFNC "","\8"
     move.w  #(\8)*LONGWORDSIZE,a5 ;Offset nächster Farbwert
   ENDC
@@ -2065,7 +2064,7 @@ INIT_COLOR_GRADIENT_GROUP_RGB8 MACRO
 ; \1 WORD: Anzahl der Farbwerte
 ; \2 BYTE SIGNED: Anzahl der Zeilen
 ; \3 BYTE SIGNED: Anzahl der Segmente
-; \4 NUMBER: Colorstep-Wert für RGB
+; \4 NUMBER: Colorstep-Wert für RGB (optional)
 ; \5 POINTER: Zeiger auf Farbtabelle (optional)
 ; \6 STRING: Pointer-Base [pc, a3] (optional)
 ; \7 LONGWORD: Offset Anfang Farbtabelle (optional)
@@ -2079,9 +2078,6 @@ INIT_COLOR_GRADIENT_GROUP_RGB8 MACRO
   IFC "","\3"
     FAIL Makro COLOR_GRADIENT_GROUP_RGB8: Anzahl der Segmente fehlt
   ENDC
-  IFC "","\4"
-    FAIL Makro COLOR_GRADIENT_GROUP_RGB8: Colorstep-Wert für RGB fehlt
-  ENDC
   IFNC "","\5"
     IFC "pc","\6"
       lea     \5(\6),a0      ;Zeiger auf Farbtabelle
@@ -2093,9 +2089,11 @@ INIT_COLOR_GRADIENT_GROUP_RGB8 MACRO
       add.l   #(\7)*LONGWORDSIZE,a0 ;Nur Offset addieren
     ENDC
   ENDC
-  move.l  #\4<<16,a1   ;Additions-/Subtraktionswert für Rot
-  move.w  #\4<<8,a2   ;Additions-/Subtraktionswert für Grün
-  move.w  #\4,a4             ;Additions-/Subtraktionswert für Grün
+  IFNC "","\4"
+    move.l  #\4<<16,a1   ;Additions-/Subtraktionswert für Rot
+    move.w  #\4<<8,a2   ;Additions-/Subtraktionswert für Grün
+    move.w  #\4,a4             ;Additions-/Subtraktionswert für Grün
+  ENDC
   move.w  #(\8)*LONGWORDSIZE,a5 ;Offset
   moveq   #\2-1,d7           ;Anzahl der Zeilen
 lines_loop\@
@@ -2704,7 +2702,7 @@ COPY_COLOR_TABLE_TO_COPPERLIST MACRO
   MOVEF.W \1_colors_number-1,d7 ;Anzahl der Farben
 \1_copy_color_table_loop
   move.l  (a0)+,d0           ;RGB8-Farbwert
-  move.l  d0,d2              ;retten
+  move.l  d0,d2              
   RGB8_TO_RGB4HI d0,d1,d3
   move.w  d0,(a1)            ;COLORxx High-Bits
   IFNE \3_size1

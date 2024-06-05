@@ -429,7 +429,7 @@ SWAP_SPRITES_STRUCTURES MACRO
   move.l  d0,(a1)+           ;Aufbau-Sprite -> Darstellen-Sprite
   dbf     d7,\1_swap_structures_loop
 
-  move.l  cl1_display(a3),a0 ;CL
+  move.l  cl1_display(a3),a0 
   IFC "","\3"
     lea     spr_pointers_display(pc),a1 ;Zeiger auf Sprites
     ADDF.W  cl1_SPR0PTH+2,a0
