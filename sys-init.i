@@ -2709,7 +2709,7 @@ clear_important_registers
   
     moveq   #TRUE,d0
     move.w  d0,JOYTEST-DMACONR(a6) ;Maus + Joystickposition löschen
-    move.w  d0,FMODE-DMACONR(a6) ;Fetchmode = Standart
+    move.w  d0,FMODE-DMACONR(a6) ;Fetchmode Sprites & Bitplanes = 1x
     move.l  d0,SPR0DATA-DMACONR(a6) ;Spritebitmaps löschen
     move.l  d0,SPR1DATA-DMACONR(a6)
     move.l  d0,SPR2DATA-DMACONR(a6)

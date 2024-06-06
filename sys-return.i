@@ -31,6 +31,10 @@ stop_own_display
   ELSE
     move.w  #DMAF_MASTER,DMACON-DMACONR(a6) ;DMA aus
   ENDC
+  IFNE COPCONBITS&COPCONF_CDANG
+    moveq   #TRUE,d0
+    move.w  d0,COPCON-DMACONR(a6) ;Copper kann nicht auf Blitterregister zugreifen
+  ENDC
   rts
 
   IFND sys_taken_over
@@ -45,13 +49,12 @@ clear_important_registers2
     move.w  d0,ADKCON-DMACONR(a6) ;ADKCON löschen
   
     moveq   #TRUE,d0
-    move.w  d0,COPCON-DMACONR(a6) ;Copper kann nicht auf Blitterregister zugreifen
     move.w  d0,AUD0VOL-DMACONR(a6) ;Lautstärke aus
     move.w  d0,AUD1VOL-DMACONR(a6)
     move.w  d0,AUD2VOL-DMACONR(a6)
     move.w  d0,AUD3VOL-DMACONR(a6)
   
-    move.w  d0,FMODE-DMACONR(a6) ;Fetchmode = Standart
+    move.w  d0,FMODE-DMACONR(a6) ;Fetchmode Sprites & Bitplanes = 1x
     move.l  d0,SPR0DATA-DMACONR(a6) ;Spritebitmaps löschen
     move.l  d0,SPR1DATA-DMACONR(a6)
     move.l  d0,SPR2DATA-DMACONR(a6)
