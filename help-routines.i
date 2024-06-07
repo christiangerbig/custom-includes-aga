@@ -132,7 +132,7 @@ wait_copint_loop
 ; d7 BYTE_SIGNED: Anzahl der Farben
   CNOP 0,4
 cop_init_high_colors
-  move.w  #$0f0f,d2          ;Maske für High/Low-Bits
+  move.w  #$0f0f,d2          ;Maske für RGB-Nibbles
 cop_init_high_colors_loop
   move.l  (a1)+,d0           ;24 Bit-Farbwert holen
   RGB8_TO_RGB4HI d0,d1,d2
@@ -149,7 +149,7 @@ cop_init_high_colors_loop
 ; d7 BYTE_SIGNED: Anzahl der Farben
   CNOP 0,4
 cpu_init_high_colors
-  move.w  #$0f0f,d2          ;Maske für High/Low-Bits
+  move.w  #$0f0f,d2          ;Maske für RGB-Nibbles
 cpu_init_high_colors_loop
   move.l  (a1)+,d0           ;24 Bit-Farbwert holen
   RGB8_TO_RGB4HI d0,d1,d2
@@ -165,7 +165,7 @@ cpu_init_high_colors_loop
 ; d7 BYTE_SIGNED: Anzahl der Farben
   CNOP 0,4
 cop_init_low_colors
-  move.w  #$0f0f,d2          ;Maske für High/Low-Bits
+  move.w  #$0f0f,d2          ;Maske für RGB-Nibbles
 cop_init_low_colors_loop
   move.l  (a1)+,d0           ;24 Bit-Farbwert holen
   RGB8_TO_RGB4LO d0,d1,d2
@@ -181,7 +181,7 @@ cop_init_low_colors_loop
 ; a1 POINTER: Tabelle mit Farbwerten
 ; d7 BYTE_SIGNED: Anzahl der Farben
 cpu_init_low_colors
-  move.w  #$0f0f,d2          ;Maske für High/Low-Bits
+  move.w  #$0f0f,d2          ;Maske für RGB-Nibbles
 cpu_init_low_colors_loop
   move.l  (a1)+,d0           ;24 Bit-Farbwert holen
   RGB8_TO_RGB4LO d0,d1,d2
