@@ -4,6 +4,7 @@ RS_ALIGN_LONGWORD MACRO
   ENDC
   ENDM
 
+
 WAIT_LMB MACRO
 wait_left_button\@
   btst    #CIAB_GAMEPORT0,CIAPRA(a4)

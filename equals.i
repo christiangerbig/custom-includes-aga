@@ -41,6 +41,12 @@ NTSCFPS                             EQU 60
 PALCLOCKCONSTANT                    EQU 3524210
 NTSCCLOCKCONSTANT                   EQU 3492064
 
+ASCII_CTRL_F                        EQU 6
+ASCII_CTRL_M                        EQU 13
+ASCII_CTRL_S                        EQU 19
+ASCII_CTRL_W                        EQU 23
+
+
 ; **** Workbench-Fader ****
 wbf_colors_number_max               EQU 256
 wbfi_fader_speed                    EQU 6
