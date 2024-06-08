@@ -22,6 +22,10 @@ stop_own_interrupts
 ; -----------------------------
   CNOP 0,4
 stop_own_display
+  IFNE COPCONBITS&COPCONF_CDANG
+    moveq   #TRUE,d0
+    move.w  d0,COPCON-DMACONR(a6) ;Copper kann nicht auf Blitterregister zugreifen
+  ENDC
   bsr     wait_beam_position
   IFNE DMABITS&DMAF_BLITTER
     WAITBLITTER
@@ -30,10 +34,6 @@ stop_own_display
     move.w  #DMABITS&(~DMAF_SETCLR),DMACON-DMACONR(a6) ;DMA aus
   ELSE
     move.w  #DMAF_MASTER,DMACON-DMACONR(a6) ;DMA aus
-  ENDC
-  IFNE COPCONBITS&COPCONF_CDANG
-    moveq   #TRUE,d0
-    move.w  d0,COPCON-DMACONR(a6) ;Copper kann nicht auf Blitterregister zugreifen
   ENDC
   rts
 
