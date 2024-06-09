@@ -109,7 +109,7 @@ pt_InitRegisters
 PT_INIT_AUDIO_TEMP_STRUCTURES MACRO
   CNOP 0,4
 pt_InitAudTempStrucs
-  moveq   #DMAF_AUD0,d0      ;DMA bit fo rchannel1
+  moveq   #DMAF_AUD0,d0      ;DMA bit for channel1
   lea     pt_audchan1temp+n_dmabit(pc),a0
   move.w  d0,(a0)            ;Set DMA channel1 bit
   moveq   #FALSE,d1

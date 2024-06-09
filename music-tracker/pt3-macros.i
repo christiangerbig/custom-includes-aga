@@ -76,7 +76,7 @@ pt_PlayMusic
   move.w  d5,pt_Counter(a3)  ;If ticks >= speed ticks -> set back ticks counter = tick #1
 ;--> EEx "Pattern Delay" <--
   IFNE pt_usedefx&pt_ecmdbitpattdelay
-    tst.b   pt_PattDelayTime2(a3) ;Any pattern delay time2 ?
+    tst.b   pt_PattDelayTime2(a3) ;Any pattern delay time 2 ?
     beq     pt_GetNewNote    ;If zero -> skip
   ELSE
     bra     pt_GetNewNote
@@ -107,7 +107,7 @@ pt_NoNewAllChannels
 ;--> E9 "Retrig Note" or ED "Note Delay" <--
   IFNE pt_usedefx&(pt_ecmdbitretrignote+pt_ecmdbitnotedelay)
 pt_RtnChkAllChannels
-    tst.w    pt_RtnDMACONtemp(a3);"Retrig Note" or "Note Delay"used by one of the channels?
+    tst.w    pt_RtnDMACONtemp(a3) ;"Retrig Note" or "Note Delay"used by one of the channels?
     beq.s    pt_NoRtnSetTimer ;Zero -> skip
     moveq    #CIACRBF_START,d0
     or.b     d0,CIACRB(a5)   ;Start CIA-B timerB for DMA wait
@@ -144,9 +144,9 @@ pt_CheckEffects2
   ENDC
   move.w  n_cmd(a2),d0       ;Get channel effect command
   and.w   d6,d0              ;without lower nibble of sample number
-  beq.s   pt_CheckEffects2End      ;If no command -> skip
-  ;moveq   #pt_cmdmask,d0  ;Get channel effect command number without lower nibble of sample number
-  ;and.b   n_cmd(a2),d0       ;0 "Arpeggio" ?
+  beq.s   pt_CheckEffects2End ;If no command -> skip
+  ;moveq   #pt_cmdmask,d0    ;Get channel effect command number without lower nibble of sample number
+  ;and.b   n_cmd(a2),d0      ;0 "Arpeggio" ?
   lsr.w   #BYTESHIFTBITS,d0  ;Shift command number to lower nibble
   IFNE pt_usedfx&pt_cmdbitarpeggio
     beq.s pt_Arpeggio
@@ -844,7 +844,7 @@ pt_Nnpysk
 
 pt_NextPosition
   move.b  d5,pt_PosJumpFlag(a3) ;Clear position jump flag
-  moveq   #TRUE,d0         ;Needed for word access
+  moveq   #TRUE,d0           ;Needed for word access
   move.b  pt_PBreakPosition(a3),d0 ;Get pattern break position
   move.b  d5,pt_PBreakPosition(a3) ;Set back pattern break position = Zero
   MULUF.W pt_pattposdata_SIZE/4,d0 ;Offset to pattern data
@@ -858,7 +858,7 @@ pt_NextPosition
   move.w  d5,pt_SongPosition(a3) ;Set back song position = Zero
 pt_NoNewPositionYet
   tst.b   pt_PosJumpFlag(a3) ;Positionjump flag set ?
-  bne.s   pt_NextPosition  ;Yes -> skip
+  bne.s   pt_NextPosition    ;Yes -> skip
   move.l (a7)+,a6
   rts
   ENDM
@@ -1049,7 +1049,7 @@ pt_Vibrato
   and.b   #NIBBLEMASKLO,d0   ;Get command data: y-depth
   beq.s   pt_VibSkip         ;If zero -> skip
   and.b   #NIBBLEMASKHI,d2   ;Clear old depth
-  or.b   d0,d2               ;Set new depth in vibrato command data
+  or.b    d0,d2              ;Set new depth in vibrato command data
 pt_VibSkip
   MOVEF.B NIBBLEMASKHI,d0
   and.b   n_cmdlo(a2),d0     ;Get command data: x-speed

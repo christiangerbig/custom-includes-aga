@@ -327,7 +327,7 @@ pt_PlvSkip
   ;movem.w pt_sd_sampleinfo+pt_si_samplelength(a0,d2.w),d0/d2-d4   ;length, finetune, volume, repeat point, repeat length
   move.w  d0,n_reallength(a2) ;Save real sample length
   move.w  d2,n_finetune(a2)  ;Save finetune and sample volume
-  ext.w   d2                 ;Extendlowerbytetoword
+  ext.w   d2                 ;Extend lower byte to word
   IFEQ pt_music_fader
     mulu.w  pt_master_volume(a3),d2 ;volume * master_volume
     lsr.w   #6,d2            ;/ maximum master volume
