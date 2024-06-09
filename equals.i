@@ -43,6 +43,7 @@ NTSCCLOCKCONSTANT                   EQU 3492064
 
 ASCII_CTRL_A                        EQU 1
 ASCII_CTRL_C                        EQU 3
+ASCII_CTRL_D                        EQU 4
 ASCII_CTRL_F                        EQU 6
 ASCII_CTRL_M                        EQU 13
 ASCII_CTRL_N                        EQU 14
