@@ -41,8 +41,12 @@ NTSCFPS                             EQU 60
 PALCLOCKCONSTANT                    EQU 3524210
 NTSCCLOCKCONSTANT                   EQU 3492064
 
+ASCII_CTRL_A                        EQU 1
+ASCII_CTRL_C                        EQU 3
 ASCII_CTRL_F                        EQU 6
 ASCII_CTRL_M                        EQU 13
+ASCII_CTRL_N                        EQU 14
+ASCII_CTRL_P                        EQU 16
 ASCII_CTRL_S                        EQU 19
 ASCII_CTRL_W                        EQU 23
 
