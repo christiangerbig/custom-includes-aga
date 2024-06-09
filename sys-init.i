@@ -1162,7 +1162,7 @@ test_start_from_workbench
       CALLEXEC FindTask
       tst.l   d0
       beq.s   task_error       ;Fehler -> verzweige
-      move.l  d0,a2            ;aktuellen Task holen
+      move.l  d0,a2            ;aktueller Task 
       tst.l   pr_CLI(a2)       ;Von Workbench gestartet ?
       beq.s   start_from_workbench ;Ja -> verzweige
 start_from_shell               ;Shell-Start
@@ -1173,8 +1173,8 @@ start_from_workbench
       lea     pr_MsgPort(a2),a0 ;Zeiger auf Message-Port
       CALLLIBS WaitPort        ;Auf Start-Message warten
       lea     pr_MsgPort(a2),a0 ;Zeiger auf Message
-      CALLLIBS GetMsg          ;Message holen
-      move.l  d0,wb_message(a3) ;und retten
+      CALLLIBS GetMsg          ;Message 
+      move.l  d0,wb_message(a3) 
       moveq   #RETURN_OK,d0
       rts
       CNOP 0,4
@@ -1227,11 +1227,11 @@ check_system
     cmp.w   #AGA_os_version,Lib_Version(a6) ;Kickstart 3.0+ ?
     blt.s   system_error1      ;Nein -> verzweige
 check_cpu
-    move.w  AttnFlags(a6),d0   ;Prozessor-Flags holen
+    move.w  AttnFlags(a6),d0   ;Prozessor-Flags 
     move.w  d0,cpu_flags(a3)   
     and.b   #AFF_68020,d0      ;68020+ ?
     beq.s   system_error2      ;Nein -> verzweige
-    move.l  _GFXBase(pc),a2    ;GFX-Base holen
+    move.l  _GFXBase(pc),a2
 check_chipset
     IFD aga_check_by_hardware
       move.l  #_CUSTOM+DENISEID,a0 ;DENISEID
@@ -1242,10 +1242,10 @@ check_chipset
       cmp.w   #$23<<8,d0 ;PAL-Alice Revision 3 & 4 ?
       bne.s   system_error3    ;Nein -> verzweige
 check_lisa_id
-      move.w  (a0),d0          ;ID holen
+      move.w  (a0),d0          ;ID 
       moveq   #32-1,d7         ;32x checken
 check_lisa_id_loop
-      move.w  (a0),d1          ;ID holen
+      move.w  (a0),d1          ;ID 
       cmp.b   d0,d1            ;identisch ?
       bne.s   system_error3    ;Nein -> verzweige
       dbf     d7,check_lisa_id_loop
@@ -1253,7 +1253,7 @@ check_lisa_id_loop
       cmp.b   #$f8,d0          ;Lisa-ID ?
       bne.s   system_error3    ;Nein -> verzweige
     ELSE
-      move.b  gb_ChipRevBits0(a2),d0 ;Chipversion holen
+      move.b  gb_ChipRevBits0(a2),d0 ;Chipversion 
       btst    #GFXB_AA_ALICE,d0;ALICE ?
       beq.s   system_error3    ;Nein -> verzweige
       btst    #GFXB_AA_LISA,d0 ;LISA ?
@@ -1448,8 +1448,8 @@ open_ciax_resources
     move.l  d0,(a0)
     beq.s   ciaa_resources_error ;Wenn Fehler -> verzweige
     moveq   #TRUE,d0           ;Maske = NULL
-    CALLCIA AbleICR            ;ICR-Maske holen
-    move.b  d0,os_CIAAICR(a3)  ;und retten
+    CALLCIA AbleICR            ;ICR-Maske 
+    move.b  d0,os_CIAAICR(a3)  
   
     lea     CIAB_name(pc),a1   ;Name der CIA-B-Resource
     CALLEXEC OpenResource      ;Resource öffnen
@@ -1457,8 +1457,8 @@ open_ciax_resources
     move.l  d0,(a0)
     beq.s   ciab_resources_error ;Wenn Fehler -> verzweige
     moveq   #TRUE,d0           ;Maske = NULL
-    CALLCIA AbleICR            ;ICR-Maske holen
-    move.b  d0,os_CIABICR(a3)  ;und retten
+    CALLCIA AbleICR            ;ICR-Maske 
+    move.b  d0,os_CIABICR(a3)  
     moveq   #RETURN_OK,d0
     rts
     CNOP 0,4
@@ -1632,7 +1632,7 @@ pf1_memory_error1
 check_pf1_memory1
     move.l  pf1_bitmap1(a3),a0 ;Zeiger auf Bitmap-Struktur
     moveq   #BMA_FLAGS,d1    ;Attribute
-    CALLGRAF GetBitmapAttr   ;Merkmale der Bitmap holen
+    CALLGRAF GetBitmapAttr   ;Merkmale der Bitmap 
     btst    #BMB_DISPLAYABLE,d0 ;Bitmap darstellbar ?
     beq.s   pf1_memory_error2   ;Nein -> verzweige
     moveq   #pf1_depth1,d1   ;Anzahl der Bitplanes
@@ -1678,7 +1678,7 @@ pf1_memory_error3
 check_pf1_memory2
     move.l  pf1_bitmap2(a3),a0 ;Zeiger auf Bitmap-Struktur
     moveq   #BMA_FLAGS,d1    ;Attribute
-    CALLGRAF GetBitmapAttr   ;Merkmale der Bitmap holen
+    CALLGRAF GetBitmapAttr   ;Merkmale der Bitmap 
     btst    #BMB_DISPLAYABLE,d0 ;Bitmap darstellbar ?
     beq.s   pf1_memory_error4   ;Nein -> verzweige
     moveq   #pf1_depth2,d1   ;Anzahl der Bitplanes
@@ -1724,7 +1724,7 @@ pf1_memory_error5
 check_pf1_memory3
     move.l  pf1_bitmap3(a3),a0 ;Zeiger auf Bitmap-Struktur
     moveq   #BMA_FLAGS,d1    ;Attribute
-    CALLGRAF GetBitmapAttr   ;Merkmale der Bitmap holen
+    CALLGRAF GetBitmapAttr   ;Merkmale der Bitmap 
     btst    #BMB_DISPLAYABLE,d0 ;Bitmap darstellbar ?
     beq.s   pf1_memory_error6   ;Nein -> verzweige
     moveq   #pf1_depth3,d1   ;Anzahl der Bitplanes
@@ -1770,7 +1770,7 @@ pf2_memory_error1
 check_pf2_memory1
     move.l  pf2_bitmap1(a3),a0 ;Zeiger auf Bitmap-Struktur
     moveq   #BMA_FLAGS,d1    ;Attribute
-    CALLGRAF GetBitmapAttr   ;Merkmale der Bitmap holen
+    CALLGRAF GetBitmapAttr
     btst    #BMB_DISPLAYABLE,d0 ;Bitmap darstellbar ?
     beq.s   pf2_memory_error2   ;Nein -> verzweige
     moveq   #pf2_depth1,d1   ;Anzahl der Bitplanes
@@ -1816,7 +1816,7 @@ pf2_memory_error3
 check_pf2_memory2
     move.l  pf2_bitmap2(a3),a0 ;Zeiger auf Bitmap-Struktur
     moveq   #BMA_FLAGS,d1    ;Attribute
-    CALLGRAF GetBitmapAttr   ;Merkmale der Bitmap holen
+    CALLGRAF GetBitmapAttr   ;Merkmale der Bitmap 
     btst    #BMB_DISPLAYABLE,d0 ;Bitmap darstellbar ?
     beq.s   pf2_memory_error4   ;Nein -> verzweige
     moveq   #pf2_depth2,d1   ;Anzahl der Bitplanes
@@ -1862,7 +1862,7 @@ pf2_memory_error5
 check_pf2_memory3
     move.l  pf2_bitmap3(a3),a0 ;Zeiger auf Bitmap-Struktur
     moveq   #BMA_FLAGS,d1    ;Attribute
-    CALLGRAF GetBitmapAttr   ;Merkmale der Bitmap holen
+    CALLGRAF GetBitmapAttr
     btst    #BMB_DISPLAYABLE,d0 ;Bitmap darstellbar ?
     beq.s   pf2_memory_error6   ;Nein -> verzweige
     moveq   #pf2_depth3,d1   ;Anzahl der Bitplanes
@@ -1919,7 +1919,7 @@ check_extra_pf_memory
 extra_pf_check_loop
     move.l  (a2)+,a0         ;Zeiger auf Bitmap-Struktur
     moveq   #BMA_FLAGS,d1    ;Attribute
-    CALLGRAF GetBitmapAttr   ;Merkmale der Bitmap holen
+    CALLGRAF GetBitmapAttr   ;Merkmale der Bitmap 
     btst    #BMB_DISPLAYABLE,d0 ;Bitmap darstellbar ?
     beq.s   extra_pf_memory_error2 ;Nein -> verzweige
     cmp.l   #1,extra_pf_attribute_depth(a4) ;Nur 1 Bitplane ?
@@ -1977,7 +1977,7 @@ check_sprite_memory1
 spr_check_loop1
     move.l  (a2)+,a0         ;Zeiger auf Sprite-Bitmap-Struktur
     moveq   #BMA_FLAGS,d1    ;Attribute
-    CALLGRAF GetBitmapAttr   ;Merkmale der Bitmap holen
+    CALLGRAF GetBitmapAttr
     btst    #BMB_DISPLAYABLE,d0 ;Bitmap darstellbar ?
     beq.s   spr_memory_error2 ;Nein -> verzweige
     btst    #BMB_INTERLEAVED,d0 ;Bitmap an einem Stück ?
@@ -2030,7 +2030,7 @@ check_sprite_memory2
 spr_check_loop2
     move.l  (a2)+,a0         ;Zeiger auf Sprite-Bitmap-Struktur
     moveq   #BMA_FLAGS,d1    ;Attribute
-    CALLGRAF GetBitmapAttr   ;Merkmale der Bitmap holen
+    CALLGRAF GetBitmapAttr   ;Merkmale der Bitmap 
     btst    #BMB_DISPLAYABLE,d0 ;Bitmap darstellbar ?
     beq.s   spr_memory_error4 ;Nein -> verzweige
     btst    #BMB_INTERLEAVED,d0 ;Bitmap an einem Stück ?
@@ -2173,7 +2173,7 @@ disable_system
 get_os_screen
     moveq   #TRUE,d0
     CALLINT LockIBase        ;Intuition-Base einfrieren
-    move.l  ib_ActiveScreen(a6),a2 ;Zeiger auf aktiven Screen (Workbench-Screen) holen
+    move.l  ib_ActiveScreen(a6),a2 ;Zeiger auf aktiven Screen (Workbench-Screen) 
     move.l  d0,a0            ;Lock -> a0
     CALLLIBS UnlockIBase     ;Intuition-Base wieder freigeben
     move.l  a2,os_screen(a3) ;Zeiger auf aktiven Screen retten
@@ -2181,7 +2181,7 @@ get_os_screen
   
 get_os_monitor_id
     lea     sc_ViewPort(a2),a0 ;Zeiger auf Viewport
-    CALLGRAF GetVPModeID     ;Monitor-ID holen
+    CALLGRAF GetVPModeID     ;Monitor-ID 
     CMPF.L  INVALID_ID,d0    ;Keine ID ?
     beq     vp_monitor_id_error ;Ja -> verzweige
     and.l   #MONITOR_ID_MASK,d0 ;Ohne Auflösung
@@ -2294,7 +2294,7 @@ open_downgrade_screen
 check_downgrade_screen_mode
     move.l  d0,a0            ;Screenstruktur Custom-Screen
     ADDF.W  sc_ViewPort,a0   ;Zeiger auf Viewport des Custom-Screens
-    CALLGRAF GetVPModeID     ;Monitor-ID holen
+    CALLGRAF GetVPModeID     ;Monitor-ID 
     CMPF.L  INVALID_ID,d0    ;Keine ID ?
     beq     vp_monitor_id_error ;Ja -> verzweige
     IFEQ requires_multiscan_monitor
@@ -2305,13 +2305,13 @@ check_downgrade_screen_mode
     bne     check_downgrade_screen_mode_error ;Nein -> verzweige
   
 get_os_view_parameters
-    CALLINT ViewAddress      ;Viewadresse holen
+    CALLINT ViewAddress      ;Viewadresse 
     move.l  d0,os_view(a3)   
     IFD save_BEAMCON0
       move.l  d0,a0
-      CALLGRAF GfxLookUp     ;ViewExtra-Struktur holen
+      CALLGRAF GfxLookUp     ;ViewExtra-Struktur 
       move.l  d0,a0          ;Zeiger auf ViewExtra-Struktur retten
-      move.l  ve_monitor(a0),a0 ;Zeiger auf MonitorSpec-Struktur holen
+      move.l  ve_monitor(a0),a0 ;Zeiger auf MonitorSpec-Struktur 
       move.w  ms_BeamCon0(a0),os_BEAMCON0(a3) ;BEAMCON0 des Views retten
     ENDC
     move.l  _GFXBase(pc),a6  ;GFX-Base -> a6
@@ -2331,7 +2331,7 @@ downgrade_display
     bne.s   downgrade_display ;Wenn ja -> neuer Versuch
   
 check_os_monitor_id
-    move.l  os_monitor_id(a3),d0 ;Monitor-ID holen
+    move.l  os_monitor_id(a3),d0 ;Monitor-ID 
     CMPF.L  DEFAULT_MONITOR_ID,d0 ;15 kHz Default ?
     beq.s   take_over_sys    ;Ja -> verzweige
     cmp.l   #PAL_MONITOR_ID,d0 ;15 kHz PAL ?

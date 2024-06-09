@@ -1006,7 +1006,7 @@ CONVERT_IMAGE_TO_HAM8_CHUNKY MACRO
   move.w  #$0f0f,d4          ;Maske
   lea     \1_image_data,a0   ;Quellbild
   lea     \1_image_color_table(pc),a1 ;Farbwerte des Playfieldes
-  move.l  a7,save_a7(a3)     ;Stackpointer retten
+  move.l  a7,save_a7(a3)     
   IFC "","\2"
     lea   \1_color_table(pc),a2
   ELSE
@@ -1086,7 +1086,7 @@ CONVERT_IMAGE_TO_HAM8_CHUNKY MACRO
   lsl.w   #8,d0              ;Bits in richtige Position bringen
   or.w    d0,d2              ;Neuen Grünanteil setzen
 \1_set_rgb
-  move.l  d2,d0              ;24-Bit Farbwert holen
+  move.l  d2,d0              ;24-Bit Farbwert 
   RGB8_TO_RGB4HI d0,d1,d4
   move.w  d0,(a2)+           ;High-Bits
   RGB8_TO_RGB4LO d0,d1,d4
@@ -1096,7 +1096,7 @@ CONVERT_IMAGE_TO_HAM8_CHUNKY MACRO
   dbf     d6,\1_translate_image_data_loop2
   add.l   a7,a0              ;restliche Bitplanes überspringen
   dbf     d7,\1_translate_image_data_loop1
-  move.l  variables+save_a7(pc),a7 ;Stackpointer holen
+  move.l  variables+save_a7(pc),a7 ;Stackpointer
   movem.l (a7)+,a3-a6
   rts
   ENDM

@@ -260,7 +260,7 @@ restore_os_sprite_resolution
   
     IFEQ workbench_fade
 wbfi_check_monitor_id
-      move.l  os_monitor_id(a3),d0 ;Monitor-ID holen
+      move.l  os_monitor_id(a3),d0
       CMPF.L  DEFAULT_MONITOR_ID,d0 ;15 kHz Default ?
       beq.s   wbfi_wait_fade_in ;Ja -> verzweige
       cmp.l   #PAL_MONITOR_ID,d0 ;15 kHz PAL ?
@@ -408,7 +408,7 @@ wbfi_increase_blue
       bra.s   wbfi_matched_blue
     ELSE
 exit_check_monitor_id
-      move.l  os_monitor_id(a3),d0 ;Monitor-ID holen
+      move.l  os_monitor_id(a3),d0 ;Monitor-ID 
       CMPF.L  DEFAULT_MONITOR_ID,d0 ;15 kHz Default ?
       beq.s   no_delay       ;Ja -> verzweige
       cmp.l   #NTSC_MONITOR_ID,d0 ;15 kHz NTSC ?
@@ -434,7 +434,7 @@ print_text
       lea     put_ch_data(pc),a3 ;Zeiger auf Ausgabestring
       CALLEXEC RawDoFmt      ;Text formatieren
       move.l  (a7)+,a3
-      CALLDOS Output         ;Ausgabehandle holen
+      CALLDOS Output
       move.l  d0,d1          ;Handel -> d1
       beq.s   no_print_text  ;Wenn Fehler -> verzweige
       lea     put_ch_data(pc),a0 ;Zeiger auf Text
@@ -825,7 +825,7 @@ close_dos_library
     IFEQ workbench_start
       CNOP 0,4
 reply_wb_message
-      move.l  wb_message(a3),d2 ;Message holen
+      move.l  wb_message(a3),d2 ;Message 
       bne.s   wb_message_ok  ;Wenn WB-Message <> Null -> verzweige
       rts
       CNOP 0,4

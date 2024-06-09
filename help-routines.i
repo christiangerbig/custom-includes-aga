@@ -134,7 +134,7 @@ wait_copint_loop
 cop_init_high_colors
   move.w  #$0f0f,d2          ;Maske für RGB-Nibbles
 cop_init_high_colors_loop
-  move.l  (a1)+,d0           ;24 Bit-Farbwert holen
+  move.l  (a1)+,d0           ;24 Bit-Farbwert 
   RGB8_TO_RGB4HI d0,d1,d2
   move.w  d3,(a0)+           ;COLORxx
   addq.w  #2,d3              ;nächstes Farbregister
@@ -151,7 +151,7 @@ cop_init_high_colors_loop
 cpu_init_high_colors
   move.w  #$0f0f,d2          ;Maske für RGB-Nibbles
 cpu_init_high_colors_loop
-  move.l  (a1)+,d0           ;24 Bit-Farbwert holen
+  move.l  (a1)+,d0           ;24 Bit-Farbwert 
   RGB8_TO_RGB4HI d0,d1,d2
   move.w  d0,(a0)+           ;COLORxx
   dbf     d7,cpu_init_high_colors_loop
@@ -167,7 +167,7 @@ cpu_init_high_colors_loop
 cop_init_low_colors
   move.w  #$0f0f,d2          ;Maske für RGB-Nibbles
 cop_init_low_colors_loop
-  move.l  (a1)+,d0           ;24 Bit-Farbwert holen
+  move.l  (a1)+,d0           ;24 Bit-Farbwert 
   RGB8_TO_RGB4LO d0,d1,d2
   move.w  d3,(a0)+           ;COLORxx
   addq.w  #2,d3              ;nächstes Farbregister
@@ -183,7 +183,7 @@ cop_init_low_colors_loop
 cpu_init_low_colors
   move.w  #$0f0f,d2          ;Maske für RGB-Nibbles
 cpu_init_low_colors_loop
-  move.l  (a1)+,d0           ;24 Bit-Farbwert holen
+  move.l  (a1)+,d0           ;24 Bit-Farbwert 
   RGB8_TO_RGB4LO d0,d1,d2
   move.w  d0,(a0)+           ;COLORxx
   dbf     d7,cpu_init_low_colors_loop
@@ -208,7 +208,7 @@ split_rgb4
     moveq   #$0f,d2          ;Maske Blauanteil
     and.w   #$0f0,d1         ;Nur Grünanteil
     and.b   d0,d2            ;Nur Blauanteil
-    move.w  d6,d3            ;4-Bit-Sollwert holen
+    move.w  d6,d3            ;4-Bit-Sollwert 
     clr.b   d0               ;Nur Rotanteil
     move.w  d3,d4            ;4-Bit-Grünwert
     moveq   #$0f,d5          ;Maske Blauanteil
@@ -297,7 +297,7 @@ split_rgb8
     clr.b   d1                 ;Nur Grünanteil
     move.b  d0,d2              ;8-Bit-Blauwert
     clr.w   d0                 ;Nur Rotanteil
-    move.l  d6,d3              ;8-Bit-Sollwert holen
+    move.l  d6,d3              ;8-Bit-Sollwert 
     moveq   #TRUE,d4
     move.w  d3,d4              ;8-Bit-Grünwert
     moveq   #TRUE,d5

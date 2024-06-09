@@ -16,7 +16,7 @@ level_1_int_handler
     lea     (_CIAA-_CIAB)(a5),a4 ;CIA-A-Base
     move.l  #_CUSTOM+DMACONR,a6 ;DMACONR
     moveq   #INTENABITS&(INTF_TBE+INTF_DSKBLK+INTF_SOFTINT),d0 ;Nur Bits 0-2
-    and.w   INTREQR-DMACONR(a6),d0 ;Interrupts holen
+    and.w   INTREQR-DMACONR(a6),d0
 
     IFNE INTENABITS&INTF_TBE
       btst    #INTB_TBE,d0   ;TBE-Interrupt ?
@@ -85,9 +85,9 @@ level_2_int_handler
     lea     (_CIAA-_CIAB)(a5),a4 ;CIA-A-Base
     move.l  #_CUSTOM+DMACONR,a6 ;DMACONR
     moveq   #INTF_PORTS,d0   ;Nur Bit 3
-    and.w   INTREQR-DMACONR(a6),d0 ;Interrupts holen
+    and.w   INTREQR-DMACONR(a6),d0 ;Interrupts 
     moveq   #CIAAICRBITS&(~CIAICRF_SETCLR),d1
-    and.b   CIAICR(a4),d1    ;CIA-A-Interrupts holen
+    and.b   CIAICR(a4),d1    ;CIA-A-Interrupts 
     beq.s   PORTS_int_handler ;Nein -> verzweige
     IFNE CIAAICRBITS&CIAICRF_TA
       btst    #CIAICRB_TA,d1 ;CIA-A-TA-Interrupt ?
@@ -199,7 +199,7 @@ level_3_int_handler
     lea     (_CIAA-_CIAB)(a5),a4 ;CIA-A-Base
     move.l  #_CUSTOM+DMACONR,a6 ;DMACONR
     moveq   #INTENABITS&(INTF_COPER+INTF_VERTB+INTF_BLIT),d0 ;Nur Bits 4-6
-    and.w   INTREQR-DMACONR(a6),d0 ;Interrupts holen
+    and.w   INTREQR-DMACONR(a6),d0 ;Interrupts 
     IFNE INTENABITS&INTF_COPER
       btst    #INTB_COPER,d0 ;COPER-Interrupt ?
       bne.s   COPPER_int_handler
@@ -266,7 +266,7 @@ level_4_int_handler
     move.l  #_CIAB,a5        ;CIA-B-Base
     lea     (_CIAA-_CIAB)(a5),a4 ;CIA-A-Base
     move.l  #_CUSTOM+DMACONR,a6 ;DMACONR
-    move.w  INTREQR-DMACONR(a6),d0 ;Interrupts holen
+    move.w  INTREQR-DMACONR(a6),d0 ;Interrupts 
     and.w   #INTENABITS&(INTF_AUD0+INTF_AUD1+INTF_AUD2+INTF_AUD3),d0 ;Nur Bits 7-10
     IFNE INTENABITS&INTF_AUD0
       btst    #INTB_AUD0,d0  ;AUD0-Interrupt ?
@@ -350,7 +350,7 @@ level_5_int_handler
     move.l  #_CIAB,a5        ;CIA-B-Base
     lea     (_CIAA-_CIAB)(a5),a4 ;CIA-A-Base
     move.l  #_CUSTOM+DMACONR,a6 ;DMACONR
-    move.w  INTREQR-DMACONR(a6),d0 ;Interrupts holen
+    move.w  INTREQR-DMACONR(a6),d0 ;Interrupts 
     and.w   #INTENABITS&(INTF_RBF+INTF_DSKSYNC),d0 ;Nur Bits 11-12
     IFNE INTENABITS&INTF_RBF
       btst    #INTB_RBF,d0   ;RBF-Interrupt ?
@@ -402,10 +402,10 @@ level_6_int_handler
     move.l  #_CIAB,a5        ;CIA-B-Base
     lea     (_CIAA-_CIAB)(a5),a4 ;CIA-A-Base
     move.l  #_CUSTOM+DMACONR,a6 ;DMACONR
-    move.w  INTREQR-DMACONR(a6),d0 ;Interrupts holen
+    move.w  INTREQR-DMACONR(a6),d0 ;Interrupts 
     and.w   #INTF_EXTER,d0   ;Nur Bit 13
     moveq   #CIABICRBITS&(~CIAICRF_SETCLR),d1
-    and.b   CIAICR(a5),d1    ;CIA-B-Interrupts holen
+    and.b   CIAICR(a5),d1    ;CIA-B-Interrupts 
     beq.s   EXTER_int_handler ;Nein -> verzweige
     IFNE CIABICRBITS&CIAICRF_TA
       btst    #CIAICRB_TA,d1 ;CIA-B-TA-Interrupt ?

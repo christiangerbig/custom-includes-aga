@@ -1548,7 +1548,7 @@ GET_NEW_CHARACTER_IMAGE MACRO
   ENDC
   lea     \1_text(pc),a0     ;Zeiger auf Text
 \1_read_character
-  move.b  (a0,d1.w),d0       ;Zeichen holen
+  move.b  (a0,d1.w),d0       ;ASCII-Code
   IFNC "","\2"
     bsr.s  \2
     tst.w  d0                ;Rückgabewert = TRUE ?
@@ -1588,10 +1588,10 @@ GET_NEW_CHARACTER_IMAGE MACRO
   sub.w   d6,d0              ;Anzahl der Zeichen - Schleifenzähler
   lea     \1_characters_offsets(pc),a0 ;Zeiger auf Tabelle mit Offsets der Zeichen-Playfields
   IFC "W","\0"
-    move.w  (a0,d0.w*2),d0   ;Offset des Zeichen-Playfieldes holen
+    move.w  (a0,d0.w*2),d0   ;Offset des Zeichen-Playfieldes 
   ENDC
   IFC "L","\0"
-    move.l  (a0,d0.w*4),d0   ;Offset des Zeichen-Playfieldes holen
+    move.l  (a0,d0.w*4),d0   ;Offset des Zeichen-Playfieldes 
   ENDC
   add.l   \1_image(a3),d0 ;Adresse der Zeichen-Playfieldvorlage ergänzen
   IFNC "BACKWARDS","\4"
@@ -1609,7 +1609,7 @@ GET_NEW_CHARACTER_IMAGE MACRO
     IFGT \1_origin_character_x_size-32
       IFEQ \1_text_character_x_size-16
         moveq   #TRUE,d3
-        move.w  \1_character_words_counter(a3),d3 ;Zähler für Worte holen
+        move.w  \1_character_words_counter(a3),d3 ;Zähler für Worte 
         move.l  d3,d4          
         MULUF.W 2,d4           ;*2 = Wort-Offset des Images
         addq.w  #1,d3          ;Nächstes Wort in Image
