@@ -1,5 +1,5 @@
 pt_SongDataPointer         RS.L 1
-  IFEQ pt_split_module
+  IFEQ pt_split_module_enabled
 pt_SamplesDataPointer      RS.L 1
   ENDC
 pt_125BPMrate              RS.L 1
@@ -14,12 +14,12 @@ pt_SongPosition            RS.W 1
   IFNE pt_usedefx&(pt_ecmdbitretrignote+pt_ecmdbitnotedelay)
 pt_RtnDMACONtemp           RS.W 1
   ENDC
-  IFEQ pt_music_fader
-pt_fade_out_music_state    RS.W 1
+  IFEQ pt_music_fader_enabled
+pt_fade_out_music_active   RS.W 1
 pt_fade_out_delay_counter  RS.W 1
 pt_master_volume           RS.W 1
   ENDC
-  IFEQ pt_metronome
+  IFEQ pt_metronome_enabled
 pt_MetroSpeed              RS.B 1
 pt_MetroChannel            RS.B 1
   ENDC

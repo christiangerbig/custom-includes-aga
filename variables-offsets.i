@@ -10,7 +10,7 @@
 
 shell_parameters_length  RS.L 1
 shell_parameters_pointer RS.L 1
-    IFEQ workbench_start
+    IFEQ workbench_start_enabled
 wb_message               RS.L 1
     ENDC
 
@@ -39,17 +39,17 @@ os_screen                RS.L 1
 os_monitor_id            RS.L 1
 os_sprite_resolution     RS.L 1
 
-    IFNE workbench_fade
+    IFNE workbench_fade_enabled
 screen_color_table32     RS.L 1
     ENDC
 downgrade_screen         RS.L 1
 
-    IFEQ workbench_fade
+    IFEQ workbench_fade_enabled
 wbf_colors_number        RS.L 1
 wbf_color_values32       RS.L 1
 wbf_color_cache32        RS.L 1
-wbfi_state               RS.W 1
-wbfo_state               RS.W 1
+wbfi_active              RS.W 1
+wbfo_active              RS.W 1
     ENDC
 
     IFNE cl1_size3

@@ -8,12 +8,12 @@ PT2_INIT_VARIABLES MACRO
   IFC "","\1"
     lea     pt_auddata,a0
     move.l  a0,pt_SongDataPointer(a3)
-    IFEQ pt_split_module
+    IFEQ pt_split_module_enabled
       lea     pt_audsmps,a0
       move.l  a0,pt_SamplesDataPointer(a3)
     ENDC
   ENDC
-  moveq   #TRUE,d0
+  moveq   #0,d0
   move.w  d0,pt_Counter(a3)
   moveq   #pt_defaultticks,d2
   move.w  d2,pt_CurrSpeed(a3) ;Set as default 6 ticks
@@ -25,8 +25,8 @@ PT2_INIT_VARIABLES MACRO
     move.w d0,pt_RtnDMACONtemp(a3)
   ENDC
   moveq #FALSE,d1
-  IFEQ pt_music_fader
-    move.w d1,pt_fade_out_music_state(a3) ;Deactivate volume fader
+  IFEQ pt_music_fader_enabled
+    move.w d1,pt_fade_out_music_active(a3) ;Deactivate volume fader
     moveq #pt_fade_out_delay,d2
     move.w d2,pt_fade_out_delay_counter(a3) ;Set volume fader delay in ticks
     moveq #pt_maxvol,d2
@@ -328,14 +328,14 @@ pt_PlvSkip
   move.w  d0,n_reallength(a2) ;Save real sample length
   move.w  d2,n_finetune(a2)  ;Save finetune and sample volume
   ext.w   d2                 ;Extend lower byte to word
-  IFEQ pt_music_fader
+  IFEQ pt_music_fader_enabled
     mulu.w  pt_master_volume(a3),d2 ;volume * master_volume
     lsr.w   #6,d2            ;/ maximum master volume
   ENDC
-  IFEQ pt_track_channel_periods
+  IFEQ pt_track_periods_enabled
     move.w  d2,n_current_volume(a2) ;Save new volume
   ENDC
-  IFD pt_mute_volume
+  IFD pt_mute_enabled
     move.w  d5,8(a6)         ;AUDxVOL No volume
   ELSE
     move.w  d2,8(a6)         ;AUDxVOL Set new volume
@@ -385,8 +385,8 @@ pt_SetRegisters
   ENDC
  
 pt_SetPeriod
-  IFEQ pt_finetune
-    moveq   #TRUE,d0         ;Needed for word access
+  IFEQ pt_finetune_enabled
+    moveq   #0,d0         ;Needed for word access
     move.b  n_finetune(a2),d0 ;Get finetune
     beq.s   pt_NoFinetune    ;If no finetune -> skip
     lea     pt_PeriodTable(pc),a1 ;Pointer to periods table
@@ -425,7 +425,7 @@ pt_VibNoC
     move.b d5,n_tremolopos(a2) ;Clear tremolo position
 pt_TreNoC
   ENDC
-  IFEQ pt_track_channel_volumes
+  IFEQ pt_track_volumes_enabled
     move.b d5,n_note_trigger(a2) ;Set note trigger flag
   ENDC
   move.l  n_start(a2),(a6)   ;AUDxLCH Set sample start
@@ -686,7 +686,7 @@ pt_ChkTonePorta
   IFNE pt_usedfx&(pt_cmdbittoneport+pt_cmdbittoneportvolslide)
     CNOP 0,4
 pt_SetTonePorta
-    IFEQ pt_finetune
+    IFEQ pt_finetune_enabled
       move.b  n_finetune(a2),d0 ;Get finetune value
       beq.s   pt_StpNoFinetune ;If no finetune -> skip
       lea     pt_FtuPeriodTableStarts(pc),a1 ;Pointer to finetune offset periods table
@@ -723,7 +723,7 @@ pt_StpEnd
     rts
     CNOP 0,4
 pt_ClearTonePorta
-    IFEQ pt_track_channel_volumes
+    IFEQ pt_track_volumes_enabled
       move.b  d5,n_note_trigger(a2) ;Set note trigger flag
     ENDC
     move.w  d5,n_wantedperiod(a2) ;Clear wanted note period
@@ -757,7 +757,7 @@ pt_DskipA
    tst.b   pt_PBreakFlag(a3) ;Pattern break flag set ?
    beq.s   pt_Nnpysk         ;If zero -> skip
    move.b  d5,pt_PBreakFlag(a3) ;Clear pattern break flag
-   moveq   #TRUE,d0          ;Needed for word access
+   moveq   #0,d0          ;Needed for word access
    move.b  pt_PBreakPosition(a3),d0 ;Get pattern break position
    MULUF.W 2,d0              ;*(pt_pattposdata_SIZE/4)
    move.b  d5,pt_PBreakPosition(a3) ;Clear pattern break position
@@ -769,7 +769,7 @@ pt_Nnpysk
   blo.s    pt_NoNewPositionYet ;No -> skip
 pt_NextPosition
   move.b  d5,pt_PosJumpFlag(a3) ;Clear position jump flag
-  moveq   #TRUE,d0         ;Needed for word access
+  moveq   #0,d0         ;Needed for word access
   move.b  pt_PBreakPosition(a3),d0 ;Get pattern break position
   move.b  d5,pt_PBreakPosition(a3) ;Set back pattern break position = Zero
   MULUF.W pt_pattposdata_SIZE/4,d0 ;Offset to pattern data
@@ -805,7 +805,7 @@ pt_ArpDivLoop
 pt_Arpeggio0
   move.w  n_period(a2),d2    ;Play note period at tick #1
 pt_ArpeggioSet
-  IFEQ pt_track_channel_periods
+  IFEQ pt_track_periods_enabled
     move.w  d2,n_current_period(a2) ;Save new period
   ENDC
   move.w  d2,6(a6)           ;AUDxPER Set new note period
@@ -823,7 +823,7 @@ pt_Arpeggio2
   and.b   n_cmdlo(a2),d0     ;Get command data: y-second halftone
 pt_ArpeggioFind
   move.w  n_period(a2),d2    ;Get note period
-  IFEQ pt_finetune
+  IFEQ pt_finetune_enabled
     moveq   #TRUE,d7         ;Needed for word access
     move.b  n_finetune(a2),d7 ;Get finetune value
     lea     pt_FtuPeriodTableStarts(pc),a1 ;Pointer to finetune period table pointers
@@ -860,7 +860,7 @@ pt_PortamentoUp
   moveq   #pt_portminper,d2   ;Set note period "B-3"
 pt_PortaUpSkip
   move.w  d2,n_period(a2)    ;Save new note period
-  IFEQ pt_track_channel_periods
+  IFEQ pt_track_periods_enabled
     move.w  d2,n_current_period(a2) ;Save new period
   ENDC
   move.w  d2,6(a6)           ;AUDxPER Set new note period
@@ -888,7 +888,7 @@ pt_PortamentoDown
   move.w  #pt_portmaxper,d2  ;Set note period "C-1"
 pt_PortaDownSkip
   move.w  d2,n_period(a2)    ;Save new note period
-  IFEQ pt_track_channel_periods
+  IFEQ pt_track_periods_enabled
     move.w  d2,n_current_period(a2) ;Save new period
   ENDC
   move.w  d2,6(a6)           ;AUDxPER Set new note period
@@ -916,7 +916,7 @@ pt_TonePortaDown
   cmp.w   d3,d2              ;Wanted note period > note period ?
   bgt.s   pt_TonePortaSetPer ;Yes -> skip
   move.w  d2,d3              ;Note period = wanted note period
-  IFEQ pt_track_channel_volumes
+  IFEQ pt_track_volumes_enabled
     move.b  d5,n_note_trigger(a2) ;Set note trigger flag
   ENDC
   moveq   #TRUE,d2           ;Clear wanted note period
@@ -927,7 +927,7 @@ pt_TonePortaUp
   cmp.w   d3,d2              ;Wanted note period < note period ?
   blt.s   pt_TonePortaSetPer ;Yes -> skip
   move.w  d2,d3              ;Note period = wanted note period
-  IFEQ pt_track_channel_volumes
+  IFEQ pt_track_volumes_enabled
     move.b  d5,n_note_trigger(a2) ;Set note trigger flag
   ENDC
   moveq   #TRUE,d2           ;Clear wanted note period
@@ -937,7 +937,7 @@ pt_TonePortaSetPer
   move.w  d3,n_period(a2)    ;Save new note period
   and.b   n_glissinvert(a2),d0 ;Get glissando state
   beq.s   pt_GlissSkip       ;If zero -> skip
-  IFEQ pt_finetune
+  IFEQ pt_finetune_enabled
     move.b  n_finetune(a2),d0 ;Get finetune value
     lea     pt_FtuPeriodTableStarts(pc),a1 ;Pointer to finetune period table pointers
     move.l  (a1,d0.w*4),a1   ;Get period table address for given finetune value
@@ -951,7 +951,7 @@ pt_GlissLoop
 pt_GlissFound
   move.w  -2(a1),d3          ;Get note period from period table
 pt_GlissSkip
-  IFEQ pt_track_channel_periods
+  IFEQ pt_track_periods_enabled
     move.w  d3,n_current_period(a2) ;Save new period
   ENDC
   move.w  d3,6(a6)           ;AUDxPER Set new period
@@ -969,7 +969,7 @@ pt_Vibrato
   and.b   #NIBBLEMASKLO,d0   ;Get command data: y-depth
   beq.s   pt_VibSkip         ;If zero -> skip
   and.b   #NIBBLEMASKHI,d2   ;Clear old depth
-  or.b   d0,d2               ;Set new depth in vibrato command data
+  or.b    d0,d2              ;Set new depth in vibrato command data
 pt_VibSkip
   MOVEF.B NIBBLEMASKHI,d0
   and.b   n_cmdlo(a2),d0     ;Get command data: x-speed
@@ -1021,7 +1021,7 @@ pt_VibratoNeg
   sub.w   d2,d0              ;Note period - period amplitude
 pt_Vibrato3
   move.b  n_vibratocmd(a2),d2 ;Get vibrato command data
-  IFEQ pt_track_channel_periods
+  IFEQ pt_track_periods_enabled
     move.w  d0,n_current_period(a2) ;Save new period
   ENDC
   lsr.b   #2,d2              ;/4
@@ -1116,16 +1116,16 @@ pt_TremoloSkip
   bls.s   pt_TremoloOk       ;Yes -> skip
   moveq   #pt_maxvol,d0      ;Set maximum volume
 pt_TremoloOk
-  IFEQ pt_music_fader
+  IFEQ pt_music_fader_enabled
     mulu.w  pt_master_volume(a3),d0 ;volume*master volume
     lsr.w   #6,d0            ;/maximum master volume
   ENDC
   move.b  n_tremolocmd(a2),d2 ;Get tremolo command data
-  IFEQ pt_track_channel_periods
+  IFEQ pt_track_periods_enabled
     move.w  d0,n_current_volume(a2) ;Save new volume
   ENDC
   lsr.b   #2,d2              ;/4
-  IFD pt_mute_volume
+  IFD pt_mute_enabled
     move.w  d5,8(a6)         ;AUDxVOL No volume
   ELSE
     move.w  d0,8(a6)         ;AUDxVOL Set new volume
@@ -1152,14 +1152,14 @@ pt_VolSlideUp
   moveq   #pt_maxvol,d2      ;Set maximum volume
 pt_VsuSkip
   move.b  d2,n_volume(a2)    ;Save new volume
-  IFEQ pt_music_fader
+  IFEQ pt_music_fader_enabled
     mulu.w  pt_master_volume(a3),d2 ;volume * master volume
     lsr.w   #6,d2            ;/ maximum master volume
   ENDC
-  IFEQ pt_track_channel_periods
+  IFEQ pt_track_periods_enabled
     move.w  d2,n_current_volume(a2) ;Save new volume
   ENDC
-  IFD pt_mute_volume
+  IFD pt_mute_enabled
     move.w  d5,8(a6)         ;AUDxVOL No volume
   ELSE
     move.w  d2,8(a6)         ;AUDxVOL Set new volume
@@ -1178,14 +1178,14 @@ pt_VolSlideDown
   moveq   #pt_minvol,d2      ;Set minimum volume
 pt_VsdSkip
   move.b  d2,n_volume(a2)    ;Save new volume
-  IFEQ pt_music_fader
+  IFEQ pt_music_fader_enabled
     mulu.w  pt_master_volume(a3),d2 ;volume * master volume
     lsr.w   #6,d2            ;/ maximum master volume
   ENDC
-  IFEQ pt_track_channel_periods
+  IFEQ pt_track_periods_enabled
     move.w  d2,n_current_volume(a2) ;Save new volume
   ENDC
-  IFD pt_mute_volume
+  IFD pt_mute_enabled
     move.w  d5,8(a6)         ;AUDxVOL No volume
   ELSE
     move.w  d2,8(a6)         ;AUDxVOL Set new volume
@@ -1239,14 +1239,14 @@ pt_SetVolume
   moveq   #pt_maxvol,d0      ;Set maximum volume
 pt_MaxVolOk
   move.b  d0,n_volume(a2)    ;Save new volume
-  IFEQ pt_music_fader
+  IFEQ pt_music_fader_enabled
     mulu.w  pt_master_volume(a3),d0 ;volume * master volume
     lsr.w   #6,d0            ;/ maximum master volume
   ENDC
-  IFEQ pt_track_channel_periods
+  IFEQ pt_track_periods_enabled
     move.w  d0,n_current_volume(a2) ;Save new volume
   ENDC
-  IFD pt_mute_volume
+  IFD pt_mute_enabled
     move.w  d5,8(a6)         ;AUDxVOL No volume
   ELSE
     move.w  d0,8(a6)         ;AUDxVOL Set new volume
@@ -1424,7 +1424,7 @@ pt_DoRetrig
   move.w  n_dmabit(a2),d0    ;Get audio channel DMA bit
   or.w    d0,pt_RtnDMACONtemp(a3) ;Set effect "Retrig Note" or "Note Delay" for audio channel
   move.b  d5,n_rtnsetchandma(a2) ;Activate interrupt set routine
-  IFEQ pt_track_channel_volumes
+  IFEQ pt_track_volumes_enabled
     move.b  d5,n_note_trigger(a2) ;Set note trigger flag
   ENDC
   move.w  d0,_CUSTOM+DMACON  ;Audio channel DMA off
@@ -1459,7 +1459,7 @@ pt_NoteCut
   cmp.w   pt_Counter(a3),d0  ;blanks = ticks ?
   bne.s   pt_NoteCutEnd      ;No -> skip
   move.b  d5,n_volume(a2)    ;Clear volume
-  IFEQ pt_track_channel_periods
+  IFEQ pt_track_periods_enabled
     move.w  d5,n_current_volume(a2) ;Clear new volume
   ENDC
   move.w  d5,8(a6)           ;AUDxVOL Clear volume
@@ -1509,7 +1509,7 @@ pt_InvertLoop
   tst.b   d0                 ;speed = zero ?
   beq.s   pt_InvertEnd       ;Yes -> skip
 pt_UpdateInvert
-  moveq   #TRUE,d0           ;Needed for word access
+  moveq   #0,d0           ;Needed for word access
   move.b  n_glissinvert(a2),d0
   lsr.b   #NIBBLESHIFTBITS,d0 ;Get speed
   beq.s   pt_InvertEnd       ;If zero -> skip
@@ -1537,7 +1537,7 @@ pt_InvertEnd
 PT2_EFFECT_SET_SPEED MACRO
   CNOP 0,4
 pt_SetSpeed
-  IFEQ pt_ciatiming
+  IFEQ pt_ciatiming_enabled
     move.b  n_cmdlo(a2),d0   ;Get command data: xx-speed ($00-$1f ticks) / xx-tempo ($20-$ff BPM)
     beq.s   pt_StopReplay    ;If speed = zero -> skip
     cmp.b   #pt_maxticks,d0  ;speed > maximum ticks ?

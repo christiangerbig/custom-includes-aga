@@ -33,7 +33,7 @@ n_reallength            RS.W 1
 n_rtnsetchandma         RS.B 1
 n_rtninitchandata       RS.B 1
 
-  IFEQ pt_track_channel_periods
+  IFEQ pt_track_periods_enabled
 n_current_start         RS.L 1
 n_current_length        RS.W 1
 n_current_period        RS.W 1
@@ -41,7 +41,7 @@ n_current_volume        RS.W 1
 n_channel_data_position RS.W 1
   ENDC
 
-  IFEQ pt_track_channel_volumes
+  IFEQ pt_track_volumes_enabled
 n_note_trigger          RS.B 1
   ENDC
 

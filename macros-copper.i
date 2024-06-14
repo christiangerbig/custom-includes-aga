@@ -742,7 +742,7 @@ CONVERT_IMAGE_TO_RGB4_CHUNKY MACRO
 \1_convert_image_data_loop2
   moveq   #8-1,d5            ;Anzahl der Bits pro Byte
 \1_convert_image_data_loop3
-  moveq   #TRUE,d0           ;Farbnummer
+  moveq   #0,d0           ;Farbnummer
   IFGE \1_image_depth-1
     btst    d5,(a0)          ;Bit n in Bitplane0 gesetzt ?
     beq.s   \1_no_bitplane0  ;Nein -> verzweige
@@ -819,7 +819,7 @@ CONVERT_IMAGE_TO_HAM6_CHUNKY MACRO
 \1_convert_image_data_loop2
   moveq   #8-1,d5            ;Anzahl der Bits pro Byte
 \1_convert_image_data_loop3
-  moveq   #TRUE,d0           ;Farbnummer
+  moveq   #0,d0           ;Farbnummer
   btst    d5,(a0)            ;Bit n in Bitplane0 gesetzt ?
   beq.s   \1_no_bitplane0    ;Nein -> verzweige
   addq.w  #1,d0              ;Farbnummer erhöhen
@@ -921,7 +921,7 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY MACRO
 \1_convert_image_loop2
   moveq   #8-1,d5            ;Anzahl der Bits pro Byte
 \1_convert_image_loop3
-  moveq   #TRUE,d0           ;Farbnummer
+  moveq   #0,d0           ;Farbnummer
   IFGE \1_image_depth-1
     btst    d5,(a0)          ;Bit n in Bitplane0 gesetzt ?
     beq.s   \1_no_bitplane0  ;Nein -> verzweige
@@ -1024,7 +1024,7 @@ CONVERT_IMAGE_TO_HAM8_CHUNKY MACRO
 \1_translate_image_data_loop2
   moveq   #8-1,d5            ;Anzahl der Bits pro Byte
 \1_translate_image_data_loop3
-  moveq   #TRUE,d0           ;Farbnummer
+  moveq   #0,d0           ;Farbnummer
   btst    d5,(a0)            ;Bit n in Bitplane0 gesetzt ?
   beq.s   \1_no_bitplane0    ;Nein -> verzweige
   addq.w  #1,d0              ;Farbnummer erhöhen
@@ -1150,7 +1150,7 @@ CONVERT_IMAGE_TO_BPLCON4_CHUNKY MACRO
   moveq   #8-1,d5            ;Anzahl der Bits pro Byte
 \1_translate_image_data_loop3
   IFC "","\4"
-    moveq   #TRUE,d0         ;Start-Switchwert = Null
+    moveq   #0,d0         ;Start-Switchwert = Null
   ELSE
     MOVEF.W \4,d0            ;Start-Switchwert
   ENDC
@@ -1560,7 +1560,7 @@ CLEAR_BPLCON4_CHUNKY_SCREEN MACRO
 ; \2 STRING: Label-Prefix Copperliste [cl1,cl2]
 ; \3 STRING: Name der Copperliste [construction1,construction2]
 ; \4 STRING: extension[1..n]
-; \5 BOOLEAN: TRUE = quick_clear
+; \5 BOOLEAN: TRUE = quick_clear_enabled
   IFC "","\1"
     FAIL Makro CLEAR_CHUNKY_SCREEN: Labels-Prefix der Routine fehlt
   ENDC
@@ -1646,7 +1646,7 @@ RESTORE_BPLCON4_CHUNKY_SCREEN MACRO
   CNOP 0,4
   IFC "cl1","\2"
 restore_first_copperlist
-    IFEQ \1_restore_cl_by_cpu
+    IFEQ \1_restore_cl_cpu_enabled
       IFC "","\6"
         IFC "16","\5"
           moveq   #-2,d0       ;2. Wort des WAIT-Befehls
@@ -1721,7 +1721,7 @@ restore_first_copperlist_loop
         ENDC
       ENDC
     ENDC
-    IFEQ \1_restore_cl_by_blitter
+    IFEQ \1_restore_cl_blitter_enabled
       IFC "","\7"
         move.l  \2_\3(a3),a0   
         WAITBLITTER
@@ -1737,7 +1737,7 @@ restore_first_copperlist_loop
   ENDC
   IFC "cl2","\2"
 restore_second_copperlist
-    IFEQ \1_restore_cl_by_cpu
+    IFEQ \1_restore_cl_cpu_enabled
       IFC "","\6"
         IFC "16","\5"
           moveq   #-2,d0       ;2. Wort des WAIT-Befehls
@@ -1812,7 +1812,7 @@ restore_second_copperlist_loop
         ENDC
       ENDC
     ENDC
-    IFEQ \1_restore_cl_by_blitter
+    IFEQ \1_restore_cl_blitter_enabled
       IFC "","\7"
         move.l  \2_\3(a3),a0   
         WAITBLITTER

@@ -33,7 +33,7 @@ start_all
     bsr     init_taglists
 
 ; ** Testen, ob der Start ggf. von der Workbench aus erfolgte **
-    IFEQ workbench_start
+    IFEQ workbench_start_enabled
       bsr     test_start_from_workbench
       move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
       bne     end_final      ;Ja -> verzweige
@@ -349,7 +349,7 @@ start_all
   ; ** Betriebssystem übernimmt wieder Maschine **
   ; ----------------------------------------------
     bsr     enable_system
-    IFEQ text_output
+    IFEQ text_output_enabled
       bsr     print_text
     ENDC
   ENDC
@@ -470,7 +470,7 @@ end_close_dos_library
 ; ** Ggf. Workbench-Message beantworten **
 end_reply_wb_message
   IFND sys_taken_over
-    IFEQ workbench_start
+    IFEQ workbench_start_enabled
       bsr     reply_wb_message
     ENDC
   ENDC
@@ -520,16 +520,16 @@ init_variables
     move.l  d0,(a3)          ;Länge des Eingabestrings retten
     move.l  a0,shell_parameters_pointer(a3) ;Zeiger auf Eingabestring retten
 
-    moveq   #TRUE,d0
-    IFEQ workbench_start
+    moveq   #0,d0
+    IFEQ workbench_start_enabled
       move.l  d0,wb_message(a3)
     ENDC
     moveq   #FALSE,d1
     move.w  d1,fast_memory_available(a3)
 
-    IFEQ workbench_fade
-      move.w  d0,wbfi_state(a3)
-      move.w  d0,wbfo_state(a3)
+    IFEQ workbench_fade_enabled
+      move.w  d0,wbfi_active(a3)
+      move.w  d0,wbfo_active(a3)
     ENDC
 
     move.l  d0,exception_vectors_base(a3)
@@ -543,7 +543,7 @@ init_variables
     move.l  Exec_Base.w,(a0)   ;Zeiger auf Exec-Base retten
   ENDC
   IFD measure_rastertime
-    moveq   #TRUE,d0
+    moveq   #0,d0
     move.l  d0,rt_rasterlines_number(a3)
   ENDC
   rts
@@ -840,11 +840,11 @@ init_custom_error_table
     lea     error_text_screen_display_mode_end-error_text_screen_display_mode,a1
     move.l  a1,4(a0,d0.w*8)
 
-    IFEQ workbench_fade
+    IFEQ workbench_fade_enabled
       moveq   #WORKBENCH_FADE_NO_MEMORY-1,d0
-      lea     error_text_workbench_fade(pc),a1
+      lea     error_text_workbench_fade_enabled(pc),a1
       move.l  a1,(a0,d0.w*8)
-      lea     error_text_workbench_fade_end-error_text_workbench_fade,a1
+      lea     error_text_workbench_fade_enabled_end-error_text_workbench_fade_enabled,a1
       move.l  a1,4(a0,d0.w*8)
     ENDC
     rts
@@ -857,7 +857,7 @@ init_easy_request_structure
       lea     tcp_request_structure(pc),a0 ;Zeiger auf Easy-Struktur
       moveq   #EasyStruct_SIZEOF,d0
       move.l  d0,(a0)+           ;Größe der Struktur
-      moveq   #TRUE,d0
+      moveq   #0,d0
       move.l  d0,(a0)+           ;Keine Flags
       lea     tcp_requester_title(pc),a1
       move.l  a1,(a0)+           ;Zeiger auf Titeltext
@@ -870,7 +870,7 @@ init_easy_request_structure
       lea     vga_request_monitor_structure(pc),a0 ;Zeiger auf Easy-Struktur
       moveq   #EasyStruct_SIZEOF,d0
       move.l  d0,(a0)+         ;Größe der Struktur
-      moveq   #TRUE,d0
+      moveq   #0,d0
       move.l  d0,(a0)+         ;Keine Flags
       lea     vga_requester_title(pc),a1
       move.l  a1,(a0)+         ;Zeiger auf Titeltext
@@ -886,7 +886,7 @@ init_easy_request_structure
     CNOP 0,4
 init_timer_request_structure
     lea     timer_request_structure(pc),a0 ;Zeiger auf Timer-Request-Struktur
-    moveq   #TRUE,d0
+    moveq   #0,d0
     move.b  d0,LN_Type(a0)     ;Eintragstyp = Null
     move.b  d0,LN_Pri(a0)      ;Priorität der Struktur = Null
     move.l  d0,LN_Name(a0)     ;Keine Name der Struktur
@@ -906,7 +906,7 @@ init_taglists
 spr_init_taglist
     lea     spr_taglist(pc),a0
     move.l  #VTAG_SPRITERESN_GET,(a0)+
-    moveq   #TRUE,d0
+    moveq   #0,d0
     move.l  d0,(a0)+
     moveq   #TAG_DONE,d1
     move.l  d1,(a0)
@@ -918,7 +918,7 @@ spr_init_taglist
 init_downgrade_screen_taglist
     lea     downgrade_screen_taglist(pc),a0
     move.l  #SA_Left,(a0)+
-    moveq   #TRUE,d0
+    moveq   #0,d0
     move.l  d0,(a0)+
     move.l  #SA_Top,(a0)+
     move.l  d0,(a0)+
@@ -1155,7 +1155,7 @@ spr_init_structure
 ; ** Testen, ob von der Workbench ein Start erfolgte **
 ; -----------------------------------------------------
   IFND sys_taken_over
-    IFEQ workbench_start
+    IFEQ workbench_start_enabled
       CNOP 0,4
 test_start_from_workbench
       sub.l   a1,a1            ;Nach dem eigenen Task suchen
@@ -1166,7 +1166,7 @@ test_start_from_workbench
       tst.l   pr_CLI(a2)       ;Von Workbench gestartet ?
       beq.s   start_from_workbench ;Ja -> verzweige
 start_from_shell               ;Shell-Start
-      moveq   #TRUE,d0         
+      moveq   #0,d0         
       rts
       CNOP 0,4
 start_from_workbench
@@ -1188,7 +1188,7 @@ task_error
     CNOP 0,4
 open_dos_library
     lea     dos_name(pc),a1    ;Name der DOS-Library
-    moveq   #TRUE,d0           ;Version egal
+    moveq   #0,d0           ;Version egal
     CALLEXEC OpenLibrary       ;Graphics-Library öffnen
     lea     _DOSBase(pc),a0
     move.l  d0,(a0)            ;Zeiger auf DOS-Base retten
@@ -1205,7 +1205,7 @@ dos_library_error
     CNOP 0,4
 open_graphics_library
     lea     graphics_name(pc),a1 ;Name der Graphics-Library
-    moveq   #TRUE,d0           ;Version egal
+    moveq   #0,d0           ;Version egal
     CALLEXEC OpenLibrary       ;Graphics-Library öffnen
     lea     _GFXBase(pc),a0
     move.l  d0,(a0)            ;Zeiger auf Graphics-Base retten
@@ -1403,7 +1403,7 @@ do_tcp_stack_request
       beq.s   tcp_quit_prg       ;Ja -> verzweige
       cmp.b   #1,d0              ;Wurde linkes Gadget "Proceed" (1) angeklickt?
       beq.s   do_tcp_stack_request ;Ja -> verweige
-      moveq   #TRUE,d0           ;Mittleres Gadget "Skip" (2) angeklickt, Returncode = OK
+      moveq   #0,d0           ;Mittleres Gadget "Skip" (2) angeklickt, Returncode = OK
       rts
       CNOP 0,4
 no_tcp_stack_found
@@ -1447,7 +1447,7 @@ open_ciax_resources
     lea     _CIABase(pc),a0
     move.l  d0,(a0)
     beq.s   ciaa_resources_error ;Wenn Fehler -> verzweige
-    moveq   #TRUE,d0           ;Maske = NULL
+    moveq   #0,d0           ;Maske = NULL
     CALLCIA AbleICR            ;ICR-Maske 
     move.b  d0,os_CIAAICR(a3)  
   
@@ -1456,7 +1456,7 @@ open_ciax_resources
     lea     _CIABase(pc),a0
     move.l  d0,(a0)
     beq.s   ciab_resources_error ;Wenn Fehler -> verzweige
-    moveq   #TRUE,d0           ;Maske = NULL
+    moveq   #0,d0           ;Maske = NULL
     CALLCIA AbleICR            ;ICR-Maske 
     move.b  d0,os_CIABICR(a3)  
     moveq   #RETURN_OK,d0
@@ -1983,7 +1983,7 @@ spr_check_loop1
     btst    #BMB_INTERLEAVED,d0 ;Bitmap an einem Stück ?
     beq.s   spr_memory_error2 ;Nein -> verzweige
     dbf     d7,spr_check_loop1
-    moveq   #TRUE,d0         
+    moveq   #0,d0         
     rts
     CNOP 0,4
 spr_memory_error2
@@ -2074,7 +2074,7 @@ alloc_disk_memory
     bsr     do_alloc_chip_memory
     move.l  d0,disk_data(a3)
     beq.s   disk_memory_error
-    moveq   #TRUE,d0         
+    moveq   #0,d0         
     rts
     CNOP 0,4
 disk_memory_error
@@ -2140,7 +2140,7 @@ alloc_vectors_memory
     bsr     do_alloc_fast_memory
     move.l  d0,exception_vectors_base(a3)
     beq.s   vectors_memory_error
-    moveq   #TRUE,d0           
+    moveq   #0,d0           
     rts
     CNOP 0,4
 no_alloc_vectors_memory
@@ -2171,7 +2171,7 @@ disable_system
     CALLDOS Delay
   
 get_os_screen
-    moveq   #TRUE,d0
+    moveq   #0,d0
     CALLINT LockIBase        ;Intuition-Base einfrieren
     move.l  ib_ActiveScreen(a6),a2 ;Zeiger auf aktiven Screen (Workbench-Screen) 
     move.l  d0,a0            ;Lock -> a0
@@ -2195,7 +2195,7 @@ get_os_sprite_resolution
     lea     spr_taglist(pc),a1 ;Zeiger auf Sprite-Tagliste
     move.l  sprtl_VTAG_SPRITERESN+ti_Data(a1),os_sprite_resolution(a3) ;Alte Spriteauflösung retten
   
-    IFEQ workbench_fade
+    IFEQ workbench_fade_enabled
 wbf_get_os_screen_colors_number
       move.l  a2,a0          ;Zeiger auf Screen
       CALLINT GetScreenDrawInfo
@@ -2224,7 +2224,7 @@ wbf_alloc_color_cache32_memory
 wbf_get_os_screen_colors32
       move.l  a4,a0          ;Zeiger auf Farbtabelle
       move.l  wbf_color_values32(a3),a1 ;32-Bit RGB-Werte
-      moveq   #TRUE,d0       ;Ab COLOR00
+      moveq   #0,d0       ;Ab COLOR00
       move.l  #wbf_colors_number_max,d1 ;Alle 256 Farben
       CALLGRAF GetRGB32
   
@@ -2234,7 +2234,7 @@ wbf_init_color_values32
       move.l  a1,sctl_SA_Colors32+ti_Data(a0)
       move.l  wbf_color_values32(a3),a0 ;Quelle 32-Bit RGB-Werte
       move.w  #wbf_colors_number_max,(a1)+ ;Anzahl der Farben
-      moveq   #TRUE,d0
+      moveq   #0,d0
       move.w  d0,(a1)+       ;Ab COLOR00
       MOVEF.W wbf_colors_number_max-1,d7 ;Anzahl der Farbwerte
 wbf_copy_color_values32_loop
@@ -2247,9 +2247,9 @@ wbf_copy_color_values32_loop
       move.l  a4,-(a7)
 wbfo_wait_fade_out
       CALLGRAF WaitTOF
-      bsr     workbench_fader_out
+      bsr     workbench_fade_enabledr_out
       bsr     wbf_set_new_colors32
-      tst.w   wbfo_state(a3)
+      tst.w   wbfo_active(a3)
       beq.s   wbfo_wait_fade_out
       move.l  (a7)+,a4
     ELSE
@@ -2363,7 +2363,7 @@ vp_monitor_id_error
     move.l  d0,dos_return_code(a3)
     rts
 
-    IFNE workbench_fade
+    IFNE workbench_fade_enabled
 screen_color_table32_memory_error
       moveq   #WORKBENCH_FADE_NO_MEMORY,d0
       move.w  d0,custom_error_code(a3)
@@ -2387,7 +2387,7 @@ check_downgrade_screen_mode_error
     move.l  d0,dos_return_code(a3)
     rts
   
-    IFEQ workbench_fade
+    IFEQ workbench_fade_enabled
       CNOP 0,4
 wbf_color_cache32_memory_error
       move.l  wbf_color_values32(a3),d0 ;Konnte der Spwicher reserviert werden?
@@ -2405,9 +2405,9 @@ wbf_color_values32_memory_error
 ; ** Farben ausblenden **
 ; -----------------------
       CNOP 0,4
-workbench_fader_out
-      tst.w   wbfo_state(a3) ;Fading-Out an ?
-      bne.s   no_workbench_fader_out ;Nein -> verzweige
+workbench_fade_enabledr_out
+      tst.w   wbfo_active(a3) ;Fading-Out an ?
+      bne.s   no_workbench_fade_enabledr_out ;Nein -> verzweige
       MOVEF.W wbf_colors_number_max*3,d6 ;Anzahl der Farbwerte*3 = Zähler
       move.l  wbf_color_cache32(a3),a0 ;Istwerte
       addq.w  #4,a0
@@ -2415,8 +2415,8 @@ workbench_fader_out
       move.w  #wbfo_fader_speed,a4 ;Additions-/Subtraktionswert RGB-Werte
       move.l  (a1),a1          ;Sollwert COLOR00
       MOVEF.W wbf_colors_number_max-1,d7 ;Anzahl der Farbwerte
-workbench_fader_out_loop
-      moveq   #TRUE,d0
+workbench_fade_enabledr_out_loop
+      moveq   #0,d0
       move.b  (a0),d0        ;8-Bit Rot-Istwert
       move.l  a1,d3          ;8-Bit Rot-Sollwert
       moveq   #TRUE,d1
@@ -2466,13 +2466,13 @@ wbfo_set_rgb
       move.b  d2,(a0)+
       move.b  d2,(a0)+
       move.b  d2,(a0)+
-      dbf     d7,workbench_fader_out_loop
+      dbf     d7,workbench_fade_enabledr_out_loop
       tst.w   d6             ;Fertig mit ausblenden ?
       bne.s   wbfo_not_finished ;Nein -> verzweige
-      not.w   wbfo_state(a3) ;Fading-Out aus
+      not.w   wbfo_active(a3) ;Fading-Out aus
 wbfo_not_finished
       CALLEXEC CacheClearU   ;Caches flushen
-no_workbench_fader_out
+no_workbench_fade_enabledr_out
       rts
       CNOP 0,4
 wbfo_decrease_red
@@ -2669,7 +2669,7 @@ save_hardware_registers
     move.b  CIATBLO(a4),os_CIAATBLO(a3) ;OS-CIA-A TBLO
     move.b  CIATBHI(a4),os_CIAATBHI(a3) ;OS-CIA-A TBHI
   
-    moveq   #TRUE,d0
+    moveq   #0,d0
     move.b  CIATODHI(a4),d0  ;CIA-A TOD-clock Bits 23-16
     swap    d0               ;Bits in richtige Position bringen
     move.b  CIATODMID(a4),d0 ;CIA-A TOD-clock Bits 15-8
@@ -2707,7 +2707,7 @@ clear_important_registers
     move.w  d0,INTREQ-DMACONR(a6) ;Interrupts löschen
     move.w  d0,ADKCON-DMACONR(a6) ;ADKCON löschen
   
-    moveq   #TRUE,d0
+    moveq   #0,d0
     move.w  d0,JOYTEST-DMACONR(a6) ;Maus + Joystickposition löschen
     move.w  d0,FMODE-DMACONR(a6) ;Fetchmode Sprites & Bitplanes = 1x
     move.l  d0,SPR0DATA-DMACONR(a6) ;Spritebitmaps löschen
@@ -2758,7 +2758,7 @@ start_own_display
   ENDC
   IFNE cl1_size3
     move.l  cl1_display(a3),COP1LC-DMACONR(a6) ;1. Copperliste eintragen
-    moveq   #TRUE,d0
+    moveq   #0,d0
     move.w  d0,COPJMP1-DMACONR(a6) ;sicherheitshalber
   ENDC
   move.w  #DMABITS&(DMAF_SPRITE|DMAF_COPPER|DMAF_RASTER|DMAF_SETCLR),DMACON-DMACONR(a6) ;Sprite/Copper/Bitplane-DMA an

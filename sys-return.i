@@ -23,7 +23,7 @@ stop_own_interrupts
   CNOP 0,4
 stop_own_display
   IFNE COPCONBITS&COPCONF_CDANG
-    moveq   #TRUE,d0
+    moveq   #0,d0
     move.w  d0,COPCON-DMACONR(a6) ;Copper kann nicht auf Blitterregister zugreifen
   ENDC
   bsr     wait_beam_position
@@ -48,7 +48,7 @@ clear_important_registers2
     move.w  d0,INTREQ-DMACONR(a6) ;Interrupts löschen
     move.w  d0,ADKCON-DMACONR(a6) ;ADKCON löschen
   
-    moveq   #TRUE,d0
+    moveq   #0,d0
     move.w  d0,AUD0VOL-DMACONR(a6) ;Lautstärke aus
     move.w  d0,AUD1VOL-DMACONR(a6)
     move.w  d0,AUD2VOL-DMACONR(a6)
@@ -163,7 +163,7 @@ tod_okay
     IFNE cl1_size3
       move.l  os_COP1LC(a3),COP1LC-DMACONR(a6) ;1. OS-Copperliste
     ENDC
-    moveq   #TRUE,d0
+    moveq   #0,d0
     move.w  d0,COPJMP1-DMACONR(a6)
   
     move.w  os_DMACON(a3),d0 ;OS-DMA
@@ -238,7 +238,7 @@ restore_os_view
     move.l  downgrade_screen(a3),a0 ;Downgrade-Screen schließen
     CALLINT CloseScreen
   
-    IFNE workbench_fade
+    IFNE workbench_fade_enabled
 free_screen_color_table32
       move.l  screen_color_table32(a3),d0 ;Wurde der Speicher belegt ?
       beq.s   restore_os_sprite_resolution ;Nein -> verzweige
@@ -258,7 +258,7 @@ restore_os_sprite_resolution
     CALLINT MakeScreen       ;Neuen Screen aufbauen
     CALLLIBS RethinkDisplay  ;Copperlisten zu View verbinden
   
-    IFEQ workbench_fade
+    IFEQ workbench_fade_enabled
 wbfi_check_monitor_id
       move.l  os_monitor_id(a3),d0
       CMPF.L  DEFAULT_MONITOR_ID,d0 ;15 kHz Default ?
@@ -270,9 +270,9 @@ wbfi_check_monitor_id
   
 wbfi_wait_fade_in
       CALLGRAF WaitTOF
-      bsr.s   workbench_fader_in
+      bsr.s   workbench_fade_enabledr_in
       bsr     wbf_set_new_colors32
-      tst.w   wbfi_state(a3)
+      tst.w   wbfi_active(a3)
       beq.s   wbfi_wait_fade_in
   
 wbf_free_color_values32_memory
@@ -294,17 +294,17 @@ wbfi_skip_fade_in
 ; ** Farben einblenden **
 ; -----------------------
   CNOP 0,4
-workbench_fader_in
-      tst.w   wbfi_state(a3) ;Fading-In an ?
-      bne     no_workbench_fader_in ;Nein -> verzweige
+workbench_fade_enabledr_in
+      tst.w   wbfi_active(a3) ;Fading-In an ?
+      bne     no_workbench_fade_enabledr_in ;Nein -> verzweige
       MOVEF.W wbf_colors_number_max*3,d6 ;Anzahl der Farbwerte*3 = Zähler
       move.l  wbf_color_cache32(a3),a0 ;Puffer für Farbwerte
       addq.w  #4,a0
       move.w  #wbfi_fader_speed,a4 ;Additions-/Subtraktionswert für RGB-Werte
       move.l  wbf_color_values32(a3),a1 ;Sollwerte
       MOVEF.W wbf_colors_number_max-1,d7 ;Anzahl der Farbwerte
-workbench_fader_in_loop
-      moveq   #TRUE,d0
+workbench_fade_enabledr_in_loop
+      moveq   #0,d0
       move.b  (a0),d0        ;8-Bit Rot-Istwert
       moveq   #TRUE,d1
       move.b  4(a0),d1       ;8-Bit Grün-Istwert
@@ -356,13 +356,13 @@ wbfi_set_rgb
       move.b  d2,(a0)+
       addq.w  #4,a1
       move.b  d2,(a0)+
-      dbf     d7,workbench_fader_in_loop
+      dbf     d7,workbench_fade_enabledr_in_loop
       tst.w   d6             ;Fertig mit ausblenden ?
       bne.s   wbfi_not_finished ;Nein -> verzweige
-      not.w   wbfi_state(a3) ;Fading-In aus
+      not.w   wbfi_active(a3) ;Fading-In aus
 wbfi_not_finished
       CALLEXEC CacheClearU   ;Caches flushen
-no_workbench_fader_in
+no_workbench_fade_enabledr_in
       rts
       CNOP 0,4
 wbfi_decrease_red
@@ -424,7 +424,7 @@ no_delay
   
   ; ** formatierten Text ausgeben **
   ; --------------------------------
-    IFEQ text_output
+    IFEQ text_output_enabled
       CNOP 0,4
 print_text
       lea     format_string(pc),a0 ;String mit Format-Zeichen
@@ -822,7 +822,7 @@ close_dos_library
 
 ; ** WB-Message ggf. noch beantworten **
 ; --------------------------------------
-    IFEQ workbench_start
+    IFEQ workbench_start_enabled
       CNOP 0,4
 reply_wb_message
       move.l  wb_message(a3),d2 ;Message 

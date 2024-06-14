@@ -272,14 +272,14 @@ error_text_viewport
 error_text_viewport_end
     EVEN
 
-    IFEQ workbench_fade
-error_text_workbench_fade
+    IFEQ workbench_fade_enabled
+error_text_workbench_fade_enabled
       DC.B "Couldn't allocate memory for color-values-buffers !",10,10
       DC.B "Press any key.",10
-error_text_workbench_fade_end
+error_text_workbench_fade_enabled_end
       EVEN
     ELSE
-error_text_workbench_fade
+error_text_workbench_fade_enabled
       DC.B "Couldn't allocate memory for color-values-buffer !",10,10
       DC.B "Press any key.",10
 error_text_worbench_fade_end

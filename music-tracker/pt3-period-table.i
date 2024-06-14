@@ -8,7 +8,7 @@ pt_PeriodTable
   DC.W 214,202,190,180,170,160,151,143,135,127,120,113 ;Octave 3
   DC.W 000                                             ;Period noop
 pt_PeriodTableEnd
-  IFEQ pt_finetune
+  IFEQ pt_finetune_enabled
     ; -> Tuning 1
     DC.W 850,802,757,715,674,637,601,567,535,505,477,450
     DC.W 425,401,379,357,337,318,300,284,268,253,239,225

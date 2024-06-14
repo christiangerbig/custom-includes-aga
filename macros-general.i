@@ -1393,7 +1393,7 @@ INIT_CHARACTERS_OFFSETS MACRO
     FAIL Makro INIT_CHARACTERS_OFFSETS: Labels-Prefix der Routine fehlt
   ENDC
   IFC "W","\0"
-    moveq   #TRUE,d0         ;X-Offset erstes Zeichen in Zeichen-Playfieldvorlage
+    moveq   #0,d0         ;X-Offset erstes Zeichen in Zeichen-Playfieldvorlage
     moveq   #\1_image_plane_width,d1 ;X-Offset letztes Zeichen in Zeichen-Playfieldvorlage
     move.w  d1,d2            ;X-Offset Resetwert
     MOVEF.W \1_image_plane_width*\1_image_depth*(\1_origin_character_y_size+1),d3              ;Y-Offset für nächste Reihe der Zeichen in Zeichen-Playfieldvorlage
@@ -1414,7 +1414,7 @@ INIT_CHARACTERS_OFFSETS MACRO
   ENDC
   IFC "L","\0"
     lea     \1_characters_offsets(pc),a0 ;Offsets der Zeichen in Zeichen-Playfieldvorlage
-    moveq   #TRUE,d0         ;X-Offset erstes Zeichen in Zeichen-Playfieldvorlage
+    moveq   #0,d0         ;X-Offset erstes Zeichen in Zeichen-Playfieldvorlage
     moveq   #\1_image_plane_width,d1 ;X-Offset letztes Zeichen in Zeichen-Playfieldvorlage
     move.l  d1,d2            ;X-Offset Resetwert
     move.l  #\1_image_plane_width*\1_image_depth*(\1_origin_character_y_size),d3              ;Y-Offset für nächste Reihe der Zeichen in Zeichen-Playfieldvorlage
@@ -1448,7 +1448,7 @@ INIT_CHARACTERS_X_POSITIONS MACRO
   IFC "","\2"
     FAIL Makro INIT_CHARACTERS_X_POSITIONS: Pixel-Auflösung "LORES", "HIRES", "SHIRES" fehlt
   ENDC
-  moveq   #TRUE,d0           ;1. X-Position
+  moveq   #0,d0           ;1. X-Position
   IFC "LORES","\2"
     moveq   #\1_text_character_x_size,d1 ;Additionswert
   ENDC
@@ -1492,7 +1492,7 @@ INIT_CHARACTERS_Y_POSITIONS MACRO
   IFC "","\1"
     FAIL Makro INIT_CHARACTERS_Y_POSITIONS: Labels-Prefix fehlt
   ENDC
-  moveq   #TRUE,d0           ;1. Y-Position
+  moveq   #0,d0           ;1. Y-Position
   moveq   #\1_text_character_y_size,d1 ;Additionswert
   lea     \1_characters_y_positions(pc),a0 ;Zeiger auf Tabelle mit X-Koords.
   IFC "","\2"
@@ -2187,7 +2187,7 @@ INIT_DISPLAY_PATTERN MACRO
   ENDC
   CNOP 0,4
 \1_init_display_pattern
-  moveq   #TRUE,d0           ;Spaltenzähler-Startwert
+  moveq   #0,d0           ;Spaltenzähler-Startwert
   moveq   #TRUE,d1           ;Langwortzugriff
   moveq   #1,d3              ;Farbnummer
   move.l  pf1_display(a3),a0 ;Playfield
@@ -2671,7 +2671,7 @@ COPY_COLOR_TABLE_TO_COPPERLIST MACRO
   IFNE \3_size2
     move.l  a4,-(a7)
   ENDC
-  tst.w   \1_copy_colors_state(a3)  ;Kopieren der Farbwerte beendet ?
+  tst.w   \1_copy_colors_active(a3) ;Kopieren der Farbwerte beendet ?
   bne.s   \1_no_copy_color_table ;Ja -> verzweige
   move.w  #$0f0f,d3          ;Maske für RGB-Nibbles
   IFGT \1_colors_number-32
@@ -2739,7 +2739,7 @@ COPY_COLOR_TABLE_TO_COPPERLIST MACRO
   tst.w   \1_colors_counter(a3) ;Fading beendet ?
   bne.s   \1_no_copy_color_table ;Nein -> verzweige
   moveq   #FALSE,d0
-  move.w  d0,\1_copy_colors_state(a3) ;Kopieren beendet
+  move.w  d0,\1_copy_colors_active(a3) ;Kopieren beendet
 \1_no_copy_color_table
   IFNE \3_size2
     move.l  (a7)+,a4

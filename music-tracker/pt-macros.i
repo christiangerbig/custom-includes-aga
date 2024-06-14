@@ -7,7 +7,7 @@ PT_FADE_OUT MACRO
 ; \1 STRING: Variablen-Offset für Variable, die auf TRUE gesetzt wird, wenn fertig
   CNOP 0,4
 pt_fade_out_music
-  tst.w   pt_fade_out_music_state(a3) ;FALSE ?
+  tst.w   pt_fade_out_music_active(a3) ;FALSE ?
   bne.s   pt_no_fade_out_music ;Ja -> verzweige
   lea     pt_audchan1temp(pc),a0  ;Temporäre Audio-Daten
   lea     AUD0VOL-DMACONR(a6),a1
@@ -33,7 +33,7 @@ pt_no_fade_out_music
   rts
   CNOP 0,4
 pt_fade_out_channel_volume
-  moveq   #TRUE,d0
+  moveq   #0,d0
   move.b  n_volume(a0),d0    ;aktuelle Kanallautstärke
   mulu.w  pt_master_volume(a3),d0 ;derzeitige allgemeine Lautstärke
   lsr.w   #6,d0              ;/ Mastervolume
@@ -42,9 +42,9 @@ pt_fade_out_channel_volume
   rts
   CNOP 0,4
 pt_fade_out_music_finished
-  not.w   pt_fade_out_music_state(a3) ;Fader aus
+  not.w   pt_fade_out_music_active(a3) ;Fader aus
   IFNC "","\1"
-    moveq   #TRUE,d0
+    moveq   #0,d0
     move.w  d0,\1(a3)        ;Ggf. zusätzliche Variable setzen
   ENDC
   rts
@@ -70,7 +70,7 @@ pt_PalSysFreqDetected
 
 
 PT_INIT_TIMERS MACRO
-  IFEQ pt_ciatiming
+  IFEQ pt_ciatiming_enabled
     move.l  pt_125bpmrate(a3),d0 ;Get 125 bpm PAL/NTSC rate
     divu.w  #pt_defaultbpm,d0 ;/125 BPM = default to normal 50 Hz timer
     move.b  d0,CIATALO(a5)   ;Set CIA-B timer A counter value low bits
@@ -79,9 +79,9 @@ PT_INIT_TIMERS MACRO
     moveq   #CIABCRABITS,d0
     move.b  d0,CIACRA(a5)    ;Loadnewtimercontinuousvalue
   ENDC
-  moveq   #CIAB_TB_value&BYTEMASK,d0 ;DMA wait
+  moveq   #CIAB_TB_time&BYTEMASK,d0 ;DMA wait
   move.b  d0,CIATBLO(a5)     ;Set CIA-B timer B counter value low bits
-  moveq   #CIAB_TB_value>>BYTESHIFTBITS,d0
+  moveq   #CIAB_TB_time>>BYTESHIFTBITS,d0
   move.b  d0,CIATBHI(a5)     ;Set CIA-B timer B counter value high bits
   moveq   #CIABCRBBITS,d0
   move.b  d0,CIACRB(a5)      ;Load new timer oneshot value
@@ -93,7 +93,7 @@ PT_INIT_REGISTERS MACRO
 pt_InitRegisters
   moveq   #CIAF_LED,d0
   or.b    d0,CIAPRA(a4)      ;Turn sound filte roff
-  moveq   #TRUE,d0
+  moveq   #0,d0
   move.w  d0,AUD0VOL-DMACONR(a6) ;Clear volume for all channels
   move.w  d0,AUD1VOL-DMACONR(a6)
   move.w  d0,AUD2VOL-DMACONR(a6)
@@ -113,7 +113,7 @@ pt_InitAudTempStrucs
   lea     pt_audchan1temp+n_dmabit(pc),a0
   move.w  d0,(a0)            ;Set DMA channel1 bit
   moveq   #FALSE,d1
-  IFEQ pt_track_channel_volumes
+  IFEQ pt_track_volumes_enabled
     move.b  d1,n_note_trigger-n_dmabit(a0) ;Disable note trigger flag
   ENDC
   move.b  d1,n_rtnsetchandma-n_dmabit(a0) ;Deactivate channel1 set routine for "Retrig Note" or "Note Delay"
@@ -121,7 +121,7 @@ pt_InitAudTempStrucs
   move.b  d1,n_rtninitchandata-n_dmabit(a0) ;Deactivate channel1 init routine for "Retrig Note" or "Note Delay"
   lea     pt_audchan2temp+n_dmabit(pc),a0
   move.w  d0,(a0)            ;Set DMA channel2 bit
-  IFEQ pt_track_channel_volumes
+  IFEQ pt_track_volumes_enabled
    move.b d1,n_note_trigger-n_dmabit(a0) ;Disablenewnoteflag
   ENDC
   move.b  d1,n_rtnsetchandma-n_dmabit(a0) ;Deactivate channel2 set routine for "Retrig Note" or "Note Delay"
@@ -129,7 +129,7 @@ pt_InitAudTempStrucs
   move.b  d1,n_rtninitchandata-n_dmabit(a0) ;Deactivate channel2 init routine for "Retrig Note" or "Note Delay"
   lea     pt_audchan3temp+n_dmabit(pc),a0
   move.w  d0,(a0)            ;Set DMA channel3 bit
-  IFEQ pt_track_channel_volumes
+  IFEQ pt_track_volumes_enabled
     move.b  d1,n_note_trigger-n_dmabit(a0) ;Disable trigger note flag
   ENDC
   move.b  d1,n_rtnsetchandma-n_dmabit(a0) ;Deactivateb channel3 set routine for "Retrig Note" or "Note Delay"
@@ -137,7 +137,7 @@ pt_InitAudTempStrucs
   move.b  d1,n_rtninitchandata-n_dmabit(a0) ;Deactivatechannel3initroutinefor"RetrigNote"or"NoteDelay"
   lea     pt_audchan4temp+n_dmabit(pc),a0
   move.w  d0,(a0)            ;SetDMAchannel4bit
-  IFEQ pt_track_channel_volumes
+  IFEQ pt_track_volumes_enabled
    move.b  d1,n_note_trigger-n_dmabit(a0) ;Disable note trigger flag
   ENDC
   move.b  d1,n_rtnsetchandma-n_dmabit(a0) ;Deactivate channel4 set routine for "Retrig Note" or "Note Delay"
@@ -150,7 +150,7 @@ PT_EXAMINE_SONG_STRUCTURE MACRO
   CNOP 0,4
 pt_ExamineSongStruc
   move.l  pt_SongDataPointer(a3),a0 ;Pointer to song data
-  moveq   #TRUE,d0           ;First pattern number (count starts at zero)
+  moveq   #0,d0           ;First pattern number (count starts at zero)
   move.b  pt_sd_numofpatt(a0),pt_SongLength(a3) ;Get number of patterns
   moveq   #TRUE,d1           ;Highest pattern number
   lea     pt_sd_pattpos(a0),a1 ;Pointer to table with pattern positions in song
@@ -162,16 +162,16 @@ pt_InitLoop
   move.l  d0,d1              ;Save higher pattern number
 pt_InitSkip
   dbf     d7,pt_InitLoop
-  IFNE pt_split_module
+  IFNE pt_split_module_enabled
     addq.w  #1,d1            ;Decrease highest pattern number (count starts at zero)
   ENDC
   ADDF.W  pt_sd_sampleinfo+pt_si_samplelength,a0 ;First sample length
-  IFNE pt_split_module
+  IFNE pt_split_module_enabled
     MULUF.W pt_pattsize/8,d1 ;Offset points to end of last pattern
   ENDC
   moveq   #TRUE,d2           ;Clear first word in sample data
   moveq   #1,d3              ;Length in words for oneshot sample
-  IFNE pt_split_module
+  IFNE pt_split_module_enabled
     lea     pt_sd_patterndata-pt_sd_id(a1,d1.w*8),a2 ;Skip MOD-ID and patterndata -> Pointer to first sample data in module
   ELSE
     move.l  pt_SamplesDataPointer(a3),a2 ;Pointers to samples
@@ -202,7 +202,7 @@ pt_InitFtuPeriodTableStarts
   lea     pt_PeriodTable(pc),a0 ;Period table pointer, finetune = 0
   lea     pt_FtuPeriodTableStarts(pc),a1 ;Table for period table pointers
   moveq   #pt_PeriodTableEnd-pt_PeriodTable,d0 ;Period table length in bytes
-  moveq   #pt_finetunenum-1,d7 ;Number of finetune values
+  moveq   #pt_finetune_enablednum-1,d7 ;Number of finetune values
 pt_InitFtuPerTableStartsLoop
   move.l  a0,(a1)+           ;Save pointer
   add.l   d0,a0              ;Pointer to next period table, finetune + n
