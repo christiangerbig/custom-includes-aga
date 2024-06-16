@@ -1224,7 +1224,7 @@ gfx_library_error
     CNOP 0,4
 check_system
     CALLEXEC Forbid            ;Multitasking aus
-    cmp.w   #AGA_os_version,Lib_Version(a6) ;Kickstart 3.0+ ?
+    cmp.w   #OS_VERSION_AGA,Lib_Version(a6) ;Kickstart 3.0+ ?
     blt.s   system_error1      ;Nein -> verzweige
 check_cpu
     move.w  AttnFlags(a6),d0   ;Prozessor-Flags 
@@ -1363,7 +1363,7 @@ no_fast_memory
     CNOP 0,4
 open_intuition_library
     lea     intuition_name(pc),a1 ;Name der Intuition-Library
-    moveq   #AGA_os_Version,d0 ;Version 3.0+
+    moveq   #OS_VERSION_AGA,d0 ;Version 3.0+
     CALLEXEC OpenLibrary       ;Intuition-Library öffnen
     lea     _IntuitionBase(pc),a0
     move.l  d0,(a0)            ;Zeiger auf Intuition-Base retten

@@ -61,6 +61,8 @@ wbfo_fader_speed                    EQU 6
 delay_time1                         EQU 50*1 ;1s bei 50 Ticks/Sekunde
 delay_time2                         EQU 50*3 ;3s bei 50 Ticks/Sekunde
 
+OS_VERSION_AGA                      EQU 39
+
 Exec_Base                           EQU $0004
 
 AFF_68060                           EQU $80
