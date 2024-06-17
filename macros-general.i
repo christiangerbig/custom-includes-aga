@@ -2515,24 +2515,24 @@ COLOR_FADER MACRO
 ; ** Rotwert **
 \1_check_red
   cmp.l   d3,d0              ;Ist-Rotwert mit Soll-Rotwert vergleichen
-  bhi.s   \1_decrease_red    ;Wenn Ist-Rotwert > Soll-Rotwert -> verzweige
-  blo.s   \1_increase_red    ;Wenn Ist-Rotwert < Soll-Rotwert -> verzweige
+  bgt.s   \1_decrease_red    ;Wenn Ist-Rotwert > Soll-Rotwert -> verzweige
+  blt.s   \1_increase_red    ;Wenn Ist-Rotwert < Soll-Rotwert -> verzweige
 \1_matched_red
   subq.w  #1,d6              ;Zähler verringern
 
 ; ** Grünwert **
 \1_check_green
   cmp.l   d4,d1              ;Ist-Grünwert mit Soll-Grünwert vergleichen
-  bhi.s   \1_decrease_green  ;Wenn Ist-Grünwert > Soll-Grünwert -> verzweige
-  blo.s   \1_increase_green  ;Wenn Ist-Grünwert < Soll-Grünwert -> verzweige
+  bgt.s   \1_decrease_green  ;Wenn Ist-Grünwert > Soll-Grünwert -> verzweige
+  blt.s   \1_increase_green  ;Wenn Ist-Grünwert < Soll-Grünwert -> verzweige
 \1_matched_green
   subq.w  #1,d6              ;Zähler verringern
 
 ; ** Blauwert **
 \1_check_blue
   cmp.w   d5,d2              ;Ist-Blauwert mit Soll-Blauwert vergleichen
-  bhi.s   \1_decrease_blue   ;Wenn Ist-Blauwert > Soll-Blauwert -> verzweige
-  blo.s   \1_increase_blue   ;Wenn Ist-Blauwert < Soll-Blauwert -> verzweige
+  bgt.s   \1_decrease_blue   ;Wenn Ist-Blauwert > Soll-Blauwert -> verzweige
+  blt.s   \1_increase_blue   ;Wenn Ist-Blauwert < Soll-Blauwert -> verzweige
 \1_matched_blue
   subq.w  #1,d6              ;Zähler verringern
 
@@ -2548,43 +2548,43 @@ COLOR_FADER MACRO
   CNOP 0,4
 \1_decrease_red
   sub.l   a2,d0              ;Rotanteil verringern
-  cmp.l   d3,d0              ;Ist-Rotwert >= Soll-Rotwert ?
-  bge.s   \1_check_green     ;Ja -> verzweige
+  cmp.l   d3,d0              ;Ist-Rotwert > Soll-Rotwert ?
+  bgt.s   \1_check_green     ;Ja -> verzweige
   move.l  d3,d0              ;Rotanteil Zielwert
   bra.s   \1_matched_red
   CNOP 0,4
 \1_increase_red
   add.l   a2,d0              ;Rotanteil erhöhen
-  cmp.l   d3,d0              ;Ist-Rotwert <= Soll-Rotwert ?
-  bls.s   \1_check_green     ;Ja -> verzweige
+  cmp.l   d3,d0              ;Ist-Rotwert < Soll-Rotwert ?
+  blt.s   \1_check_green     ;Ja -> verzweige
   move.l  d3,d0              ;Rotanteil Zielwert
   bra.s   \1_matched_red
   CNOP 0,4
 \1_decrease_green
   sub.l   a4,d1              ;Grünanteil verringern
-  cmp.l   d4,d1              ;Ist-Grünwert >= Soll-Grünwert ?
-  bge.s   \1_check_blue      ;Ja -> verzweige
+  cmp.l   d4,d1              ;Ist-Grünwert > Soll-Grünwert ?
+  bgt.s   \1_check_blue      ;Ja -> verzweige
   move.l  d4,d1              ;Grünanteil Zielwert
   bra.s   \1_matched_green
   CNOP 0,4
 \1_increase_green
   add.l   a4,d1              ;Grünanteil erhöhen
-  cmp.l   d4,d1              ;Ist-Grünwert <= Soll-Grünwert ?
-  bls.s   \1_check_blue      ;Ja -> verzweige
+  cmp.l   d4,d1              ;Ist-Grünwert < Soll-Grünwert ?
+  blt.s   \1_check_blue      ;Ja -> verzweige
   move.l  d4,d1              ;Grünanteil Zielwert
   bra.s   \1_matched_green
   CNOP 0,4
 \1_decrease_blue
   sub.w   a5,d2              ;Blauanteil verringern
-  cmp.w   d5,d2              ;Ist-Blauwert >= Soll-Blauwert ?
-  bge.s   \1_merge_rgb       ;Ja -> verzweige
+  cmp.w   d5,d2              ;Ist-Blauwert > Soll-Blauwert ?
+  bgt.s   \1_merge_rgb       ;Ja -> verzweige
   move.w  d5,d2              ;Blauanteil Zielwert
   bra.s   \1_matched_blue
   CNOP 0,4
 \1_increase_blue
   add.w   a5,d2              ;Blauanteil erhöhen
-  cmp.w   d5,d2              ;Ist-Blauwert <= Soll-Blauwert ?
-  bls.s   \1_merge_rgb       ;Ja -> verzweige
+  cmp.w   d5,d2              ;Ist-Blauwert < Soll-Blauwert ?
+  blt.s   \1_merge_rgb       ;Ja -> verzweige
   move.w  d5,d2              ;Blauanteil Zielwert
   bra.s   \1_matched_blue
   ENDM

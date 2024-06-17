@@ -65,6 +65,8 @@ OS_VERSION_AGA                      EQU 39
 
 Exec_Base                           EQU $0004
 
+ANY_LIB_VERSION                     EQU 0
+
 AFF_68060                           EQU $80
 AFB_68060                           EQU 7
 

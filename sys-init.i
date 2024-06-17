@@ -2419,37 +2419,37 @@ workbench_fade_enabledr_out_loop
       moveq   #0,d0
       move.b  (a0),d0        ;8-Bit Rot-Istwert
       move.l  a1,d3          ;8-Bit Rot-Sollwert
-      moveq   #TRUE,d1
+      moveq   #0,d1
       swap    d3             ;$00Rr
       move.b  4(a0),d1       ;8-Bit Grün-Istwert
-      moveq   #TRUE,d2
+      moveq   #0,d2
       move.b  8(a0),d2       ;8-Bit Blau-Istwert
       move.w  a1,d4          ;8-Bit Grün-Sollwert
-      moveq   #TRUE,d5
+      moveq   #0,d5
       move.b  d4,d5          ;8-Bit Blau-Sollwert
       lsr.w   #8,d4          ;$00Gg
       
 ; ** Rotwert **
 wbfo_check_red
       cmp.w   d3,d0          ;Ist-Rotwert mit Soll-Rotwert vergleichen
-      bhi.s   wbfo_decrease_red ;Wenn Ist-Rotwert < Soll-Rotwert -> verzweige
-      blo.s   wbfo_increase_red ;Wenn Ist-Rotwert > Soll-Rotwert -> verzweige
+      bgt.s   wbfo_decrease_red ;Wenn Ist-Rotwert < Soll-Rotwert -> verzweige
+      blt.s   wbfo_increase_red ;Wenn Ist-Rotwert > Soll-Rotwert -> verzweige
 wbfo_matched_red
       subq.w  #1,d6          ;Zähler verringern
   
 ; ** Grünwert  **
 wbfo_check_green
       cmp.w   d4,d1          ;Ist-Grünwert mit Soll-Grünwert vergleichen
-      bhi.s   wbfo_decrease_green ;Wenn Ist-Grünwert < Soll-Grünwert -> verzweige
-      blo.s   wbfo_increase_green ;Wenn Ist-Grünwert > Soll-Grünwert -> verzweige
+      bgt.s   wbfo_decrease_green ;Wenn Ist-Grünwert < Soll-Grünwert -> verzweige
+      blt.s   wbfo_increase_green ;Wenn Ist-Grünwert > Soll-Grünwert -> verzweige
 wbfo_matched_green
       subq.w  #1,d6          ;Zähler verringern
   
 ; ** Blauwert **
 wbfo_check_blue
       cmp.w   d5,d2          ;Ist-Blauwert mit Soll-Blauwert vergleichen
-      bhi.s   wbfo_decrease_blue ;Wenn Ist-Blauwert < Soll-Blauwert -> verzweige
-      blo.s   wbfo_increase_blue ;Wenn Ist-Blauwert > Soll-Blauwert -> verzweige
+      bgt.s   wbfo_decrease_blue ;Wenn Ist-Blauwert < Soll-Blauwert -> verzweige
+      blt.s   wbfo_increase_blue ;Wenn Ist-Blauwert > Soll-Blauwert -> verzweige
 wbfo_matched_blue
       subq.w  #1,d6          ;Zähler verringern
   
@@ -2478,42 +2478,42 @@ no_workbench_fade_enabledr_out
 wbfo_decrease_red
       sub.w   a4,d0          ;Rotanteil verringern
       cmp.w   d3,d0          ;Ist-Rotwert > Soll-Rotwert ?
-      bge.s   wbfo_check_green ;Ja -> verzweige
+      bgt.s   wbfo_check_green ;Ja -> verzweige
       move.w  d3,d0          ;Ist-Rotwert <= Soll-Rotwert
       bra.s   wbfo_matched_red
       CNOP 0,4
 wbfo_increase_red
       add.w   a4,d0          ;Rotanteil erhöhen
       cmp.w   d3,d0          ;Ist-Rotwert < Soll-Rotwert ?
-      bls.s   wbfo_check_green ;Ja -> verzweige
+      blt.s   wbfo_check_green ;Ja -> verzweige
       move.w  d3,d0          ;Ist-Rotwert >= Soll-Rotwert
       bra.s   wbfo_matched_red
       CNOP 0,4
 wbfo_decrease_green
       sub.w   a4,d1          ;Grünanteil verringern
       cmp.w   d4,d1          ;Ist-Grünwert > Soll-Grünwert ?
-      bge.s   wbfo_check_blue  ;Ja -> verzweige
+      bgt.s   wbfo_check_blue  ;Ja -> verzweige
       move.w  d4,d1          ;Ist-Grünwert <= Soll-Grünwert
       bra.s   wbfo_matched_green
       CNOP 0,4
 wbfo_increase_green
       add.w   a4,d1          ;Grünanteil erhöhen
       cmp.w   d4,d1          ;Ist-Grünwert < Soll-Grünwert ?
-      bls.s   wbfo_check_blue  ;Ja -> verzweige
+      blt.s   wbfo_check_blue  ;Ja -> verzweige
       move.w  d4,d1          ;Ist-Grünwert >= Soll-Grünwert
       bra.s   wbfo_matched_green
       CNOP 0,4
 wbfo_decrease_blue
       sub.w   a4,d2          ;Blauanteil verringern
       cmp.w   d5,d2          ;Ist-Blauwert > Soll-Blauwert ?
-      bge.s   wbfo_set_rgb   ;Ja -> verzweige
+      bgt.s   wbfo_set_rgb   ;Ja -> verzweige
       move.w  d5,d2          ;Ist-Blauwert <= Soll-Blauwert
       bra.s   wbfo_matched_blue
       CNOP 0,4
 wbfo_increase_blue
       add.w   a4,d2          :Blauanteil erhöhen
       cmp.w   d5,d2          ;Ist-Blauwert < Soll-Blauwert ?
-      bls.s   wbfo_set_rgb   ;Ja -> verzweige
+      blt.s   wbfo_set_rgb   ;Ja -> verzweige
       move.w  d5,d2          ;Ist-Blauwert >= Soll-Blauwert
       bra.s   wbfo_matched_blue
   
