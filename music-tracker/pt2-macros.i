@@ -335,7 +335,7 @@ pt_PlvSkip
   IFEQ pt_track_periods_enabled
     move.w  d2,n_current_volume(a2) ;Save new volume
   ENDC
-  IFD pt_mute_enabled
+  IFEQ pt_mute_enabled
     move.w  d5,8(a6)         ;AUDxVOL No volume
   ELSE
     move.w  d2,8(a6)         ;AUDxVOL Set new volume
@@ -1125,7 +1125,7 @@ pt_TremoloOk
     move.w  d0,n_current_volume(a2) ;Save new volume
   ENDC
   lsr.b   #2,d2              ;/4
-  IFD pt_mute_enabled
+  IFEQ pt_mute_enabled
     move.w  d5,8(a6)         ;AUDxVOL No volume
   ELSE
     move.w  d0,8(a6)         ;AUDxVOL Set new volume
@@ -1159,7 +1159,7 @@ pt_VsuSkip
   IFEQ pt_track_periods_enabled
     move.w  d2,n_current_volume(a2) ;Save new volume
   ENDC
-  IFD pt_mute_enabled
+  IFEQ pt_mute_enabled
     move.w  d5,8(a6)         ;AUDxVOL No volume
   ELSE
     move.w  d2,8(a6)         ;AUDxVOL Set new volume
@@ -1185,7 +1185,7 @@ pt_VsdSkip
   IFEQ pt_track_periods_enabled
     move.w  d2,n_current_volume(a2) ;Save new volume
   ENDC
-  IFD pt_mute_enabled
+  IFEQ pt_mute_enabled
     move.w  d5,8(a6)         ;AUDxVOL No volume
   ELSE
     move.w  d2,8(a6)         ;AUDxVOL Set new volume
@@ -1246,7 +1246,7 @@ pt_MaxVolOk
   IFEQ pt_track_periods_enabled
     move.w  d0,n_current_volume(a2) ;Save new volume
   ENDC
-  IFD pt_mute_enabled
+  IFEQ pt_mute_enabled
     move.w  d5,8(a6)         ;AUDxVOL No volume
   ELSE
     move.w  d0,8(a6)         ;AUDxVOL Set new volume

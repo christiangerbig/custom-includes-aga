@@ -46,160 +46,160 @@ start_all
 ; ** Dos-Bibliothek öffnen **
     bsr     open_dos_library
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_reply_wb_message  ;Ja -> verzweige
+    bne     cleanup_wb_message  ;Ja -> verzweige
 
 ; ** Graphics-Bibliothek öffnen **
     bsr     open_graphics_library
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_close_dos_library ;Ja -> verzweige
+    bne     cleanup_dos_library ;Ja -> verzweige
 
 ; ** Systemkonstanten überprüfen **
     bsr     check_system
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_close_graphics_library ;Ja -> verzweige
+    bne     cleanup_graphics_library ;Ja -> verzweige
 
 ; ** Auf bestimmte CPU hin überprüfen **
     IFEQ requires_68030
       bsr     check_cpu_requirements
       move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-      bne     end_close_graphics_library ;Ja -> verzweige
+      bne     cleanup_graphics_library ;Ja -> verzweige
     ENDC
     IFEQ requires_68040
       bsr     check_cpu_requirements
       move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-      bne     end_close_graphics_library ;Ja -> verzweige
+      bne     cleanup_graphics_library ;Ja -> verzweige
     ENDC
     IFEQ requires_68060
       bsr     check_cpu_requirements
       move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-      bne     end_close_graphics_library ;Ja -> verzweige
+      bne     cleanup_graphics_library ;Ja -> verzweige
     ENDC
 
 ; ** Generell auf Fast-Memory überprüfen **
     IFEQ requires_fast_memory
       bsr     check_memory_requirements
       move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-      bne     end_close_graphics_library ;Ja -> verzweige
+      bne     cleanup_graphics_library ;Ja -> verzweige
     ENDC
 
 ; ** Intuition-Bibliothek öffnen **
     bsr     open_intuition_library
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_close_graphics_library ;Ja -> verzweige
+    bne     cleanup_graphics_library ;Ja -> verzweige
 
 ; ** Userabfrage, wenn TCP/IP-Stack vorhanden ist **
     IFNE INTENABITS&INTF_PORTS
       bsr     do_tcp_stack_request
       move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-      bne     end_close_intuition_library ;Ja -> verzweige
+      bne     cleanup_intuition_library ;Ja -> verzweige
     ENDC
 
 ; ** Userabfrage, ob Multifrequenz-Monitor angeschlossen ist **
     IFEQ requires_multiscan_monitor
       bsr     do_monitor_request
       move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-      bne     end_close_intuition_library ;Ja -> verzweige
+      bne     cleanup_intuition_library ;Ja -> verzweige
     ENDC
 
 ; ** CIA-Resources öffnen **
     bsr     open_ciax_resources
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_close_intuition_library ;Ja -> verzweige
+    bne     cleanup_intuition_library ;Ja -> verzweige
 
 ; ** Timer-Device öffnen **
     bsr     open_timer_device
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_close_intuition_library ;Ja -> verzweige
+    bne     cleanup_intuition_library ;Ja -> verzweige
   ENDC
 
 ; ** Speicher für Copperlisten belegen **
   IFNE cl1_size1
     bsr     alloc_cl1_memory1
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup_all_memory ;Ja -> verzweige
   ENDC
   IFNE cl1_size2
     bsr     alloc_cl1_memory2
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup_all_memory ;Ja -> verzweige
   ENDC
   IFNE cl1_size3
     bsr     alloc_cl1_memory3
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup_all_memory ;Ja -> verzweige
   ENDC
   IFNE cl2_size1
     bsr     alloc_cl2_memory1
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup_all_memory ;Ja -> verzweige
   ENDC
   IFNE cl2_size2
     bsr     alloc_cl2_memory2
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup_all_memory ;Ja -> verzweige
   ENDC
   IFNE cl2_size3
     bsr     alloc_cl2_memory3
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup_all_memory ;Ja -> verzweige
   ENDC
 
 ; ** Speicher für Playfields belegen **
   IFNE pf1_x_size1
     bsr     alloc_pf1_memory1
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup_all_memory ;Ja -> verzweige
     bsr     check_pf1_memory1
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup_all_memory ;Ja -> verzweige
   ENDC
   IFNE pf1_x_size2
     bsr     alloc_pf1_memory2
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup_all_memory ;Ja -> verzweige
     bsr     check_pf1_memory2
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup_all_memory ;Ja -> verzweige
   ENDC
   IFNE pf1_x_size3
     bsr     alloc_pf1_memory3
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup_all_memory ;Ja -> verzweige
     bsr     check_pf1_memory3
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup_all_memory ;Ja -> verzweige
   ENDC
   IFNE pf2_x_size1
     bsr     alloc_pf2_memory1
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup_all_memory ;Ja -> verzweige
     bsr     check_pf2_memory1
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup__all_memory ;Ja -> verzweige
   ENDC
   IFNE pf2_x_size2
     bsr     alloc_pf2_memory2
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup_all_memory ;Ja -> verzweige
     bsr     check_pf2_memory2
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup_all_memory ;Ja -> verzweige
   ENDC
   IFNE pf2_x_size3
     bsr     alloc_pf2_memory3
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup_all_memory ;Ja -> verzweige
     bsr     check_pf2_memory3
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup_all_memory ;Ja -> verzweige
   ENDC
   IFNE extra_pf_number
     bsr     alloc_extra_pf_memory
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup_all_memory ;Ja -> verzweige
     bsr     check_extra_pf_memory
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup_all_memory ;Ja -> verzweige
   ENDC
 
 ; ** Speicher für Sprites belegen **
@@ -207,18 +207,18 @@ start_all
     IFNE spr_x_size1
       bsr     alloc_sprite_memory1
       move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-      bne     end_free_all_memory ;Ja -> verzweige
+      bne     cleanup_all_memory ;Ja -> verzweige
       bsr     check_sprite_memory1
       move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-      bne     end_free_all_memory ;Ja -> verzweige
+      bne     cleanup_all_memory ;Ja -> verzweige
     ENDC
     IFNE spr_x_size2
       bsr     alloc_sprite_memory2
       move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-      bne     end_free_all_memory ;Ja -> verzweige
+      bne     cleanup_all_memory ;Ja -> verzweige
       bsr     check_sprite_memory2
       move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-      bne     end_free_all_memory ;Ja -> verzweige
+      bne     cleanup_all_memory ;Ja -> verzweige
     ENDC
   ENDC
 
@@ -226,28 +226,28 @@ start_all
   IFNE audio_memory_size
     bsr     alloc_audio_memory
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup_all_memory ;Ja -> verzweige
   ENDC
 
 ; ** Speicher für Diskettenpuffer belegen **
   IFNE disk_memory_size
     bsr     alloc_disk_memory
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup_all_memory ;Ja -> verzweige
   ENDC
 
 ; ** Extra-Memory (vorrangig Fast) belegen **
   IFNE extra_memory_size
     bsr     alloc_extra_memory
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup_all_memory ;Ja -> verzweige
   ENDC
 
 ; ** Chip-Memory belegen **
   IFNE chip_memory_size
     bsr     alloc_chip_memory
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne.s   end_free_all_memory ;Ja -> verzweige
+    bne.s   cleanup_all_memory ;Ja -> verzweige
   ENDC
 
   IFD sys_taken_over
@@ -255,13 +255,13 @@ start_all
     IFD custom_memory_used
       bsr     alloc_custom_memory ;Wird von außen aufgerufen
       move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-      bne.s   end_close_timer_device ;Ja -> verzweige
+      bne.s   cleanup_timer_device ;Ja -> verzweige
     ENDC
   ELSE
 ; ** Speicher für Vektoren belegen **
     bsr     alloc_vectors_memory
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne     end_free_all_memory ;Ja -> verzweige
+    bne     cleanup_all_memory ;Ja -> verzweige
     IFD pass_global_references
       bsr     init_global_references_table
     ENDC
@@ -275,7 +275,7 @@ start_all
 ; -------------------------
     bsr     disable_system   
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
-    bne.s   end_free_all_memory ;Ja -> verzweige
+    bne.s   cleanup_all_memory ;Ja -> verzweige
     IFD all_caches
       bsr     enable_all_caches
     ENDC
@@ -300,7 +300,9 @@ start_all
   bsr     init_all
   bsr     start_own_display
   bsr     start_own_interrupts
-  bsr     start_CIA_timers
+  IFEQ CIAA_TA_continuous_enabled&CIAA_TB_continuous_enabled&CIAB_TA_continuous_enabled&CIAB_TB_continuous_enabled
+    bsr     start_CIA_timers
+  ENDC
 
 ; ** Ausführen des eigentlichen Programms **
 ; ------------------------------------------
@@ -329,7 +331,9 @@ start_all
 
 ; ** Alles stoppen **
 ; -------------------
-  bsr     stop_CIA_timers
+  IFEQ CIAA_TA_continuous_enabled&CIAA_TB_continuous_enabled&CIAB_TA_continuous_enabled&CIAB_TB_continuous_enabled
+    bsr     stop_CIA_timers
+  ENDC
   bsr     stop_own_interrupts
   bsr     stop_own_display
 
@@ -356,7 +360,7 @@ start_all
 
 ; ** Freigabe des belegten Speichers **
 ; -------------------------------------
-end_free_all_memory
+cleanup_all_memory
 
   IFD sys_taken_over
 ; ** Speicherbelegung Custom-Memory freigeben **
@@ -441,26 +445,26 @@ end_free_all_memory
 
 
 ; ** Timer-Device schließen **
-end_close_timer_device
+cleanup_timer_device
   IFND sys_taken_over
     bsr     close_timer_device
   ENDC
 
 
 ; ** Intuition-Bibliothek wieder schließen **
-end_close_intuition_library
+cleanup_intuition_library
   IFND sys_taken_over
     bsr     close_intuition_library
   ENDC
 
 ; ** Graphics-Bibliothek wieder schließen **
-end_close_graphics_library
+cleanup_graphics_library
   IFND sys_taken_over
     bsr     close_graphics_library
   ENDC
 
 ; ** Dos-Bibliothek wieder schließen **
-end_close_dos_library
+cleanup_dos_library
   IFND sys_taken_over
     bsr     print_error_message
     move.l  d0,dos_return_code(a3)
@@ -468,7 +472,7 @@ end_close_dos_library
   ENDC
 
 ; ** Ggf. Workbench-Message beantworten **
-end_reply_wb_message
+cleanup_wb_message
   IFND sys_taken_over
     IFEQ workbench_start_enabled
       bsr     reply_wb_message
@@ -478,7 +482,7 @@ end_reply_wb_message
 end_final
   IFD measure_rastertime
     move.l  rt_rasterlines_number(a3),d0
-end_output_rasterlines_number
+output_rasterlines_number
   ELSE
     move.l  dos_return_code(a3),d0
   ENDC
@@ -508,8 +512,7 @@ init_variables
     IFD wrapper
       moveq   #RETURN_OK,d2
       move.l  d2,dos_return_code(a3)
-      moveq   #NO_CUSTOM_ERROR,d2
-      move.w  d2,custom_error_code(a3)
+      move.w  #NO_CUSTOM_ERROR,custom_error_code(a3)
     ELSE
       IFD pass_return_code
         move.l  d0,dos_return_code(a3)
@@ -520,7 +523,7 @@ init_variables
     move.l  d0,(a3)          ;Länge des Eingabestrings retten
     move.l  a0,shell_parameters_pointer(a3) ;Zeiger auf Eingabestring retten
 
-    moveq   #0,d0
+    moveq   #TRUE,d0
     IFEQ workbench_start_enabled
       move.l  d0,wb_message(a3)
     ENDC
@@ -536,11 +539,10 @@ init_variables
 
     moveq   #RETURN_OK,d2
     move.l  d2,dos_return_code(a3)
-    moveq   #NO_CUSTOM_ERROR,d2
-    move.w  d2,custom_error_code(a3)
+    move.w  #NO_CUSTOM_ERROR,custom_error_code(a3)
 
     lea     _ExecBase(pc),a0
-    move.l  Exec_Base.w,(a0)   ;Zeiger auf Exec-Base retten
+    move.l  Exec_Base.w,(a0)
   ENDC
   IFD measure_rastertime
     moveq   #0,d0
@@ -554,7 +556,7 @@ init_variables
 init_structures
   IFND sys_taken_over
     bsr     init_easy_request_structure
-    bsr     init_timer_request_structure
+    bsr     init_timer_io_structure
   ENDC
   IFNE extra_pf_number
     bsr     init_extra_pf_structure
@@ -571,7 +573,7 @@ init_structures
     CNOP 0,4
 init_custom_error_table
     moveq   #GRAPHICS_LIBRARY_COULD_NOT_OPEN-1,d0
-    lea     custom_error_table(pc),a0 ;Zeiger auf eigene Fehlertabelle
+    lea     custom_error_table(pc),a0
     lea     error_text_graphics_library(pc),a1
     move.l  a1,(a0,d0.w*8)   ;Zeiger auf Fehlertext
     lea     error_text_graphics_library_end-error_text_graphics_library,a1
@@ -884,8 +886,8 @@ init_easy_request_structure
 ; ** Timer-Request-Struktur initialisieren **
 ; -------------------------------------------
     CNOP 0,4
-init_timer_request_structure
-    lea     timer_request_structure(pc),a0 ;Zeiger auf Timer-Request-Struktur
+init_timer_io_structure
+    lea     timer_io_structure(pc),a0
     moveq   #0,d0
     move.b  d0,LN_Type(a0)     ;Eintragstyp = Null
     move.b  d0,LN_Pri(a0)      ;Priorität der Struktur = Null
@@ -963,7 +965,7 @@ init_downgrade_screen_taglist
     move.l  #SA_Interleaved,(a0)+
     move.l  d0,(a0)+
     move.l  #SA_Colors32,(a0)+
-    move.l  d0,(a0)+           ;Tabelle noch nicht in Speicher belegt
+    move.l  d0,(a0)+           ;Farbtabelle noch nicht in Speicher belegt
     moveq   #TAG_DONE,d2
     move.l  d2,(a0)
     rts
@@ -974,7 +976,7 @@ init_downgrade_screen_taglist
   IFNE extra_pf_number
     CNOP 0,4
 init_extra_pf_structure
-    lea     extra_pf_attributes(pc),a0 ;Zeiger auf Struktur
+    lea     extra_pf_attributes(pc),a0
     IFGE extra_pf_number-1
       move.l  #extra_pf1_x_size,(a0)+
       move.l  #extra_pf1_y_size,(a0)+
@@ -1060,11 +1062,11 @@ init_extra_pf_structure
 
 ; ** Sprite-Eigenschaften-Struktur initialisieren **
 ; --------------------------------------------------
-  IFNE spr_x_size1+spr_x_size2
+  IFNE spr_x_size1|spr_x_size2
     CNOP 0,4
 spr_init_structure
     IFNE spr_x_size1
-      lea     sprite_attributes1(pc),a0 ;Zeiger auf Struktur
+      lea     sprite_attributes1(pc),a0
       moveq   #spr0_x_size1,d0
       move.l  d0,(a0)+
       move.l  #spr0_y_size1,(a0)+
@@ -1166,7 +1168,7 @@ test_start_from_workbench
       tst.l   pr_CLI(a2)       ;Von Workbench gestartet ?
       beq.s   start_from_workbench ;Ja -> verzweige
 start_from_shell               ;Shell-Start
-      moveq   #0,d0         
+      moveq   #RETURN_OK,d0
       rts
       CNOP 0,4
 start_from_workbench
@@ -1187,11 +1189,11 @@ task_error
   ; ------------------------
     CNOP 0,4
 open_dos_library
-    lea     dos_name(pc),a1    ;Name der DOS-Library
-    moveq   #0,d0           ;Version egal
-    CALLEXEC OpenLibrary       ;Graphics-Library öffnen
+    lea     dos_name(pc),a1
+    moveq   #ANY_LIB_VERSION,d0
+    CALLEXEC OpenLibrary
     lea     _DOSBase(pc),a0
-    move.l  d0,(a0)            ;Zeiger auf DOS-Base retten
+    move.l  d0,(a0)
     beq.s   dos_library_error  ;Wenn Fehler -> verzweige
     moveq   #RETURN_OK,d0
     rts
@@ -1204,18 +1206,17 @@ dos_library_error
 ; -----------------------------
     CNOP 0,4
 open_graphics_library
-    lea     graphics_name(pc),a1 ;Name der Graphics-Library
-    moveq   #0,d0           ;Version egal
-    CALLEXEC OpenLibrary       ;Graphics-Library öffnen
+    lea     graphics_name(pc),a1
+    moveq   #ANY_LIB_VERSION,d0
+    CALLEXEC OpenLibrary
     lea     _GFXBase(pc),a0
-    move.l  d0,(a0)            ;Zeiger auf Graphics-Base retten
+    move.l  d0,(a0)
     beq.s   gfx_library_error  ;Wenn Fehler -> verzweige
     moveq   #RETURN_OK,d0
     rts
     CNOP 0,4
 gfx_library_error
-    moveq   #GRAPHICS_LIBRARY_COULD_NOT_OPEN,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #GRAPHICS_LIBRARY_COULD_NOT_OPEN,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0
     rts
 
@@ -1223,7 +1224,7 @@ gfx_library_error
 ; ---------------------------------
     CNOP 0,4
 check_system
-    CALLEXEC Forbid            ;Multitasking aus
+    CALLEXEC Forbid
     cmp.w   #OS_VERSION_AGA,Lib_Version(a6) ;Kickstart 3.0+ ?
     blt.s   system_error1      ;Nein -> verzweige
 check_cpu
@@ -1233,13 +1234,13 @@ check_cpu
     beq.s   system_error2      ;Nein -> verzweige
     move.l  _GFXBase(pc),a2
 check_chipset
-    IFD aga_check_by_hardware
+    IFD aga_check_by_hardware_enables
       move.l  #_CUSTOM+DENISEID,a0 ;DENISEID
       move.w  -(DENISEID-VPOSR)(a0),d0
       and.w   #$7e00,d0        ;Nur Bits 8-14
-      cmp.w   #$22<<8,d0 ;PAL-Alice Revision 2 ?
+      cmp.w   #$22<<8,d0       ;PAL-Alice Revision 2 ?
       beq.s   check_lisa_id    ;Ja -> verzweige
-      cmp.w   #$23<<8,d0 ;PAL-Alice Revision 3 & 4 ?
+      cmp.w   #$23<<8,d0       ;PAL-Alice Revision 3 & 4 ?
       bne.s   system_error3    ;Nein -> verzweige
 check_lisa_id
       move.w  (a0),d0          ;ID 
@@ -1274,23 +1275,20 @@ no_fast_memory_found
     rts
     CNOP 0,4
 system_error1
-    CALLLIBS Permit            ;Multitasking an
-    moveq   #KICKSTART_VERSION_NOT_FOUND,d0
-    move.w  d0,custom_error_code(a3)
+    CALLLIBS Permit
+    move.w  #KICKSTART_VERSION_NOT_FOUND,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0
     rts
     CNOP 0,4
 system_error2
-    CALLLIBS Permit            ;Multitasking an
-    moveq   #CPU_020_NOT_FOUND,d0
-    move.w  d0,custom_error_code(a3)
+    CALLLIBS Permit
+    move.w  #CPU_020_NOT_FOUND,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0
     rts
     CNOP 0,4
 system_error3
-    CALLLIBS Permit            ;Multitasking an
-    moveq   #CHIPSET_NO_AGA_PAL,d0
-    move.w  d0,custom_error_code(a3)
+    CALLLIBS Permit
+    move.w  #CHIPSET_NO_AGA_PAL,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0
     rts
   
@@ -1305,10 +1303,8 @@ check_cpu_requirements
       rts
       CNOP 0,4
 check_cpu_error
-      moveq   #CPU_030_REQUIRED,d0
-      move.w  d0,custom_error_code(a3)
+      move.w  #CPU_030_REQUIRED,custom_error_code(a3)
       moveq   #RETURN_ERROR,d0
-      move.l  d0,dos_return_code(a3)
       rts
     ENDC
     IFEQ requires_68040
@@ -1320,10 +1316,8 @@ check_cpu_requirements
       rts
       CNOP 0,4
 check_cpu_error
-      moveq   #CPU_040_REQUIRED,d0
-      move.w  d0,custom_error_code(a3)
+      move.w  #CPU_040_REQUIRED,custom_error_code(a3)
       moveq   #RETURN_ERROR,d0
-      move.l  d0,dos_return_code(a3)
       rts
     ENDC
     IFEQ requires_68060
@@ -1335,8 +1329,7 @@ check_cpu_requirements
       rts
       CNOP 0,4
 check_cpu_error
-      moveq   #CPU_060_REQUIRED,d0
-      move.w  d0,custom_error_code(a3)
+      move.w  #CPU_060_REQUIRED,custom_error_code(a3)
       moveq   #RETURN_ERROR,d0
       rts
     ENDC
@@ -1352,8 +1345,7 @@ check_memory_requirements
       rts
       CNOP 0,4
 no_fast_memory
-      moveq   #FAST_MEMORY_REQUIRED,d0
-      move.w  d0,custom_error_code(a3)
+      move.w  #FAST_MEMORY_REQUIRED,custom_error_code(a3)
       moveq   #RETURN_ERROR,d0
       rts
     ENDC
@@ -1362,18 +1354,17 @@ no_fast_memory
 ; ------------------------------
     CNOP 0,4
 open_intuition_library
-    lea     intuition_name(pc),a1 ;Name der Intuition-Library
+    lea     intuition_name(pc),a1
     moveq   #OS_VERSION_AGA,d0 ;Version 3.0+
-    CALLEXEC OpenLibrary       ;Intuition-Library öffnen
+    CALLEXEC OpenLibrary
     lea     _IntuitionBase(pc),a0
-    move.l  d0,(a0)            ;Zeiger auf Intuition-Base retten
+    move.l  d0,(a0)
     beq.s   intuition_library_error ;Wenn Fehler -> verzweige
     moveq   #RETURN_OK,d0
     rts
     CNOP 0,4
 intuition_library_error
-    moveq   #INTUITION_LIBRARY_COULD_NOT_OPEN,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #INTUITION_LIBRARY_COULD_NOT_OPEN,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0
     rts
   
@@ -1382,32 +1373,33 @@ intuition_library_error
     IFNE INTENABITS&INTF_PORTS
       CNOP 0,4
 do_tcp_stack_request
-      CALLEXEC Forbid            ;Multitasking aus
+      CALLEXEC Forbid
       lea     LibList(a6),a0     ;Zeiger auf Library-Liste
-      lea     bsdsocket_name(pc),a1 ;Name der Bsdsocket-Library
-      CALLLIBS FindName          ;Nach der Library suchen
+      lea     bsdsocket_name(pc),a1
+      CALLLIBS FindName
       tst.l   d0
-      beq.s   no_tcp_stack_found ;Wenn = Null -> verzweige
+      beq.s   no_tcp_stack_found ;Wenn nicht gefunden -> verzweige
+tcp_stack_found
       move.l  d0,a0
       tst.w   LIB_OPENCNT(a0)
       beq.s   no_tcp_stack_found ;Wenn Bibliothek nicht offen -> verzweige
-      CALLLIBS Permit            ;Multitasking an
+      CALLLIBS Permit
       move.l  a3,a4              ;Inhalt von a3 retten
       sub.l   a0,a0              ;Requester erscheint auf Workbench
-      lea     tcp_request_structure(pc),a1 ;Zeiger auf Easy-Struktur
+      lea     tcp_request_structure(pc),a1
       move.l  a0,a2              ;Keine IDCMP-Flags
       move.l  a0,a3              ;Keine Argumentenliste
-      CALLINT EasyRequestArgs    ;Requester darstellen
+      CALLINT EasyRequestArgs
       move.l  a4,a3              ;Alter Inhalt von a3
       CMPF.L  0,d0               ;Wurde rechtes Gadget "Quit" (0) angeklickt?
       beq.s   tcp_quit_prg       ;Ja -> verzweige
       cmp.b   #1,d0              ;Wurde linkes Gadget "Proceed" (1) angeklickt?
       beq.s   do_tcp_stack_request ;Ja -> verweige
-      moveq   #0,d0           ;Mittleres Gadget "Skip" (2) angeklickt, Returncode = OK
+      moveq   #RETURN_OK,d0
       rts
       CNOP 0,4
 no_tcp_stack_found
-      CALLLIBS Permit            ;Multitasking an
+      CALLLIBS Permit
       moveq   #RETURN_OK,d0
       rts
       CNOP 0,4
@@ -1426,7 +1418,7 @@ do_monitor_request
       lea     vga_request_monitor_structure(pc),a1 ;Zeiger auf Easy-Struktur
       move.l  a0,a2            ;Keine IDCMP-Flags
       move.l  a0,a3            ;Keine Argumentenliste
-      CALLINT EasyRequestArgs  ;Requester darstellen
+      CALLINT EasyRequestArgs
       move.l  a4,a3            ;Alter Inhalt von a3
       tst.l   d0               ;Wurde rechtes Gadget angeklickt ?
       beq.s   do_monitor_request_error ;Ja -> verzweige
@@ -1442,35 +1434,33 @@ do_monitor_request_error
 ; --------------------------------------------------------------
     CNOP 0,4
 open_ciax_resources
-    lea     CIAA_name(pc),a1   ;Name der CIA-A-Resource
-    CALLEXEC OpenResource      ;Resource öffnen
+    lea     CIAA_name(pc),a1
+    CALLEXEC OpenResource
     lea     _CIABase(pc),a0
     move.l  d0,(a0)
     beq.s   ciaa_resources_error ;Wenn Fehler -> verzweige
-    moveq   #0,d0           ;Maske = NULL
-    CALLCIA AbleICR            ;ICR-Maske 
+    moveq   #0,d0              ;keine Maske
+    CALLCIA AbleICR
     move.b  d0,os_CIAAICR(a3)  
   
-    lea     CIAB_name(pc),a1   ;Name der CIA-B-Resource
-    CALLEXEC OpenResource      ;Resource öffnen
+    lea     CIAB_name(pc),a1
+    CALLEXEC OpenResource
     lea     _CIABase(pc),a0
     move.l  d0,(a0)
     beq.s   ciab_resources_error ;Wenn Fehler -> verzweige
-    moveq   #0,d0           ;Maske = NULL
-    CALLCIA AbleICR            ;ICR-Maske 
+    moveq   #0,d0              ;keine Maske
+    CALLCIA AbleICR
     move.b  d0,os_CIABICR(a3)  
     moveq   #RETURN_OK,d0
     rts
     CNOP 0,4
 ciaa_resources_error
-    moveq   #CIAA_RESOURCE_COULD_NOT_OPEN,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #CIAA_RESOURCE_COULD_NOT_OPEN,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0
     rts
     CNOP 0,4
 ciab_resources_error
-    moveq   #CIAB_RESOURCE_COULD_NOT_OPEN,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #CIAB_RESOURCE_COULD_NOT_OPEN,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0
     rts
   
@@ -1478,19 +1468,18 @@ ciab_resources_error
 ; -------------------------
     CNOP 0,4
 open_timer_device
-    lea     timer_device_name(pc),a0 ;Zeiger auf Name des Timer-Device
-    lea     timer_request_structure(pc),a1 ;Zeiger auf Timer-Request-Struktur
+    lea     timer_device_name(pc),a0
+    lea     timer_io_structure(pc),a1
     moveq   #UNIT_MICROHZ,d0   ;Unit 0
-    moveq   #TRUE,d1           ;Keine Flags
-    CALLEXEC OpenDevice        ;Timer-Device öffnen
+    moveq   #0,d1              ;Keine Flags
+    CALLEXEC OpenDevice
     tst.l   d0
     bne.s   open_timer_device_error ;Wenn Fehler -> verzweige
     moveq   #RETURN_OK,d0
     rts
     CNOP 0,4
 open_timer_device_error
-    moveq   #TIMER_DEVICE_COULD_NOT_OPEN,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #TIMER_DEVICE_COULD_NOT_OPEN,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0
     rts
   ENDC
@@ -1500,7 +1489,7 @@ open_timer_device_error
   IFNE cl1_size1
     CNOP 0,4
 alloc_cl1_memory1
-    MOVEF.L cl1_size1,d0     ;Größe der Speicherbereiches
+    MOVEF.L cl1_size1,d0
     bsr     do_alloc_chip_memory
     move.l  d0,cl1_construction1(a3) ;1. Copperliste
     beq.s   cl1_memory_error1
@@ -1508,8 +1497,7 @@ alloc_cl1_memory1
     rts
     CNOP 0,4
 cl1_memory_error1
-    moveq   #CL1_CONSTRUCTION1_NO_MEMORY,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #CL1_CONSTRUCTION1_NO_MEMORY,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0
     rts
   ENDC
@@ -1518,7 +1506,7 @@ cl1_memory_error1
   IFNE cl1_size2
     CNOP 0,4
 alloc_cl1_memory2
-    MOVEF.L cl1_size2,d0     ;Größe der Speicherbereiches
+    MOVEF.L cl1_size2,d0
     bsr     do_alloc_chip_memory
     move.l  d0,cl1_construction2(a3) ;2. Copperliste
     beq.s   cl1_memory_error2
@@ -1526,8 +1514,7 @@ alloc_cl1_memory2
     rts
     CNOP 0,4
 cl1_memory_error2
-    moveq   #CL1_CONSTRUCTION2_NO_MEMORY,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #CL1_CONSTRUCTION2_NO_MEMORY,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0
     rts
   ENDC
@@ -1536,7 +1523,7 @@ cl1_memory_error2
   IFNE cl1_size3
     CNOP 0,4
 alloc_cl1_memory3
-    MOVEF.L cl1_size3,d0     ;Größe der Speicherbereiches
+    MOVEF.L cl1_size3,d0
     bsr     do_alloc_chip_memory
     move.l  d0,cl1_display(a3) ;3. Copperliste
     beq.s   cl1_memory_error3
@@ -1544,8 +1531,7 @@ alloc_cl1_memory3
     rts
     CNOP 0,4
 cl1_memory_error3
-    moveq   #CL1_DISPLAY_NO_MEMORY,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #CL1_DISPLAY_NO_MEMORY,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0
     rts
   ENDC
@@ -1555,7 +1541,7 @@ cl1_memory_error3
   IFNE cl2_size1
     CNOP 0,4
 alloc_cl2_memory1
-    MOVEF.L cl2_size1,d0     ;Größe der Speicherbereiches
+    MOVEF.L cl2_size1,d0
     bsr     do_alloc_chip_memory
     move.l  d0,cl2_construction1(a3) ;1. Copperliste
     beq.s   cl2_memory_error1
@@ -1563,8 +1549,7 @@ alloc_cl2_memory1
     rts
     CNOP 0,4
 cl2_memory_error1
-    moveq   #CL2_CONSTRUCTION1_NO_MEMORY,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #CL2_CONSTRUCTION1_NO_MEMORY,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0
     rts
   ENDC
@@ -1573,7 +1558,7 @@ cl2_memory_error1
   IFNE cl2_size2
     CNOP 0,4
 alloc_cl2_memory2
-    MOVEF.L cl2_size2,d0     ;Größe der Speicherbereiches
+    MOVEF.L cl2_size2,d0
     bsr     do_alloc_chip_memory
     move.l  d0,cl2_construction2(a3) ;2. Copperliste
     beq.s   cl2_memory_error2
@@ -1581,8 +1566,7 @@ alloc_cl2_memory2
     rts
     CNOP 0,4
 cl2_memory_error2
-    moveq   #CL2_CONSTRUCTION2_NO_MEMORY,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #CL2_CONSTRUCTION2_NO_MEMORY,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0
     rts
   ENDC
@@ -1591,7 +1575,7 @@ cl2_memory_error2
   IFNE cl2_size3
     CNOP 0,4
 alloc_cl2_memory3
-    MOVEF.L cl2_size3,d0     ;Größe der Speicherbereiches
+    MOVEF.L cl2_size3,d0
     bsr     do_alloc_chip_memory
     move.l  d0,cl2_display(a3) ;3. Copperliste
     beq.s   cl2_memory_error3
@@ -1599,8 +1583,7 @@ alloc_cl2_memory3
     rts
     CNOP 0,4
 cl2_memory_error3
-    moveq   #CL2_DISPLAY_NO_MEMORY,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #CL2_DISPLAY_NO_MEMORY,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0  
     rts
   ENDC
@@ -1610,9 +1593,9 @@ cl2_memory_error3
   IFNE pf1_x_size1
     CNOP 0,4
 alloc_pf1_memory1
-    MOVEF.L pf1_x_size1,d0   ;Breite des Playfields
-    MOVEF.L pf1_y_size1,d1   ;Höhe des Playfields
-    moveq   #pf1_depth1,d2   ;Anzahl der Bitplanes
+    MOVEF.L pf1_x_size1,d0
+    MOVEF.L pf1_y_size1,d1
+    moveq   #pf1_depth1,d2
     bsr     do_alloc_bitmap_memory
     move.l  d0,pf1_bitmap1(a3);Zeiger auf Bitmap-Struktur
     beq.s   pf1_memory_error1   ;Wenn Null -> verzweige
@@ -1622,8 +1605,7 @@ alloc_pf1_memory1
     rts
     CNOP 0,4
 pf1_memory_error1
-    moveq   #PF1_CONSTRUCTION1_NO_MEMORY,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #PF1_CONSTRUCTION1_NO_MEMORY,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0  
     rts
 ; ** Speicher des ersten Playfields überprüfen **
@@ -1634,7 +1616,7 @@ check_pf1_memory1
     moveq   #BMA_FLAGS,d1    ;Attribute
     CALLGRAF GetBitmapAttr   ;Merkmale der Bitmap 
     btst    #BMB_DISPLAYABLE,d0 ;Bitmap darstellbar ?
-    beq.s   pf1_memory_error2   ;Nein -> verzweige
+    beq.s   pf1_memory_error2 ;Nein -> verzweige
     moveq   #pf1_depth1,d1   ;Anzahl der Bitplanes
     subq.w  #1,d1            ;Nur 1 Bitplane ?
     beq.s   no_pf1_check1    ;Ja -> verzweige
@@ -1645,8 +1627,7 @@ no_pf1_check1
     rts
     CNOP 0,4
 pf1_memory_error2
-    moveq   #PF1_CONSTRUCTION1_NOT_INTERLEAVED,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #PF1_CONSTRUCTION1_NOT_INTERLEAVED,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0  
     rts
   ENDC
@@ -1656,9 +1637,9 @@ pf1_memory_error2
   IFNE pf1_x_size2
     CNOP 0,4
 alloc_pf1_memory2
-    MOVEF.L pf1_x_size2,d0   ;Breite des Playfields
-    MOVEF.L pf1_y_size2,d1   ;Höhe des Playfields
-    moveq   #pf1_depth2,d2   ;Anzahl der Bitplanes
+    MOVEF.L pf1_x_size2,d0
+    MOVEF.L pf1_y_size2,d1
+    moveq   #pf1_depth2,d2
     bsr     do_alloc_bitmap_memory
     move.l  d0,pf1_bitmap2(a3) ;Zeiger auf Bitmap-Struktur
     beq.s   pf1_memory_error3   ;Wenn Null -> verzweige
@@ -1668,8 +1649,7 @@ alloc_pf1_memory2
     rts
     CNOP 0,4
 pf1_memory_error3
-    moveq   #PF1_CONSTRUCTION2_NO_MEMORY,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #PF1_CONSTRUCTION2_NO_MEMORY,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0  
     rts
 ; ** Speicher des zweiten Playfields überprüfen **
@@ -1680,7 +1660,7 @@ check_pf1_memory2
     moveq   #BMA_FLAGS,d1    ;Attribute
     CALLGRAF GetBitmapAttr   ;Merkmale der Bitmap 
     btst    #BMB_DISPLAYABLE,d0 ;Bitmap darstellbar ?
-    beq.s   pf1_memory_error4   ;Nein -> verzweige
+    beq.s   pf1_memory_error4 ;Nein -> verzweige
     moveq   #pf1_depth2,d1   ;Anzahl der Bitplanes
     subq.w  #1,d1            ;Nur 1 Bitplane ?
     beq.s   no_pf1_check2    ;Ja -> verzweige
@@ -1691,8 +1671,7 @@ no_pf1_check2
     rts
     CNOP 0,4
 pf1_memory_error4
-    moveq   #PF1_CONSTRUCTION2_NOT_INTERLEAVED,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #PF1_CONSTRUCTION2_NOT_INTERLEAVED,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0  
     rts
   ENDC
@@ -1702,9 +1681,9 @@ pf1_memory_error4
   IFNE pf1_x_size3
     CNOP 0,4
 alloc_pf1_memory3
-    MOVEF.L pf1_x_size3,d0   ;Breite des Playfields
-    MOVEF.L pf1_y_size3,d1   ;Höhe des Playfields
-    moveq   #pf1_depth3,d2   ;Anzahl der Bitplanes
+    MOVEF.L pf1_x_size3,d0
+    MOVEF.L pf1_y_size3,d1
+    moveq   #pf1_depth3,d2
     bsr     do_alloc_bitmap_memory
     move.l  d0,pf1_bitmap3(a3);Zeiger auf Bitmap-Struktur
     beq.s   pf1_memory_error5 ;Wenn Null -> verzweige
@@ -1714,8 +1693,7 @@ alloc_pf1_memory3
     rts
     CNOP 0,4
 pf1_memory_error5
-    moveq   #PF1_DISPLAY_NO_MEMORY,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #PF1_DISPLAY_NO_MEMORY,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0     
     rts
 ; ** Speicher des dritten Playfields überprüfen **
@@ -1737,8 +1715,7 @@ no_pf1_check3
     rts
     CNOP 0,4
 pf1_memory_error6
-    moveq   #PF1_DISPLAY_NOT_INTERLEAVED,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #PF1_DISPLAY_NOT_INTERLEAVED,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0     
     rts
   ENDC
@@ -1748,20 +1725,19 @@ pf1_memory_error6
   IFNE pf2_x_size1
     CNOP 0,4
 alloc_pf2_memory1
-    MOVEF.L pf2_x_size1,d0   ;Breite des Playfields
-    MOVEF.L pf2_y_size1,d1   ;Höhe des Playfields
-    moveq   #pf2_depth1,d2   ;Anzahl der Bitplanes
+    MOVEF.L pf2_x_size1,d0
+    MOVEF.L pf2_y_size1,d1
+    moveq   #pf2_depth1,d2
     bsr     do_alloc_bitmap_memory
     move.l  d0,pf2_bitmap1(a3);Zeiger auf Bitmap-Struktur
-    beq.s   pf2_memory_error1   ;Wenn Null -> verzweige
+    beq.s   pf2_memory_error1 ;Wenn Null -> verzweige
     addq.l  #bm_Planes,d0
     move.l  d0,pf2_construction1(a3) ;Offset 1. Bitplanezeiger
     moveq   #RETURN_OK,d0
     rts
     CNOP 0,4
 pf2_memory_error1
-    moveq   #PF2_CONSTRUCTION1_NO_MEMORY,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #PF2_CONSTRUCTION1_NO_MEMORY,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0         
     rts
 ; ** Speicher des ersten Playfields überprüfen **
@@ -1772,19 +1748,18 @@ check_pf2_memory1
     moveq   #BMA_FLAGS,d1    ;Attribute
     CALLGRAF GetBitmapAttr
     btst    #BMB_DISPLAYABLE,d0 ;Bitmap darstellbar ?
-    beq.s   pf2_memory_error2   ;Nein -> verzweige
+    beq.s   pf2_memory_error2 ;Nein -> verzweige
     moveq   #pf2_depth1,d1   ;Anzahl der Bitplanes
     subq.w  #1,d1            ;Nur 1 Bitplane ?
     beq.s   no_pf2_check1    ;Ja -> verzweige
     btst    #BMB_INTERLEAVED,d0 ;Bitmap an einem Stück ?
-    beq.s   pf2_memory_error2   ;Nein -> verzweige
+    beq.s   pf2_memory_error2 ;Nein -> verzweige
 no_pf2_check1
     moveq   #RETURN_OK,d0
     rts
     CNOP 0,4
 pf2_memory_error2
-    moveq   #PF2_CONSTRUCTION1_NOT_INTERLEAVED,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #PF2_CONSTRUCTION1_NOT_INTERLEAVED,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0        
     rts
   ENDC
@@ -1794,20 +1769,19 @@ pf2_memory_error2
   IFNE pf2_x_size2
     CNOP 0,4
 alloc_pf2_memory2
-    MOVEF.L pf2_x_size2,d0   ;Breite des Playfields
-    MOVEF.L pf2_y_size2,d1   ;Höhe des Playfields
-    moveq   #pf2_depth2,d2   ;Anzahl der Bitplanes
+    MOVEF.L pf2_x_size2,d0
+    MOVEF.L pf2_y_size2,d1
+    moveq   #pf2_depth2,d2
     bsr     do_alloc_bitmap_memory
     move.l  d0,pf2_bitmap2(a3) ;Zeiger auf Bitmap-Struktur
-    beq.s   pf2_memory_error3   ;Wenn Null -> verzweige
+    beq.s   pf2_memory_error3 ;Wenn Null -> verzweige
     addq.l  #bm_Planes,d0
     move.l  d0,pf2_construction2(a3) ;Offset 1. Bitplanezeiger
     moveq   #RETURN_OK,d0
     rts
     CNOP 0,4
 pf2_memory_error3
-    moveq   #PF2_CONSTRUCTION2_NO_MEMORY,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #PF2_CONSTRUCTION2_NO_MEMORY,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0      
     rts
 ; ** Speicher des zweiten Playfields überprüfen **
@@ -1816,21 +1790,20 @@ pf2_memory_error3
 check_pf2_memory2
     move.l  pf2_bitmap2(a3),a0 ;Zeiger auf Bitmap-Struktur
     moveq   #BMA_FLAGS,d1    ;Attribute
-    CALLGRAF GetBitmapAttr   ;Merkmale der Bitmap 
+    CALLGRAF GetBitmapAttr
     btst    #BMB_DISPLAYABLE,d0 ;Bitmap darstellbar ?
-    beq.s   pf2_memory_error4   ;Nein -> verzweige
+    beq.s   pf2_memory_error4 ;Nein -> verzweige
     moveq   #pf2_depth2,d1   ;Anzahl der Bitplanes
     subq.w  #1,d1            ;Nur 1 Bitplane ?
     beq.s   no_pf2_check2    ;Ja -> verzweige
     btst    #BMB_INTERLEAVED,d0 ;Bitmap an einem Stück ?
-    beq.s   pf2_memory_error4   ;Nein -> verzweige
+    beq.s   pf2_memory_error4 ;Nein -> verzweige
 no_pf2_check2
     moveq   #RETURN_OK,d0
     rts
     CNOP 0,4
 pf2_memory_error4
-    moveq   #PF2_CONSTRUCTION2_NOT_INTERLEAVED,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #PF2_CONSTRUCTION2_NOT_INTERLEAVED,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0      
     rts
   ENDC
@@ -1840,20 +1813,19 @@ pf2_memory_error4
   IFNE pf2_x_size3
     CNOP 0,4
 alloc_pf2_memory3
-    MOVEF.L pf2_x_size3,d0   ;Breite des Playfields
-    MOVEF.L pf2_y_size3,d1   ;Höhe des Playfields
-    moveq   #pf2_depth3,d2   ;Anzahl der Bitplanes
+    MOVEF.L pf2_x_size3,d0
+    MOVEF.L pf2_y_size3,d1
+    moveq   #pf2_depth3,d2
     bsr     do_alloc_bitmap_memory
-    move.l  d0,pf2_bitmap3(a3);Zeiger auf Bitmap-Struktur
-    beq.s   pf2_memory_error5   ;Wenn Null -> verzweige
+    move.l  d0,pf2_bitmap3(a3) ;Zeiger auf Bitmap-Struktur
+    beq.s   pf2_memory_error5 ;Wenn Null -> verzweige
     addq.l  #bm_Planes,d0
     move.l  d0,pf2_display(a3) ;Offset 1. Bitplanezeiger
     moveq   #RETURN_OK,d0
     rts
     CNOP 0,4
 pf2_memory_error5
-    moveq   #PF2_DISPLAY_NO_MEMORY,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #PF2_DISPLAY_NO_MEMORY,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0      
     rts
 ; ** Speicher des dritten Playfields überprüfen **
@@ -1864,19 +1836,18 @@ check_pf2_memory3
     moveq   #BMA_FLAGS,d1    ;Attribute
     CALLGRAF GetBitmapAttr
     btst    #BMB_DISPLAYABLE,d0 ;Bitmap darstellbar ?
-    beq.s   pf2_memory_error6   ;Nein -> verzweige
+    beq.s   pf2_memory_error6 ;Nein -> verzweige
     moveq   #pf2_depth3,d1   ;Anzahl der Bitplanes
     subq.w  #1,d1            ;Nur 1 Bitplane ?
     beq.s   no_pf2_check3    ;Ja -> verzweige
     btst    #BMB_INTERLEAVED,d0 ;Bitmap an einem Stück ?
-    beq.s   pf2_memory_error6   ;Nein -> verzweige
+    beq.s   pf2_memory_error6 ;Nein -> verzweige
 no_pf2_check3
     moveq   #RETURN_OK,d0
     rts
     CNOP 0,4
 pf2_memory_error6
-    moveq   #PF2_DISPLAY_NOT_INTERLEAVED,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #PF2_DISPLAY_NOT_INTERLEAVED,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0      
     rts
   ENDC
@@ -1905,8 +1876,7 @@ no_extra_pf_memory
     rts
     CNOP 0,4
 extra_pf_memory_error
-    moveq   #EXTRA_PLAYFIELD_NO_MEMORY,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #EXTRA_PLAYFIELD_NO_MEMORY,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0      
     rts
 ; ** Speicher des Extra-Playfields überprüfen **
@@ -1919,7 +1889,7 @@ check_extra_pf_memory
 extra_pf_check_loop
     move.l  (a2)+,a0         ;Zeiger auf Bitmap-Struktur
     moveq   #BMA_FLAGS,d1    ;Attribute
-    CALLGRAF GetBitmapAttr   ;Merkmale der Bitmap 
+    CALLGRAF GetBitmapAttr
     btst    #BMB_DISPLAYABLE,d0 ;Bitmap darstellbar ?
     beq.s   extra_pf_memory_error2 ;Nein -> verzweige
     cmp.l   #1,extra_pf_attribute_depth(a4) ;Nur 1 Bitplane ?
@@ -1934,8 +1904,7 @@ no_extra_pf_check2
     rts
     CNOP 0,4
 extra_pf_memory_error2
-    moveq   #EXTRA_PLAYFIELD_NOT_INTERLEAVED,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #EXTRA_PLAYFIELD_NOT_INTERLEAVED,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0       
     rts
   ENDC
@@ -1963,8 +1932,7 @@ spr_memory_loop1
     rts
     CNOP 0,4
 spr_memory_error1
-    moveq   #SPR_CONSTRUCTION_NO_MEMORY,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #SPR_CONSTRUCTION_NO_MEMORY,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0       
     rts
 
@@ -1987,8 +1955,7 @@ spr_check_loop1
     rts
     CNOP 0,4
 spr_memory_error2
-    moveq   #SPR_CONSTRUCTION_NOT_INTERLEAVED,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #SPR_CONSTRUCTION_NOT_INTERLEAVED,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0       
     rts
   ENDC
@@ -2016,8 +1983,7 @@ spr_memory_loop2
     rts
     CNOP 0,4
 spr_memory_error3
-    moveq   #SPR_DISPLAY_NO_MEMORY,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #SPR_DISPLAY_NO_MEMORY,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0       
     rts
 
@@ -2030,7 +1996,7 @@ check_sprite_memory2
 spr_check_loop2
     move.l  (a2)+,a0         ;Zeiger auf Sprite-Bitmap-Struktur
     moveq   #BMA_FLAGS,d1    ;Attribute
-    CALLGRAF GetBitmapAttr   ;Merkmale der Bitmap 
+    CALLGRAF GetBitmapAttr
     btst    #BMB_DISPLAYABLE,d0 ;Bitmap darstellbar ?
     beq.s   spr_memory_error4 ;Nein -> verzweige
     btst    #BMB_INTERLEAVED,d0 ;Bitmap an einem Stück ?
@@ -2040,8 +2006,7 @@ spr_check_loop2
     rts
     CNOP 0,4
 spr_memory_error4
-    moveq   #SPR_DISPLAY_NOT_INTERLEAVED,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #SPR_DISPLAY_NOT_INTERLEAVED,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0       
     rts
   ENDC
@@ -2051,7 +2016,7 @@ spr_memory_error4
   IFNE audio_memory_size
     CNOP 0,4
 alloc_audio_memory
-    MOVEF.L audio_memory_size,d0    ;Größe der Speicherbereiches
+    MOVEF.L audio_memory_size,d0
     bsr     do_alloc_chip_memory
     move.l  d0,audio_data(a3)
     beq.s   audio_memory_error
@@ -2059,8 +2024,7 @@ alloc_audio_memory
     rts
     CNOP 0,4
 audio_memory_error
-    moveq   #AUDIO_MEMORY_NO_MEMORY,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #AUDIO_MEMORY_NO_MEMORY,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0    
     rts
   ENDC
@@ -2070,16 +2034,15 @@ audio_memory_error
   IFNE disk_memory_size
     CNOP 0,4
 alloc_disk_memory
-    MOVEF.L disk_memory_size,d0     ;Größe der Speicherbereiches
+    MOVEF.L disk_memory_size,d0
     bsr     do_alloc_chip_memory
     move.l  d0,disk_data(a3)
     beq.s   disk_memory_error
-    moveq   #0,d0         
+    moveq   #RETURN_OK,d0
     rts
     CNOP 0,4
 disk_memory_error
-    moveq   #DISK_MEMORY_NO_MEMORY,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #DISK_MEMORY_NO_MEMORY,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0   
     rts
   ENDC
@@ -2089,7 +2052,7 @@ disk_memory_error
   IFNE extra_memory_size
     CNOP 0,4
 alloc_extra_memory
-    MOVEF.L extra_memory_size,d0 ;Größe der Speicherbereiches
+    MOVEF.L extra_memory_size,d0
     bsr     do_alloc_memory
     move.l  d0,extra_memory(a3)
     beq.s   extra_memory_error
@@ -2097,8 +2060,7 @@ alloc_extra_memory
     rts
     CNOP 0,4
 extra_memory_error
-    moveq   #EXTRA_MEMORY_NO_MEMORY,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #EXTRA_MEMORY_NO_MEMORY,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0   
     rts
   ENDC
@@ -2108,7 +2070,7 @@ extra_memory_error
   IFNE chip_memory_size
     CNOP 0,4
 alloc_chip_memory
-    MOVEF.L chip_memory_size,d0 ;Größe der Speicherbereiches
+    MOVEF.L chip_memory_size,d0
     bsr     do_alloc_chip_memory
     move.l  d0,chip_memory(a3)
     beq.s   chip_memory_error
@@ -2116,8 +2078,7 @@ alloc_chip_memory
     rts
     CNOP 0,4
 chip_memory_error
-    moveq   #CHIP_MEMORY_NO_MEMORY,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #CHIP_MEMORY_NO_MEMORY,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0 
     rts
   ENDC
@@ -2128,19 +2089,19 @@ chip_memory_error
   CNOP 0,4
 alloc_vectors_memory
     lea     read_vbr(pc),a5  ;Zeiger auf Supervisor-Routine
-    CALLEXEC Supervisor      ;Routine ausführen
+    CALLEXEC Supervisor
     move.l  d0,os_VBR(a3)    ;Inhalt von VBR retten
     move.l  d0,a1            ;Speicheradresse -> a1
-    CALLLIBS TypeOfMem       ;Speichertyp herausfinden
-    and.b   #MEMF_FAST,d0    ;FAST-MEM ?
+    CALLLIBS TypeOfMem
+    and.b   #MEMF_FAST,d0    ;FAST-Memory ?
     bne.s   no_alloc_vectors_memory ;Ja -> verzweige
     tst.w   fast_memory_available(a3) ;FAST-Memory vorhanden ?
-    bne.s   no_alloc_vectors_memory ;FALSE -> verzweige
-    move.l  #exception_vectors_SIZE,d0 ;Größe der Speicherbereiches
+    bne.s   no_alloc_vectors_memory ;Nein -> verzweige
+    move.l  #exception_vectors_SIZE,d0
     bsr     do_alloc_fast_memory
     move.l  d0,exception_vectors_base(a3)
     beq.s   vectors_memory_error
-    moveq   #0,d0           
+    moveq   #RETURN_OK,d0
     rts
     CNOP 0,4
 no_alloc_vectors_memory
@@ -2149,8 +2110,7 @@ no_alloc_vectors_memory
     rts
     CNOP 0,4
 vectors_memory_error
-    moveq   #EXCEPTION_VECTORS_NO_MEMORY,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #EXCEPTION_VECTORS_NO_MEMORY,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0  
     rts
 
@@ -2171,27 +2131,27 @@ disable_system
     CALLDOS Delay
   
 get_os_screen
-    moveq   #0,d0
-    CALLINT LockIBase        ;Intuition-Base einfrieren
-    move.l  ib_ActiveScreen(a6),a2 ;Zeiger auf aktiven Screen (Workbench-Screen) 
-    move.l  d0,a0            ;Lock -> a0
-    CALLLIBS UnlockIBase     ;Intuition-Base wieder freigeben
+    moveq   #0,d0            ;alle Locks
+    CALLINT LockIBase
+    move.l  ib_ActiveScreen(a6),a2
+    move.l  d0,a0
+    CALLLIBS UnlockIBase
     move.l  a2,os_screen(a3) ;Zeiger auf aktiven Screen retten
-    beq     no_active_screen_found ;Wenn NULL -> verzweige
+    beq     no_active_screen_found ;Wenn Null -> verzweige
   
 get_os_monitor_id
     lea     sc_ViewPort(a2),a0 ;Zeiger auf Viewport
-    CALLGRAF GetVPModeID     ;Monitor-ID 
+    CALLGRAF GetVPModeID
     CMPF.L  INVALID_ID,d0    ;Keine ID ?
     beq     vp_monitor_id_error ;Ja -> verzweige
     and.l   #MONITOR_ID_MASK,d0 ;Ohne Auflösung
     move.l  d0,os_monitor_id(a3) ;Monitor-ID retten
   
 get_os_sprite_resolution
-    lea     spr_taglist(pc),a1 ;Zeiger auf Taglist
+    lea     spr_taglist(pc),a1
     move.l  sc_ViewPort+vp_ColorMap(a2),a4 ;Zeiger auf Farbtabelle
     move.l  a4,a0            ;Zeiger auf Farbtabelle
-    CALLLIBS VideoControl    ;Spriteauflösung in Erfahrung bringen
+    CALLLIBS VideoControl
     lea     spr_taglist(pc),a1 ;Zeiger auf Sprite-Tagliste
     move.l  sprtl_VTAG_SPRITERESN+ti_Data(a1),os_sprite_resolution(a3) ;Alte Spriteauflösung retten
   
@@ -2202,7 +2162,7 @@ wbf_get_os_screen_colors_number
       move.l  d0,a1          ;Zeiger auf Draw-Info-Struktur
       moveq   #1,d0          ;Minimale Tiefe = 1 Bitplane
       move.w  dri_depth(a1),d7 ;Tiefe des Screens
-      subq.w  #1,d7            ;wegen dbf
+      subq.w  #1,d7          ;wegen dbf
 wbf_os_screen_depth_loop
       add.w   d0,d0          ;2^n = Anzahl der Farben des Screen
       dbf     d7,wbf_os_screen_depth_loop
@@ -2211,12 +2171,12 @@ wbf_os_screen_depth_loop
       CALLLIBS FreeScreenDrawInfo
   
 wbf_alloc_color_values32_memory
-      move.l  #wbf_colors_number_max*3*LONGWORDSIZE,d0 ;Größe der Speicherbereiches
+      move.l  #wbf_colors_number_max*3*LONGWORDSIZE,d0
       bsr     do_alloc_memory
       move.l  d0,wbf_color_values32(a3)
       beq     wbf_color_values32_memory_error
 wbf_alloc_color_cache32_memory
-      move.l  #(1+(wbf_colors_number_max*3)+1)*LONGWORDSIZE,d0 ;Größe der Speicherbereiches
+      move.l  #(1+(wbf_colors_number_max*3)+1)*LONGWORDSIZE,d0
       bsr     do_alloc_memory
       move.l  d0,wbf_color_cache32(a3)
       beq     wbf_color_cache32_memory_error
@@ -2224,7 +2184,7 @@ wbf_alloc_color_cache32_memory
 wbf_get_os_screen_colors32
       move.l  a4,a0          ;Zeiger auf Farbtabelle
       move.l  wbf_color_values32(a3),a1 ;32-Bit RGB-Werte
-      moveq   #0,d0       ;Ab COLOR00
+      moveq   #0,d0          ;Ab COLOR00
       move.l  #wbf_colors_number_max,d1 ;Alle 256 Farben
       CALLGRAF GetRGB32
   
@@ -2247,21 +2207,21 @@ wbf_copy_color_values32_loop
       move.l  a4,-(a7)
 wbfo_wait_fade_out
       CALLGRAF WaitTOF
-      bsr     workbench_fade_enabledr_out
+      bsr     workbench_fader_out
       bsr     wbf_set_new_colors32
       tst.w   wbfo_active(a3)
       beq.s   wbfo_wait_fade_out
       move.l  (a7)+,a4
     ELSE
 alloc_screen_color_table32_memory
-      move.l  #(1+(wbf_colors_number_max*3)+1)*LONGWORDSIZE,d0 ;Größe der Speicherbereiches
+      move.l  #(1+(wbf_colors_number_max*3)+1)*LONGWORDSIZE,d0
       bsr     do_alloc_memory
       move.l  d0,screen_color_table32(a3)
       beq     screen_color_table32_memory_error
   
 init_screen_color_table32
       move.l  screen_color_table32(a3),a0
-      lea     downgrade_screen_taglist(pc),a1 ;Zeiger auf Screen-TagListe
+      lea     downgrade_screen_taglist(pc),a1
       move.l  a0,sctl_SA_Colors32+ti_Data(a1)
       move.w  #wbf_colors_number_max,(a0)+ ;Alle 256 Farben
       moveq   #TRUE,d3
@@ -2286,15 +2246,15 @@ init_screen_color_table32_loop
   
 open_downgrade_screen
     sub.l   a0,a0            ;Keine NewScreen-Struktur
-    lea     downgrade_screen_taglist(pc),a1 ;Zeiger auf Screen-TagListe
-    CALLINT OpenScreenTagList ;Screen öffnen
-    move.l  d0,downgrade_screen(a3) ;Zeiger auf Screen retten
-    beq     open_downgrade_screen_error ;Wenn Fehler -> verzweige
+    lea     downgrade_screen_taglist(pc),a1
+    CALLINT OpenScreenTagList
+    move.l  d0,downgrade_screen(a3)
+    beq     open_downgrade_screen_error ;Wenn Null -> verzweige
   
 check_downgrade_screen_mode
     move.l  d0,a0            ;Screenstruktur Custom-Screen
     ADDF.W  sc_ViewPort,a0   ;Zeiger auf Viewport des Custom-Screens
-    CALLGRAF GetVPModeID     ;Monitor-ID 
+    CALLGRAF GetVPModeID
     CMPF.L  INVALID_ID,d0    ;Keine ID ?
     beq     vp_monitor_id_error ;Ja -> verzweige
     IFEQ requires_multiscan_monitor
@@ -2305,16 +2265,18 @@ check_downgrade_screen_mode
     bne     check_downgrade_screen_mode_error ;Nein -> verzweige
   
 get_os_view_parameters
-    CALLINT ViewAddress      ;Viewadresse 
+    CALLINT ViewAddress
     move.l  d0,os_view(a3)   
     IFD save_BEAMCON0
       move.l  d0,a0
-      CALLGRAF GfxLookUp     ;ViewExtra-Struktur 
+      CALLGRAF GfxLookUp
       move.l  d0,a0          ;Zeiger auf ViewExtra-Struktur retten
       move.l  ve_monitor(a0),a0 ;Zeiger auf MonitorSpec-Struktur 
       move.w  ms_BeamCon0(a0),os_BEAMCON0(a3) ;BEAMCON0 des Views retten
     ENDC
-    move.l  _GFXBase(pc),a6  ;GFX-Base -> a6
+
+get_os_copperlist_pointers
+    move.l  _GFXBase(pc),a6
     IFNE cl1_size3
       move.l  gb_Copinit(a6),os_COP1LC(a3) ;COP1LC retten
     ENDC
@@ -2325,7 +2287,7 @@ get_os_view_parameters
 downgrade_display
     sub.l   a1,a1            ;View = NULL
     CALLLIBS LoadView        ;Display auf PAL-Standart zurückfahren
-    CALLLIBS WaitTOF         ;Auf Vertical Blank warten
+    CALLLIBS WaitTOF
     CALLLIBS WaitTOF         ;2x für Interlace
     tst.l   gb_ActiView(a6)  ;Erschien zwischenzeitlich ein anderer View ?
     bne.s   downgrade_display ;Wenn ja -> neuer Versuch
@@ -2342,49 +2304,40 @@ check_os_monitor_id
 take_over_sys
     CALLGRAF OwnBlitter      ;Blitter für System sperren
     CALLLIBS WaitBlit        ;ggf. auf Blitter warten
-    lea     timer_request_structure(pc),a1 ;Zeiger auf Timer-Request-Struktur
-    moveq   #TR_GETSYSTIME,d0
-    move.w  d0,IO_command(a1) ;Befehl für Timer-Device
+    lea     timer_io_structure(pc),a1
+    move.w  #TR_GETSYSTIME,IO_command(a1)
     CALLEXEC DoIO
-    CALLLIBQ Disable         ;Interrupts aus
+    CALLLIBS Disable         ;Interrupts aus
+    moveq    #RETURN_OK,d0
+    rts
   
     CNOP 0,4
 no_active_screen_found
-    moveq   #ACTIVE_SCREEN_NOT_FOUND,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #ACTIVE_SCREEN_NOT_FOUND,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0
-    move.l  d0,dos_return_code(a3)
     rts
     CNOP 0,4
 vp_monitor_id_error
-    moveq   #VIEWPORT_MONITOR_ID_NOT_FOUND,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #VIEWPORT_MONITOR_ID_NOT_FOUND,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0
-    move.l  d0,dos_return_code(a3)
     rts
 
     IFNE workbench_fade_enabled
 screen_color_table32_memory_error
-      moveq   #WORKBENCH_FADE_NO_MEMORY,d0
-      move.w  d0,custom_error_code(a3)
+      move.w  #WORKBENCH_FADE_NO_MEMORY,custom_error_code(a3)
       moveq   #RETURN_ERROR,d0
-      move.l  d0,dos_return_code(a3)
       rts
     ENDC
 
     CNOP 0,4
 open_downgrade_screen_error
-    moveq   #SCREEN_COULD_NOT_OPEN,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #SCREEN_COULD_NOT_OPEN,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0
-    move.l  d0,dos_return_code(a3)
     rts
     CNOP 0,4
 check_downgrade_screen_mode_error
-    moveq   #SCREEN_DISPLAY_MODE_NOT_AVAILABLE,d0
-    move.w  d0,custom_error_code(a3)
+    move.w  #SCREEN_DISPLAY_MODE_NOT_AVAILABLE,custom_error_code(a3)
     moveq   #RETURN_ERROR,d0
-    move.l  d0,dos_return_code(a3)
     rts
   
     IFEQ workbench_fade_enabled
@@ -2393,29 +2346,27 @@ wbf_color_cache32_memory_error
       move.l  wbf_color_values32(a3),d0 ;Konnte der Spwicher reserviert werden?
       beq.s   wbf_color_values32_memory_error ;Nein -> verzweige
       move.l  d0,a1            ;Zeiger auf Speicherbereich
-      move.l  #wbf_colors_number_max*3*LONGWORDSIZE,d0  ;Größe der Speicherbereiches
+      move.l  #wbf_colors_number_max*3*LONGWORDSIZE,d0
       CALLEXEC FreeMem         ;Speicher freigeben
 wbf_color_values32_memory_error
-      moveq   #WORKBENCH_FADE_NO_MEMORY,d0
-      move.w  d0,custom_error_code(a3)
+      move.w  #WORKBENCH_FADE_NO_MEMORY,custom_error_code(a3)
       moveq   #RETURN_ERROR,d0
-      move.l  d0,dos_return_code(a3)
       rts
   
 ; ** Farben ausblenden **
 ; -----------------------
       CNOP 0,4
-workbench_fade_enabledr_out
+workbench_fader_out
       tst.w   wbfo_active(a3) ;Fading-Out an ?
-      bne.s   no_workbench_fade_enabledr_out ;Nein -> verzweige
-      MOVEF.W wbf_colors_number_max*3,d6 ;Anzahl der Farbwerte*3 = Zähler
+      bne.s   no_workbench_fader_out ;Nein -> verzweige
+      MOVEF.W wbf_colors_number_max*3,d6 ;Zähler
       move.l  wbf_color_cache32(a3),a0 ;Istwerte
       addq.w  #4,a0
       lea     pf1_color_table(pc),a1 ;Zielwert
       move.w  #wbfo_fader_speed,a4 ;Additions-/Subtraktionswert RGB-Werte
       move.l  (a1),a1          ;Sollwert COLOR00
       MOVEF.W wbf_colors_number_max-1,d7 ;Anzahl der Farbwerte
-workbench_fade_enabledr_out_loop
+workbench_fader_out_loop
       moveq   #0,d0
       move.b  (a0),d0        ;8-Bit Rot-Istwert
       move.l  a1,d3          ;8-Bit Rot-Sollwert
@@ -2466,13 +2417,14 @@ wbfo_set_rgb
       move.b  d2,(a0)+
       move.b  d2,(a0)+
       move.b  d2,(a0)+
-      dbf     d7,workbench_fade_enabledr_out_loop
+      dbf     d7,workbench_fader_out_loop
       tst.w   d6             ;Fertig mit ausblenden ?
       bne.s   wbfo_not_finished ;Nein -> verzweige
-      not.w   wbfo_active(a3) ;Fading-Out aus
+      moveq   #FALSE,d0
+      move.w  d0,wbfo_active(a3) ;Fading-Out aus
 wbfo_not_finished
       CALLEXEC CacheClearU   ;Caches flushen
-no_workbench_fade_enabledr_out
+no_workbench_fader_out
       rts
       CNOP 0,4
 wbfo_decrease_red
@@ -2522,7 +2474,7 @@ wbfo_increase_blue
       CNOP 0,4
 wbf_set_new_colors32
       move.l  wbf_color_cache32(a3),a1
-      lea     sc_ViewPort(a2),a0 ;Zeiger auf Viewport
+      lea     sc_ViewPort(a2),a0
       CALLGRAFQ LoadRGB32
     ENDC
   
@@ -2534,7 +2486,7 @@ enable_all_caches
       move.l  #CACRF_EnableI+CACRF_IBE+CACRF_EnableD+CACRF_DBE+CACRF_WriteAllocate+CACRF_EnableE+CACRF_CopyBack,d0 ;Alle Caches einschalten
       move.l  #CACRF_EnableI+CACRF_FreezeI+CACRF_ClearI+CACRF_IBE+CACRF_EnableD+CACRF_FreezeD+CACRF_ClearD+CACRF_DBE+CACRF_WriteAllocate+CACRF_EnableE+CACRF_CopyBack,d1 ;Alle Bits ändern
       CALLEXEC CacheControl
-      move.l  d0,os_CACR(a3) ;Alten Inhalt retten
+      move.l  d0,os_CACR(a3)
       rts
     ENDC
   
@@ -2646,28 +2598,28 @@ no_vbr_move
 ; ------------------------------
     CNOP 0,4
 save_hardware_registers
-    move.w  (a6),os_DMACON(a3) ;OS-DMACON
-    move.w  INTENAR-DMACONR(a6),os_INTENA(a3) ;OS-INTENA
-    move.w  ADKCONR-DMACONR(a6),os_ADKCON(a3) ;os_ADKCON
+    move.w  (a6),os_DMACON(a3)
+    move.w  INTENAR-DMACONR(a6),os_INTENA(a3)
+    move.w  ADKCONR-DMACONR(a6),os_ADKCON(a3)
   
-    move.b  CIAPRA(a4),os_CIAAPRA(a3) ;OS-CIA-A-PRA
+    move.b  CIAPRA(a4),os_CIAAPRA(a3)
     move.b  CIACRA(a4),d0
-    move.b  d0,os_CIAACRA(a3) ;OS-CIA-A CRA
+    move.b  d0,os_CIAACRA(a3)
     and.b   #~(CIACRAF_START),d0 ;Timer A stoppen
     or.b    #CIACRAF_LOAD,d0 ;Zählwert laden
     move.b  d0,CIACRA(a4)
     nop
-    move.b  CIATALO(a4),os_CIAATALO(a3) ;OS-CIA-A TALO
-    move.b  CIATAHI(a4),os_CIAATAHI(a3) ;OS-CIA-A TAHI
+    move.b  CIATALO(a4),os_CIAATALO(a3)
+    move.b  CIATAHI(a4),os_CIAATAHI(a3)
   
     move.b  CIACRB(a4),d0
-    move.b  d0,os_CIAACRB(a3) ;OS-CIA-A CRB
+    move.b  d0,os_CIAACRB(a3)
     and.b   #~(CIACRBF_ALARM-CIACRBF_START),d0 ;Timer B stoppen
     or.b    #CIACRBF_LOAD,d0 ;Zählwert laden
     move.b  d0,CIACRB(a4)
     nop
-    move.b  CIATBLO(a4),os_CIAATBLO(a3) ;OS-CIA-A TBLO
-    move.b  CIATBHI(a4),os_CIAATBHI(a3) ;OS-CIA-A TBHI
+    move.b  CIATBLO(a4),os_CIAATBLO(a3)
+    move.b  CIATBHI(a4),os_CIAATBHI(a3)
   
     moveq   #0,d0
     move.b  CIATODHI(a4),d0  ;CIA-A TOD-clock Bits 23-16
@@ -2677,24 +2629,24 @@ save_hardware_registers
     move.b  CIATODLOW(a4),d0 ;CIA-A TOD-clock Bits 7-0
     move.l  d0,tod_time_save(a3) 
   
-    move.b  CIAPRB(a5),os_CIABPRB(a3) ;OS-CIA-B PRB
+    move.b  CIAPRB(a5),os_CIABPRB(a3)
     move.b  CIACRA(a5),d0
-    move.b  d0,os_CIAACRA(a3) ;OS-CIA-B CRA
+    move.b  d0,os_CIAACRA(a3)
     and.b   #~(CIACRAF_START),d0 ;Timer A stoppen
     or.b    #CIACRAF_LOAD,d0 ;Zählwert laden
     move.b  d0,CIACRA(a5)
     nop
-    move.b  CIATALO(a5),os_CIABTALO(a3) ;OS-CIA-B TALO
-    move.b  CIATAHI(a5),os_CIABTAHI(a3) ;OS-CIA-B TAHI
+    move.b  CIATALO(a5),os_CIABTALO(a3)
+    move.b  CIATAHI(a5),os_CIABTAHI(a3)
   
     move.b  CIACRB(a5),d0
-    move.b  d0,os_CIABCRB(a3) ;OS-CIA-B CRB
+    move.b  d0,os_CIABCRB(a3)
     and.b   #~(CIACRBF_ALARM-CIACRBF_START),d0 ;Timer B stoppen
     or.b    #CIACRBF_LOAD,d0 ;Zählwert laden
     move.b  d0,CIACRB(a5)
     nop
-    move.b  CIATBLO(a5),os_CIABTBLO(a3) ;OS-CIA-B TBLO
-    move.b  CIATBHI(a5),os_CIABTBHI(a3) ;OS-CIA-B TBHI
+    move.b  CIATBLO(a5),os_CIABTBLO(a3)
+    move.b  CIATBHI(a5),os_CIABTBHI(a3)
     rts
   
 ; ** Wichtige Register löschen **
@@ -2719,7 +2671,7 @@ clear_important_registers
     move.l  d0,SPR6DATA-DMACONR(a6)
     move.l  d0,SPR7DATA-DMACONR(a6)
   
-    moveq   #$7f,d0          ;Bits 0-6 löschen
+    moveq   #$7f,d0
     move.b  d0,CIAICR(a4)    ;CIA-A-Interrupts aus
     move.b  d0,CIAICR(a5)    ;CIA-B-Interrupts aus
     move.b  CIAICR(a4),d0    ;CIA-A-Interrupts löschen
@@ -2730,7 +2682,7 @@ clear_important_registers
   ; ---------------------------------------------
     CNOP 0,4
 turn_off_drive_motors
-    move.b  CIAPRB(a5),d0    ;CIA-B-PRB auslesen
+    move.b  CIAPRB(a5),d0
     moveq   #CIAF_DSKSEL0+CIAF_DSKSEL1+CIAF_DSKSEL2+CIAF_DSKSEL3,d1 ;Unit 0-3
     or.b    d1,d0
     move.b  d0,CIAPRB(a5)    ;df0: bis df3: deaktivieren
@@ -2748,7 +2700,7 @@ turn_off_drive_motors
   CNOP 0,4
 start_own_display
   bsr     wait_vbi
-  bsr     wait_vbi           ;Muß sein !
+  bsr     wait_vbi
   moveq   #COPCONBITS,d0     ;Copper kann ggf. auf Blitteregister zurückgreifen
   move.w  d0,COPCON-DMACONR(a6)
   IFNE cl2_size3
@@ -2759,7 +2711,7 @@ start_own_display
   IFNE cl1_size3
     move.l  cl1_display(a3),COP1LC-DMACONR(a6) ;1. Copperliste eintragen
     moveq   #0,d0
-    move.w  d0,COPJMP1-DMACONR(a6) ;sicherheitshalber
+    move.w  d0,COPJMP1-DMACONR(a6) ;sicherheitshalber manuell starten
   ENDC
   move.w  #DMABITS&(DMAF_SPRITE|DMAF_COPPER|DMAF_RASTER|DMAF_SETCLR),DMACON-DMACONR(a6) ;Sprite/Copper/Bitplane-DMA an
   rts

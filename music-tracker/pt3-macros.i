@@ -128,7 +128,7 @@ pt_CheckEffects
   IFEQ pt_track_periods_enabled
     move.w  d0,n_current_volume(a2) ;Save new volume
   ENDC
-  IFD pt_mute_enabled
+  IFEQ pt_mute_enabled
     move.w  d5,8(a6)         ;AUDxVOL No volume
   ELSE
     move.w  d0,8(a6)         ;AUDxVOL Set new volume
@@ -358,7 +358,7 @@ pt_Plv2
   IFEQ pt_track_periods_enabled
     move.w  d0,n_current_volume(a2) ;Save new volume
   ENDC
-  IFD pt_mute_enabled
+  IFEQ pt_mute_enabled
     move.w  d5,8(a6)         ;AUDxVOL No volume
   ELSE
     move.w  d0,8(a6)         ;AUDxVOL Set new volume
@@ -1197,7 +1197,7 @@ pt_TremoloOk
     move.w  d0,n_current_volume(a2) ;Save new volume
   ENDC
   lsr.b   #2,d2              ;/4
-  IFD pt_mute_enabled
+  IFEQ pt_mute_enabled
     move.w  d5,8(a6)         ;AUDxVOL No volume
   ELSE
     move.w  d0,8(a6)         ;AUDxVOL Set new volume

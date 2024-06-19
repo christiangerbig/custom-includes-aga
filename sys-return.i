@@ -42,7 +42,7 @@ stop_own_display
 ; -------------------------------
     CNOP 0,4
 clear_important_registers2
-    move.w  #$7fff,d0        ;Bits 0-14 löschen
+    move.w  #$7fff,d0
     move.w  d0,DMACON-DMACONR(a6) ;DMA aus
     move.w  d0,INTENA-DMACONR(a6) ;Interrupts aus
     move.w  d0,INTREQ-DMACONR(a6) ;Interrupts löschen
@@ -55,7 +55,7 @@ clear_important_registers2
     move.w  d0,AUD3VOL-DMACONR(a6)
   
     move.w  d0,FMODE-DMACONR(a6) ;Fetchmode Sprites & Bitplanes = 1x
-    move.l  d0,SPR0DATA-DMACONR(a6) ;Spritebitmaps löschen
+    move.l  d0,SPR0DATA-DMACONR(a6) ;Spritebitmaps manuell löschen
     move.l  d0,SPR1DATA-DMACONR(a6)
     move.l  d0,SPR2DATA-DMACONR(a6)
     move.l  d0,SPR3DATA-DMACONR(a6)
@@ -79,56 +79,56 @@ clear_important_registers2
 ; ----------------------------------------------
     CNOP 0,4
 restore_hardware_registers
-    move.b  os_CIAAPRA(a3),CIAPRA(a4) ;Alter Inhalt von CIA-A-PRA
+    move.b  os_CIAAPRA(a3),CIAPRA(a4)
   
-    move.b  os_CIAATALO(a3),CIATALO(a4) ;Alter Inhalt von CIA-A TALO
+    move.b  os_CIAATALO(a3),CIATALO(a4)
     nop
-    move.b  os_CIAATAHI(a3),CIATAHI(a4) ;Alter Inhalt von CIA-A TAHI
+    move.b  os_CIAATAHI(a3),CIATAHI(a4)
   
-    move.b  os_CIAATBLO(a3),CIATBLO(a4) ;Alter Inhalt von CIA-A TBLO
+    move.b  os_CIAATBLO(a3),CIATBLO(a4)
     nop
-    move.b  os_CIAATBHI(a3),CIATBHI(a4) ;Alter Inhalt von CIA-A TBHI
+    move.b  os_CIAATBHI(a3),CIATBHI(a4)
   
     move.b  os_CIAAICR(a3),d0
     tas     d0               ;Bit 7 ggf. setzen
-    move.b  d0,CIAICR(a4)    ;OS-CIA-A-ICR
+    move.b  d0,CIAICR(a4)
   
-    move.b  os_CIAACRA(a3),d0 ;Alter Inhalt von CIA-A CRA
+    move.b  os_CIAACRA(a3),d0
     btst    #CIACRAB_RUNMODE,d0 ;Continuous-Modus ?
     bne.s   CIAA_TA_no_continuous ;Nein -> verzweige
     or.b    #CIACRAF_START,d0 ;Ja -> Timer A starten
 CIAA_TA_no_continuous
     move.b  d0,CIACRA(a4)
   
-    move.b  os_CIAACRB(a3),d0 ;Alter Inhalt von CIA-A CRB
+    move.b  os_CIAACRB(a3),d0
     btst    #CIACRBB_RUNMODE,d0 ;Continuous-Modus ?
     bne.s   CIAA_TB_no_continuous ;Nein -> verzweige
     or.b    #CIACRBF_START,d0 ;Ja -> Timer B starten
 CIAA_TB_no_continuous
     move.b  d0,CIACRB(a4)
   
-    move.b  os_CIABPRB(a3),CIAPRB(a5) ;Alter Inhalt von CIA-B-PRB
+    move.b  os_CIABPRB(a3),CIAPRB(a5)
   
-    move.b  os_CIABTALO(a3),CIATALO(a5) ;Alter Inhalt von CIA-B TALO
+    move.b  os_CIABTALO(a3),CIATALO(a5)
     nop
-    move.b  os_CIABTAHI(a3),CIATAHI(a5) ;Alter Inhalt von CIA-B TAHI
+    move.b  os_CIABTAHI(a3),CIATAHI(a5)
   
-    move.b  os_CIABTBLO(a3),CIATBLO(a5) ;Alter Inhalt von CIA-B TBLO
+    move.b  os_CIABTBLO(a3),CIATBLO(a5)
     nop
-    move.b  os_CIABTBHI(a3),CIATBHI(a5) ;Alter Inhalt von CIA-B TBHI
+    move.b  os_CIABTBHI(a3),CIATBHI(a5)
   
     move.b  os_CIABICR(a3),d0
     tas     d0               ;Bit 7 ggf. setzen
-    move.b  d0,CIAICR(a5)    ;OS-CIA-B-ICR
+    move.b  d0,CIAICR(a5)
   
-    move.b  os_CIABCRA(a3),d0 ;Alter Inhalt von CIA-B CRA
+    move.b  os_CIABCRA(a3),d0
     btst    #CIACRAB_RUNMODE,d0 ;Continuous-Modus ?
     bne.s   CIAB_TA_no_continuous ;Nein -> verzweige
     or.b    #CIACRAF_START,d0 ;Ja -> Timer A starten
 CIAB_TA_no_continuous
     move.b  d0,CIACRA(a5)
   
-    move.b  os_CIABCRB(a3),d0 ;Alter Inhalt von CIA-B CRB
+    move.b  os_CIABCRB(a3),d0
     btst    #CIACRBB_RUNMODE,d0 ;Continuous-Modus ?
     bne.s   CIAB_TB_no_continuous ;Nein -> verzweige
     or.b    #CIACRBF_START,d0 ;Ja -> Timer B starten
@@ -136,7 +136,7 @@ CIAB_TB_no_continuous
     move.b  d0,CIACRB(a5)
   
     move.l  tod_time_save(a3),d0 ;Zeit vor Programmstart
-    moveq   #TRUE,d1
+    moveq   #0,d1
     move.b  CIATODHI(a4),d1  ;CIA-A TOD-clock Bits 23-16
     swap    d1               ;Bits in richtige Position bringen
     move.b  CIATODMID(a4),d1 ;CIA-A TOD-clock Bits 15-8
@@ -147,42 +147,42 @@ CIAB_TB_no_continuous
     move.l  #$ffffff,d2      ;Maximalwert
     sub.l   d0,d2            ;Differenz bis zum Überlauf
     add.l   d2,d1            ;+ Wert nach dem Überlauf
-    bra.s   tod_okay
+    bra.s   save_tod
     CNOP 0,4
 no_tod_overflow
     sub.l   d0,d1            ;Normale Differenz
-tod_okay
+save_tod
     move.l  d1,tod_time_save(a3) 
   
     IFD save_BEAMCON0
       move.w  os_BEAMCON0(a3),BEAMCON0-DMACONR(a6)
     ENDC
     IFNE cl2_size3
-      move.l  os_COP2LC(a3),COP2LC-DMACONR(a6) ;2. OS-Copperliste
+      move.l  os_COP2LC(a3),COP2LC-DMACONR(a6)
     ENDC
     IFNE cl1_size3
-      move.l  os_COP1LC(a3),COP1LC-DMACONR(a6) ;1. OS-Copperliste
+      move.l  os_COP1LC(a3),COP1LC-DMACONR(a6)
     ENDC
     moveq   #0,d0
     move.w  d0,COPJMP1-DMACONR(a6)
   
-    move.w  os_DMACON(a3),d0 ;OS-DMA
+    move.w  os_DMACON(a3),d0
     and.w   #~DMAF_RASTER,d0 ;Bitplane-DMA ggf. aus
     or.w    #DMAF_SETCLR,d0  ;Bit 15 ggf. setzen
-    move.w  d0,DMACON-DMACONR(a6) ;OS-DMA
-    move.w  os_INTENA(a3),d0 ;OS-INTENA
+    move.w  d0,DMACON-DMACONR(a6)
+    move.w  os_INTENA(a3),d0
     or.w    #INTF_SETCLR,d0  ;Bit 15 ggf. setzen
-    move.w  d0,INTENA-DMACONR(a6) ;OS-INTENA
-    move.w  os_ADKCON(a3),d0 ;OS-ADKCON
+    move.w  d0,INTENA-DMACONR(a6)
+    move.w  os_ADKCON(a3),d0
     or.w    #ADKF_SETCLR,d0  ;Bit 15 ggf. setzen
-    move.w  d0,ADKCON-DMACONR(a6) ;OS-ADKCON
-    move.l  os_VBR(a3),d0    ;Alter Inhalt des VBR-Registers
+    move.w  d0,ADKCON-DMACONR(a6)
+    move.l  os_VBR(a3),d0
     lea     write_VBR(pc),a5 ;Zeiger auf Supervisor-Routine
     CALLEXECQ Supervisor
   
     IFD all_caches
 enable_os_caches
-      move.l  os_CACR(a3),d0 ;Alter Inhalt des CACR-Registers
+      move.l  os_CACR(a3),d0
       move.l  #CACRF_EnableI+CACRF_FreezeI+CACRF_ClearI+CACRF_IBE+CACRF_EnableD+CACRF_FreezeD+CACRF_ClearD+CACRF_DBE+CACRF_WriteAllocate+CACRF_EnableE+CACRF_CopyBack,d1 ;Alle Bits ändern
       CALLEXECQ CacheControl
     ENDC
@@ -198,7 +198,7 @@ enable_store_buffer
 restore_exception_vectors
     lea     exception_vecs_save(pc),a0 ;Quelle
     move.l  os_VBR(a3),a1    ;Ziel = Reset (Initial SSP)
-    MOVEF.W (exception_vectors_SIZE/4)-1,d7 ;Anzahl der Vektoren
+    MOVEF.W (exception_vectors_SIZE/LONGWORDSIZE)-1,d7 ;Anzahl der Vektoren
 copy_vectors_loop3
     move.l  (a0)+,(a1)+      ;Vektor kopieren
     dbf     d7,copy_vectors_loop3
@@ -212,30 +212,30 @@ enable_system
 
 update_clock
     move.l  tod_time_save(a3),d0 ;Vergangene Zeit, als System ausgeschaltet war
-    moveq   #TRUE,d1
+    moveq   #0,d1
     move.b  VBlankFrequency(a6),d1 ;Frequenz ermitteln
-    lea     timer_request_structure(pc),a1 ;Zeiger auf Timer-Request-Struktur
+    lea     timer_io_structure(pc),a1 ;Zeiger auf Timer-IO-Struktur
     divu.w  d1,d0            ;/Vertikalfrequenz (50Hz) = Sekunden, Rest Microsekunden
     move.w  #TR_SETSYSTIME,IO_command(a1) ;Befehl für Timer-Device
     move.l  d0,d1            
     ext.l   d0               ;Auf 32 Bit erweitern
     swap    d1               ;Rest der Division
     add.l   d0,IO_SIZE+TV_SECS(a1) ;Unix-Time Sekunden setzen
-    mulu.w  #10000,d1        ;*10000 = µs
+    mulu.w  #10000,d1        ;In µs
     add.l   d1,IO_SIZE+TV_MICRO(a1) ;Unix-Time Mikrosekunden setzen
     CALLLIBS DoIO
   
 restore_os_view
-    CALLGRAF DisOwnBlitter   ;Blitter für System freigeben
+    CALLGRAF DisOwnBlitter
     sub.l    a1,a1           ;Kein Display
     CALLLIBS LoadView
-    CALLLIBS WaitTOF         ;Auf Vertical Blank warten
+    CALLLIBS WaitTOF
     CALLLIBS WaitTOF         ;Bei Interlace
-    move.l   os_view(a3),a1  ;Alten View laden
+    move.l   os_view(a3),a1
     CALLLIBS LoadView
-    CALLLIBS WaitTOF         ;Auf Vertical Blank warten
+    CALLLIBS WaitTOF
     CALLLIBS WaitTOF         ;Bei Interlace
-    move.l  downgrade_screen(a3),a0 ;Downgrade-Screen schließen
+    move.l  downgrade_screen(a3),a0
     CALLINT CloseScreen
   
     IFNE workbench_fade_enabled
@@ -248,15 +248,15 @@ free_screen_color_table32
     ENDC
   
 restore_os_sprite_resolution
-    move.l  os_screen(a3),a2 ;Zeiger auf alten Screen (Workbench-Screen)
-    lea     spr_taglist(pc),a1 ;Zeiger auf Taglist
-    move.l  sc_ViewPort+vp_ColorMap(a2),a0 ;Zeiger auf Farbtabelle
+    move.l  os_screen(a3),a2
+    lea     spr_taglist(pc),a1
+    move.l  sc_ViewPort+vp_ColorMap(a2),a0
     move.l  #VTAG_SPRITERESN_SET,sprtl_VTAG_SPRITERESN+ti_Tag(a1)
     move.l  os_sprite_resolution(a3),sprtl_VTAG_SPRITERESN+ti_Data(a1) ;alte Auflösung
-    CALLGRAF VideoControl    ;Alte Sprite-Auflösung wieder herstellen
+    CALLGRAF VideoControl
     move.l  a2,a0            ;Zeiger auf alten Screen
-    CALLINT MakeScreen       ;Neuen Screen aufbauen
-    CALLLIBS RethinkDisplay  ;Copperlisten zu View verbinden
+    CALLINT MakeScreen
+    CALLLIBS RethinkDisplay
   
     IFEQ workbench_fade_enabled
 wbfi_check_monitor_id
@@ -279,13 +279,13 @@ wbf_free_color_values32_memory
       move.l  wbf_color_values32(a3),d0 ;Wurde der Speicher belegt ?
       beq.s   wbf_free_color_cache32_memory ;Nein -> verzweige
       move.l  d0,a1          ;Zeiger auf Speicherbereich
-      move.l  #wbf_colors_number_max*3*LONGWORDSIZE,d0 ;Größe der Speicherbereiches
+      move.l  #wbf_colors_number_max*3*LONGWORDSIZE,d0
       CALLEXEC FreeMem       ;Speicher freigeben
 wbf_free_color_cache32_memory
       move.l  wbf_color_cache32(a3),d0  ;Wurde der Speicher belegt ?
       beq.s   wbfi_skip_fade_in ;Nein -> verzweige
       move.l  d0,a1          ;Zeiger auf Speicherbereich
-      move.l  #(1+(wbf_colors_number_max*3)+1)*LONGWORDSIZE,d0 ;Größe der Speicherbereiches
+      move.l  #(1+(wbf_colors_number_max*3)+1)*LONGWORDSIZE,d0
       CALLLIBQ FreeMem       ;Speicher freigeben
       CNOP 0,4
 wbfi_skip_fade_in
@@ -408,7 +408,7 @@ wbfi_increase_blue
       bra.s   wbfi_matched_blue
     ELSE
 exit_check_monitor_id
-      move.l  os_monitor_id(a3),d0 ;Monitor-ID 
+      move.l  os_monitor_id(a3),d0
       CMPF.L  DEFAULT_MONITOR_ID,d0 ;15 kHz Default ?
       beq.s   no_delay       ;Ja -> verzweige
       cmp.l   #NTSC_MONITOR_ID,d0 ;15 kHz NTSC ?
@@ -427,26 +427,26 @@ no_delay
     IFEQ text_output_enabled
       CNOP 0,4
 print_text
-      lea     format_string(pc),a0 ;String mit Format-Zeichen
+      lea     format_string(pc),a0
       lea     data_stream(pc),a1 ;Daten für den Format-String
       lea     put_ch_proc(pc),a2 ;Zeiger auf Kopierroutine
       move.l  a3,-(a7)
       lea     put_ch_data(pc),a3 ;Zeiger auf Ausgabestring
-      CALLEXEC RawDoFmt      ;Text formatieren
+      CALLEXEC RawDoFmt
       move.l  (a7)+,a3
       CALLDOS Output
-      move.l  d0,d1          ;Handel -> d1
+      move.l  d0,d1
       beq.s   no_print_text  ;Wenn Fehler -> verzweige
       lea     put_ch_data(pc),a0 ;Zeiger auf Text
       move.l  a0,d2
-      moveq   #TRUE,d3       ;Länge des Texts
+      moveq   #0,d3          ;Zeichenzähler = Null
 search_nullbyte
-      tst.b   (a0)+          ;Null byte gefunden ?
+      tst.b   (a0)+          ;Nullbyte gefunden ?
       beq.s   nullbyte_found ;Ja- > verzweige
-      addq.w  #1,d3          ;Zeichenzähler erhöhen
-      bra.s   search_nullbyte ;Schleife
+      addq.w  #1,d3
+      bra.s   search_nullbyte
 nullbyte_found
-      CALLLIBQ Write         ;Text ausgeben
+      CALLLIBQ Write
       CNOP 0,4
 no_print_text
       rts
@@ -460,11 +460,11 @@ put_ch_proc
 ; --------------------------------------------
     CNOP 0,4
 free_vectors_memory
-    move.l  exception_vectors_base(a3),d0 ;Zeiger auf Speicherbereich
+    move.l  exception_vectors_base(a3),d0
     beq.s   no_free_vectors_memory ;Wenn Null -> verzweige
     move.l  d0,a1
-    move.l  #exception_vectors_SIZE,d0 ;Größe der Speicherbereiches
-    CALLEXECQ FreeMem        ;Speicher freigeben
+    move.l  #exception_vectors_SIZE,d0
+    CALLEXECQ FreeMem
     CNOP 0,4
 no_free_vectors_memory
     rts
@@ -475,11 +475,11 @@ no_free_vectors_memory
   IFNE CHIP_memory_size
     CNOP 0,4
 free_chip_memory
-    move.l  chip_memory(a3),d0 ;Zeiger auf Speicherbereich
+    move.l  chip_memory(a3),d0
     beq.s   no_free_chip_memory ;Wenn Null -> verzweige
     move.l  d0,a1            
-    MOVEF.L chip_memory_size,d0 ;Größe der Speicherbereiches
-    CALLEXECQ FreeMem        ;Speicher freigeben
+    MOVEF.L chip_memory_size,d0
+    CALLEXECQ FreeMem
     CNOP 0,4
 no_free_chip_memory
     rts
@@ -490,11 +490,11 @@ no_free_chip_memory
   IFNE extra_memory_size
     CNOP 0,4
 free_extra_memory
-    move.l  extra_memory(a3),d0 ;Zeiger auf Speicherbereich
+    move.l  extra_memory(a3),d0
     beq.s   no_free_extra_memory ;Wenn Null -> verzweige
     move.l  d0,a1            
-    MOVEF.L extra_memory_size,d0 ;Größe der Speicherbereiches
-    CALLEXECQ FreeMem        ;Speicher freigeben
+    MOVEF.L extra_memory_size,d0
+    CALLEXECQ FreeMem
     CNOP 0,4
 no_free_extra_memory
     rts
@@ -505,11 +505,11 @@ no_free_extra_memory
   IFNE disk_memory_size
     CNOP 0,4
 free_disk_memory
-    move.l  disk_data(a3),d0 ;Zeiger auf Speicherbereich
+    move.l  disk_data(a3),d0
     beq.s   no_free_disk_memory ;Wenn Null -> verzweige
     move.l  d0,a1           
-    MOVEF.L disk_memory_size,d0     ;Größe der Speicherbereiches
-    CALLEXECQ FreeMem        ;Speicher freigeben
+    MOVEF.L disk_memory_size,d0
+    CALLEXECQ FreeMem
     CNOP 0,4
 no_free_disk_memory
     rts
@@ -520,11 +520,11 @@ no_free_disk_memory
   IFNE audio_memory_size
     CNOP 0,4
 free_audio_memory
-    move.l  audio_data(a3),d0 ;Zeiger auf Speicherbereich
+    move.l  audio_data(a3),d0
     beq.s   no_free_audio_memory ;Wenn Null -> verzweige
     move.l  d0,a1         
-    MOVEF.L audio_memory_size,d0    ;Größe der Speicherbereiches
-    CALLEXECQ FreeMem        ;Speicher freigeben
+    MOVEF.L audio_memory_size,d0
+    CALLEXECQ FreeMem
     CNOP 0,4
 no_free_audio_memory
     rts
@@ -541,7 +541,7 @@ free_sprite_memory2_loop
     move.l  (a2)+,d0
     beq.s   no_free_sprite_memory2 ;Wenn Null -> verzweige
     move.l  d0,a0
-    CALLGRAF FreeBitMap      ;Speicher freigeben
+    CALLGRAF FreeBitMap
     dbf     d7,free_sprite_memory2_loop
 no_free_sprite_memory2
     rts
@@ -552,13 +552,13 @@ no_free_sprite_memory2
   IFNE spr_x_size1
     CNOP 0,4
 free_sprite_memory1
-    lea     spr0_bitmap1(a3),a2 ;Zeiger auf Sprite-Bitmap-Struktur
+    lea     spr0_bitmap1(a3),a2
     moveq   #spr_number-1,d7 ;Anzahl der Hardware-Sprites (1-8)
 free_sprite_memory1_loop
     move.l  (a2)+,d0
     beq.s   no_free_sprite_memory1 ;Wenn Null -> verzweige
     move.l  d0,a0
-    CALLGRAF FreeBitMap      ;Speicher freigeben
+    CALLGRAF FreeBitMap
     dbf     d7,free_sprite_memory1_loop
 no_free_sprite_memory1
     rts
@@ -569,13 +569,13 @@ no_free_sprite_memory1
   IFNE extra_pf_number
     CNOP 0,4
 free_extra_pf_memory
-    lea     extra_pf_bitmap1(a3),a2 ;Zeiger auf Bitmap-Struktur
+    lea     extra_pf_bitmap1(a3),a2
     moveq   #extra_pf_number-1,d7 ;Anzahl der Extra-Playfields
 extra_pf_memory_loop2
     move.l  (a2)+,d0
     beq.s   no_free_extra_pf_memory ;Wenn Null -> verzweige
     move.l  d0,a0
-    CALLGRAF FreeBitMap      ;Speicher freigeben
+    CALLGRAF FreeBitMap
     dbf     d7,extra_pf_memory_loop2
 no_free_extra_pf_memory
     rts
@@ -670,11 +670,11 @@ no_free_pf1_memory1
   IFNE cl2_size3
     CNOP 0,4
 free_cl2_memory3
-    move.l  cl2_display(a3),d0 ;Zeiger auf Speicherbereich
+    move.l  cl2_display(a3),d0
     beq.s   no_free_cl2_memory3 ;Wenn Null -> verzweige
     move.l  d0,a1
-    MOVEF.L cl2_size3,d0     ;Größe der Speicherbereiches
-    CALLEXECQ FreeMem        ;Speicher freigeben
+    MOVEF.L cl2_size3,d0
+    CALLEXECQ FreeMem
     CNOP 0,4
 no_free_cl2_memory3
     rts
@@ -685,11 +685,11 @@ no_free_cl2_memory3
   IFNE cl2_size2
     CNOP 0,4
 free_cl2_memory2
-    move.l  cl2_construction2(a3),d0 ;Zeiger auf Speicherbereich
+    move.l  cl2_construction2(a3),d0
     beq.s   no_free_cl2_memory2 ;Wenn Null -> verzweige
     move.l  d0,a1
-    MOVEF.L cl2_size2,d0     ;Größe der Speicherbereiches
-    CALLEXECQ FreeMem        ;Speicher freigeben
+    MOVEF.L cl2_size2,d0
+    CALLEXECQ FreeMem
     CNOP 0,4
 no_free_cl2_memory2
     rts
@@ -700,11 +700,11 @@ no_free_cl2_memory2
   IFNE cl2_size1
     CNOP 0,4
 free_cl2_memory1
-    move.l  cl2_construction1(a3),d0 ;Zeiger auf Speicherbereich
+    move.l  cl2_construction1(a3),d0
     beq.s   no_free_cl2_memory1 ;Wenn Null -> verzweige
     move.l  d0,a1
-    MOVEF.L cl2_size1,d0     ;Größe der Speicherbereiches
-    CALLEXECQ FreeMem        ;Speicher freigeben
+    MOVEF.L cl2_size1,d0
+    CALLEXECQ FreeMem
     CNOP 0,4
 no_free_cl2_memory1
     rts
@@ -715,11 +715,11 @@ no_free_cl2_memory1
   IFNE cl1_size3
     CNOP 0,4
 free_cl1_memory3
-    move.l  cl1_display(a3),d0 ;Zeiger auf Speicherbereich
+    move.l  cl1_display(a3),d0
     beq.s   no_free_cl1_memory3 ;Wenn Null -> verzweige
     move.l  d0,a1
-    MOVEF.L cl1_size3,d0     ;Größe der Speicherbereiches
-    CALLEXECQ FreeMem        ;Speicher freigeben
+    MOVEF.L cl1_size3,d0
+    CALLEXECQ FreeMem
     CNOP 0,4
 no_free_cl1_memory3
     rts
@@ -733,8 +733,8 @@ free_cl1_memory2
     move.l  cl1_construction2(a3),d0 ;Zeiger auf Speicherbereich
     beq.s   no_free_cl1_memory2 ;Wenn Null -> verzweige
     move.l  d0,a1
-    MOVEF.L cl1_size2,d0     ;Größe der Speicherbereiches
-    CALLEXECQ FreeMem        ;Speicher freigeben
+    MOVEF.L cl1_size2,d0
+    CALLEXECQ FreeMem
     CNOP 0,4
 no_free_cl1_memory2
     rts
@@ -745,11 +745,11 @@ no_free_cl1_memory2
   IFNE cl1_size1
     CNOP 0,4
 free_cl1_memory1
-    move.l  cl1_construction1(a3),d0 ;Zeiger auf Speicherbereich
+    move.l  cl1_construction1(a3),d0
     beq.s   no_free_cl1_memory1 ;Wenn Null -> verzweige
     move.l  d0,a1
-    MOVEF.L cl1_size1,d0     ;Größe der Speicherbereiches
-    CALLEXECQ FreeMem        ;Speicher freigeben
+    MOVEF.L cl1_size1,d0
+    CALLEXECQ FreeMem
     CNOP 0,4
 no_free_cl1_memory1
     rts
@@ -760,22 +760,22 @@ no_free_cl1_memory1
 ; ----------------------------
     CNOP 0,4
 close_timer_device
-    lea     timer_request_structure(pc),a1 ;Zeiger auf Timer-Request-Struktur
-    CALLEXECQ CloseDevice    ;Timer-Device schließen
+    lea     timer_io_structure(pc),a1
+    CALLEXECQ CloseDevice
   
   ; ** Intuition-Libary schließen **
   ; --------------------------------
     CNOP 0,4
 close_intuition_library
-    move.l  _IntuitionBase(pc),a1 ;Zeiger auf Intuition-Base -> a1
-    CALLEXECQ CloseLibrary   ;Intuition-Library schließen
+    move.l  _IntuitionBase(pc),a1
+    CALLEXECQ CloseLibrary
 
 ; ** Graphics-Libary schließen **
 ; -------------------------------
     CNOP 0,4
 close_graphics_library
-    move.l  _GFXBase(pc),a1    ;Zeiger auf GFX-Base -> a1
-    CALLEXECQ CloseLibrary     ;Graphics-Library schließen
+    move.l  _GFXBase(pc),a1
+    CALLEXECQ CloseLibrary
 
   IFND sys_taken_over
 ; ** Fehler ausgeben **
@@ -786,24 +786,24 @@ print_error_message
     beq.s   no_print_error_message ;Nein -> verzweige
     CALLINT WBenchToFront
     lea     file_name(pc),a0
-    move.l  a0,d1            ;Zeiger auf Dateiname
+    move.l  a0,d1
     move.l  #MODE_OLDFILE,d2 ;Modus: Alt (Muß sein!)
-    CALLDOS Open             ;RAW-Fenster öffnen
-    move.l  d0,file_handle(a3) ;Zeiger retten
+    CALLDOS Open
+    move.l  d0,file_handle(a3)
     beq.s   raw_open_error   ;Wenn NULL -> verzweige
     subq.w  #1,d4            ;Start-Offset 0
     lea     custom_error_table(pc),a0
     move.l  (a0,d4.w*8),d2   ;Zeiger auf Fehlertext
     move.l  4(a0,d4.w*8),d3  ;Länge des Fehlertextes
     move.l  d0,d1            ;Zeiger auf Datei-Handle
-    CALLLIBS Write           ;Text schreiben
-    move.l  file_handle(a3),d1 ;Zeiger auf Datei-Handle
+    CALLLIBS Write
+    move.l  file_handle(a3),d1
     lea     raw_buffer(a3),a0
     move.l  a0,d2            ;Zeiger auf Puffer
     moveq   #1,d3            ;Anzahl der Zeichen zum Lesen
-    CALLLIBS Read            ;Auf Tastendruck warten
-    move.l  file_handle(a3),d1 ;Zeiger auf Datei-Handle
-    CALLLIBS Close           ;RAW-Fenster schließen
+    CALLLIBS Read
+    move.l  file_handle(a3),d1
+    CALLLIBS Close
 no_print_error_message
     moveq   #RETURN_OK,d0
     rts
@@ -817,22 +817,22 @@ raw_open_error
 ; --------------------------
     CNOP 0,4
 close_dos_library
-    move.l  _DOSBase(pc),a1  ;Zeiger auf DOS-Base -> a1
-    CALLEXECQ CloseLibrary   ;DOS-Library schließen
+    move.l  _DOSBase(pc),a1
+    CALLEXECQ CloseLibrary
 
 ; ** WB-Message ggf. noch beantworten **
 ; --------------------------------------
     IFEQ workbench_start_enabled
       CNOP 0,4
 reply_wb_message
-      move.l  wb_message(a3),d2 ;Message 
-      bne.s   wb_message_ok  ;Wenn WB-Message <> Null -> verzweige
+      move.l  wb_message(a3),d2
+      bne.s   wb_message_ok  ;Wenn WB-Message vorhandern -> verzweige
       rts
       CNOP 0,4
 wb_message_ok
-      CALLEXEC Forbid        ;Multitasking aus
+      CALLEXEC Forbid
       move.l  d2,a1
-      CALLLIBS ReplyMsg      ;und zurückgeben
-      CALLLIBQ Permit        ;Multitasking an
+      CALLLIBS ReplyMsg
+      CALLLIBQ Permit
     ENDC
   ENDC

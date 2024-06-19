@@ -1,6 +1,6 @@
 ; Includedatei: "normsource-includes/help-routines.i"
-; Datum:        30.10.2023
-; Version:      4.4
+; Datum:        19.06.2024
+; Version:      4.5
 
 ; ## Hilfsroutinen ##
 ; -------------------
@@ -41,7 +41,7 @@ do_alloc_fast_memory
   CNOP 0,4
 do_alloc_bitmap_memory
   moveq   #BMF_CLEAR+BMF_DISPLAYABLE+BMF_INTERLEAVED,d3 ;Flags
-  sub.l   a0,a0            ;Friendbitmap = NULL
+  sub.l   a0,a0            ;Friendbitmap = Null
   CALLGRAFQ AllocBitMap    ;Speicher reservieren
 
   IFD sys_taken_over
@@ -87,10 +87,10 @@ write_VBR
 ; --------------------------------------
   CNOP 0,4
 wait_beam_position
-  lea     VPOSR-DMACONR(a6),a0
-  lea     VHPOSR-DMACONR(a6),a1
   move.l  #$0003ff00,d1      ;Maske
   move.l  #beam_position<<8,d2 ;Y-Position
+  lea     VPOSR-DMACONR(a6),a0
+  lea     VHPOSR-DMACONR(a6),a1
 wait_beam_loop
   move.w  (a0),d0            ;VPOSR
   swap    d0                 ;Bits in richtige Position bringen
@@ -124,8 +124,8 @@ wait_copint_loop
   move.w  d0,INTREQ-DMACONR(a6) ;COPER-Interrupt löschen
   rts
 
-; ** 24-Bit-High-Werte in Copperliste schreiben **
-; ------------------------------------------------
+; ** RGB8-High-Werte in Copperliste schreiben **
+; ----------------------------------------------
 ; a0 POINTER: Copperliste
 ; a1 POINTER: Tabelle mit Farbwerten
 ; d3 WORD: erstes Farbregister
@@ -142,26 +142,11 @@ cop_init_high_colors_loop
   dbf     d7,cop_init_high_colors_loop
   rts
 
-; ** 24-Bit-High-Werte in Farbtabelle schreiben **
-; ------------------------------------------------
-; a0 WORD: Farbregister
+; ** RGB8-Low-Werte in Copperliste schreiben **
+; ---------------------------------------------
+; a0 POINTER: Copperliste
 ; a1 POINTER: Tabelle mit Farbwerten
-; d7 BYTE_SIGNED: Anzahl der Farben
-  CNOP 0,4
-cpu_init_high_colors
-  move.w  #$0f0f,d2          ;Maske für RGB-Nibbles
-cpu_init_high_colors_loop
-  move.l  (a1)+,d0           ;24 Bit-Farbwert 
-  RGB8_TO_RGB4HI d0,d1,d2
-  move.w  d0,(a0)+           ;COLORxx
-  dbf     d7,cpu_init_high_colors_loop
-  rts
-
-; ** 24-Bit-Low-Werte in Copperliste schreiben **
-; -----------------------------------------------
-; a0 POINTER:  Copperliste
-; a1 POINTER:  Tabelle mit Farbwerten
-; d3 WORD:     erstes Farbregister
+; d3 WORD: erstes Farbregister
 ; d7 BYTE_SIGNED: Anzahl der Farben
   CNOP 0,4
 cop_init_low_colors
@@ -175,8 +160,23 @@ cop_init_low_colors_loop
   dbf     d7,cop_init_low_colors_loop
   rts
 
-; ** 24-Bit-Low-Werte in Farbtabelle schreiben **
-; -----------------------------------------------
+; ** RGB8-High-Werte in Farbtabelle schreiben **
+; ----------------------------------------------
+; a0 WORD: Farbregister
+; a1 POINTER: Tabelle mit Farbwerten
+; d7 BYTE_SIGNED: Anzahl der Farben
+  CNOP 0,4
+cpu_init_high_colors
+  move.w  #$0f0f,d2          ;Maske für RGB-Nibbles
+cpu_init_high_colors_loop
+  move.l  (a1)+,d0           ;24 Bit-Farbwert 
+  RGB8_TO_RGB4HI d0,d1,d2
+  move.w  d0,(a0)+           ;COLORxx
+  dbf     d7,cpu_init_high_colors_loop
+  rts
+
+; ** RGB8-Low-Werte in Farbtabelle schreiben **
+; ---------------------------------------------
 ; a0 WORD: Farbregister
 ; a1 POINTER: Tabelle mit Farbwerten
 ; d7 BYTE_SIGNED: Anzahl der Farben

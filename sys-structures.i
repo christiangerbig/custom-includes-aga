@@ -26,7 +26,7 @@ vga_request_monitor_structure
 ; ** Timer-Request-Struktur für Timer-Device **
 ; ---------------------------------------------
     CNOP 0,4
-timer_request_structure
+timer_io_structure
     DS.B IOTV_SIZE
   
 ; ** Tagliste für Spriteauflösung **
