@@ -299,7 +299,9 @@ start_all
   move.w  #DMABITS&(~(DMAF_SPRITE|DMAF_COPPER|DMAF_RASTER)),DMACON-DMACONR(a6) ;DMA ausser Sprite/Copper/Bitplane-DMA an
   bsr     init_all
   bsr     start_own_display
-  bsr     start_own_interrupts
+  IFNE (INTENABITS-INTF_SETCLR)|(CIAAICRBITS-CIAICRF_SETCLR)|(CIABICRBITS-CIAICRF_SETCLR)
+    bsr     start_own_interrupts
+  ENDC
   IFEQ CIAA_TA_continuous_enabled&CIAA_TB_continuous_enabled&CIAB_TA_continuous_enabled&CIAB_TB_continuous_enabled
     bsr     start_CIA_timers
   ENDC
@@ -334,7 +336,9 @@ start_all
   IFEQ CIAA_TA_continuous_enabled&CIAA_TB_continuous_enabled&CIAB_TA_continuous_enabled&CIAB_TB_continuous_enabled
     bsr     stop_CIA_timers
   ENDC
-  bsr     stop_own_interrupts
+  IFNE (INTENABITS-INTF_SETCLR)|(CIAAICRBITS-CIAICRF_SETCLR)|(CIABICRBITS-CIAICRF_SETCLR)
+    bsr     stop_own_interrupts
+  ENDC
   bsr     stop_own_display
 
   IFND sys_taken_over
@@ -883,8 +887,8 @@ init_easy_request_structure
     ENDC
     rts
   
-; ** Timer-Request-Struktur initialisieren **
-; -------------------------------------------
+; ** Timer-IO-Struktur initialisieren **
+; --------------------------------------
     CNOP 0,4
 init_timer_io_structure
     lea     timer_io_structure(pc),a0
@@ -2718,17 +2722,19 @@ start_own_display
 
 ; ** Eigene Interrupts starten **
 ; -------------------------------
-  CNOP 0,4
+  IFNE (INTENABITS-INTF_SETCLR)|(CIAAICRBITS-CIAICRF_SETCLR)|(CIABICRBITS-CIAICRF_SETCLR)
+    CNOP 0,4
 start_own_interrupts
-  IFNE INTENABITS-INTF_SETCLR
-    move.w  #INTENABITS,INTENA-DMACONR(a6) ;Interrupts an
+    IFNE INTENABITS-INTF_SETCLR
+      move.w  #INTENABITS,INTENA-DMACONR(a6) ;Interrupts an
+    ENDC
+    IFNE CIAAICRBITS-CIAICRF_SETCLR
+      MOVEF.B CIAAICRBITS,d0
+      move.b  d0,CIAICR(a4)    ;CIA-A-Interrupts an
+    ENDC
+    IFNE CIABICRBITS-CIAICRF_SETCLR
+      MOVEF.B CIABICRBITS,d0
+      move.b  d0,CIAICR(a5)    ;CIA-B-Interrupts an
+    ENDC
+    rts
   ENDC
-  IFNE CIAAICRBITS-CIAICRF_SETCLR
-    MOVEF.B CIAAICRBITS,d0
-    move.b  d0,CIAICR(a4)    ;CIA-A-Interrupts an
-  ENDC
-  IFNE CIABICRBITS-CIAICRF_SETCLR
-    MOVEF.B CIABICRBITS,d0
-    move.b  d0,CIAICR(a5)    ;CIA-B-Interrupts an
-  ENDC
-  rts

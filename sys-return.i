@@ -7,16 +7,18 @@
 
 ; ** Eigene Interrupts stoppen **
 ; -------------------------------
-  CNOP 0,4
+  IFNE (INTENABITS-INTF_SETCLR)|(CIAAICRBITS-CIAICRF_SETCLR)|(CIABICRBITS-CIAICRF_SETCLR)
+    CNOP 0,4
 stop_own_interrupts
-  IFNE INTENABITS-INTF_SETCLR
-    IFND sys_taken_over
-      move.w  #INTF_INTEN,INTENA-DMACONR(a6) ;Interrupts aus
-    ELSE
-      move.w  #INTENABITS&(~INTF_SETCLR),INTENA-DMACONR(a6) ;Interrupts aus
+    IFNE INTENABITS-INTF_SETCLR
+      IFND sys_taken_over
+        move.w  #INTF_INTEN,INTENA-DMACONR(a6) ;Interrupts aus
+      ELSE
+        move.w  #INTENABITS&(~INTF_SETCLR),INTENA-DMACONR(a6) ;Interrupts aus
+      ENDC
     ENDC
+    rts
   ENDC
-  rts
 
 ; ** Eigenes Display stoppen **
 ; -----------------------------
