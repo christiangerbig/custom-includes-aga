@@ -235,43 +235,43 @@ merge_rgb4
     CNOP 0,4
 decrease_red_rgb4_1
     sub.w   a1,d0              ;Rotanteil verringern
-    cmp.w   d3,d0              ;Ist-Rotwert >= Soll-Rotwert ?
-    bge.s   check_green_rgb4   ;Ja -> verzweige
+    cmp.w   d3,d0              ;Ist-Rotwert > Soll-Rotwert ?
+    bgt.s   check_green_rgb4   ;Ja -> verzweige
     move.w  d3,d0              ;Ist-Rotwert = Soll-Rotwert
     bra.s   check_green_rgb4
     CNOP 0,4
 increase_red_rgb4_1
     add.w   a1,d0              ;Rotanteil erhöhen
-    cmp.w   d3,d0              ;Ist-Rotwert <= Soll-Rotwert ?
-    ble.s   check_green_rgb4 ;Ja -> verzweige
+    cmp.w   d3,d0              ;Ist-Rotwert < Soll-Rotwert ?
+    blt.s   check_green_rgb4 ;Ja -> verzweige
     move.w  d3,d0              ;Ist-Rotwert = Soll-Rotwert
     bra.s   check_green_rgb4
     CNOP 0,4
 decrease_green_rgb4_1
     sub.w   a2,d1              ;Grünanteil verringern
-    cmp.w   d4,d1              ;Ist-Grünwert >= Soll-Grünwert ?
-    bge.s   check_blue_rgb4    ;Ja -> verzweige
+    cmp.w   d4,d1              ;Ist-Grünwert > Soll-Grünwert ?
+    bgt.s   check_blue_rgb4    ;Ja -> verzweige
     move.w  d4,d1              ;Ist-Grünwert = Soll-Grünwert
     bra.s   check_blue_rgb4
     CNOP 0,4
 increase_green_rgb4_1
     add.w   a2,d1              ;Grünanteil erhöhen
-    cmp.w   d1,d4              ;Ist-Grünwert <= Soll-Grünwert ?
-    ble.s   check_blue_rgb4    ;Ja -> verzweige
+    cmp.w   d1,d4              ;Ist-Grünwert < Soll-Grünwert ?
+    blt.s   check_blue_rgb4    ;Ja -> verzweige
     move.w  d4,d1              ;Ist-Grünwert = Soll-Grünwert
     bra.s   check_blue_rgb4
     CNOP 0,4
 decrease_blue_rgb4_1
     sub.w   a4,d2              ;Blauanteil verringern
-    cmp.b   d5,d2              ;Ist-Blauwert >= Soll-Blauwert ?
-    bge.s   merge_rgb4         ;Ja -> verzweige
+    cmp.b   d5,d2              ;Ist-Blauwert > Soll-Blauwert ?
+    bgt.s   merge_rgb4         ;Ja -> verzweige
     move.b  d5,d2              ;Ist-Blauwert = Soll-Blauwert
     bra.s   merge_rgb4
     CNOP 0,4
 increase_blue_rgb4_1
     add.w   a4,d2              ;Blauanteil erhöhen
-    cmp.b   d5,d2              ;Ist-Blauwert <= Soll-Blauwert ?
-    bge.s   merge_rgb4         ;Ja -> verzweige
+    cmp.b   d5,d2              ;Ist-Blauwert < Soll-Blauwert ?
+    blt.s   merge_rgb4         ;Ja -> verzweige
     move.b  d5,d2              ;Ist-Blauwert = Soll-Blauwert
     bra.s   merge_rgb4
   ENDC
@@ -324,43 +324,43 @@ merge_rgb8
     CNOP 0,4
 decrease_red_rgb8_1
     sub.l   a1,d0              ;Rotanteil verringern
-    cmp.l   d3,d0              ;Ist-Rotwert >= Soll-Rotwert ?
-    bge.s   check_green_rgb8   ;Ja -> verzweige
+    cmp.l   d3,d0              ;Ist-Rotwert > Soll-Rotwert ?
+    bgt.s   check_green_rgb8   ;Ja -> verzweige
     move.l  d3,d0              ;Ist-Rotwert = Soll-Rotwert
     bra.s   check_green_rgb8
     CNOP 0,4
 increase_red_rgb8_1
     add.l   a1,d0              ;Rotanteil erhöhen
-    cmp.l   d3,d0              ;Ist-Rotwert <= Soll-Rotwert ?
-    ble.s   check_green_rgb8   ;Ja -> verzweige
+    cmp.l   d3,d0              ;Ist-Rotwert < Soll-Rotwert ?
+    blt.s   check_green_rgb8   ;Ja -> verzweige
     move.l  d3,d0              ;Ist-Rotwert = Soll-Rotwert
     bra.s   check_green_rgb8
     CNOP 0,4
 decrease_green_rgb8_1
     sub.l   a2,d1              ;Grünanteil verringern
-    cmp.l   d4,d1              ;Ist-Grünwert >= Soll-Grünwert ?
-    bge.s   check_blue_rgb8    ;Ja -> verzweige
+    cmp.l   d4,d1              ;Ist-Grünwert > Soll-Grünwert ?
+    bgt.s   check_blue_rgb8    ;Ja -> verzweige
     move.l  d4,d1              ;Ist-Grünwert = Soll-Grünwert
     bra.s   check_blue_rgb8
     CNOP 0,4
 increase_green_rgb8_1
     add.l   a2,d1              ;Grünanteil erhöhen
-    cmp.l   d4,d1              ;Ist-Grünwert <= Soll-Grünwert ?
-    ble.s   check_blue_rgb8    ;Ja -> verzweige
+    cmp.l   d4,d1              ;Ist-Grünwert < Soll-Grünwert ?
+    blt.s   check_blue_rgb8    ;Ja -> verzweige
     move.l  d4,d1              ;Ist-Grünwert = Soll-Grünwert
     bra.s   check_blue_rgb8
     CNOP 0,4
 decrease_blue_rgb8_1
     sub.w   a4,d2              ;Blauanteil verringern
-    cmp.w   d5,d2              ;Ist-Blauwert >= Soll-Blauwert ?
-    bge.s   merge_rgb8         ;Ja -> verzweige
+    cmp.w   d5,d2              ;Ist-Blauwert > Soll-Blauwert ?
+    bgt.s   merge_rgb8         ;Ja -> verzweige
     move.w  d5,d2              ;Ist-Blauwert = Soll-Blauwert
     bra.s   merge_rgb8
     CNOP 0,4
 increase_blue_rgb8_1
     add.w   a4,d2              ;Blauanteil erhöhen
-    cmp.w   d5,d2              ;Ist-Blauwert <= Soll-Blauwert ?
-    ble.s   merge_rgb8         ;Ja -> verzweige
+    cmp.w   d5,d2              ;Ist-Blauwert < Soll-Blauwert ?
+    blt.s   merge_rgb8         ;Ja -> verzweige
     move.w  d5,d2              ;Ist-Blauwert = Soll-Blauwert
     bra.s   merge_rgb8
   ENDC
