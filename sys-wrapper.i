@@ -1279,19 +1279,19 @@ no_fast_memory_found
 system_error1
     CALLLIBS Permit
     move.w  #KICKSTART_VERSION_NOT_FOUND,custom_error_code(a3)
-    moveq   #RETURN_ERROR,d0
+    moveq   #RETURN_FAIL,d0
     rts
     CNOP 0,4
 system_error2
     CALLLIBS Permit
     move.w  #CPU_020_NOT_FOUND,custom_error_code(a3)
-    moveq   #RETURN_ERROR,d0
+    moveq   #RETURN_FAIL,d0
     rts
     CNOP 0,4
 system_error3
     CALLLIBS Permit
     move.w  #CHIPSET_NO_AGA_PAL,custom_error_code(a3)
-    moveq   #RETURN_ERROR,d0
+    moveq   #RETURN_FAIL,d0
     rts
   
   ; ** Auf bestimmte CPU hin überprüfen **
@@ -1306,7 +1306,7 @@ check_cpu_requirements
       CNOP 0,4
 check_cpu_error
       move.w  #CPU_030_REQUIRED,custom_error_code(a3)
-      moveq   #RETURN_ERROR,d0
+      moveq   #RETURN_FAIL,d0
       rts
     ENDC
     IFEQ requires_68040
@@ -1319,7 +1319,7 @@ check_cpu_requirements
       CNOP 0,4
 check_cpu_error
       move.w  #CPU_040_REQUIRED,custom_error_code(a3)
-      moveq   #RETURN_ERROR,d0
+      moveq   #RETURN_FAIL,d0
       rts
     ENDC
     IFEQ requires_68060
@@ -1332,7 +1332,7 @@ check_cpu_requirements
       CNOP 0,4
 check_cpu_error
       move.w  #CPU_060_REQUIRED,custom_error_code(a3)
-      moveq   #RETURN_ERROR,d0
+      moveq   #RETURN_FAIL,d0
       rts
     ENDC
   
@@ -1348,7 +1348,7 @@ check_memory_requirements
       CNOP 0,4
 no_fast_memory
       move.w  #FAST_MEMORY_REQUIRED,custom_error_code(a3)
-      moveq   #RETURN_ERROR,d0
+      moveq   #RETURN_FAIL,d0
       rts
     ENDC
   
@@ -1367,7 +1367,7 @@ open_intuition_library
     CNOP 0,4
 intuition_library_error
     move.w  #INTUITION_LIBRARY_COULD_NOT_OPEN,custom_error_code(a3)
-    moveq   #RETURN_ERROR,d0
+    moveq   #RETURN_FAIL,d0
     rts
   
 ; ** Userabfrage, wenn TCP-Stack vorhanden ist **
@@ -1428,7 +1428,7 @@ do_monitor_request
       rts
       CNOP 0,4
 do_monitor_request_error
-      moveq   #RETURN_ERROR,d0
+      moveq   #RETURN_FAIL,d0
       rts
     ENDC
   
@@ -1458,12 +1458,12 @@ open_ciax_resources
     CNOP 0,4
 ciaa_resources_error
     move.w  #CIAA_RESOURCE_COULD_NOT_OPEN,custom_error_code(a3)
-    moveq   #RETURN_ERROR,d0
+    moveq   #RETURN_FAIL,d0
     rts
     CNOP 0,4
 ciab_resources_error
     move.w  #CIAB_RESOURCE_COULD_NOT_OPEN,custom_error_code(a3)
-    moveq   #RETURN_ERROR,d0
+    moveq   #RETURN_FAIL,d0
     rts
   
 ; ** Timer-Device öffnen **
