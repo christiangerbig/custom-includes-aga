@@ -54,7 +54,7 @@ pt_fade_out_music_finished
 PT_DETECT_SYS_FREQUENCY MACRO
   CNOP 0,4
 pt_DetectSysFrequ
-  move.l  _GFXBase(pc),a0    ;Pointer to gfx library base
+  move.l  _GfxBase(pc),a0    ;Pointer to gfx library base
   move.w  gb_DisplayFlags(a0),d0 ;Get display flags
   move.l  #pt_pal125bpmrate,d1 ;Set PAL 125 bpm rate
   btst    #REALLY_PALn,d0    ;Crystalfrequency 50Hz ? (OS3.0+)

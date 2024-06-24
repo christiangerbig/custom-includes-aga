@@ -1313,74 +1313,6 @@ RGB8_TO_RGB4LO MACRO
 ;  move.b  \2,\1              ;$0rgb
 
 
-CALLBATTCLOCK MACRO
-; \1 STRING: Function-Offset
-  move.l _BattClockBase(pc),a6
-  jsr    _LVO\1(a6)
-  ENDM
-
-
-CALLBATTCLOCKQ MACRO
-; \1 STRING: Function-Offset
-  move.l _BattClockBase(pc),a6
-  jmp    _LVO\1(a6)
-  ENDM
-
-
-CALLCIAQ MACRO
-; \1 STRING: Function-Offset
-  move.l _CIABase(pc),a6
-  jmp    _LVO\1(a6)
-  ENDM
-
-
-CALLDOSQ MACRO
-; \1 STRING: Function-Offset
-  move.l  _DOSBase(pc),a6
-  jmp	  _LVO\1(a6)
-  ENDM
-
-
-CALLEXECQ MACRO
-; \1 STRING: Function-Offset
-  move.l  _ExecBase(pc),a6
-  jmp	  _LVO\1(a6)
-  ENDM
-
-
-CALLGRAFQ MACRO
-; \1 STRING: Function-Offset
-  move.l _GfxBase(pc),a6
-  jmp	 _LVO\1(a6)
-  ENDM
-
-
-CALLINTQ MACRO
-; \1 STRING: Function-Offset
-  move.l _IntuitionBase(pc),a6
-  jmp	 _LVO\1(a6)
-  ENDM
-
-
-CALLASLQ MACRO
-; \1 STRING: Function-Offset
-  move.l _ASLBase(pc),a6
-  jmp	 _LVO\1(a6)
-  ENDM
-
-
-CALLLIBS MACRO
-; \1 STRING: Function-Offset
-  jsr	 _LVO\1(a6)
-  ENDM
-
-
-CALLLIBQ MACRO
-; \1 STRING: Function-Offset
-  jmp	 _LVO\1(a6)
-  ENDM
-
-
 INIT_CHARACTERS_OFFSETS MACRO
 ; \0 STRING: W für Wort, L für Langwort
 ; \1 STRING: Labels-Prefix der Routine
@@ -1680,7 +1612,7 @@ CPU_SELECT_COLORLO_BANK MACRO
 
 
 DISABLE_060_STORE_BUFFER MACRO
-  move.l  _ExecBase(pc),a6   ;Exec-Base
+  move.l  _SysBase(pc),a6   ;Exec-Base
   tst.b   AttnFlags+1(a6)    ;CPU 68060 ?
   bpl.s   dsb_no_CPU060      ;Nein -> verzweige
   lea     dsb_CPU060_store_buffer_off(pc),a5 ;Zeiger auf Supervisor-Routine
@@ -1707,7 +1639,7 @@ dsb_CPU060_store_buffer_off
 
 
 ENABLE_060_STORE_BUFFER MACRO
-  move.l  _ExecBase(pc),a6   ;Exec-Base
+  move.l  _SysBase(pc),a6   ;Exec-Base
   tst.b   AttnFlags+1(a6)    ;CPU 68060 ?
   bpl.s   esb_no_CPU060      ;Nein -> verzweige
   lea     esb_CPU060_store_buffer_on(pc),a5 ;Zeiger auf Supervisor-Routine

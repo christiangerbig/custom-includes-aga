@@ -7,11 +7,11 @@
   CNOP 0,4
 variables                DS.B variables_size
   CNOP 0,4
-_ExecBase                DC.L 0
+_SysBase                DC.L 0
   IFND sys_taken_over
 _DOSBase                 DC.L 0
   ENDC
-_GFXBase                 DC.L 0
+_GfxBase                 DC.L 0
 
   IFND sys_taken_over
 _IntuitionBase           DC.L 0

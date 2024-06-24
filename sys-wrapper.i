@@ -506,9 +506,9 @@ init_variables
   IFD sys_taken_over
     IFD pass_global_references
       move.l    a0,global_references_table(a3)
-      lea       _ExecBase(pc),a1
+      lea       _SysBase(pc),a1
       move.l    (a0)+,(a1)   ;Zeiger auf Exec-Base
-      lea       _GFXBase(pc),a1
+      lea       _GfxBase(pc),a1
       move.l    (a0),(a1)    ;Zeiger auf GFX-Base
     ENDC
     IFD wrapper
@@ -543,7 +543,7 @@ init_variables
     move.l  d2,dos_return_code(a3)
     move.w  #NO_CUSTOM_ERROR,custom_error_code(a3)
 
-    lea     _ExecBase(pc),a0
+    lea     _SysBase(pc),a0
     move.l  Exec_Base.w,(a0)
   ENDC
   IFD measure_rastertime
@@ -1183,7 +1183,7 @@ start_from_workbench
       rts
       CNOP 0,4
 task_error
-      moveq   #RETURN_ERROR,d0
+      moveq   #RETURN_FAIL,d0
       rts
     ENDC
   
@@ -1201,7 +1201,7 @@ open_dos_library
     rts
     CNOP 0,4
 dos_library_error
-    moveq   #RETURN_ERROR,d0
+    moveq   #RETURN_FAIL,d0
     rts
 
 ; ** Graphics-Library öffnen **
@@ -1211,7 +1211,7 @@ open_graphics_library
     lea     graphics_name(pc),a1
     moveq   #ANY_LIB_VERSION,d0
     CALLEXEC OpenLibrary
-    lea     _GFXBase(pc),a0
+    lea     _GfxBase(pc),a0
     move.l  d0,(a0)
     beq.s   gfx_library_error  ;Wenn Fehler -> verzweige
     moveq   #RETURN_OK,d0
@@ -1219,23 +1219,23 @@ open_graphics_library
     CNOP 0,4
 gfx_library_error
     move.w  #GRAPHICS_LIBRARY_COULD_NOT_OPEN,custom_error_code(a3)
-    moveq   #RETURN_ERROR,d0
+    moveq   #RETURN_FAIL,d0
     rts
 
 ; ** Systemkonstanten überprüfen **
 ; ---------------------------------
     CNOP 0,4
 check_system
-    CALLEXEC Forbid
+    move.l  _SysBase(pc),a6
     cmp.w   #OS_VERSION_AGA,Lib_Version(a6) ;Kickstart 3.0+ ?
     blt.s   system_error1      ;Nein -> verzweige
 check_cpu
-    move.w  AttnFlags(a6),d0   ;Prozessor-Flags 
+    move.w  AttnFlags(a6),d0   ;Prozessor-Flags
     move.w  d0,cpu_flags(a3)   
     and.b   #AFF_68020,d0      ;68020+ ?
     beq.s   system_error2      ;Nein -> verzweige
-    move.l  _GFXBase(pc),a2
 check_chipset
+      move.l  _GfxBase(pc),a1
     IFD aga_check_by_hardware_enables
       move.l  #_CUSTOM+DENISEID,a0 ;DENISEID
       move.w  -(DENISEID-VPOSR)(a0),d0
@@ -1256,16 +1256,15 @@ check_lisa_id_loop
       cmp.b   #$f8,d0          ;Lisa-ID ?
       bne.s   system_error3    ;Nein -> verzweige
     ELSE
-      move.b  gb_ChipRevBits0(a2),d0 ;Chipversion 
+      move.b  gb_ChipRevBits0(a1),d0 ;Chipversion
       btst    #GFXB_AA_ALICE,d0;ALICE ?
       beq.s   system_error3    ;Nein -> verzweige
       btst    #GFXB_AA_LISA,d0 ;LISA ?
       beq.s   system_error3    ;Nein -> verzweige
     ENDC
 check_pal
-    btst    #REALLY_PALn,gb_DisplayFlags+1(a2) ;PAL-Maschine ?
+    btst    #REALLY_PALn,gb_DisplayFlags+1(a1) ;PAL-Maschine ?
     beq.s   system_error3      ;Nein -> verzweige
-    CALLLIBS Permit            ;Multitasking an
 check_fast_memory
     moveq   #MEMF_FAST,d1      ;FAST-Memory
     CALLLIBS AvailMem
@@ -1277,7 +1276,6 @@ no_fast_memory_found
     rts
     CNOP 0,4
 system_error1
-    CALLLIBS Permit
     move.w  #KICKSTART_VERSION_NOT_FOUND,custom_error_code(a3)
     moveq   #RETURN_FAIL,d0
     rts
@@ -1406,7 +1404,7 @@ no_tcp_stack_found
       rts
       CNOP 0,4
 tcp_quit_prg
-      moveq   #RETURN_ERROR,d0
+      moveq   #RETURN_WARN,d0
       rts
     ENDC
   
@@ -1482,7 +1480,7 @@ open_timer_device
     CNOP 0,4
 open_timer_device_error
     move.w  #TIMER_DEVICE_COULD_NOT_OPEN,custom_error_code(a3)
-    moveq   #RETURN_ERROR,d0
+    moveq   #RETURN_FAIL,d0
     rts
   ENDC
 
@@ -2120,8 +2118,8 @@ vectors_memory_error
       CNOP 0,4
 init_global_references_table
       lea     global_references_table(pc),a0
-      move.l  _ExecBase(pc),(a0)
-      move.l  _GFXBase(pc),gr_graphics_base(a0)
+      move.l  _SysBase(pc),(a0)
+      move.l  _GfxBase(pc),gr_graphics_base(a0)
       rts
     ENDC
   
@@ -2278,7 +2276,7 @@ get_os_view_parameters
     ENDC
 
 get_os_copperlist_pointers
-    move.l  _GFXBase(pc),a6
+    move.l  _GfxBase(pc),a6
     IFNE cl1_size3
       move.l  gb_Copinit(a6),os_COP1LC(a3) ;COP1LC retten
     ENDC
@@ -2316,12 +2314,12 @@ take_over_sys
     CNOP 0,4
 no_active_screen_found
     move.w  #ACTIVE_SCREEN_NOT_FOUND,custom_error_code(a3)
-    moveq   #RETURN_ERROR,d0
+    moveq   #RETURN_FAIL,d0
     rts
     CNOP 0,4
 vp_monitor_id_error
     move.w  #VIEWPORT_MONITOR_ID_NOT_FOUND,custom_error_code(a3)
-    moveq   #RETURN_ERROR,d0
+    moveq   #RETURN_FAIL,d0
     rts
 
     IFNE workbench_fade_enabled
@@ -2334,12 +2332,12 @@ screen_color_table32_memory_error
     CNOP 0,4
 open_downgrade_screen_error
     move.w  #SCREEN_COULD_NOT_OPEN,custom_error_code(a3)
-    moveq   #RETURN_ERROR,d0
+    moveq   #RETURN_FAIL,d0
     rts
     CNOP 0,4
 check_downgrade_screen_mode_error
     move.w  #SCREEN_DISPLAY_MODE_NOT_AVAILABLE,custom_error_code(a3)
-    moveq   #RETURN_ERROR,d0
+    moveq   #RETURN_FAIL,d0
     rts
   
     IFEQ workbench_fade_enabled
@@ -3556,7 +3554,7 @@ close_intuition_library
 ; -------------------------------
     CNOP 0,4
 close_graphics_library
-    move.l  _GFXBase(pc),a1
+    move.l  _GfxBase(pc),a1
     CALLEXECQ CloseLibrary
 
   IFND sys_taken_over
@@ -3591,7 +3589,7 @@ no_print_error_message
     rts
     CNOP 0,4
 raw_open_error
-    moveq   #RETURN_ERROR,d0
+    moveq   #RETURN_FAIL,d0
     rts
   ENDC
 
