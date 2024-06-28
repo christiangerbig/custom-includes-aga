@@ -100,4 +100,3 @@ pt_ecmdbitinvertloop        EQU %1000000000000000
 
 pt_allusedfx                EQU $feff
 pt_allusedefx               EQU $feff
-
