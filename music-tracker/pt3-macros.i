@@ -147,7 +147,7 @@ pt_CheckEffects2
   beq.s   pt_CheckEffects2End ;If no command -> skip
   ;moveq   #pt_cmdmask,d0    ;Get channel effect command number without lower nibble of sample number
   ;and.b   n_cmd(a2),d0      ;0 "Arpeggio" ?
-  lsr.w   #BYTESHIFTBITS,d0  ;Shift command number to lower nibble
+  lsr.w   #BYTE_SHIFT_BITS,d0  ;Shift command number to lower nibble
   IFNE pt_usedfx&pt_cmdbitarpeggio
     beq.s pt_Arpeggio
   ENDC
@@ -250,7 +250,7 @@ pt_CheckEffects2End
 pt_ExtCommands
     IFNE pt_usedefx&(pt_ecmdbitretrignote+pt_ecmdbitnotecut+pt_ecmdbitnotedelay)
       move.b  n_cmdlo(a2),d0 ;Get channel extended effect command number
-      lsr.b   #NIBBLESHIFTBITS,d0 ;Shift command number to lower nibble
+      lsr.b   #NIBBLE_SHIFT_BITS,d0 ;Shift command number to lower nibble
       cmp.b   #8,d0
       ble.s   pt_ExtCommandsEnd
     ENDC
@@ -377,9 +377,9 @@ pt_PlvSkip
     bsr.s   pt_CheckMetronome
   ENDC
   moveq   #TRUE,d2           ;Needed for word access
-  MOVEF.B NIBBLEMASKHI,d0    ;Mask for upper nibble of sample number
+  MOVEF.B NIBBLE_MASK_HIGH,d0    ;Mask for upper nibble of sample number
   move.b  n_cmd(a2),d2       
-  lsr.b   #NIBBLESHIFTBITS,d2 ;Get lower nibble of sample number
+  lsr.b   #NIBBLE_SHIFT_BITS,d2 ;Get lower nibble of sample number
   and.b   (a2),d0            ;Get upper nibble of sample number
   addq.w  #pt_noteinfo_SIZE/4,d1 ;Next channel data
   or.b    d0,d2              ;Get whole sample number
@@ -425,7 +425,7 @@ pt_SetRegisters
     cmp.w   #$0e50,d4
     beq     pt_DoSetSampleFinetune
   ENDC
-  moveq   #NIBBLEMASKLO,d0
+  moveq   #NIBBLE_MASK_LOW,d0
   and.b   n_cmd(a2),d0       ;Get channel effect command number without lower nibble of sample nu<mber
 ;--> 3xx "Tone Portamento" <--
   IFNE pt_usedfx&pt_cmdbittoneport
@@ -529,7 +529,7 @@ pt_StpFound
       moveq   #((pt_PeriodTableEnd-pt_PeriodTable)/2)-1,d0 ;Number of periods
       sub.w   d7,d0          ;Offset in period table
       move.l  d2,a1          ;Get period table address
-      moveq   #NIBBLESIGNMASK,d2 ;Mask for sign bit in nibble
+      moveq   #NIBBLE_SIGN_MASK,d2 ;Mask for sign bit in nibble
       and.b   n_finetune(a2),d2 ;Sign bit for negative nibble value set ?
       beq.s   pt_StpGoss     ;If zero -> skip
       tst.w   d0             ;Counter = zero ?
@@ -637,7 +637,7 @@ pt_ChkMoreEfxPerNop
 pt_MoreExtCommands
   IFNE pt_usedefx
     move.b  n_cmdlo(a2),d0     ;Get channel extended effect command number
-    lsr.b   #NIBBLESHIFTBITS,d0 ;Shift extended effect command number to lower nibble
+    lsr.b   #NIBBLE_SHIFT_BITS,d0 ;Shift extended effect command number to lower nibble
   ENDC
 ;--> E0x "Set Filter" <--
   IFNE pt_usedefx&pt_ecmdbitsetfilter
@@ -889,12 +889,12 @@ pt_ArpeggioSet
   CNOP 0,4
 pt_Arpeggio1
   move.b  n_cmdlo(a2),d0     
-  lsr.b   #NIBBLESHIFTBITS,d0 ;Get command data: x-first halftone
+  lsr.b   #NIBBLE_SHIFT_BITS,d0 ;Get command data: x-first halftone
   bra.s   pt_ArpeggioFind
 ;--> Effect command 00y "Arpeggio" 3rd note <--
   CNOP 0,4
 pt_Arpeggio2
-  moveq   #NIBBLEMASKLO,d0
+  moveq   #NIBBLE_MASK_LOW,d0
   and.b   n_cmdlo(a2),d0     ;Get command data: y-second halftone
 pt_ArpeggioFind
   move.w  n_period(a2),d2 ;Get note period
@@ -1012,7 +1012,7 @@ pt_TonePortaUp
   moveq   #TRUE,d2           ;Clear wanted note period
 pt_TonePortaSetPer
   move.w  d2,n_wantedperiod(a2) ;Save new state
-  moveq   #NIBBLEMASKLO,d0
+  moveq   #NIBBLE_MASK_LOW,d0
   move.w  d3,n_period(a2)    ;Save new note period
   and.b   n_glissinvert(a2),d0 ;Get glissando state
   beq.s   pt_GlissSkip       ;If zero -> skip
@@ -1046,15 +1046,15 @@ pt_Vibrato
   move.b  n_cmdlo(a2),d0     ;Get command data: x-speed y-depth
   beq.s   pt_Vibrato2        ;If zero -> skip
   move.b  n_vibratocmd(a2),d2 ;Get vibrato command data
-  and.b   #NIBBLEMASKLO,d0   ;Get command data: y-depth
+  and.b   #NIBBLE_MASK_LOW,d0   ;Get command data: y-depth
   beq.s   pt_VibSkip         ;If zero -> skip
-  and.b   #NIBBLEMASKHI,d2   ;Clear old depth
+  and.b   #NIBBLE_MASK_HIGH,d2   ;Clear old depth
   or.b    d0,d2              ;Set new depth in vibrato command data
 pt_VibSkip
-  MOVEF.B NIBBLEMASKHI,d0
+  MOVEF.B NIBBLE_MASK_HIGH,d0
   and.b   n_cmdlo(a2),d0     ;Get command data: x-speed
   beq.s   pt_VibSkip2        ;If zero -> skip
-  and.b   #NIBBLEMASKLO,d2   ;Clear old speed
+  and.b   #NIBBLE_MASK_LOW,d2   ;Clear old speed
   or.b    d0,d2              ;Set new speed in vibrato command data
 pt_VibSkip2
   move.b  d2,n_vibratocmd(a2) ;Save new vibrato command data
@@ -1087,7 +1087,7 @@ pt_VibRampdown2
 pt_VibSine
   move.b  (a1,d0.w),d2       ;Get sine amplitude
 pt_VibSet
-  moveq   #NIBBLEMASKLO,d0
+  moveq   #NIBBLE_MASK_LOW,d0
   and.b   n_vibratocmd(a2),d0 ;Get depth
   mulu.w  d0,d2              ;depth * amplitude
   move.w  n_period(a2),d0    ;Get note period
@@ -1126,15 +1126,15 @@ pt_Tremolo
   move.b  n_cmdlo(a2),d0     ;Get command data: x-speed y-depth
   beq.s   pt_Tremolo2        ;If zero -> skip
   move.b  n_tremolocmd(a2),d2 ;Get tremolo command data
-  and.b   #NIBBLEMASKLO,d0   ;Get command data: y-depth
+  and.b   #NIBBLE_MASK_LOW,d0   ;Get command data: y-depth
   beq.s   pt_TreSkip         ;If zero -> skip
-  and.b   #NIBBLEMASKHI,d2   ;Clear old depth
+  and.b   #NIBBLE_MASK_HIGH,d2   ;Clear old depth
   or.b    d0,d2              ;Set new depth in tremolo command data
 pt_TreSkip
-  MOVEF.B NIBBLEMASKHI,d0
+  MOVEF.B NIBBLE_MASK_HIGH,d0
   and.b   n_cmdlo(a2),d0     ;Get command data: x-speed
   beq.s   pt_TreSkip2        ;If zero -> skip
-  and.b   #NIBBLEMASKLO,d2   ;Clear old speed
+  and.b   #NIBBLE_MASK_LOW,d2   ;Clear old speed
   or.b    d0,d2              ;Set new speed in tremolo command data
 pt_TreSkip2
   move.b  d2,n_tremolocmd(a2) ;Save new tremolo command data
@@ -1143,7 +1143,7 @@ pt_Tremolo2
   move.b  n_tremolopos(a2),d0 ;Get tremolo position
   lsr.b   #2,d0            ;/4
   move.b  n_wavecontrol(a2),d2 ;Get tremolo waveform
-  lsr.b   #NIBBLESHIFTBITS,d2 ;Move upper nibble to lower position
+  lsr.b   #NIBBLE_SHIFT_BITS,d2 ;Move upper nibble to lower position
   and.w   #$001f,d0          ;Mask out tremolo position overflow
   and.w   #pt_wavetypemask,d2 ;Get tremolo waveform type
   beq.s   pt_TreSine         ;If tremolo waveform 0-sine -> skip
@@ -1168,7 +1168,7 @@ pt_TreRampdown2
 pt_TreSine
   move.b  (a1,d0.w),d2       ;Get sine amplitude
 pt_TreSet
-  moveq   #NIBBLEMASKLO,d0
+  moveq   #NIBBLE_MASK_LOW,d0
   and.b   n_tremolocmd(a2),d0 ;Get depth
   mulu.w  d0,d2              ;depth * amplitude
   move.b  n_volume(a2),d0    ;Get volume
@@ -1213,7 +1213,7 @@ PT3_EFFECT_VOLUME_SLIDE MACRO
   CNOP 0,4
 pt_VolumeSlide
   move.b  n_cmdlo(a2),d0     
-  lsr.b   #NIBBLESHIFTBITS,d0 ;Get command data: x-upspeed
+  lsr.b   #NIBBLE_SHIFT_BITS,d0 ;Get command data: x-upspeed
   beq.s   pt_VolSlideDown    ;If zero -> skip
 ;--> Effect command Ax0 "Volume Slide Up" <--
 pt_VolSlideUp
@@ -1233,7 +1233,7 @@ pt_VSUEnd
 ;--> Effect command A0y "Volume Slide Down" <--
   CNOP 0,4
 pt_VolSlideDown
-  moveq   #NIBBLEMASKLO,d0
+  moveq   #NIBBLE_MASK_LOW,d0
   and.b   n_cmdlo(a2),d0     ;Get command data: y-downspeed
   moveq   #TRUE,d2           ;Needed for word access
   move.b  n_volume(a2),d2    ;Get volume
@@ -1302,9 +1302,9 @@ PT3_EFFECT_PATTERN_BREAK MACRO
   CNOP 0,4
 pt_PatternBreak
   move.b  n_cmdlo(a2),d0     ;Get command data: xx-break position (decimal)
-  moveq   #NIBBLEMASKLO,d2
+  moveq   #NIBBLE_MASK_LOW,d2
   and.b   d0,d2              ;Only lower nibble digits = 0..9
-  lsr.b   #NIBBLESHIFTBITS,d0 ;Move upper nibble to lower position
+  lsr.b   #NIBBLE_SHIFT_BITS,d0 ;Move upper nibble to lower position
   MULUF.B 10,d0,d7           ;Upper nibble *10 = digits 10..60
   add.b   d2,d0              ;Get decimal number
   cmp.b   #pt_maxpattpos-1,d0 ;Break position > last position in pattern ?
@@ -1341,7 +1341,7 @@ pt_FilterOff
 PT3_EFFECT_FINE_PORTAMENTO_UP MACRO
   CNOP 0,4
 pt_FinePortamentoUp
-  moveq   #NIBBLEMASKLO,d0
+  moveq   #NIBBLE_MASK_LOW,d0
   move.b  d0,pt_LowMask(a3)  ;Only lower nibble of mask
   bra     pt_PortamentoUp
   ENDM
@@ -1350,7 +1350,7 @@ pt_FinePortamentoUp
 PT3_EFFECT_FINE_PORTAMENTO_DOWN MACRO
   CNOP 0,4
 pt_FinePortamentoDown
-  moveq   #NIBBLEMASKLO,d0
+  moveq   #NIBBLE_MASK_LOW,d0
   move.b  d0,pt_LowMask(a3)  ;Only lower nibble of mask
   bra     pt_PortamentoDown
   ENDM
@@ -1359,9 +1359,9 @@ pt_FinePortamentoDown
 PT3_EFFECT_SET_GLISSANDO_CONTROL MACRO
   CNOP 0,4
 pt_SetGlissandoControl
-  MOVEF.B NIBBLEMASKHI,d2
+  MOVEF.B NIBBLE_MASK_HIGH,d2
   and.b   n_glissinvert(a2),d2 ;Clear old glissando state lower nibble
-  moveq   #NIBBLEMASKLO,d0
+  moveq   #NIBBLE_MASK_LOW,d0
   and.b   n_cmdlo(a2),d0     ;Get command data: glissando state 0-off 1-on
   or.b    d0,d2              ;Set new glissando state
   move.b  d2,n_glissinvert(a2) ;Save new glissando state
@@ -1379,9 +1379,9 @@ PT3_EFFECT_SET_VIBRATO_WAVEFORM MACRO
 ; 6  (without retrigger)
   CNOP 0,4
 pt_SetVibratoWaveform
-  MOVEF.B NIBBLEMASKHI,d2
+  MOVEF.B NIBBLE_MASK_HIGH,d2
   and.b   n_wavecontrol(a2),d2 ;Clear old vibrato waveform
-  moveq   #NIBBLEMASKLO,d0
+  moveq   #NIBBLE_MASK_LOW,d0
   and.b   n_cmdlo(a2),d0     ;Get command data: vibrato waveform 0-sine 1-ramp down 2-square
   or.b    d0,d2              ;Set new vibrato waveform
   move.b  d2,n_wavecontrol(a2) ;Save new vibrato waveform
@@ -1392,7 +1392,7 @@ pt_SetVibratoWaveform
 PT3_EFFECT_SET_SAMPLE_FINETUNE MACRO
   CNOP 0,4
 pt_SetSampleFinetune
-  moveq   #NIBBLEMASKLO,d0
+  moveq   #NIBBLE_MASK_LOW,d0
   and.b   n_cmdlo(a2),d0     ;Get command data: new finetune value
   move.b  d0,n_finetune(a2)  ;Set new finetune value
   rts
@@ -1402,7 +1402,7 @@ pt_SetSampleFinetune
 PT3_EFFECT_JUMP_TO_LOOP MACRO
   CNOP 0,4
 pt_JumpToLoop
-  moveq   #NIBBLEMASKLO,d0
+  moveq   #NIBBLE_MASK_LOW,d0
   and.b   n_cmdlo(a2),d0     ;Get command data: x-times
   beq.s   pt_SetLoop         ;If zero -> set loop
   tst.b   n_loopcount(a2)    ;Get loop counter
@@ -1438,9 +1438,9 @@ PT3_EFFECT_SET_TREMOLO_WAVEFORM MACRO
   CNOP 0,4
 pt_SetTremoloWaveform
   move.b  n_cmdlo(a2),d0     ;Get command data: tremolo waveform 0-sine 1-ramp down 2-square
-  moveq   #NIBBLEMASKLO,d2
+  moveq   #NIBBLE_MASK_LOW,d2
   and.b   n_wavecontrol(a2),d2 ;Clear old tremolo waveform
-  lsl.b   #NIBBLESHIFTBITS,d0 ;Move tremolo waveform to upper nibble
+  lsl.b   #NIBBLE_SHIFT_BITS,d0 ;Move tremolo waveform to upper nibble
   or.b    d0,d2              ;Set new tremolo waveform
   move.b  d2,n_wavecontrol(a2) ;Save new tremolo waveform
   rts
@@ -1481,7 +1481,7 @@ pt_KarpLoop
 PT3_EFFECT_RETRIG_NOTE MACRO
   CNOP 0,4
 pt_RetrigNote
-  moveq   #NIBBLEMASKLO,d0
+  moveq   #NIBBLE_MASK_LOW,d0
   and.b   n_cmdlo(a2),d0     ;Get command data: x-blanks
   beq.s   pt_RtnEnd          ;If zero -> skip
   move.w  pt_Counter(a3),d2  ;Get ticks
@@ -1494,7 +1494,6 @@ pt_RtnSkip
   bge.s   pt_RtnSkip         ;until dividend < divisor
   add.w   d0,d2              ;Adjust division remainder
   bne.s   pt_RtnEnd          ;If blanks not ticks -> skip
-pt_DoRetrig
   move.w  n_dmabit(a2),d0    ;Get audio channel DMA bit
   or.w    d0,pt_RtnDMACONtemp(a3) ;Set effect "Retrig Note" or "Note Delay" for audio channel
   move.b  d5,n_rtnsetchandma(a2) ;Activate interrupt set routine
@@ -1512,7 +1511,7 @@ pt_RtnEnd
 PT3_EFFECT_FINE_VOLUME_SLIDE_UP MACRO
   CNOP 0,4
 pt_FineVolumeSlideUp
-  moveq   #NIBBLEMASKLO,d0
+  moveq   #NIBBLE_MASK_LOW,d0
   and.b   n_cmdlo(a2),d0     ;Get command data: y-downspeed
   bra     pt_VolSlideUp
   ENDM
@@ -1528,7 +1527,7 @@ pt_FineVolumeSlideDown
 PT3_EFFECT_NOTE_CUT  MACRO
   CNOP 0,4
 pt_NoteCut
-  moveq   #NIBBLEMASKLO,d0
+  moveq   #NIBBLE_MASK_LOW,d0
   and.b   n_cmdlo(a2),d0     ;Get command data: x-blanks
   cmp.w   pt_Counter(a3),d0  ;blanks = ticks ?
   bne.s   pt_NoteCutEnd      ;No -> skip
@@ -1541,13 +1540,22 @@ pt_NoteCutEnd
 PT3_EFFECT_NOTE_DELAY MACRO
   CNOP 0,4
 pt_NoteDelay
-  moveq   #NIBBLEMASKLO,d0
+  moveq   #NIBBLE_MASK_LOW,d0
   and.b   n_cmdlo(a2),d0     ;Get command data: x-blanks
   cmp.w   pt_Counter(a3),d0  ;blanks = ticks ?
   bne.s   pt_NoteDelayEnd    ;No -> skip
   move.w  (a2),d0            ;Get note period from pattern position
   and.w   d6,d0              ;Only 12 bits note period
-  bne.s   pt_DoRetrig        ;If note period -> skip
+  beq.s   pt_NoteDelayEnd    ;If no note period -> skip
+  move.w  n_dmabit(a2),d0    ;Get audio channel DMA bit
+  or.w    d0,pt_RtnDMACONtemp(a3) ;Set effect "Retrig Note" or "Note Delay" for audio channel
+  move.b  d5,n_rtnsetchandma(a2) ;Activate interrupt set routine
+  IFEQ pt_track_volumes_enabled
+    move.b  d5,n_note_trigger(a2) ;Set note trigger flag
+  ENDC
+  move.w  d0,_CUSTOM+DMACON  ;Audio channel DMA off
+  move.l  n_start(a2),(a6)   ;AUDxLCH Set sample start
+  move.w  n_length(a2),4(a6) ;AUDxLEN Set length
 pt_NoteDelayEnd
   rts
   ENDM
@@ -1556,7 +1564,7 @@ pt_NoteDelayEnd
 PT3_EFFECT_PATTERN_DELAY MACRO
   CNOP 0,4
 pt_PatternDelay
-  moveq   #NIBBLEMASKLO,d0
+  moveq   #NIBBLE_MASK_LOW,d0
   and.b   n_cmdlo(a2),d0     ;Get command data: x-notes
   tst.b   pt_PattDelayTime2(a3) ;Pattern delay time not zero ?
   bne.s   pt_PattDelayEnd    ;Yes -> skip
@@ -1571,9 +1579,9 @@ PT3_EFFECT_INVERT_LOOP MACRO
   CNOP 0,4
 pt_InvertLoop
   move.b  n_cmdlo(a2),d0     ;Get command data: x-speed
-  moveq   #NIBBLEMASKLO,d2
+  moveq   #NIBBLE_MASK_LOW,d2
   and.b   n_glissinvert(a2),d2 ;Clear old speed
-  lsl.b   #NIBBLESHIFTBITS,d0 ;Move speed to upper nibble
+  lsl.b   #NIBBLE_SHIFT_BITS,d0 ;Move speed to upper nibble
   or.b    d0,d2              ;Set new speed
   move.b  d2,n_glissinvert(a2) ;Save new speed
   tst.b   d0                 ;speed = zero ?
@@ -1581,7 +1589,7 @@ pt_InvertLoop
 pt_UpdateInvert
   moveq   #0,d0           ;Needed for word access
   move.b  n_glissinvert(a2),d0
-  lsr.b   #NIBBLESHIFTBITS,d0 ;Get speed
+  lsr.b   #NIBBLE_SHIFT_BITS,d0 ;Get speed
   beq.s   pt_InvertEnd       ;If zero -> skip
   lea     pt_InvertTable(pc),a1 ;Pointer to invert table
   move.b  (a1,d0.w),d0       ;Get invert value
@@ -1620,7 +1628,7 @@ pt_SetTempo
     move.l  pt_125bpmrate(a3),d2 ;Get 125 BPM PAL/NTSC rate
     divu.w  d0,d2            ;/tempo = counter value
     move.b  d2,CIATALO(a5)   ;Set CIA-B timer A counter value low bits
-    lsr.w   #BYTESHIFTBITS,d2 ;Get counter value high bits
+    lsr.w   #BYTE_SHIFT_BITS,d2 ;Get counter value high bits
     move.b  d2,CIATAHI(a5)   ;Set CIA-B timer A counter value high bits
     rts
     CNOP 0,4

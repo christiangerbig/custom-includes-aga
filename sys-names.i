@@ -13,7 +13,7 @@ ciaa_name                  DC.B "ciaa.resource",TRUE
 ciab_name                  DC.B "ciab.resource",TRUE
 timer_device_name          DC.B "timer.device",TRUE
     EVEN
-    IFNE INTENABITS&INTF_PORTS
+    IFNE intena_bits&INTF_PORTS
 bsdsocket_name             DC.B "bsdsocket.library",TRUE
 tcp_requester_title        DC.B "TCP/IP-stack request",TRUE
       EVEN

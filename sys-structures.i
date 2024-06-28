@@ -9,9 +9,9 @@
 
 ; ** Easy-Struktur für TCP-Stack-Abfrage **
 ; -----------------------------------------
-    IFNE INTENABITS&INTF_PORTS
+    IFNE intena_bits&INTF_PORTS
       CNOP 0,4
-tcp_request_structure
+tcp_requester_structure
       DS.B EasyStruct_SIZEOF
     ENDC
   
@@ -19,7 +19,7 @@ tcp_request_structure
 ; --------------------------------------
     IFEQ requires_multiscan_monitor
       CNOP 0,4
-vga_request_monitor_structure
+vga_requester_monitor_structure
       DS.B EasyStruct_SIZEOF
     ENDC
   
@@ -45,5 +45,5 @@ downgrade_screen_taglist
 ; ----------------------------------
     CNOP 0,4
 custom_error_table
-    DS.B custom_error_entry_SIZE*custom_error_number
+    DS.B custom_error_entry_SIZE*custom_errors_number
   ENDC

@@ -74,16 +74,16 @@ PT_INIT_TIMERS MACRO
     move.l  pt_125bpmrate(a3),d0 ;Get 125 bpm PAL/NTSC rate
     divu.w  #pt_defaultbpm,d0 ;/125 BPM = default to normal 50 Hz timer
     move.b  d0,CIATALO(a5)   ;Set CIA-B timer A counter value low bits
-    lsr.w   #BYTESHIFTBITS,d0 ;Get counter value high bits
+    lsr.w   #BYTE_SHIFT_BITS,d0 ;Get counter value high bits
     move.b  d0,CIATAHI(a5)   ;Set CIA-B timer A counter value high bits
-    moveq   #CIABCRABITS,d0
+    moveq   #ciab_cra_bits,d0
     move.b  d0,CIACRA(a5)    ;Loadnewtimercontinuousvalue
   ENDC
-  moveq   #CIAB_TB_time&BYTEMASK,d0 ;DMA wait
+  moveq   #ciab_tb_time&BYTE_MASK,d0 ;DMA wait
   move.b  d0,CIATBLO(a5)     ;Set CIA-B timer B counter value low bits
-  moveq   #CIAB_TB_time>>BYTESHIFTBITS,d0
+  moveq   #ciab_tb_time>>BYTE_SHIFT_BITS,d0
   move.b  d0,CIATBHI(a5)     ;Set CIA-B timer B counter value high bits
-  moveq   #CIABCRBBITS,d0
+  moveq   #ciab_crb_bits,d0
   move.b  d0,CIACRB(a5)      ;Load new timer oneshot value
   ENDM
 

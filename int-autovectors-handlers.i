@@ -7,7 +7,7 @@
   
 ; ** Level-1-Interrupt-Handler **
 ; -------------------------------
-  IFNE INTENABITS&(INTF_TBE+INTF_DSKBLK+INTF_SOFTINT)
+  IFNE intena_bits&(INTF_TBE+INTF_DSKBLK+INTF_SOFTINT)
     CNOP 0,4
 level_1_int_handler
     movem.l d0-d7/a0-a6,-(a7)
@@ -15,20 +15,20 @@ level_1_int_handler
     move.l  #_CIAB,a5        ;CIA-B-Base
     lea     (_CIAA-_CIAB)(a5),a4 ;CIA-A-Base
     move.l  #_CUSTOM+DMACONR,a6 ;DMACONR
-    moveq   #INTENABITS&(INTF_TBE+INTF_DSKBLK+INTF_SOFTINT),d0 ;Nur Bits 0-2
+    moveq   #intena_bits&(INTF_TBE+INTF_DSKBLK+INTF_SOFTINT),d0 ;Nur Bits 0-2
     and.w   INTREQR-DMACONR(a6),d0
 
-    IFNE INTENABITS&INTF_TBE
+    IFNE intena_bits&INTF_TBE
       btst    #INTB_TBE,d0   ;TBE-Interrupt ?
       bne.s   TBE_int_handler
     ENDC
 rt_level_1_int1
-    IFNE INTENABITS&INTF_DSKBLK
+    IFNE intena_bits&INTF_DSKBLK
       btst    #INTB_DSKBLK,d0 ;DSKBLK-Interrupt ?
       bne.s   DSKBLK_int_handler
     ENDC
 rt_level_1_int2
-    IFNE INTENABITS&INTF_SOFTINT
+    IFNE intena_bits&INTF_SOFTINT
       btst    #INTB_SOFTINT,d0 ;SOFTINT-Interrupt ?
       bne.s   SOFTINT_int_handler
     ENDC
@@ -40,7 +40,7 @@ rt_level_1_int3
 
 ; ** Ausgabepuffer des seriellen Ports leer **
 ; --------------------------------------------
-    IFNE INTENABITS&INTF_TBE
+    IFNE intena_bits&INTF_TBE
     CNOP 0,4
 TBE_int_handler
       move.l  d0,-(a7)
@@ -51,7 +51,7 @@ TBE_int_handler
 
 ; ** Disk-DMA beendet **
 ; ----------------------
-    IFNE INTENABITS&INTF_DSKBLK
+    IFNE intena_bits&INTF_DSKBLK
     CNOP 0,4
 DSKBLK_int_handler
       move.l  d0,-(a7)
@@ -62,7 +62,7 @@ DSKBLK_int_handler
 
 ; ** Software-Interrupt **
 ; ------------------------
-    IFNE INTENABITS&INTF_SOFTINT
+    IFNE intena_bits&INTF_SOFTINT
     CNOP 0,4
 SOFTINT_int_handler
       move.l  d0,-(a7)
@@ -76,7 +76,7 @@ SOFTINT_int_handler
 
 ; ** Level-2-Interrupt-Handler **
 ; -------------------------------
-  IFNE INTENABITS&INTF_PORTS
+  IFNE intena_bits&INTF_PORTS
     CNOP 0,4
 level_2_int_handler
     movem.l d0-d7/a0-a6,-(a7)
@@ -86,30 +86,30 @@ level_2_int_handler
     move.l  #_CUSTOM+DMACONR,a6 ;DMACONR
     moveq   #INTF_PORTS,d0   ;Nur Bit 3
     and.w   INTREQR-DMACONR(a6),d0 ;Interrupts 
-    moveq   #CIAAICRBITS&(~CIAICRF_SETCLR),d1
+    moveq   #ciaa_icr_bits&(~CIAICRF_SETCLR),d1
     and.b   CIAICR(a4),d1    ;CIA-A-Interrupts 
     beq.s   PORTS_int_handler ;Nein -> verzweige
-    IFNE CIAAICRBITS&CIAICRF_TA
+    IFNE ciaa_icr_bits&CIAICRF_TA
       btst    #CIAICRB_TA,d1 ;CIA-A-TA-Interrupt ?
-      bne.s   CIAA_TA_int_handler
+      bne.s   ciaa_ta_int_handler
     ENDC
 rt_level_2_int1
-    IFNE CIAAICRBITS&CIAICRF_TB
+    IFNE ciaa_icr_bits&CIAICRF_TB
       btst    #CIAICRB_TB,d1 ;CIA-A-TB-Interrupt ?
-      bne.s   CIAA_TB_int_handler
+      bne.s   ciaa_tb_int_handler
     ENDC
 rt_level_2_int2
-    IFNE CIAAICRBITS&CIAICRF_ALRM
+    IFNE ciaa_icr_bits&CIAICRF_ALRM
       btst    #CIAICRB_ALRM,d1 ;CIA-A-ALRM-Interrupt ?
       bne.s   CIAA_ALRM_int_handler
     ENDC
 rt_level_2_int3
-    IFNE CIAAICRBITS&CIAICRF_SP
+    IFNE ciaa_icr_bits&CIAICRF_SP
       btst    #CIAICRB_SP,d1 ;CIA-A-SP-Interrupt ?
       bne.s   CIAA_SP_int_handler
     ENDC
 rt_level_2_int4
-    IFNE CIAAICRBITS&CIAICRF_FLG
+    IFNE ciaa_icr_bits&CIAICRF_FLG
       btst    #CIAICRB_FLG,d1 ;CIA-A-FLG-Interrupt ?
       bne.s   CIAA_FLG_int_handler
     ENDC
@@ -121,7 +121,7 @@ rt_level_2_int5
 
 ; ** Externer Level-2-Interrupt **
 ; --------------------------------
-    IFNE INTENABITS&INTF_PORTS
+    IFNE intena_bits&INTF_PORTS
       CNOP 0,4
 PORTS_int_handler
       movem.l d0-d1,-(a7)
@@ -132,29 +132,29 @@ PORTS_int_handler
 
 ; ** Unterlauf Timer A **
 ; -----------------------
-    IFNE CIAAICRBITS&CIAICRF_TA
+    IFNE ciaa_icr_bits&CIAICRF_TA
     CNOP 0,4
-CIAA_TA_int_handler
+ciaa_ta_int_handler
       movem.l d0-d1,-(a7)
-      bsr     CIAA_TA_int_server
+      bsr     ciaa_ta_int_server
       movem.l (a7)+,d0-d1
       bra.s   rt_level_2_int1
     ENDC
 
 ; ** Unterlauf Timer B **
 ; -----------------------
-    IFNE CIAAICRBITS&CIAICRF_TB
+    IFNE ciaa_icr_bits&CIAICRF_TB
     CNOP 0,4
-CIAA_TB_int_handler
+ciaa_tb_int_handler
       movem.l d0-d1,-(a7)
-      bsr     CIAA_TB_int_server
+      bsr     ciaa_tb_int_server
       movem.l (a7)+,d0-d1
       bra.s   rt_level_2_int2
     ENDC
 
 ; ** Alarm-Interrupt **
 ; ---------------------
-    IFNE CIAAICRBITS&CIAICRF_ALRM
+    IFNE ciaa_icr_bits&CIAICRF_ALRM
     CNOP 0,4
 CIAA_ALRM_int_handler
       movem.l d0-d1,-(a7)
@@ -165,7 +165,7 @@ CIAA_ALRM_int_handler
 
 ; ** Serieller-Port-Interrupt **
 ; ------------------------------
-    IFNE CIAAICRBITS&CIAICRF_SP
+    IFNE ciaa_icr_bits&CIAICRF_SP
     CNOP 0,4
 CIAA_SP_int_handler
       movem.l d0-d1,-(a7)
@@ -176,7 +176,7 @@ CIAA_SP_int_handler
 
 ; ** Flag-Interrupt **
 ; --------------------
-    IFNE CIAAICRBITS&CIAICRF_FLG
+    IFNE ciaa_icr_bits&CIAICRF_FLG
     CNOP 0,4
 CIAA_FLG_int_handler
       movem.l d0-d1,-(a7)
@@ -190,7 +190,7 @@ CIAA_FLG_int_handler
 
 ; ** Level-3-Interrupt-Handler **
 ; -------------------------------
-  IFNE INTENABITS&(INTF_COPER+INTF_VERTB+INTF_BLIT)
+  IFNE intena_bits&(INTF_COPER+INTF_VERTB+INTF_BLIT)
     CNOP 0,4
 level_3_int_handler
     movem.l d0-d7/a0-a6,-(a7)
@@ -198,19 +198,19 @@ level_3_int_handler
     move.l  #_CIAB,a5        ;CIA-B-Base
     lea     (_CIAA-_CIAB)(a5),a4 ;CIA-A-Base
     move.l  #_CUSTOM+DMACONR,a6 ;DMACONR
-    moveq   #INTENABITS&(INTF_COPER+INTF_VERTB+INTF_BLIT),d0 ;Nur Bits 4-6
+    moveq   #intena_bits&(INTF_COPER+INTF_VERTB+INTF_BLIT),d0 ;Nur Bits 4-6
     and.w   INTREQR-DMACONR(a6),d0 ;Interrupts 
-    IFNE INTENABITS&INTF_COPER
+    IFNE intena_bits&INTF_COPER
       btst    #INTB_COPER,d0 ;COPER-Interrupt ?
       bne.s   COPPER_int_handler
     ENDC
 rt_level_3_int1
-    IFNE INTENABITS&INTF_VERTB
+    IFNE intena_bits&INTF_VERTB
       btst    #INTB_VERTB,d0 ;VERTB-Interrupt ?
       bne.s   VERTB_int_handler
     ENDC
 rt_level_3_int2
-    IFNE INTENABITS&INTF_BLIT
+    IFNE intena_bits&INTF_BLIT
       btst    #INTB_BLIT,d0  ;BLIT-Interrupt ?
       bne.s   BLIT_int_handler
     ENDC
@@ -222,7 +222,7 @@ rt_level_3_int3
 
 ; ** Copper hat Interrupt erzeugt **
 ; ----------------------------------
-    IFNE INTENABITS&INTF_COPER
+    IFNE intena_bits&INTF_COPER
     CNOP 0,4
 COPPER_int_handler
       move.l  d0,-(a7)
@@ -233,7 +233,7 @@ COPPER_int_handler
 
 ; ** Beginn der vertikalen Austastlücke **
 ; ----------------------------------------
-    IFNE INTENABITS&INTF_VERTB
+    IFNE intena_bits&INTF_VERTB
     CNOP 0,4
 VERTB_int_handler
       move.l  d0,-(a7)
@@ -244,7 +244,7 @@ VERTB_int_handler
 
 ; ** Blitteroperation beendet **
 ; ------------------------------
-    IFNE INTENABITS&INTF_BLIT
+    IFNE intena_bits&INTF_BLIT
     CNOP 0,4
 BLIT_int_handler
       move.l  d0,-(a7)
@@ -258,7 +258,7 @@ BLIT_int_handler
 
 ; ** Level-4-Interrupt-Handler **
 ; -------------------------------
-  IFNE INTENABITS&(INTF_AUD0+INTF_AUD1+INTF_AUD2+INTF_AUD3)
+  IFNE intena_bits&(INTF_AUD0+INTF_AUD1+INTF_AUD2+INTF_AUD3)
     CNOP 0,4
 level_4_int_handler
     movem.l d0-d7/a0-a6,-(a7)
@@ -267,23 +267,23 @@ level_4_int_handler
     lea     (_CIAA-_CIAB)(a5),a4 ;CIA-A-Base
     move.l  #_CUSTOM+DMACONR,a6 ;DMACONR
     move.w  INTREQR-DMACONR(a6),d0 ;Interrupts 
-    and.w   #INTENABITS&(INTF_AUD0+INTF_AUD1+INTF_AUD2+INTF_AUD3),d0 ;Nur Bits 7-10
-    IFNE INTENABITS&INTF_AUD0
+    and.w   #intena_bits&(INTF_AUD0+INTF_AUD1+INTF_AUD2+INTF_AUD3),d0 ;Nur Bits 7-10
+    IFNE intena_bits&INTF_AUD0
       btst    #INTB_AUD0,d0  ;AUD0-Interrupt ?
       bne.s   AUD0_int_handler
     ENDC
 rt_level_4_int1
-    IFNE INTENABITS&INTF_AUD1
+    IFNE intena_bits&INTF_AUD1
       btst    #INTB_AUD1,d0  ;AUD1-Interrupt ?
       bne.s   AUD1_int_handler
     ENDC
 rt_level_4_int2
-    IFNE INTENABITS&INTF_AUD2
+    IFNE intena_bits&INTF_AUD2
       btst    #INTB_AUD2,d0  ;AUD2-Interrupt ?
       bne.s   AUD2_int_handler
     ENDC
 rt_level_4_int3
-    IFNE INTENABITS&INTF_AUD3
+    IFNE intena_bits&INTF_AUD3
       btst    #INTB_AUD3,d0  ;AUD3-Interrupt ?
       bne.s   AUD3_int_handler
     ENDC
@@ -295,7 +295,7 @@ rt_level_4_int4
 
 ; ** Audiokanal 0 ist fertig mit Datenausgabe **
 ; ----------------------------------------------
-    IFNE INTENABITS&INTF_AUD0
+    IFNE intena_bits&INTF_AUD0
     CNOP 0,4
 AUD0_int_handler
       move.l  d0,-(a7)
@@ -306,7 +306,7 @@ AUD0_int_handler
 
 ; ** Audiokanal 1 ist fertig mit Datenausgabe **
 ; ----------------------------------------------
-    IFNE INTENABITS&INTF_AUD1
+    IFNE intena_bits&INTF_AUD1
     CNOP 0,4
 AUD1_int_handler
       move.l  d0,-(a7)
@@ -317,7 +317,7 @@ AUD1_int_handler
 
 ; ** Audiokanal 2 ist fertig mit Datenausgabe **
 ; ----------------------------------------------
-    IFNE INTENABITS&INTF_AUD2
+    IFNE intena_bits&INTF_AUD2
     CNOP 0,4
 AUD2_int_handler
       move.l  d0,-(a7)
@@ -328,7 +328,7 @@ AUD2_int_handler
 
 ; ** Audiokanal 3 ist fertig mit Datenausgabe **
 ; ----------------------------------------------
-    IFNE INTENABITS&INTF_AUD3
+    IFNE intena_bits&INTF_AUD3
     CNOP 0,4
 AUD3_int_handler
       move.l  d0,-(a7)
@@ -342,7 +342,7 @@ AUD3_int_handler
 
 ; ** Level-5-Interrupt-Handler **
 ; -------------------------------
-  IFNE INTENABITS&(INTF_RBF+INTF_DSKSYNC)
+  IFNE intena_bits&(INTF_RBF+INTF_DSKSYNC)
     CNOP 0,4
 level_5_int_handler
     movem.l d0-d7/a0-a6,-(a7)
@@ -351,13 +351,13 @@ level_5_int_handler
     lea     (_CIAA-_CIAB)(a5),a4 ;CIA-A-Base
     move.l  #_CUSTOM+DMACONR,a6 ;DMACONR
     move.w  INTREQR-DMACONR(a6),d0 ;Interrupts 
-    and.w   #INTENABITS&(INTF_RBF+INTF_DSKSYNC),d0 ;Nur Bits 11-12
-    IFNE INTENABITS&INTF_RBF
+    and.w   #intena_bits&(INTF_RBF+INTF_DSKSYNC),d0 ;Nur Bits 11-12
+    IFNE intena_bits&INTF_RBF
       btst    #INTB_RBF,d0   ;RBF-Interrupt ?
       bne.s   RBF_int_handler
     ENDC
 rt_level_5_int1
-    IFNE INTENABITS&INTF_DSKSYNC
+    IFNE intena_bits&INTF_DSKSYNC
       btst    #INTB_DSKSYNC,d0 ;DSKSYN-Interrupt ?
       bne.s   DSKSYNC_int_handler
     ENDC
@@ -369,7 +369,7 @@ rt_level_5_int2
 
 ; ** Serieller Port ist voll **
 ; -----------------------------
-    IFNE INTENABITS&INTF_RBF
+    IFNE intena_bits&INTF_RBF
     CNOP 0,4
 RBF_int_handler
       move.l  d0,-(a7)
@@ -380,7 +380,7 @@ RBF_int_handler
 
 ; ** Disk-Synchronisationswert erkannt **
 ; ---------------------------------------
-    IFNE INTENABITS&INTF_DSKSYNC
+    IFNE intena_bits&INTF_DSKSYNC
     CNOP 0,4
 DSKSYNC_int_handler
       move.l  d0,-(a7)
@@ -394,7 +394,7 @@ DSKSYNC_int_handler
 
 ; ** Level-6-Interrupt-Handler **
 ; -------------------------------
-  IFNE INTENABITS&INTF_EXTER
+  IFNE intena_bits&INTF_EXTER
     CNOP 0,4
 level_6_int_handler
     movem.l d0-d7/a0-a6,-(a7)
@@ -404,30 +404,30 @@ level_6_int_handler
     move.l  #_CUSTOM+DMACONR,a6 ;DMACONR
     move.w  INTREQR-DMACONR(a6),d0 ;Interrupts 
     and.w   #INTF_EXTER,d0   ;Nur Bit 13
-    moveq   #CIABICRBITS&(~CIAICRF_SETCLR),d1
+    moveq   #ciab_icr_bits&(~CIAICRF_SETCLR),d1
     and.b   CIAICR(a5),d1    ;CIA-B-Interrupts 
     beq.s   EXTER_int_handler ;Nein -> verzweige
-    IFNE CIABICRBITS&CIAICRF_TA
+    IFNE ciab_icr_bits&CIAICRF_TA
       btst    #CIAICRB_TA,d1 ;CIA-B-TA-Interrupt ?
-      bne.s   CIAB_TA_int_handler
+      bne.s   ciab_ta_int_handler
     ENDC
 rt_level_6_int1
-    IFNE CIABICRBITS&CIAICRF_TB
+    IFNE ciab_icr_bits&CIAICRF_TB
       btst    #CIAICRB_TB,d1 ;CIA-B-TB-Interrupt ?
-      bne.s   CIAB_TB_int_handler
+      bne.s   ciab_tb_int_handler
     ENDC
 rt_level_6_int2
-    IFNE CIABICRBITS&CIAICRF_ALRM
+    IFNE ciab_icr_bits&CIAICRF_ALRM
       btst    #CIAICRB_ALRM,d1 ;CIA-B-ALRM-Interrupt ?
       bne.s   CIAB_ALRM_int_handler
     ENDC
 rt_level_6_int3
-    IFNE CIABICRBITS&CIAICRF_SP
+    IFNE ciab_icr_bits&CIAICRF_SP
       btst    #CIAICRB_SP,d1 ;CIA-B-SP-Interrupt ?
       bne.s   CIAB_SP_int_handler
     ENDC
 rt_level_6_int4
-    IFNE CIABICRBITS&CIAICRF_FLG
+    IFNE ciab_icr_bits&CIAICRF_FLG
       btst    #CIAICRB_FLG,d1 ;CIA-B-FLG-Interrupt ?
       bne.s   CIAB_FLG_int_handler
     ENDC
@@ -439,7 +439,7 @@ rt_level_6_int5
 
 ; ** Externer Level-6-Interrupt **
 ; --------------------------------
-    IFNE INTENABITS&INTF_EXTER
+    IFNE intena_bits&INTF_EXTER
       CNOP 0,4
 EXTER_int_handler
       movem.l d0-d1,-(a7)
@@ -450,29 +450,29 @@ EXTER_int_handler
 
 ; ** Unterlauf Timer A **
 ; -----------------------
-    IFNE CIABICRBITS&CIAICRF_TA
+    IFNE ciab_icr_bits&CIAICRF_TA
     CNOP 0,4
-CIAB_TA_int_handler
+ciab_ta_int_handler
       movem.l d0-d1,-(a7)
-      bsr     CIAB_TA_int_server
+      bsr     ciab_ta_int_server
       movem.l (a7)+,d0-d1
       bra.s   rt_level_6_int1
     ENDC
 
 ; ** Unterlauf Timer B **
 ; -----------------------
-    IFNE CIABICRBITS&CIAICRF_TB
+    IFNE ciab_icr_bits&CIAICRF_TB
     CNOP 0,4
-CIAB_TB_int_handler
+ciab_tb_int_handler
       movem.l d0-d1,-(a7)
-      bsr     CIAB_TB_int_server
+      bsr     ciab_tb_int_server
       movem.l (a7)+,d0-d1
       bra.s   rt_level_6_int2
     ENDC
 
 ; ** Alarm-Interrupt **
 ; ---------------------
-    IFNE CIABICRBITS&CIAICRF_ALRM
+    IFNE ciab_icr_bits&CIAICRF_ALRM
     CNOP 0,4
 CIAB_ALRM_int_handler
       movem.l d0-d1,-(a7)
@@ -483,7 +483,7 @@ CIAB_ALRM_int_handler
 
 ; ** Serieller-Port-Interrupt **
 ; ------------------------------
-    IFNE CIABICRBITS&CIAICRF_SP
+    IFNE ciab_icr_bits&CIAICRF_SP
     CNOP 0,4
 CIAB_SP_int_handler
       movem.l d0-d1,-(a7)
@@ -494,7 +494,7 @@ CIAB_SP_int_handler
 
 ; ** Flag-Interrupt **
 ; --------------------
-    IFNE CIABICRBITS&CIAICRF_FLG
+    IFNE ciab_icr_bits&CIAICRF_FLG
     CNOP 0,4
 CIAB_FLG_int_handler
       movem.l d0-d1,-(a7)

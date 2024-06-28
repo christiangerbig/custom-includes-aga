@@ -4,23 +4,23 @@
 
 ; ** Struktur, die alle Registeroffsets der 1. Copperliste enthält **
 ; -------------------------------------------------------------------
-  IFD DIWSTRTBITS
+  IFD diwstrt_bits
 cl1_DIWSTRT      RS.L 1
   ENDC
-  IFD DIWSTOPBITS
+  IFD diwstop_bits
 cl1_DIWSTOP      RS.L 1
   ENDC
-  IFD DDFSTRTBITS
+  IFD ddfstrt_bits
 cl1_DDFSTRT      RS.L 1
   ENDC
-  IFD DDFSTOPBITS
+  IFD ddfstop_bits
 cl1_DDFSTOP      RS.L 1
   ENDC
 cl1_BPLCON0      RS.L 1
-  IFD BPLCON1BITS
+  IFD bplcon1_bits
 cl1_BPLCON1      RS.L 1
   ENDC
-  IFD BPLCON2BITS
+  IFD bplcon2_bits
 cl1_BPLCON2      RS.L 1
   ENDC
 cl1_BPLCON3_1    RS.L 1
@@ -31,20 +31,20 @@ cl1_BPL1MOD      RS.L 1
 cl1_BPL2MOD      RS.L 1
   ENDC
   IFEQ (pf_depth+spr_depth)
-    IFD DIWSTRTBITS
+    IFD diwstrt_bits
 cl1_BPLCON4      RS.L 1
     ENDC
   ELSE
 cl1_BPLCON4      RS.L 1
   ENDC
-  IFD DIWHIGHBITS
+  IFD diwhigh_bits
 cl1_DIWHIGH      RS.L 1
   ENDC
-  IFD FMODEBITS
+  IFD fmode_bits
 cl1_FMODE        RS.L 1
   ENDC
 
-  IFNE DMABITS&DMAF_SPRITE
+  IFNE dma_bits&DMAF_SPRITE
 cl1_SPR0PTH      RS.L 1
 cl1_SPR0PTL      RS.L 1
 cl1_SPR1PTH      RS.L 1
@@ -171,7 +171,7 @@ cl1_COLOR30_high\2 RS.L 1
 cl1_COLOR31_high\2 RS.L 1
   ENDC
   IFNE spr_colors_number      ;Anzahl SPR-Farben > 0
-    IFEQ ((BPLCON4BITS&$000f)-(\3&$000f)) & ((BPLCON4BITS&$00f0)-(\3&$00f0)) ;SPR-Colortable
+    IFEQ ((bplcon4_bits&$000f)-(\3&$000f)) & ((bplcon4_bits&$00f0)-(\3&$00f0)) ;SPR-Colortable
       IFLT pf_colors_number-(16+\1) ;Anzahl PF-Farben < 16
         IFGT \2-1              ;PF-Palettennummer > 1
 cl1_BPLCON3_high\2 RS.L 1
@@ -194,7 +194,7 @@ cl1_COLOR14_high\2 RS.L 1
 cl1_COLOR15_high\2 RS.L 1
       ENDC
     ENDC
-    IFEQ ((BPLCON4BITS&$000f)-(\4&$000f)) & ((BPLCON4BITS&$00f0)-(\4&$00f0)) ;SPR-Colortable 1
+    IFEQ ((bplcon4_bits&$000f)-(\4&$000f)) & ((bplcon4_bits&$00f0)-(\4&$00f0)) ;SPR-Colortable 1
       IFLT pf_colors_number-(32+\1) ;Anzahl PF-Farben < 32
         IFGT \2-1              ;PF-Palettennummer > 1
           IFLT pf_colors_number-(1+\1) ;Anzahl PF-Farben < 1
@@ -338,7 +338,7 @@ cl1_COLOR30_low\2 RS.L 1
 cl1_COLOR31_low\2 RS.L 1
   ENDC
   IFNE spr_colors_number      ;Anzahl SPR-Farben > 0
-    IFEQ ((BPLCON4BITS&$000f)-(\3&$000f)) & ((BPLCON4BITS&$00f0)-(\3&$00f0)) ;SPR-Colortable
+    IFEQ ((bplcon4_bits&$000f)-(\3&$000f)) & ((bplcon4_bits&$00f0)-(\3&$00f0)) ;SPR-Colortable
       IFLT pf_colors_number-(16+\1) ;Anzahl PF-Farben < 16
 cl1_BPLCON3_low\2 RS.L 1
 cl1_COLOR00_low\2 RS.L 1
@@ -359,7 +359,7 @@ cl1_COLOR14_low\2 RS.L 1
 cl1_COLOR15_low\2 RS.L 1
       ENDC
     ENDC
-    IFEQ ((BPLCON4BITS&$000f)-(\4&$000f)) & ((BPLCON4BITS&$00f0)-(\4&$00f0)) ;SPR-Colortable 1
+    IFEQ ((bplcon4_bits&$000f)-(\4&$000f)) & ((bplcon4_bits&$00f0)-(\4&$00f0)) ;SPR-Colortable 1
       IFLT pf_colors_number-(32+\1) ;Anzahl PF-Farben < 32
         IFLT pf_colors_number-(1+\1) ;Anzahl PF-Farben < 1
 cl1_BPLCON3_low\2 RS.L 1

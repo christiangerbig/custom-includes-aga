@@ -34,7 +34,7 @@ pt_trenoretrigbit           EQU 6
 pt_maxloopcount             EQU $7fff
 pt_metronote                EQU 214 ;Note period "C-3"
 pt_metrosamplenum           EQU 31
-pt_metronoteinfo            EQU ((pt_metrosamplenum&NIBBLEMASKHI)<<24)+(pt_metronote<<16)+((pt_metrosamplenum&NIBBLEMASKLO)<<8*NIBBLESHIFT)
+pt_metronoteinfo            EQU ((pt_metrosamplenum&NIBBLE_MASK_HIGH)<<24)+(pt_metronote<<16)+((pt_metrosamplenum&NIBBLE_MASK_LOW)<<8*NIBBLE_SHIFT)
 
 pt_cmdarpeggio              EQU 0
 pt_cmdportup                EQU 1

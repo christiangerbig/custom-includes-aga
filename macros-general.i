@@ -5,21 +5,21 @@ RS_ALIGN_LONGWORD MACRO
   ENDM
 
 
-WAIT_LMB MACRO
-wait_left_button\@
+WAIT_LEFT_MOUSE_BUTTON MACRO
+wait_left_button_loop\@
   btst    #CIAB_GAMEPORT0,CIAPRA(a4)
-  bne.s   wait_left_button\@
+  bne.s   wait_left_button_loop\@
   ENDM
 
 
-WAIT_RMB MACRO
-wait_right_button\@
+wait_right_mouse_button MACRO
+wait_right_button_loop\@
   btst    #POTINPB_DATLY,POTINP-DMACONR(a6)
-  bne.s   wait_right_button\@
+  bne.s   wait_right_button_loop\@
   ENDM
 
 
-RASTERTIME MACRO
+RASTER_TIME MACRO
 ; \1 HEXNUMBER: RGB4-Wert (optional)
   move.l  d0,-(a7)
   move.w  VPOSR-DMACONR(a6),d0
@@ -32,21 +32,21 @@ RASTERTIME MACRO
   move.l  d0,rt_rasterlines_number(a3)
 rt_no_update_y_pos_max\@
   IFNC "","\1"
-    SHOWBEAMPOS \1
+    SHOW_BEAM_POSITION \1
   ENDC
   move.l  (a7)+,d0
   ENDM
 
 
-SHOWBEAMPOS MACRO
+SHOW_BEAM_POSITION MACRO
 ; \1 ... Farbwert
-  MOVEF.W BPLCON3BITS1,d0
+  MOVEF.W bplcon3_bits1,d0
   move.w  d0,BPLCON3-DMACONR(a6)
   move.w  #\1,COLOR00-DMACONR(a6)
   ENDM
 
 
-AUDIOTEST MACRO
+AUDIO_TEST MACRO
   lea     $20000,a0          ;Zeiger auf CHIP-Memory
   move.l  a0,AUD0LCH-DMACONR(a6) ;Zeiger auf Audio-Daten
   move.l  a0,AUD1LCH-DMACONR(a6)
@@ -1210,15 +1210,15 @@ CMPF MACRO
   ENDM
 
 
-CPU_INIT_COLORHI MACRO
+CPU_INIT_COLOR_HIGH MACRO
 ; \1 WORD: Erstes Farbregister-Offset
 ; \2 BYTE_SIGNED: Anzahl der Farbwerte
 ; \3 POINTER: Farbtabelle (optional)
   IFC "","\1"
-    FAIL Makro CPU_INIT_COLORHI: Erstes Farbregister-Offset fehlt
+    FAIL Makro CPU_INIT_COLOR_HIGH: Erstes Farbregister-Offset fehlt
   ENDC
   IFC "","\2"
-    FAIL Makro CPU_INIT_COLORHI: Anzahl der Farbwerte fehlt
+    FAIL Makro CPU_INIT_COLOR_HIGH: Anzahl der Farbwerte fehlt
   ENDC
   lea     (\1)-DMACONR(a6),a0 ;erstes Farbregister
   moveq   #\2-1,d7           ;Anzahl der Farbwerte
@@ -1229,15 +1229,15 @@ CPU_INIT_COLORHI MACRO
   ENDM
 
 
-CPU_INIT_COLORLO MACRO
+CPU_INIT_COLOR_LOW MACRO
 ; \1 WORD: Erstes Farbregister-Offset
 ; \2 BYTE_SIGNED: Anzahl der Farbwerte
 ; \3 POINTER: Farbtabelle (optional)
   IFC "","\1"
-    FAIL Makro CPU_INIT_COLORLO: Erstes Farbregister-Offset fehlt
+    FAIL Makro CPU_INIT_COLOR_LOW: Erstes Farbregister-Offset fehlt
   ENDC
   IFC "","\2"
-    FAIL Makro CPU_INIT_COLORLO: Anzahl der Farbwerte fehlt
+    FAIL Makro CPU_INIT_COLOR_LOW: Anzahl der Farbwerte fehlt
   ENDC
   lea     (\1)-DMACONR(a6),a0 ;erstes Farbregister
   moveq   #\2-1,d7           ;Anzahl der Farbwerte
@@ -1248,19 +1248,19 @@ CPU_INIT_COLORLO MACRO
   ENDM
 
 
-RGB8_TO_RGB4HI MACRO
+RGB8_TO_RGB4_HIGH MACRO
 ; \1 LONGWORD: 24-Bit Farbwert
 ; \2 Scratch-Register
 ; \3 STRING: Maske für High-Bits
 ; Rückgabewert: [\1 WORD] 12-Bit High-Farbwert
   IFC "","\1"
-    FAIL Makro RGB8_TO_RGB4HI: 24-Bit Farbwert fehlt
+    FAIL Makro RGB8_TO_RGB4_HIGH: 24-Bit Farbwert fehlt
   ENDC
   IFC "","\2"
-    FAIL Makro RGB8_TO_RGB4HI: Scratch-Register fehlt
+    FAIL Makro RGB8_TO_RGB4_HIGH: Scratch-Register fehlt
   ENDC
   IFC "","\3"
-    FAIL Makro RGB8_TO_RGB4HI: Maske für High-Bits fehlt
+    FAIL Makro RGB8_TO_RGB4_HIGH: Maske für High-Bits fehlt
   ENDC
   lsr.l   #4,\1              ;$000RrGgB
   and.w   \3,\1              ;$000R0G0B
@@ -1282,19 +1282,19 @@ RGB8_TO_RGB4HI MACRO
 ;  move.b  \2,\1              ;$0RGB
 
 
-RGB8_TO_RGB4LO MACRO
+RGB8_TO_RGB4_LOW MACRO
 ; \1 LONGWORD: 24-Bit Farbwert
 ; \2 STRING: Scratch-Register
 ; \3 STRING: Maske für Low-Bits
 ; Rückgabewert: [\1 WORD] 12-Bit Low-Farbwert
   IFC "","\1"
-    FAIL Makro RGB8_TO_RGB4LO: 24-Bit Farbwert fehlt
+    FAIL Makro RGB8_TO_RGB4_LOW: 24-Bit Farbwert fehlt
   ENDC
   IFC "","\2"
-    FAIL Makro RGB8_TO_RGB4LO: Scratch-Register fehlt
+    FAIL Makro RGB8_TO_RGB4_LOW: Scratch-Register fehlt
   ENDC
   IFC "","\3"
-    FAIL Makro RGB8_TO_RGB4LO: Maske für Low-Bits fehlt
+    FAIL Makro RGB8_TO_RGB4_LOW: Maske für Low-Bits fehlt
   ENDC
   and.w   \3,\1              ;$0g0b
   move.b  \1,\2              ;$0b
@@ -1311,6 +1311,32 @@ RGB8_TO_RGB4LO MACRO
 ;  or.b    \1,\2              ;$gb
 ;  lsr.w   #4,\1              ;$0r0g
 ;  move.b  \2,\1              ;$0rgb
+
+
+RGB8_TO_RGB8_HIGH_LOW MACRO
+; \1 STRING: Labels-Prefix der Routine
+; \2 NUMBER: Anzahl der Einträge
+  IFC "","\1"
+    FAIL Makro RGB8_TO_RGB8_HIGH_LOW: Labels-Prefix fehlt
+  ENDC
+  IFC "","\2"
+    FAIL Makro RGB8_TO_RGB8_HIGH_LOW: Anzahl der Einträge fehlt
+  ENDC
+  CNOP 0,4
+\1_convert_color_table
+  move.w  #$0f0f,d3
+  lea     \1_color_table(pc),a0 ;Zeiger auf Farbtabelle
+  move.w  #\2-1,d7           ;Anzahl der Einträge
+\1_convert_color_table_loop
+  move.l  (a0),d0            ;Farbwert aus Tabelle lesen
+  move.l  d0,d2              
+  RGB8_TO_RGB4_HIGH d0,d1,d3
+  move.w  d0,(a0)+           ;High-Bits
+  RGB8_TO_RGB4_LOW d2,d1,d3
+  move.w  d2,(a0)+           ;Low-Bits
+  dbf     d7,\1_convert_color_table_loop
+  rts
+  ENDM
 
 
 INIT_CHARACTERS_OFFSETS MACRO
@@ -1330,7 +1356,7 @@ INIT_CHARACTERS_OFFSETS MACRO
     move.w  d1,d2            ;X-Offset Resetwert
     MOVEF.W \1_image_plane_width*\1_image_depth*(\1_origin_character_y_size+1),d3              ;Y-Offset für nächste Reihe der Zeichen in Zeichen-Playfieldvorlage
     lea     \1_characters_offsets(pc),a0 ;Offsets der Zeichen in Zeichen-Playfieldvorlage
-    moveq   #\1_ASCII_end-\1_ASCII-1,d7 ;Anzahl der Zeichen des Fonts
+    moveq   #\1_ascii_end-\1_ascii-1,d7 ;Anzahl der Zeichen des Fonts
 \1_init_characters_offsets_loop
     move.w  d0,(a0)+         ;X+Y-Offset des Zeichens eintragen
     addq.w  #\1_origin_character_x_size/8,d0 ;X-Offset des nächsten Zeichens
@@ -1350,7 +1376,7 @@ INIT_CHARACTERS_OFFSETS MACRO
     moveq   #\1_image_plane_width,d1 ;X-Offset letztes Zeichen in Zeichen-Playfieldvorlage
     move.l  d1,d2            ;X-Offset Resetwert
     move.l  #\1_image_plane_width*\1_image_depth*(\1_origin_character_y_size),d3              ;Y-Offset für nächste Reihe der Zeichen in Zeichen-Playfieldvorlage
-    moveq   #\1_ASCII_end-\1_ASCII-1,d7 ;Anzahl der Zeichen des Fonts
+    moveq   #\1_ascii_end-\1_ascii-1,d7 ;Anzahl der Zeichen des Fonts
 \1_init_characters_offsets_loop
     move.l  d0,(a0)+         ;X+Y-Offset des Zeichens eintragen
     add.l   #\1_origin_character_x_size/8,d0 ;X-Offset des nächsten Zeichens
@@ -1394,9 +1420,9 @@ INIT_CHARACTERS_X_POSITIONS MACRO
     lea     \1_characters_x_positions(pc),a0 ;Zeiger auf Tabelle mit X-Koords.
   ELSE
     IFC "","\4"
-      lea     \1_characters_x_positions+(\1_text_characters_number*WORDSIZE)(pc),a0 ;Tabelle mit X-Koords.-Ende
+      lea     \1_characters_x_positions+(\1_text_characters_number*WORD_SIZE)(pc),a0 ;Tabelle mit X-Koords.-Ende
     ELSE
-      lea     \1_characters_x_positions+((\1_\4)*WORDSIZE)(pc),a0 ;Tabelle mit X-Koords.-Ende
+      lea     \1_characters_x_positions+((\1_\4)*WORD_SIZE)(pc),a0 ;Tabelle mit X-Koords.-Ende
     ENDC
   ENDC
   IFC "","\4"
@@ -1492,8 +1518,8 @@ GET_NEW_CHARACTER_IMAGE MACRO
       beq.s   \1_restart_text ;dann Neustart
     ENDC
   ENDC
-  lea     \1_ASCII(pc),a0    ;Zeiger auf Tabelle mit ASCII-Codes der Zeichen
-  moveq   #\1_ASCII_end-\1_ASCII-1,d6 ;Anzahl der zu suchenden Zeichen
+  lea     \1_ascii(pc),a0    ;Zeiger auf Tabelle mit ASCII-Codes der Zeichen
+  moveq   #\1_ascii_end-\1_ascii-1,d6 ;Anzahl der zu suchenden Zeichen
 \1_get_new_character_image_loop
   cmp.b   (a0)+,d0           ;Zeichen gefunden ?
   dbeq    d6,\1_get_new_character_image_loop ;Nein -> Schleife
@@ -1509,7 +1535,7 @@ GET_NEW_CHARACTER_IMAGE MACRO
     ENDC
   ENDC
 
-  moveq   #\1_ASCII_end-\1_ASCII-1,d0 ;Anzahl der zu suchenden Zeichen
+  moveq   #\1_ascii_end-\1_ascii-1,d0 ;Anzahl der zu suchenden Zeichen
   IFLT \1_origin_character_x_size-32
     move.w  d1,\1_text_table_start(a3) ;Offset auf das Zeichen retten
   ELSE
@@ -1574,37 +1600,37 @@ GET_NEW_CHARACTER_IMAGE MACRO
   ENDM
 
 
-CPU_SELECT_COLORHI_BANK MACRO
+CPU_SELECT_COLOR_HIGH_BANK MACRO
 ; \1 NUMBER: Color-Bank 0..7
 ; \2 WORD: zusätzliche BPLCON3-bits (optional)
   IFC "","\1"
-    FAIL Makro CPU_SELECT_COLORHI_BANK: Color-Bank-Nummer fehlt
+    FAIL Makro CPU_SELECT_COLOR_HIGH_BANK: Color-Bank-Nummer fehlt
   ENDC
   IFC "","\2"
     IFNE \1
-      move.w  #BPLCON3BITS1+(BPLCON3F_BANK0*\1),BPLCON3-DMACONR(a6) ;High-Bits
+      move.w  #bplcon3_bits1+(BPLCON3F_BANK0*\1),BPLCON3-DMACONR(a6) ;High-Bits
     ELSE
-      MOVEF.W BPLCON3BITS1+(BPLCON3F_BANK0*\1),d0
+      MOVEF.W bplcon3_bits1+(BPLCON3F_BANK0*\1),d0
       move.w  d0,BPLCON3-DMACONR(a6) ;High-Bits
     ENDC
   ELSE
-    MOVEF.W BPLCON3BITS1+(BPLCON3F_BANK0*\1),d0
+    MOVEF.W bplcon3_bits1+(BPLCON3F_BANK0*\1),d0
     or.w    #\2,d0
     move.w  d0,BPLCON3-DMACONR(a6) ;High-Bits
   ENDC
   ENDM
 
 
-CPU_SELECT_COLORLO_BANK MACRO
+CPU_SELECT_COLOR_LOW_BANK MACRO
 ; \1 NUMBER: Color-Bank 0..7
 ; \2 WORD: zusätzliche BPLCON3-bits (optional)
   IFC "","\1"
-    FAIL Makro CPU_SELECT_COLORLO_BANK: Color-Bank-Nummer fehlt
+    FAIL Makro CPU_SELECT_COLOR_LOW_BANK: Color-Bank-Nummer fehlt
   ENDC
   IFC "","\2"
-    move.w  #BPLCON3BITS2+(BPLCON3F_BANK0*\1),BPLCON3-DMACONR(a6) ;Low-Bits
+    move.w  #bplcon3_bits2+(BPLCON3F_BANK0*\1),BPLCON3-DMACONR(a6) ;Low-Bits
   ELSE
-    MOVEF.W BPLCON3BITS2+(BPLCON3F_BANK0*\1),d0
+    MOVEF.W bplcon3_bits2+(BPLCON3F_BANK0*\1),d0
     or.w    #\2,d0
     move.w  d0,BPLCON3-DMACONR(a6) ;Low-Bits
   ENDC
@@ -1612,7 +1638,7 @@ CPU_SELECT_COLORLO_BANK MACRO
 
 
 DISABLE_060_STORE_BUFFER MACRO
-  move.l  _SysBase(pc),a6   ;Exec-Base
+  move.l  _SysBase(pc),a6
   tst.b   AttnFlags+1(a6)    ;CPU 68060 ?
   bpl.s   dsb_no_CPU060      ;Nein -> verzweige
   lea     dsb_CPU060_store_buffer_off(pc),a5 ;Zeiger auf Supervisor-Routine
@@ -1639,7 +1665,7 @@ dsb_CPU060_store_buffer_off
 
 
 ENABLE_060_STORE_BUFFER MACRO
-  move.l  _SysBase(pc),a6   ;Exec-Base
+  move.l  _SysBase(pc),a6
   tst.b   AttnFlags+1(a6)    ;CPU 68060 ?
   bpl.s   esb_no_CPU060      ;Nein -> verzweige
   lea     esb_CPU060_store_buffer_on(pc),a5 ;Zeiger auf Supervisor-Routine
@@ -1730,7 +1756,7 @@ INIT_MIRROR_SWITCH_TABLE MACRO
     dbf     d7,\1_init_mirror_switch_table_loop1
   ENDC
   IFC "W","\0"
-    move.l  #(\2<<8)+BPLCON4BITS,d0 ;Erster Switchwert
+    move.l  #(\2<<8)+bplcon4_bits,d0 ;Erster Switchwert
     move.l  #\3<<8,d2 ;Additionswert für Switchwert
     moveq   #\4-1,d7         ;Anzahl der Farbverläufe
 \1_init_mirror_switch_table_loop1
@@ -1811,7 +1837,7 @@ INIT_NESTED_MIRROR_SWITCH_TABLE MACRO
 \1_init_nested_mirror_switch_table_loop2_1
     move.b  d0,(a0)          ;Switchwert retten
     add.w   d2,d0            ;Switchwert erhöhen
-    addq.w  #\4*BYTESIZE,a0  ;Offset addieren
+    addq.w  #\4*BYTE_SIZE,a0  ;Offset addieren
     dbf     d6,\1_init_nested_mirror_switch_table_loop2_1
     IFC "","\9"
       move.w  d0,d1
@@ -1822,13 +1848,13 @@ INIT_NESTED_MIRROR_SWITCH_TABLE MACRO
 \1_init_nested_mirror_switch_table_loop2_2
     sub.w   d2,d1            ;Switchwert verringern
     move.b  d1,(a0)          ;Switchwert retten
-    addq.w  #\4*BYTESIZE,a0  ;Offset addieren
+    addq.w  #\4*BYTE_SIZE,a0  ;Offset addieren
     dbf     d6,\1_init_nested_mirror_switch_table_loop2_2
-    addq.w  #BYTESIZE,a1     ;nächstes Segment
+    addq.w  #BYTE_SIZE,a1     ;nächstes Segment
     dbf     d7,\1_init_nested_mirror_switch_table_loop1
   ENDC
   IFC "W","\0"
-    move.l  #(\2<<8)+BPLCON4BITS,d0 ;Erster Switchwert
+    move.l  #(\2<<8)+bplcon4_bits,d0 ;Erster Switchwert
     move.l  #\3<<8,d2 ;Additionswert für Switchwert
     moveq   #\4-1,d7         ;Anzahl der Farbverläufe
 \1_init_nested_mirror_switch_table_loop1
@@ -1837,7 +1863,7 @@ INIT_NESTED_MIRROR_SWITCH_TABLE MACRO
 \1_init_nested_mirror_switch_table_loop2_1
     move.w  d0,(a0)          ;Switchwert retten
     add.l   d2,d0            ;Switchwert erhöhen
-    addq.w  #\4*WORDSIZE,a0  ;Offset addieren
+    addq.w  #\4*WORD_SIZE,a0  ;Offset addieren
     dbf     d6,\1_init_nested_mirror_switch_table_loop2_1
     IFC "","\9"
       move.l  d0,d1
@@ -1848,9 +1874,9 @@ INIT_NESTED_MIRROR_SWITCH_TABLE MACRO
 \1_init_nested_mirror_switch_table_loop2_2
     sub.l   d2,d1            ;Switchwert verringern
     move.w  d1,(a0)          ;Switchwert retten
-    addq.w  #\4*WORDSIZE,a0  ;Offset addieren
+    addq.w  #\4*WORD_SIZE,a0  ;Offset addieren
     dbf     d6,\1_init_nested_mirror_switch_table_loop2_2
-    addq.w  #WORDSIZE,a1     ;nächstes Segment
+    addq.w  #WORD_SIZE,a1     ;nächstes Segment
     dbf     d7,\1_init_nested_mirror_switch_table_loop1
   ENDC
   rts
@@ -1893,10 +1919,10 @@ INIT_SWITCH_TABLE MACRO
       move.l  \5(\6),a0      ;Zeiger auf Farbtabelle
     ENDC
     IFNC "","\7"
-      add.l   #(\7)*BYTESIZE,a0 ;Offset Tabellenanfang
+      add.l   #(\7)*BYTE_SIZE,a0 ;Offset Tabellenanfang
     ENDC
     IFNC "","\8"
-      move.l  #(\8)*BYTESIZE,a1 ;Offset zum nächsten Wert
+      move.l  #(\8)*BYTE_SIZE,a1 ;Offset zum nächsten Wert
     ENDC
     IFNC "","\2"
       MOVEF.W \2,d0          ;Erster Switchwert
@@ -1923,10 +1949,10 @@ INIT_SWITCH_TABLE MACRO
       move.l  \5(\6),a0      ;Zeiger auf Switch-Tabelle
     ENDC
     IFNC "","\7"
-      add.l   #(\7)*WORDSIZE,a0 ;Offset Tabellenanfang
+      add.l   #(\7)*WORD_SIZE,a0 ;Offset Tabellenanfang
     ENDC
     IFNC "","\8"
-      move.l  #(\8)*WORDSIZE,a1 ;Offset zum nächsten Wert
+      move.l  #(\8)*WORD_SIZE,a1 ;Offset zum nächsten Wert
     ENDC
     IFNC "","\2"
       move.l  #\2<<8,d0 ;Erster Switchwert
@@ -1963,7 +1989,7 @@ INIT_COLOR_GRADIENT_RGB8 MACRO
   ENDC
   IFC "","\2"
     FAIL Makro COLOR_GRADIENT_RGB8: RGB8 Endwert/Sollwert fehlt
-  ENDC              c
+  ENDC              
   IFC "","\3"
     FAIL Makro COLOR_GRADIENT_RGB8: Anzahl der Farbwerte fehlt
   ENDC
@@ -1978,7 +2004,7 @@ INIT_COLOR_GRADIENT_RGB8 MACRO
     ENDC
   ENDC
   IFNC "","\7"
-    add.l   #(\7)*LONGWORDSIZE,a0 ;Nur Offset addieren
+    add.l   #(\7)*LONGWORD_SIZE,a0 ;Nur Offset addieren
   ENDC
   IFNC "","\4"
     move.l  #(\4)<<16,a1       ;Additions-/Subtraktionswert für Rot
@@ -1986,7 +2012,7 @@ INIT_COLOR_GRADIENT_RGB8 MACRO
     move.w  #\4,a4             ;Additions-/Subtraktionswert für Grün
   ENDC
   IFNC "","\8"
-    move.w  #(\8)*LONGWORDSIZE,a5 ;Offset nächster Farbwert
+    move.w  #(\8)*LONGWORD_SIZE,a5 ;Offset nächster Farbwert
   ENDC
   MOVEF.W \3-1,d7            ;Anzahl der Farbwerte
   bsr     init_color_gradient_RGB8_loop
@@ -2019,7 +2045,7 @@ INIT_COLOR_GRADIENT_GROUP_RGB8 MACRO
       move.l  \5(\6),a0
     ENDC
     IFNC "","\7"
-      add.l   #(\7)*LONGWORDSIZE,a0 ;Nur Offset addieren
+      add.l   #(\7)*LONGWORD_SIZE,a0 ;Nur Offset addieren
     ENDC
   ENDC
   IFNC "","\4"
@@ -2027,16 +2053,16 @@ INIT_COLOR_GRADIENT_GROUP_RGB8 MACRO
     move.w  #\4<<8,a2   ;Additions-/Subtraktionswert für Grün
     move.w  #\4,a4             ;Additions-/Subtraktionswert für Grün
   ENDC
-  move.w  #(\8)*LONGWORDSIZE,a5 ;Offset
+  move.w  #(\8)*LONGWORD_SIZE,a5 ;Offset
   moveq   #\2-1,d7           ;Anzahl der Zeilen
 lines_loop\@
   moveq   #\3-1,d5           ;Anzahl der Segmente
 segments_loop\@
   move.l  (a0),d0            ;RGB-Startwert
-  move.l  (\1)*LONGWORDSIZE(a0),d6 ;RGB-Endwert
+  move.l  (\1)*LONGWORD_SIZE(a0),d6 ;RGB-Endwert
   tst.w   d5                 ;Letzte Schleife bei Segmenten ?
   bne.s   no_last_segment\@  ;Nein -> verzweige
-  move.l  -((\1)*LONGWORDSIZE*(\3-1))(a0),d6 ;RGB-Endwert = erster Wert in Segment 1
+  move.l  -((\1)*LONGWORD_SIZE*(\3-1))(a0),d6 ;RGB-Endwert = erster Wert in Segment 1
 no_last_segment\@
   movem.l d5/d7,-(a7)
   MOVEF.L \1-1,d7            ;Anzahl der Farbwerte
@@ -2119,7 +2145,7 @@ INIT_DISPLAY_PATTERN MACRO
   ENDC
   CNOP 0,4
 \1_init_display_pattern
-  moveq   #0,d0           ;Spaltenzähler-Startwert
+  moveq   #0,d0              ;Spaltenzähler-Startwert
   moveq   #TRUE,d1           ;Langwortzugriff
   moveq   #1,d3              ;Farbnummer
   move.l  pf1_display(a3),a0 ;Playfield
@@ -2164,32 +2190,6 @@ INIT_DISPLAY_PATTERN MACRO
   dbf     d6,\1_init_display_pattern_loop2
   addq.w  #1,d3              ;Farbnummer erhöhen
   dbf     d7,\1_init_display_pattern_loop1
-  rts
-  ENDM
-
-
-RGB8_TO_RGB8_HILO MACRO
-; \1 STRING: Labels-Prefix der Routine
-; \2 NUMBER: Anzahl der Einträge
-  IFC "","\1"
-    FAIL Makro RGB8_TO_RGB8_HILO: Labels-Prefix fehlt
-  ENDC
-  IFC "","\2"
-    FAIL Makro RGB8_TO_RGB8_HILO: Anzahl der Einträge fehlt
-  ENDC
-  CNOP 0,4
-\1_convert_color_table
-  move.w  #$0f0f,d3
-  lea     \1_color_table(pc),a0 ;Zeiger auf Farbtabelle
-  move.w  #\2-1,d7           ;Anzahl der Einträge
-\1_convert_color_table_loop
-  move.l  (a0),d0            ;Farbwert aus Tabelle lesen
-  move.l  d0,d2              
-  RGB8_TO_RGB4HI d0,d1,d3
-  move.w  d0,(a0)+           ;High-Bits
-  RGB8_TO_RGB4LO d2,d1,d3
-  move.w  d2,(a0)+           ;Low-Bits
-  dbf     d7,\1_convert_color_table_loop
   rts
   ENDM
 
@@ -2445,7 +2445,7 @@ COLOR_FADER MACRO
   clr.b   d4                 ;$00Gg00
 
 ; ** Rotwert **
-\1_check_red
+\1_check_red_nibble
   cmp.l   d3,d0              ;Ist-Rotwert mit Soll-Rotwert vergleichen
   bgt.s   \1_decrease_red    ;Wenn Ist-Rotwert > Soll-Rotwert -> verzweige
   blt.s   \1_increase_red    ;Wenn Ist-Rotwert < Soll-Rotwert -> verzweige
@@ -2453,7 +2453,7 @@ COLOR_FADER MACRO
   subq.w  #1,d6              ;Zähler verringern
 
 ; ** Grünwert **
-\1_check_green
+\1_check_green_nibble
   cmp.l   d4,d1              ;Ist-Grünwert mit Soll-Grünwert vergleichen
   bgt.s   \1_decrease_green  ;Wenn Ist-Grünwert > Soll-Grünwert -> verzweige
   blt.s   \1_increase_green  ;Wenn Ist-Grünwert < Soll-Grünwert -> verzweige
@@ -2461,14 +2461,14 @@ COLOR_FADER MACRO
   subq.w  #1,d6              ;Zähler verringern
 
 ; ** Blauwert **
-\1_check_blue
+\1_check_blue_nibble
   cmp.w   d5,d2              ;Ist-Blauwert mit Soll-Blauwert vergleichen
   bgt.s   \1_decrease_blue   ;Wenn Ist-Blauwert > Soll-Blauwert -> verzweige
   blt.s   \1_increase_blue   ;Wenn Ist-Blauwert < Soll-Blauwert -> verzweige
 \1_matched_blue
   subq.w  #1,d6              ;Zähler verringern
 
-\1_merge_rgb
+\1_merge_rgb_nibbles
   move.l  d0,d3              ;neuer Rotwert  $Rr0000
   move.w  d1,d3              ;neuer Grünwert $RrGg00
   move.b  d2,d3              ;neuer Blauwert $RrGgBb
@@ -2481,42 +2481,42 @@ COLOR_FADER MACRO
 \1_decrease_red
   sub.l   a2,d0              ;Rotanteil verringern
   cmp.l   d3,d0              ;Ist-Rotwert > Soll-Rotwert ?
-  bgt.s   \1_check_green     ;Ja -> verzweige
+  bgt.s   \1_check_green_nibble ;Ja -> verzweige
   move.l  d3,d0              ;Rotanteil Zielwert
   bra.s   \1_matched_red
   CNOP 0,4
 \1_increase_red
   add.l   a2,d0              ;Rotanteil erhöhen
   cmp.l   d3,d0              ;Ist-Rotwert < Soll-Rotwert ?
-  blt.s   \1_check_green     ;Ja -> verzweige
+  blt.s   \1_check_green_nibble ;Ja -> verzweige
   move.l  d3,d0              ;Rotanteil Zielwert
   bra.s   \1_matched_red
   CNOP 0,4
 \1_decrease_green
   sub.l   a4,d1              ;Grünanteil verringern
   cmp.l   d4,d1              ;Ist-Grünwert > Soll-Grünwert ?
-  bgt.s   \1_check_blue      ;Ja -> verzweige
+  bgt.s   \1_check_blue_nibble ;Ja -> verzweige
   move.l  d4,d1              ;Grünanteil Zielwert
   bra.s   \1_matched_green
   CNOP 0,4
 \1_increase_green
   add.l   a4,d1              ;Grünanteil erhöhen
   cmp.l   d4,d1              ;Ist-Grünwert < Soll-Grünwert ?
-  blt.s   \1_check_blue      ;Ja -> verzweige
+  blt.s   \1_check_blue_nibble ;Ja -> verzweige
   move.l  d4,d1              ;Grünanteil Zielwert
   bra.s   \1_matched_green
   CNOP 0,4
 \1_decrease_blue
   sub.w   a5,d2              ;Blauanteil verringern
   cmp.w   d5,d2              ;Ist-Blauwert > Soll-Blauwert ?
-  bgt.s   \1_merge_rgb       ;Ja -> verzweige
+  bgt.s   \1_merge_rgb_nibbles ;Ja -> verzweige
   move.w  d5,d2              ;Blauanteil Zielwert
   bra.s   \1_matched_blue
   CNOP 0,4
 \1_increase_blue
   add.w   a5,d2              ;Blauanteil erhöhen
   cmp.w   d5,d2              ;Ist-Blauwert < Soll-Blauwert ?
-  blt.s   \1_merge_rgb       ;Ja -> verzweige
+  blt.s   \1_merge_rgb_nibbles ;Ja -> verzweige
   move.w  d5,d2              ;Blauanteil Zielwert
   bra.s   \1_matched_blue
   ENDM
@@ -2605,11 +2605,11 @@ COPY_COLOR_TABLE_TO_COPPERLIST MACRO
   ENDC
   tst.w   \1_copy_colors_active(a3) ;Kopieren der Farbwerte beendet ?
   bne.s   \1_no_copy_color_table ;Ja -> verzweige
-  move.w  #$0f0f,d3          ;Maske für RGB-Nibbles
+  move.w  #$0f0f,d3          ;Maske RGB-Nibbles
   IFGT \1_colors_number-32
     MOVEF.W \1_start_color*8,d4 ;Color-Bank Farbregisterzähler
   ENDC
-  lea     \2_color_table+(\1_color_table_offset*LONGWORDSIZE)(pc),a0 ;Puffer für Farbwerte
+  lea     \2_color_table+(\1_color_table_offset*LONGWORD_SIZE)(pc),a0 ;Puffer für Farbwerte
   move.l  \3_display(a3),a1
   IFC "","\6"
     ADDF.W  \4+2,a1
@@ -2636,7 +2636,7 @@ COPY_COLOR_TABLE_TO_COPPERLIST MACRO
 \1_copy_color_table_loop
   move.l  (a0)+,d0           ;RGB8-Farbwert
   move.l  d0,d2              
-  RGB8_TO_RGB4HI d0,d1,d3
+  RGB8_TO_RGB4_HIGH d0,d1,d3
   move.w  d0,(a1)            ;COLORxx High-Bits
   IFNE \3_size1
     move.w  d0,(a2)          ;COLORxx High-Bits
@@ -2644,7 +2644,7 @@ COPY_COLOR_TABLE_TO_COPPERLIST MACRO
   IFNE \3_size2
     move.w  d0,(a4)          ;COLORxx High-Bits
   ENDC
-  RGB8_TO_RGB4LO d2,d1,d3
+  RGB8_TO_RGB4_LOW d2,d1,d3
   move.w  d2,\5-\4(a1)       ;Low-Bits COLORxx
   addq.w  #4,a1              ;nächstes Farbregister
   IFNE \3_size1

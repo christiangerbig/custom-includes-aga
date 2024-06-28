@@ -86,7 +86,7 @@ start_all
     bne     cleanup_graphics_library ;Ja -> verzweige
 
 ; ** Userabfrage, wenn TCP/IP-Stack vorhanden ist **
-    IFNE INTENABITS&INTF_PORTS
+    IFNE intena_bits&INTF_PORTS
       bsr     do_tcp_stack_request
       move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
       bne     cleanup_intuition_library ;Ja -> verzweige
@@ -294,13 +294,13 @@ start_all
     bsr     clear_important_registers
     bsr     turn_off_drive_motors
   ENDC
-  move.w  #DMABITS&(~(DMAF_SPRITE|DMAF_COPPER|DMAF_RASTER)),DMACON-DMACONR(a6) ;DMA ausser Sprite/Copper/Bitplane-DMA an
+  move.w  #dma_bits&(~(DMAF_SPRITE|DMAF_COPPER|DMAF_RASTER)),DMACON-DMACONR(a6) ;DMA ausser Sprite/Copper/Bitplane-DMA an
   bsr     init_all
   bsr     start_own_display
-  IFNE (INTENABITS-INTF_SETCLR)|(CIAAICRBITS-CIAICRF_SETCLR)|(CIABICRBITS-CIAICRF_SETCLR)
+  IFNE (intena_bits-INTF_SETCLR)|(ciaa_icr_bits-CIAICRF_SETCLR)|(ciab_icr_bits-CIAICRF_SETCLR)
     bsr     start_own_interrupts
   ENDC
-  IFEQ CIAA_TA_continuous_enabled&CIAA_TB_continuous_enabled&CIAB_TA_continuous_enabled&CIAB_TB_continuous_enabled
+  IFEQ ciaa_ta_continuous_enabled&ciaa_tb_continuous_enabled&ciab_ta_continuous_enabled&ciab_tb_continuous_enabled
     bsr     start_CIA_timers
   ENDC
 
@@ -331,10 +331,10 @@ start_all
 
 ; ** Alles stoppen **
 ; -------------------
-  IFEQ CIAA_TA_continuous_enabled&CIAA_TB_continuous_enabled&CIAB_TA_continuous_enabled&CIAB_TB_continuous_enabled
+  IFEQ ciaa_ta_continuous_enabled&ciaa_tb_continuous_enabled&ciab_ta_continuous_enabled&ciab_tb_continuous_enabled
     bsr     stop_CIA_timers
   ENDC
-  IFNE (INTENABITS-INTF_SETCLR)|(CIAAICRBITS-CIAICRF_SETCLR)|(CIABICRBITS-CIAICRF_SETCLR)
+  IFNE (intena_bits-INTF_SETCLR)|(ciaa_icr_bits-CIAICRF_SETCLR)|(ciab_icr_bits-CIAICRF_SETCLR)
     bsr     stop_own_interrupts
   ENDC
   bsr     stop_own_display
@@ -544,7 +544,7 @@ init_variables
     move.w  #NO_CUSTOM_ERROR,custom_error_code(a3)
 
     lea     _SysBase(pc),a0
-    move.l  Exec_Base.w,(a0)
+    move.l  exec_base.w,(a0)
   ENDC
   IFD measure_rastertime
     moveq   #0,d0
@@ -857,7 +857,7 @@ init_custom_error_table
 ; ------------------------------------------
     CNOP 0,4
 init_easy_request_structure
-    IFNE INTENABITS&INTF_PORTS
+    IFNE intena_bits&INTF_PORTS
       lea     tcp_request_structure(pc),a0 ;Zeiger auf Easy-Struktur
       moveq   #EasyStruct_SIZEOF,d0
       move.l  d0,(a0)+           ;Größe der Struktur
@@ -1192,7 +1192,7 @@ task_error
     CNOP 0,4
 open_dos_library
     lea     dos_name(pc),a1
-    moveq   #ANY_LIB_VERSION,d0
+    moveq   #ANY_LIBRARY_VERSION,d0
     CALLEXEC OpenLibrary
     lea     _DOSBase(pc),a0
     move.l  d0,(a0)
@@ -1209,7 +1209,7 @@ dos_library_error
     CNOP 0,4
 open_graphics_library
     lea     graphics_name(pc),a1
-    moveq   #ANY_LIB_VERSION,d0
+    moveq   #ANY_LIBRARY_VERSION,d0
     CALLEXEC OpenLibrary
     lea     _GfxBase(pc),a0
     move.l  d0,(a0)
@@ -1370,7 +1370,7 @@ intuition_library_error
   
 ; ** Userabfrage, wenn TCP-Stack vorhanden ist **
 ; -----------------------------------------------
-    IFNE INTENABITS&INTF_PORTS
+    IFNE intena_bits&INTF_PORTS
       CNOP 0,4
 do_tcp_stack_request
       CALLEXEC Forbid
@@ -2171,12 +2171,12 @@ wbf_os_screen_depth_loop
       CALLLIBS FreeScreenDrawInfo
   
 wbf_alloc_color_values32_memory
-      move.l  #wbf_colors_number_max*3*LONGWORDSIZE,d0
+      move.l  #wbf_colors_number_max*3*LONGWORD_SIZE,d0
       bsr     do_alloc_memory
       move.l  d0,wbf_color_values32(a3)
       beq     wbf_color_values32_memory_error
 wbf_alloc_color_cache32_memory
-      move.l  #(1+(wbf_colors_number_max*3)+1)*LONGWORDSIZE,d0
+      move.l  #(1+(wbf_colors_number_max*3)+1)*LONGWORD_SIZE,d0
       bsr     do_alloc_memory
       move.l  d0,wbf_color_cache32(a3)
       beq     wbf_color_cache32_memory_error
@@ -2214,7 +2214,7 @@ wbfo_wait_fade_out
       move.l  (a7)+,a4
     ELSE
 alloc_screen_color_table32_memory
-      move.l  #(1+(wbf_colors_number_max*3)+1)*LONGWORDSIZE,d0
+      move.l  #(1+(wbf_colors_number_max*3)+1)*LONGWORD_SIZE,d0
       bsr     do_alloc_memory
       move.l  d0,screen_color_table32(a3)
       beq     screen_color_table32_memory_error
@@ -2346,7 +2346,7 @@ wbf_color_cache32_memory_error
       move.l  wbf_color_values32(a3),d0 ;Konnte der Spwicher reserviert werden?
       beq.s   wbf_color_values32_memory_error ;Nein -> verzweige
       move.l  d0,a1            ;Zeiger auf Speicherbereich
-      move.l  #wbf_colors_number_max*3*LONGWORDSIZE,d0
+      move.l  #wbf_colors_number_max*3*LONGWORD_SIZE,d0
       CALLEXEC FreeMem         ;Speicher freigeben
 wbf_color_values32_memory_error
       move.w  #WORKBENCH_FADE_NO_MEMORY,custom_error_code(a3)
@@ -2381,7 +2381,7 @@ workbench_fader_out_loop
       lsr.w   #8,d4          ;$00Gg
       
 ; ** Rotwert **
-wbfo_check_red
+wbfo_check_red_nibble
       cmp.w   d3,d0          ;Ist-Rotwert mit Soll-Rotwert vergleichen
       bgt.s   wbfo_decrease_red ;Wenn Ist-Rotwert < Soll-Rotwert -> verzweige
       blt.s   wbfo_increase_red ;Wenn Ist-Rotwert > Soll-Rotwert -> verzweige
@@ -2389,7 +2389,7 @@ wbfo_matched_red
       subq.w  #1,d6          ;Zähler verringern
   
 ; ** Grünwert  **
-wbfo_check_green
+wbfo_check_green_nibble
       cmp.w   d4,d1          ;Ist-Grünwert mit Soll-Grünwert vergleichen
       bgt.s   wbfo_decrease_green ;Wenn Ist-Grünwert < Soll-Grünwert -> verzweige
       blt.s   wbfo_increase_green ;Wenn Ist-Grünwert > Soll-Grünwert -> verzweige
@@ -2397,14 +2397,14 @@ wbfo_matched_green
       subq.w  #1,d6          ;Zähler verringern
   
 ; ** Blauwert **
-wbfo_check_blue
+wbfo_check_blue_nibble
       cmp.w   d5,d2          ;Ist-Blauwert mit Soll-Blauwert vergleichen
       bgt.s   wbfo_decrease_blue ;Wenn Ist-Blauwert < Soll-Blauwert -> verzweige
       blt.s   wbfo_increase_blue ;Wenn Ist-Blauwert > Soll-Blauwert -> verzweige
 wbfo_matched_blue
       subq.w  #1,d6          ;Zähler verringern
   
-wbfo_set_rgb
+wbfo_set_rgb_nibbles
       move.b  d0,(a0)+       ;4x 8-Bit Rotwert in Cache schreiben
       move.b  d0,(a0)+
       move.b  d0,(a0)+
@@ -2430,42 +2430,42 @@ no_workbench_fader_out
 wbfo_decrease_red
       sub.w   a4,d0          ;Rotanteil verringern
       cmp.w   d3,d0          ;Ist-Rotwert > Soll-Rotwert ?
-      bgt.s   wbfo_check_green ;Ja -> verzweige
+      bgt.s   wbfo_check_green_nibble ;Ja -> verzweige
       move.w  d3,d0          ;Ist-Rotwert <= Soll-Rotwert
       bra.s   wbfo_matched_red
       CNOP 0,4
 wbfo_increase_red
       add.w   a4,d0          ;Rotanteil erhöhen
       cmp.w   d3,d0          ;Ist-Rotwert < Soll-Rotwert ?
-      blt.s   wbfo_check_green ;Ja -> verzweige
+      blt.s   wbfo_check_green_nibble ;Ja -> verzweige
       move.w  d3,d0          ;Ist-Rotwert >= Soll-Rotwert
       bra.s   wbfo_matched_red
       CNOP 0,4
 wbfo_decrease_green
       sub.w   a4,d1          ;Grünanteil verringern
       cmp.w   d4,d1          ;Ist-Grünwert > Soll-Grünwert ?
-      bgt.s   wbfo_check_blue  ;Ja -> verzweige
+      bgt.s   wbfo_check_blue_nibble  ;Ja -> verzweige
       move.w  d4,d1          ;Ist-Grünwert <= Soll-Grünwert
       bra.s   wbfo_matched_green
       CNOP 0,4
 wbfo_increase_green
       add.w   a4,d1          ;Grünanteil erhöhen
       cmp.w   d4,d1          ;Ist-Grünwert < Soll-Grünwert ?
-      blt.s   wbfo_check_blue  ;Ja -> verzweige
+      blt.s   wbfo_check_blue_nibble  ;Ja -> verzweige
       move.w  d4,d1          ;Ist-Grünwert >= Soll-Grünwert
       bra.s   wbfo_matched_green
       CNOP 0,4
 wbfo_decrease_blue
       sub.w   a4,d2          ;Blauanteil verringern
       cmp.w   d5,d2          ;Ist-Blauwert > Soll-Blauwert ?
-      bgt.s   wbfo_set_rgb   ;Ja -> verzweige
+      bgt.s   wbfo_set_rgb_nibbles   ;Ja -> verzweige
       move.w  d5,d2          ;Ist-Blauwert <= Soll-Blauwert
       bra.s   wbfo_matched_blue
       CNOP 0,4
 wbfo_increase_blue
       add.w   a4,d2          :Blauanteil erhöhen
       cmp.w   d5,d2          ;Ist-Blauwert < Soll-Blauwert ?
-      blt.s   wbfo_set_rgb   ;Ja -> verzweige
+      blt.s   wbfo_set_rgb_nibbles   ;Ja -> verzweige
       move.w  d5,d2          ;Ist-Blauwert >= Soll-Blauwert
       bra.s   wbfo_matched_blue
   
@@ -2516,7 +2516,7 @@ copy_exception_vectors_loop
   CNOP 0,4
 init_exception_vectors
   IFD sys_taken_over
-    IFNE INTENABITS&(~INTF_SETCLR)
+    IFNE intena_bits&(~INTF_SETCLR)
       lea     read_vbr(pc),a5 ;Zeiger auf Supervisor-Routine
       CALLEXEC Supervisor    ;Routine ausführen
       move.l  d0,a0          ;VBR
@@ -2528,27 +2528,27 @@ init_exception_vectors
   ENDC
 
 ; ** Level-1 - Level-7-Interrupt-Vektoren **
-  IFNE INTENABITS&(INTF_TBE+INTF_DSKBLK+INTF_SOFTINT)
+  IFNE intena_bits&(INTF_TBE+INTF_DSKBLK+INTF_SOFTINT)
     lea     level_1_int_handler(pc),a1
     move.l  a1,LEVEL_1_AUTOVECTOR(a0) ;Neuer LEVEL_1_AUTOVECTOR
   ENDC
-  IFNE INTENABITS&INTF_PORTS
+  IFNE intena_bits&INTF_PORTS
     lea     level_2_int_handler(pc),a1
     move.l  a1,LEVEL_2_AUTOVECTOR(a0) ;Neuer LEVEL_2_AUTOVECTOR
   ENDC
-  IFNE INTENABITS&(INTF_COPER+INTF_VERTB+INTF_BLIT)
+  IFNE intena_bits&(INTF_COPER+INTF_VERTB+INTF_BLIT)
     lea     level_3_int_handler(pc),a1
     move.l  a1,LEVEL_3_AUTOVECTOR(a0) ;Neuer LEVEL_3_AUTOVECTOR
   ENDC
-  IFNE INTENABITS&(INTF_AUD0+INTF_AUD1+INTF_AUD2+INTF_AUD3)
+  IFNE intena_bits&(INTF_AUD0+INTF_AUD1+INTF_AUD2+INTF_AUD3)
     lea     level_4_int_handler(pc),a1
     move.l  a1,LEVEL_4_AUTOVECTOR(a0) ;Neuer LEVEL_4_AUTOVECTOR
   ENDC
-  IFNE INTENABITS&(INTF_RBF+INTF_DSKSYNC)
+  IFNE intena_bits&(INTF_RBF+INTF_DSKSYNC)
     lea     level_5_int_handler(pc),a1
     move.l  a1,LEVEL_5_AUTOVECTOR(a0) ;Neuer LEVEL_5_AUTOVECTOR
   ENDC
-  IFNE INTENABITS&INTF_EXTER
+  IFNE intena_bits&INTF_EXTER
     lea     level_6_int_handler(pc),a1
     move.l  a1,LEVEL_6_AUTOVECTOR(a0) ;Neuer LEVEL_6_AUTOVECTOR
   ENDC
@@ -2604,7 +2604,7 @@ save_hardware_registers
   
     move.b  CIAPRA(a4),os_CIAAPRA(a3)
     move.b  CIACRA(a4),d0
-    move.b  d0,os_CIAACRA(a3)
+    move.b  d0,os_ciaa_cra_bits(a3)
     and.b   #~(CIACRAF_START),d0 ;Timer A stoppen
     or.b    #CIACRAF_LOAD,d0 ;Zählwert laden
     move.b  d0,CIACRA(a4)
@@ -2613,7 +2613,7 @@ save_hardware_registers
     move.b  CIATAHI(a4),os_CIAATAHI(a3)
   
     move.b  CIACRB(a4),d0
-    move.b  d0,os_CIAACRB(a3)
+    move.b  d0,os_ciaa_crb_bits(a3)
     and.b   #~(CIACRBF_ALARM-CIACRBF_START),d0 ;Timer B stoppen
     or.b    #CIACRBF_LOAD,d0 ;Zählwert laden
     move.b  d0,CIACRB(a4)
@@ -2631,7 +2631,7 @@ save_hardware_registers
   
     move.b  CIAPRB(a5),os_CIABPRB(a3)
     move.b  CIACRA(a5),d0
-    move.b  d0,os_CIAACRA(a3)
+    move.b  d0,os_ciaa_cra_bits(a3)
     and.b   #~(CIACRAF_START),d0 ;Timer A stoppen
     or.b    #CIACRAF_LOAD,d0 ;Zählwert laden
     move.b  d0,CIACRA(a5)
@@ -2640,7 +2640,7 @@ save_hardware_registers
     move.b  CIATAHI(a5),os_CIABTAHI(a3)
   
     move.b  CIACRB(a5),d0
-    move.b  d0,os_CIABCRB(a3)
+    move.b  d0,os_ciab_crb_bits(a3)
     and.b   #~(CIACRBF_ALARM-CIACRBF_START),d0 ;Timer B stoppen
     or.b    #CIACRBF_LOAD,d0 ;Zählwert laden
     move.b  d0,CIACRB(a5)
@@ -2701,7 +2701,7 @@ turn_off_drive_motors
 start_own_display
   bsr     wait_vbi
   bsr     wait_vbi
-  moveq   #COPCONBITS,d0     ;Copper kann ggf. auf Blitteregister zurückgreifen
+  moveq   #copcon_bits,d0     ;Copper kann ggf. auf Blitteregister zurückgreifen
   move.w  d0,COPCON-DMACONR(a6)
   IFNE cl2_size3
     IFD own_display_set_second_copperlist
@@ -2713,23 +2713,23 @@ start_own_display
     moveq   #0,d0
     move.w  d0,COPJMP1-DMACONR(a6) ;sicherheitshalber manuell starten
   ENDC
-  move.w  #DMABITS&(DMAF_SPRITE|DMAF_COPPER|DMAF_RASTER|DMAF_SETCLR),DMACON-DMACONR(a6) ;Sprite/Copper/Bitplane-DMA an
+  move.w  #dma_bits&(DMAF_SPRITE|DMAF_COPPER|DMAF_RASTER|DMAF_SETCLR),DMACON-DMACONR(a6) ;Sprite/Copper/Bitplane-DMA an
   rts
 
 ; ** Eigene Interrupts starten **
 ; -------------------------------
-  IFNE (INTENABITS-INTF_SETCLR)|(CIAAICRBITS-CIAICRF_SETCLR)|(CIABICRBITS-CIAICRF_SETCLR)
+  IFNE (intena_bits-INTF_SETCLR)|(ciaa_icr_bits-CIAICRF_SETCLR)|(ciab_icr_bits-CIAICRF_SETCLR)
     CNOP 0,4
 start_own_interrupts
-    IFNE INTENABITS-INTF_SETCLR
-      move.w  #INTENABITS,INTENA-DMACONR(a6) ;Interrupts an
+    IFNE intena_bits-INTF_SETCLR
+      move.w  #intena_bits,INTENA-DMACONR(a6) ;Interrupts an
     ENDC
-    IFNE CIAAICRBITS-CIAICRF_SETCLR
-      MOVEF.B CIAAICRBITS,d0
+    IFNE ciaa_icr_bits-CIAICRF_SETCLR
+      MOVEF.B ciaa_icr_bits,d0
       move.b  d0,CIAICR(a4)    ;CIA-A-Interrupts an
     ENDC
-    IFNE CIABICRBITS-CIAICRF_SETCLR
-      MOVEF.B CIABICRBITS,d0
+    IFNE ciab_icr_bits-CIAICRF_SETCLR
+      MOVEF.B ciab_icr_bits,d0
       move.b  d0,CIAICR(a5)    ;CIA-B-Interrupts an
     ENDC
     rts
@@ -2737,22 +2737,22 @@ start_own_interrupts
 
 ; ** CIA-Timer starten **
 ; -----------------------
-  IFEQ CIAA_TA_continuous_enabled&CIAA_TB_continuous_enabled&CIAB_TA_continuous_enabled&CIAB_TB_continuous_enabled
+  IFEQ ciaa_ta_continuous_enabled&ciaa_tb_continuous_enabled&ciab_ta_continuous_enabled&ciab_tb_continuous_enabled
     CNOP 0,4
 start_CIA_timers
-    IFEQ CIAA_TA_continuous_enabled
+    IFEQ ciaa_ta_continuous_enabled
       moveq   #CIACRAF_START,d0
       or.b    d0,CIACRA(a4)      ;CIA-A-Timer-A starten
     ENDC
-    IFEQ CIAA_TB_continuous_enabled
+    IFEQ ciaa_tb_continuous_enabled
       moveq   #CIACRBF_START,d0
       or.b    d0,CIACRB(a4)      ;CIA-A-Timer-B starten
     ENDC
-    IFEQ CIAB_TA_continuous_enabled
+    IFEQ ciab_ta_continuous_enabled
       moveq   #CIACRAF_START,d0
       or.b    d0,CIACRA(a5)      ;CIA-B-Timer-A starten
     ENDC
-    IFEQ CIAB_TB_continuous_enabled
+    IFEQ ciab_tb_continuous_enabled
       moveq   #CIACRBF_START,d0
       or.b    d0,CIACRB(a5)      ;CIA-B-Timer-B starten
     ENDC
@@ -2761,22 +2761,22 @@ start_CIA_timers
 
 ; ** Timer stoppen **
 ; -------------------
-  IFEQ CIAA_TA_continuous_enabled&CIAA_TB_continuous_enabled&CIAB_TA_continuous_enabled&CIAB_TB_continuous_enabled
+  IFEQ ciaa_ta_continuous_enabled&ciaa_tb_continuous_enabled&ciab_ta_continuous_enabled&ciab_tb_continuous_enabled
     CNOP 0,4
 stop_CIA_timers
-    IFNE CIAA_TA_time
+    IFNE ciaa_ta_time
       moveq   #~(CIACRAF_START),d0
       and.b   d0,CIACRA(a4)      ;CIA-A-Timer-A stoppen
     ENDC
-    IFNE CIAA_TB_time
+    IFNE ciaa_tb_time
       moveq   #~(CIACRBF_START),d0
       and.b   d0,CIACRB(a4)      ;CIA-A-Timer-B stoppen
     ENDC
-    IFNE CIAB_TA_time
+    IFNE ciab_ta_time
       moveq   #~(CIACRAF_START),d0
       and.b   d0,CIACRA(a5)      ;CIA-B-Timer-A stoppen
     ENDC
-    IFNE CIAB_TB_time
+    IFNE ciab_tb_time
       moveq   #~(CIACRBF_START),d0
       and.b   d0,CIACRB(a5)      ;CIA-B-Timer-B stoppen
     ENDC
@@ -2785,14 +2785,14 @@ stop_CIA_timers
 
 ; ** Eigene Interrupts stoppen **
 ; -------------------------------
-  IFNE (INTENABITS-INTF_SETCLR)|(CIAAICRBITS-CIAICRF_SETCLR)|(CIABICRBITS-CIAICRF_SETCLR)
+  IFNE (intena_bits-INTF_SETCLR)|(ciaa_icr_bits-CIAICRF_SETCLR)|(ciab_icr_bits-CIAICRF_SETCLR)
     CNOP 0,4
 stop_own_interrupts
-    IFNE INTENABITS-INTF_SETCLR
+    IFNE intena_bits-INTF_SETCLR
       IFND sys_taken_over
         move.w  #INTF_INTEN,INTENA-DMACONR(a6) ;Interrupts aus
       ELSE
-        move.w  #INTENABITS&(~INTF_SETCLR),INTENA-DMACONR(a6) ;Interrupts aus
+        move.w  #intena_bits&(~INTF_SETCLR),INTENA-DMACONR(a6) ;Interrupts aus
       ENDC
     ENDC
     rts
@@ -2802,16 +2802,16 @@ stop_own_interrupts
 ; -----------------------------
   CNOP 0,4
 stop_own_display
-  IFNE COPCONBITS&COPCONF_CDANG
+  IFNE copcon_bits&COPCONF_CDANG
     moveq   #0,d0
     move.w  d0,COPCON-DMACONR(a6) ;Copper kann nicht auf Blitterregister zugreifen
   ENDC
   bsr     wait_beam_position
-  IFNE DMABITS&DMAF_BLITTER
-    WAITBLITTER
+  IFNE dma_bits&DMAF_BLITTER
+    WAIT_BLITTER
   ENDC
   IFD sys_taken_over
-    move.w  #DMABITS&(~DMAF_SETCLR),DMACON-DMACONR(a6) ;DMA aus
+    move.w  #dma_bits&(~DMAF_SETCLR),DMACON-DMACONR(a6) ;DMA aus
   ELSE
     move.w  #DMAF_MASTER,DMACON-DMACONR(a6) ;DMA aus
   ENDC
@@ -2847,10 +2847,10 @@ clear_important_registers2
     moveq   #$7f,d0
     move.b  d0,CIAICR(a4)    ;CIA-A-Interrupts aus
     move.b  d0,CIAICR(a5)    ;CIA-B-Interrupts aus
-    IFNE CIAAICRBITS-CIAICRF_SETCLR
+    IFNE ciaa_icr_bits-CIAICRF_SETCLR
       move.b  CIAICR(a4),d0  ;CIA-A-Interrupts löschen
     ENDC
-    IFNE CIABICRBITS-CIAICRF_SETCLR
+    IFNE ciab_icr_bits-CIAICRF_SETCLR
       move.b  CIAICR(a5),d0  ;CIA-B-Interrupts löschen
     ENDC
     rts
@@ -2873,18 +2873,18 @@ restore_hardware_registers
     tas     d0               ;Bit 7 ggf. setzen
     move.b  d0,CIAICR(a4)
   
-    move.b  os_CIAACRA(a3),d0
+    move.b  os_ciaa_cra_bits(a3),d0
     btst    #CIACRAB_RUNMODE,d0 ;Continuous-Modus ?
-    bne.s   CIAA_TA_no_continuous ;Nein -> verzweige
+    bne.s   ciaa_ta_no_continuous ;Nein -> verzweige
     or.b    #CIACRAF_START,d0 ;Ja -> Timer A starten
-CIAA_TA_no_continuous
+ciaa_ta_no_continuous
     move.b  d0,CIACRA(a4)
   
-    move.b  os_CIAACRB(a3),d0
+    move.b  os_ciaa_crb_bits(a3),d0
     btst    #CIACRBB_RUNMODE,d0 ;Continuous-Modus ?
-    bne.s   CIAA_TB_no_continuous ;Nein -> verzweige
+    bne.s   ciaa_tb_no_continuous ;Nein -> verzweige
     or.b    #CIACRBF_START,d0 ;Ja -> Timer B starten
-CIAA_TB_no_continuous
+ciaa_tb_no_continuous
     move.b  d0,CIACRB(a4)
   
     move.b  os_CIABPRB(a3),CIAPRB(a5)
@@ -2901,18 +2901,18 @@ CIAA_TB_no_continuous
     tas     d0               ;Bit 7 ggf. setzen
     move.b  d0,CIAICR(a5)
   
-    move.b  os_CIABCRA(a3),d0
+    move.b  os_ciab_cra_bits(a3),d0
     btst    #CIACRAB_RUNMODE,d0 ;Continuous-Modus ?
-    bne.s   CIAB_TA_no_continuous ;Nein -> verzweige
+    bne.s   ciab_ta_no_continuous ;Nein -> verzweige
     or.b    #CIACRAF_START,d0 ;Ja -> Timer A starten
-CIAB_TA_no_continuous
+ciab_ta_no_continuous
     move.b  d0,CIACRA(a5)
   
-    move.b  os_CIABCRB(a3),d0
+    move.b  os_ciab_crb_bits(a3),d0
     btst    #CIACRBB_RUNMODE,d0 ;Continuous-Modus ?
-    bne.s   CIAB_TB_no_continuous ;Nein -> verzweige
+    bne.s   ciab_tb_no_continuous ;Nein -> verzweige
     or.b    #CIACRBF_START,d0 ;Ja -> Timer B starten
-CIAB_TB_no_continuous
+ciab_tb_no_continuous
     move.b  d0,CIACRB(a5)
   
     move.l  tod_time_save(a3),d0 ;Zeit vor Programmstart
@@ -2978,7 +2978,7 @@ enable_store_buffer
 restore_exception_vectors
     lea     exception_vecs_save(pc),a0 ;Quelle
     move.l  os_VBR(a3),a1    ;Ziel = Reset (Initial SSP)
-    MOVEF.W (exception_vectors_SIZE/LONGWORDSIZE)-1,d7 ;Anzahl der Vektoren
+    MOVEF.W (exception_vectors_SIZE/LONGWORD_SIZE)-1,d7 ;Anzahl der Vektoren
 copy_vectors_loop3
     move.l  (a0)+,(a1)+      ;Vektor kopieren
     dbf     d7,copy_vectors_loop3
@@ -3023,7 +3023,7 @@ free_screen_color_table32
       move.l  screen_color_table32(a3),d0 ;Wurde der Speicher belegt ?
       beq.s   restore_os_sprite_resolution ;Nein -> verzweige
       move.l  d0,a1          ;Zeiger auf Speicherbereich
-      move.l  #(1+(wbf_colors_number_max*3)+1)*LONGWORDSIZE,d0 ;Größe der Speicherbereiches
+      move.l  #(1+(wbf_colors_number_max*3)+1)*LONGWORD_SIZE,d0 ;Größe der Speicherbereiches
       CALLEXEC FreeMem       ;Speicher freigeben
     ENDC
   
@@ -3059,13 +3059,13 @@ wbf_free_color_values32_memory
       move.l  wbf_color_values32(a3),d0 ;Wurde der Speicher belegt ?
       beq.s   wbf_free_color_cache32_memory ;Nein -> verzweige
       move.l  d0,a1          ;Zeiger auf Speicherbereich
-      move.l  #wbf_colors_number_max*3*LONGWORDSIZE,d0
+      move.l  #wbf_colors_number_max*3*LONGWORD_SIZE,d0
       CALLEXEC FreeMem       ;Speicher freigeben
 wbf_free_color_cache32_memory
       move.l  wbf_color_cache32(a3),d0  ;Wurde der Speicher belegt ?
       beq.s   wbfi_skip_fade_in ;Nein -> verzweige
       move.l  d0,a1          ;Zeiger auf Speicherbereich
-      move.l  #(1+(wbf_colors_number_max*3)+1)*LONGWORDSIZE,d0
+      move.l  #(1+(wbf_colors_number_max*3)+1)*LONGWORD_SIZE,d0
       CALLLIBQ FreeMem       ;Speicher freigeben
       CNOP 0,4
 wbfi_skip_fade_in
@@ -3098,7 +3098,7 @@ workbench_fade_enabledr_in_loop
       move.b  8(a1),d5       ;8-Bit Blau-Sollwert
   
 ; ** Rotwert **
-wbfi_check_red
+wbfi_check_red_nibble
       cmp.w   d3,d0          ;Ist-Rotwert mit Soll-Rotwert vergleichen
       bgt.s   wbfi_decrease_red ;Wenn Ist-Rotwert < Soll-Rotwert -> verzweige
       blt.s   wbfi_increase_red ;Wenn Ist-Rotwert > Soll-Rotwert -> verzweige
@@ -3106,7 +3106,7 @@ wbfi_matched_red
       subq.w  #1,d6          ;Zähler verringern
   
 ; ** Grünwert **
-wbfi_check_green
+wbfi_check_green_nibble
       cmp.w   d4,d1          ;Ist-Grünwert mit Soll-Grünwert vergleichen
       bgt.s   wbfi_decrease_green ;Wenn Ist-Grünwert < Soll-Grünwert -> verzweige
       blt.s   wbfi_increase_green ;Wenn Ist-Grünwert > Soll-Grünwert -> verzweige
@@ -3114,14 +3114,14 @@ wbfi_matched_green
       subq.w  #1,d6          ;Zähler verringern
   
 ; ** Blauwert **
-wbfi_check_blue
+wbfi_check_blue_nibble
       cmp.w   d5,d2          ;Ist-Blauwert mit Soll-Blauwert vergleichen
       bgt.s   wbfi_decrease_blue ;Wenn Ist-Blauwert < Soll-Blauwert -> verzweige
       blt.s   wbfi_increase_blue ;Wenn Ist-Blauwert > Soll-Blauwert -> verzweige
 wbfi_matched_blue
       subq.w  #1,d6          ;Zähler verringern
   
-wbfi_set_rgb
+wbfi_set_rgb_nibbles
       move.b  d0,(a0)+       ;4x 8-Bit Rotwert in Cache schreiben
       move.b  d0,(a0)+
       move.b  d0,(a0)+
@@ -3148,42 +3148,42 @@ no_workbench_fade_enabledr_in
 wbfi_decrease_red
       sub.w   a4,d0          ;Rotanteil verringern
       cmp.w   d3,d0          ;Ist-Rotwert > Soll-Rotwert ?
-      bgt.s   wbfi_check_green ;Ja -> verzweige
+      bgt.s   wbfi_check_green_nibble ;Ja -> verzweige
       move.w  d3,d0          ;Ist-Rotwert <= Soll-Rotwert
       bra.s   wbfi_matched_red
       CNOP 0,4
 wbfi_increase_red
       add.w   a4,d0          ;Rotanteil erhöhen
       cmp.w   d3,d0          ;Ist-Rotwert <= Soll-Rotwert ?
-      blt.s   wbfi_check_green ;Ja -> verzweige
+      blt.s   wbfi_check_green_nibble ;Ja -> verzweige
       move.w  d3,d0          ;Ist-Rotwert >= Soll-Rotwert
       bra.s   wbfi_matched_red
       CNOP 0,4
 wbfi_decrease_green
       sub.w   a4,d1          ;Grünanteil verringern
       cmp.w   d4,d1          ;Ist-Grünwert > Soll-Grünwert ?
-      bgt.s   wbfi_check_blue ;Ja -> verzweige
+      bgt.s   wbfi_check_blue_nibble ;Ja -> verzweige
       move.w  d4,d1          ;Ist-Grünwert <= Soll-Grünwert
       bra.s   wbfi_matched_green
       CNOP 0,4
 wbfi_increase_green
       add.w   a4,d1          ;Grünanteil erhöhen
       cmp.w   d4,d1          ;Ist-Grünwert < Soll-Grünwert ?
-      blt.s   wbfi_check_blue ;Ja -> verzweige
+      blt.s   wbfi_check_blue_nibble ;Ja -> verzweige
       move.w  d4,d1          ;Ist-Grünwert >= Soll-Grünwert
       bra.s   wbfi_matched_green
       CNOP 0,4
 wbfi_decrease_blue
       sub.w   a4,d2          ;Blauanteil verringern
       cmp.w   d5,d2          ;Ist-Blauwert > Soll-Blauwert ?
-      bgt.s   wbfi_set_rgb   ;Ja -> verzweige
+      bgt.s   wbfi_set_rgb_nibbles   ;Ja -> verzweige
       move.w  d5,d2          ;Ist-Blauwert <= Soll-Blauwert
       bra.s   wbfi_matched_blue
       CNOP 0,4
 wbfi_increase_blue
       add.w   a4,d2          ;Blauanteil erhöhen
       cmp.w   d5,d2          ;Ist-Blauwert < Soll-Blauwert ?
-      blt.s   wbfi_set_rgb   ;Ja -> verzweige
+      blt.s   wbfi_set_rgb_nibbles   ;Ja -> verzweige
       move.w  d5,d2          ;Ist-Blauwert >= Soll-Blauwert
       bra.s   wbfi_matched_blue
     ELSE

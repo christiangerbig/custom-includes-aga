@@ -81,8 +81,8 @@ os_CIAATAHI              RS.B 1
 os_CIAATBLO              RS.B 1
 os_CIAATBHI              RS.B 1
 os_CIAAICR               RS.B 1
-os_CIAACRA               RS.B 1
-os_CIAACRB               RS.B 1
+os_ciaa_cra_bits               RS.B 1
+os_ciaa_crb_bits               RS.B 1
 
 os_CIABPRB               RS.B 1
 os_CIABTALO              RS.B 1
@@ -90,8 +90,8 @@ os_CIABTAHI              RS.B 1
 os_CIABTBLO              RS.B 1
 os_CIABTBHI              RS.B 1
 os_CIABICR               RS.B 1
-os_CIABCRA               RS.B 1
-os_CIABCRB               RS.B 1
+os_ciab_cra_bits               RS.B 1
+os_ciab_crb_bits               RS.B 1
 
     RS_ALIGN_LONGWORD
 tod_time_save            RS.L 1

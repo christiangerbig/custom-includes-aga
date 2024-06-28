@@ -1,6 +1,6 @@
 ; -- Commands
 
-COPMOVE MACRO
+COP_MOVE MACRO
 ; \1 WORD: 16-Bit Wert
 ; \2 WORD CUSTOM-Registeroffset
   IFC "","\1"
@@ -14,64 +14,64 @@ COPMOVE MACRO
   ENDM
 
 
-COPMOVEQ MACRO
+COP_MOVE_QUICK MACRO
 ; \1 WORD: 16-Bit Wert
 ; \2 WORD CUSTOM-Registeroffset
   IFC "","\1"
-    FAIL Makro COPMOVEQ: 16-Bit Wert fehlt
+    FAIL Makro COP_MOVE_QUICK: 16-Bit Wert fehlt
   ENDC
   IFC "","\2"
-    FAIL Makro COPMOVEQ: CUSTOM-Registeroffset fehlt
+    FAIL Makro COP_MOVE_QUICK: CUSTOM-Registeroffset fehlt
   ENDC
   move.l  #((\2)<<16)|((\1)&$ffff),(a0)+ ;CUSTOM-Registeroffset + Wert für Register
   ENDM
 
 
-COPWAIT MACRO
+COP_WAIT MACRO
 ; \1 ... X-position (Bits 2-8)
 ; \2 ... Y-Position (Bits 0-7)
   IFC "","\1"
-    FAIL Makro COPWAIT: X-position (Bits 2-8) fehlt
+    FAIL Makro COP_WAIT: X-position (Bits 2-8) fehlt
   ENDC
   IFC "","\2"
-    FAIL Makro COPWAIT: Y-Position (Bits 0-7) fehlt
+    FAIL Makro COP_WAIT: Y-Position (Bits 0-7) fehlt
   ENDC
   move.l  #((((\2)<<24)|((((\1)/4)*2)<<16))|$10000)|$fffe,(a0)+ ;Y-Pos, X-Pos, WAIT-Kennung
   ENDM
 
 
-COPWAITBLIT MACRO
+COP_WAIT_BLITTER MACRO
   move.l  #$00010000,(a0)+ ;BFD-Bit=0, auf Blitter warten
   ENDM
 
 
-COPWAITBLIT2 MACRO
+COP_WAIT_BLITTER2 MACRO
 ; \1 ... X-position (Bits 2-8)
 ; \2 ... Y-Position (Bits 0-7)
   IFC "","\1"
-    FAIL Makro COPWAITBLIT2: X-position (Bits 2-8) fehlt
+    FAIL Makro COP_WAIT_BLITTER2: X-position (Bits 2-8) fehlt
   ENDC
   IFC "","\2"
-    FAIL Makro COPWAITBLIT2: Y-Position (Bits 0-7) fehlt
+    FAIL Makro COP_WAIT_BLITTER2: Y-Position (Bits 0-7) fehlt
   ENDC
   move.l  #((((\2)<<24)|((((\1)/4)*2)<<16))|$10000)|$7ffe,(a0)+ ;Y-Pos, X-Pos, WAIT-Kennung, BFD-Bit=0, auf Blitter warten
   ENDM
 
 
-COPSKIP MACRO
+COP_SKIP MACRO
 ; \1 ... X-position (Bits 2-8)
 ; \2 ... Y-Position (Bits 0-7)
   IFC "","\1"
-    FAIL Makro COPSKIP: X-position (Bits 2-8) fehlt
+    FAIL Makro COP_SKIP: X-position (Bits 2-8) fehlt
   ENDC
   IFC "","\2"
-    FAIL Makro COPSKIP: Y-Position (Bits 0-7) fehlt
+    FAIL Makro COP_SKIP: Y-Position (Bits 0-7) fehlt
   ENDC
   move.l  #((\2)<<24)|((((\1)/4)*2)<<16)|$ffff,(a0)+ ;Y-Pos, X-Pos, SKIP-Kennung
   ENDM
 
 
-COPLISTEND MACRO
+COP_LIST_END MACRO
   moveq   #-2,d0
   move.l  d0,(a0)
   ENDM
@@ -93,77 +93,77 @@ COP_INIT_PLAYFIELD_REGISTERS MACRO
   IFC "","\3"
 \1_init_playfield_registers
     IFC "","\2"
-      COPMOVEQ DIWSTRTBITS,DIWSTRT
-      COPMOVEQ DIWSTOPBITS,DIWSTOP
-      COPMOVEQ DDFSTRTBITS,DDFSTRT
-      COPMOVEQ DDFSTOPBITS,DDFSTOP
-      COPMOVEQ BPLCON0BITS,BPLCON0
-      COPMOVEQ BPLCON1BITS,BPLCON1
-      COPMOVEQ BPLCON2BITS,BPLCON2
-      COPMOVEQ BPLCON3BITS1,BPLCON3 ;High-Bits der Farbwerte
-      COPMOVEQ pf1_plane_moduli,BPL1MOD
+      COP_MOVE_QUICK diwstrt_bits,DIWSTRT
+      COP_MOVE_QUICK diwstop_bits,DIWSTOP
+      COP_MOVE_QUICK ddfstrt_bits,DDFSTRT
+      COP_MOVE_QUICK ddfstop_bits,DDFSTOP
+      COP_MOVE_QUICK bplcon0_bits,BPLCON0
+      COP_MOVE_QUICK bplcon1_bits,BPLCON1
+      COP_MOVE_QUICK bplcon2_bits,BPLCON2
+      COP_MOVE_QUICK bplcon3_bits1,BPLCON3 ;High-Bits der Farbwerte
+      COP_MOVE_QUICK pf1_plane_moduli,BPL1MOD
       IFGT pf_depth-1
         IFD pf2_plane_moduli
-          COPMOVEQ pf2_plane_moduli,BPL2MOD
+          COP_MOVE_QUICK pf2_plane_moduli,BPL2MOD
         ELSE
-          COPMOVEQ pf1_plane_moduli,BPL2MOD
+          COP_MOVE_QUICK pf1_plane_moduli,BPL2MOD
         ENDC
       ENDC
-      COPMOVEQ BPLCON4BITS,BPLCON4
-      COPMOVEQ DIWHIGHBITS,DIWHIGH
-      COPMOVEQ FMODEBITS,FMODE
+      COP_MOVE_QUICK bplcon4_bits,BPLCON4
+      COP_MOVE_QUICK diwhigh_bits,DIWHIGH
+      COP_MOVE_QUICK fmode_bits,FMODE
       rts
     ELSE
       IFC "NOBITPLANES","\2"
-        COPMOVEQ DIWSTRTBITS,DIWSTRT
-        COPMOVEQ DIWSTOPBITS,DIWSTOP
-        COPMOVEQ BPLCON0BITS,BPLCON0
-        COPMOVEQ BPLCON3BITS1,BPLCON3
-        COPMOVEQ BPLCON4BITS,BPLCON4
-        COPMOVEQ DIWHIGHBITS,DIWHIGH
+        COP_MOVE_QUICK diwstrt_bits,DIWSTRT
+        COP_MOVE_QUICK diwstop_bits,DIWSTOP
+        COP_MOVE_QUICK bplcon0_bits,BPLCON0
+        COP_MOVE_QUICK bplcon3_bits1,BPLCON3
+        COP_MOVE_QUICK bplcon4_bits,BPLCON4
+        COP_MOVE_QUICK diwhigh_bits,DIWHIGH
         rts
       ENDC
       IFC "NOBITPLANESSPR","\2"
-        COPMOVEQ DIWSTRTBITS,DIWSTRT
-        COPMOVEQ DIWSTOPBITS,DIWSTOP
-        COPMOVEQ BPLCON0BITS,BPLCON0
-        COPMOVEQ BPLCON3BITS1,BPLCON3
-        COPMOVEQ BPLCON4BITS,BPLCON4
-        COPMOVEQ DIWHIGHBITS,DIWHIGH
-        COPMOVEQ FMODEBITS,FMODE
+        COP_MOVE_QUICK diwstrt_bits,DIWSTRT
+        COP_MOVE_QUICK diwstop_bits,DIWSTOP
+        COP_MOVE_QUICK bplcon0_bits,BPLCON0
+        COP_MOVE_QUICK bplcon3_bits1,BPLCON3
+        COP_MOVE_QUICK bplcon4_bits,BPLCON4
+        COP_MOVE_QUICK diwhigh_bits,DIWHIGH
+        COP_MOVE_QUICK fmode_bits,FMODE
         rts
       ENDC
       IFC "BLANK","\2"
-        COPMOVEQ BPLCON0BITS,BPLCON0
-        COPMOVEQ BPLCON3BITS1,BPLCON3 ;High-Bits der Farbwerte
+        COP_MOVE_QUICK bplcon0_bits,BPLCON0
+        COP_MOVE_QUICK bplcon3_bits1,BPLCON3 ;High-Bits der Farbwerte
         rts
       ENDC
       IFC "BLANKSPR","\2"
-        COPMOVEQ BPLCON0BITS,BPLCON0
-        COPMOVEQ BPLCON3BITS1,BPLCON3 ;High-Bits der Farbwerte
-        COPMOVEQ BPLCON4BITS,BPLCON4
-        COPMOVEQ FMODEBITS,FMODE
+        COP_MOVE_QUICK bplcon0_bits,BPLCON0
+        COP_MOVE_QUICK bplcon3_bits1,BPLCON3 ;High-Bits der Farbwerte
+        COP_MOVE_QUICK bplcon4_bits,BPLCON4
+        COP_MOVE_QUICK fmode_bits,FMODE
         rts
       ENDC
     ENDC
   ELSE
 \1_\3_init_playfield_registers
-    COPMOVEQ \3_DDFSTRTBITS,DDFSTRT
-    COPMOVEQ \3_DDFSTOPBITS,DDFSTOP
+    COP_MOVE_QUICK \3_ddfstrt_bits,DDFSTRT
+    COP_MOVE_QUICK \3_ddfstop_bits,DDFSTOP
     IFC "TRIGGERBITPLANES","\4"
-      COPMOVEQ \3_BPLCON0BITS,BPLCON0
+      COP_MOVE_QUICK \3_bplcon0_bits,BPLCON0
     ENDC
-    COPMOVEQ \3_BPLCON1BITS,BPLCON1
-    COPMOVEQ \3_BPLCON2BITS,BPLCON2
-    COPMOVEQ \3_BPLCON3BITS1,BPLCON3 ;High-Bits der Farbwerte
-    COPMOVEQ \3_pf1_plane_moduli,BPL1MOD
+    COP_MOVE_QUICK \3_bplcon1_bits,BPLCON1
+    COP_MOVE_QUICK \3_bplcon2_bits,BPLCON2
+    COP_MOVE_QUICK \3_bplcon3_bits1,BPLCON3 ;High-Bits der Farbwerte
+    COP_MOVE_QUICK \3_pf1_plane_moduli,BPL1MOD
     IFD \3_pf2_plane_moduli
-      COPMOVEQ \3_pf2_plane_moduli,BPL2MOD
+      COP_MOVE_QUICK \3_pf2_plane_moduli,BPL2MOD
     ELSE
-      COPMOVEQ \3_pf1_plane_moduli,BPL2MOD
+      COP_MOVE_QUICK \3_pf1_plane_moduli,BPL2MOD
     ENDC
-    COPMOVEQ \3_BPLCON4BITS,BPLCON4
-    COPMOVEQ \3_FMODEBITS,FMODE
+    COP_MOVE_QUICK \3_bplcon4_bits,BPLCON4
+    COP_MOVE_QUICK \3_fmode_bits,FMODE
     rts
   ENDC
   ENDM
@@ -310,41 +310,41 @@ COP_SET_SPRITE_POINTERS MACRO
   ENDM
 
 
-COP_SELECT_COLORHI_BANK MACRO
+COP_SELECT_COLOR_HIGH_BANK MACRO
 ; \1 NUMBER: Color-Bank number 0..7
 ; \2 WORD: BPLCON3-bits (optional)
   IFC "","\1"
-    FAIL Makro COP_SELECT_COLORHI_BANK MACRO: Color-Bank Nummer 0..7 fehlt
+    FAIL Makro COP_SELECT_COLOR_HIGH_BANK MACRO: Color-Bank Nummer 0..7 fehlt
   ENDC
-    COPMOVEQ BPLCON3BITS1+(BPLCON3F_BANK0*\1),BPLCON3 ;High-Bits
+    COP_MOVE_QUICK bplcon3_bits1+(BPLCON3F_BANK0*\1),BPLCON3 ;High-Bits
   IFNC "","\2"
     or.w     #\2,-2(a0)      ;High-Bits
   ENDC
   ENDM
 
 
-COP_SELECT_COLORLO_BANK MACRO
+COP_SELECT_COLOR_LOW_BANK MACRO
 ; \1 NUMBER: Color-Bank 0..7
 ; \2 WORD: BPLCON3-bits (optional)
   IFC "","\1"
-    FAIL Makro COP_SELECT_COLORLO_BANK MACRO: Color-Bank Nummer 0..7 fehlt
+    FAIL Makro COP_SELECT_COLOR_LOW_BANK MACRO: Color-Bank Nummer 0..7 fehlt
   ENDC
-    COPMOVEQ BPLCON3BITS2+(BPLCON3F_BANK0*\1),BPLCON3 ;Low-Bits
+    COP_MOVE_QUICK bplcon3_bits2+(BPLCON3F_BANK0*\1),BPLCON3 ;Low-Bits
   IFNC "","\2"
     or.w     #\2,-2(a0)      ;Low-Bits
   ENDC
   ENDM
 
 
-COP_INIT_COLORHI MACRO
+COP_INIT_COLOR_HIGH MACRO
 ; \1 WORD: Erstes Farbregister-Offset
 ; \2 BYTE_SIGNED: Anzahl der Farbwerte
 ; \3 POINTER: Farbtabelle (optional)
   IFC "","\1"
-    FAIL Makro COP_INIT_COLORHI: Erstes Farbregister-Offset fehlt
+    FAIL Makro COP_INIT_COLOR_HIGH: Erstes Farbregister-Offset fehlt
   ENDC
   IFC "","\2"
-    FAIL Makro COP_INIT_COLORHI: Anzahl der Farbwerte fehlt
+    FAIL Makro COP_INIT_COLOR_HIGH: Anzahl der Farbwerte fehlt
   ENDC
   move.w  #\1,d3             ;erstes Farbregister-Offset
   moveq   #\2-1,d7           ;Anzahl der Farbwerte
@@ -355,15 +355,15 @@ COP_INIT_COLORHI MACRO
   ENDM
 
 
-COP_INIT_COLORLO MACRO
+COP_INIT_COLOR_LOW MACRO
 ; \1 WORD: Erstes Farbregister-Offset
 ; \2 BYTE_SIGNED: Anzahl der Farbwerte
 ; \3 POINTER: Farbtabelle (optional)
   IFC "","\1"
-    FAIL Makro COP_INIT_COLORLO: Erstes Farbregister-Offset fehlt
+    FAIL Makro COP_INIT_COLOR_LOW: Erstes Farbregister-Offset fehlt
   ENDC
   IFC "","\2"
-    FAIL Makro COP_INIT_COLORLO: Anzahl der Farbwerte fehlt
+    FAIL Makro COP_INIT_COLOR_LOW: Anzahl der Farbwerte fehlt
   ENDC
   move.w  #\1,d3             ;erstes Farbregister-Offset
   moveq   #\2-1,d7           ;Anzahl der Farbwerte
@@ -381,19 +381,19 @@ COP_INIT_COLOR00_REGISTERS MACRO
     FAIL Makro COP_INIT_COLOR00_REGISTERS: Labels-Prefix fehlt
   ENDC
   CNOP 0,4
-\1_init_COLOR00_registers
-  move.l  #(((\1_VSTART1<<24)|(((\1_HSTART1/4)*2)<<16))|$10000)|$fffe,d0 ;WAIT-Befehl
-  move.l  #(BPLCON3<<16)|BPLCON3BITS1,d1 ;High-Werte
-  move.l  #(COLOR00<<16)|COLOR00HIGHBITS,d2
-  move.l  #(BPLCON3<<16)|BPLCON3BITS2,d3 ;Low-RGB-Werte
-  move.l  #(COLOR00<<16)|COLOR00LOWBITS,d4
+\1_init_color00_registers
+  move.l  #(((\1_vstart1<<24)|(((\1_hstart1/4)*2)<<16))|$10000)|$fffe,d0 ;WAIT-Befehl
+  move.l  #(BPLCON3<<16)|bplcon3_bits1,d1 ;High-Werte
+  move.l  #(COLOR00<<16)|color00_high_bits,d2
+  move.l  #(BPLCON3<<16)|bplcon3_bits2,d3 ;Low-RGB-Werte
+  move.l  #(COLOR00<<16)|color00_low_bits,d4
   IFC "YWRAP","\2"
-    move.l  #(((cl_y_wrap<<24)|(((\1_HSTART1/4)*2)<<16))|$10000)|$fffe,d5 ;WAIT-Befehl
+    move.l  #(((CL_Y_WRAP<<24)|(((\1_hstart1/4)*2)<<16))|$10000)|$fffe,d5 ;WAIT-Befehl
   ENDC
   moveq   #1,d6
   ror.l   #8,d6              ;$01000000 Additionswert
   MOVEF.W \1_display_y_size-1,d7 ;Anzahl der Zeilen
-\1_init_COLOR00_registers_loop
+\1_init_color00_registers_loop
   move.l  d0,(a0)+           ;WAIT x,y
   move.l  d1,(a0)+           ;High-Werte
   move.l  d2,(a0)+           ;COLOR00
@@ -403,15 +403,15 @@ COP_INIT_COLOR00_REGISTERS MACRO
     cmp.l   d5,d0            ;Rasterzeile $ff erreicht ?
     bne.s   no_patch_copperlist2 ;Nein -> verzweige
 patch_copperlist2
-    COPWAIT cl_x_wrap,cl_y_wrap ;Copperliste patchen
-    bra.s   \1_init_color_registers_skip
+    COP_WAIT CL_X_WRAP,CL_Y_WRAP ;Copperliste patchen
+    bra.s   \1_init_color00_registers_skip
     CNOP 0,4
 no_patch_copperlist2
-    COPMOVEQ TRUE,NOOP
-\1_init_color_registers_skip
+    COP_MOVE_QUICK TRUE,NOOP
+\1_init_color00_registers_skip
   ENDC
   add.l   d6,d0              ;nächste Zeile
-  dbf     d7,\1_init_COLOR00_registers_loop
+  dbf     d7,\1_init_color00_registers_loop
   rts
   ENDM
 
@@ -430,12 +430,12 @@ COP_RESET_COLOR00 MACRO
     FAIL Makro COP_RESET_COLOR00: Y-Position fehlt
   ENDC
   CNOP 0,4
-\1_reset_COLOR00
-  COPWAIT \2,(\3)&$ff
-  COPMOVEQ BPLCON3BITS1,BPLCON3
-  COPMOVEQ COLOR00HIGHBITS,COLOR00
-  COPMOVEQ BPLCON3BITS2,BPLCON3
-  COPMOVEQ COLOR00LOWBITS,COLOR00
+\1_reset_color00
+  COP_WAIT \2,(\3)&$ff
+  COP_MOVE_QUICK bplcon3_bits1,BPLCON3
+  COP_MOVE_QUICK color00_high_bits,COLOR00
+  COP_MOVE_QUICK bplcon3_bits2,BPLCON3
+  COP_MOVE_QUICK color00_low_bits,COLOR00
   rts
   ENDM
 
@@ -475,10 +475,10 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN MACRO
     FAIL Makro COP_INIT_BPLCON4_CHUNKY_SCREEN: Boolean zu Hintergrundeffekt fehlt
   ENDC
   CNOP 0,4
-\1_init_BPLCON4_registers
+\1_init_bplcon4_registers
   IFNE \8
     move.l  #(((\3<<24)|(((\2/4)*2)<<16))|$10000)|$fffe,d0 ;WAIT-Befehl
-    move.l  #(BPLCON4<<16)+(BPLCON4BITS&$00ff),d1
+    move.l  #(BPLCON4<<16)+(bplcon4_bits&$00ff),d1
     IFEQ \6
       IFNC "","\9"
         IFNC "OVERSCAN","\9"
@@ -493,49 +493,49 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN MACRO
     moveq   #1,d3
     ror.l   #8,d3            ;Y-Additionswert $01000000
     MOVEF.W \5-1,d7          ;Anzahl der Zeilen
-\1_init_BPLCON4_registers_loop1
+\1_init_bplcon4_registers_loop1
     move.l  d0,(a0)+         ;WAIT x,y
     IFEQ \6
       IFC "OVERSCAN","\9"
-        COPMOVEQ FMODEBITS2,FMODE
+        COP_MOVE_QUICK fmode_bits2,FMODE
         move.l  d2,(a0)+       ;BPL1DAT
-        COPMOVEQ TRUE,NOOP
-        COPMOVEQ FMODEBITS,FMODE
+        COP_MOVE_QUICK TRUE,NOOP
+        COP_MOVE_QUICK fmode_bits,FMODE
       ELSE
         move.l  d2,(a0)+       ;BPL1DAT
       ENDC
     ENDC
     moveq   #(\4/8)-1,d6     ;Anzahl der Spalten
-\1_init_BPLCON4_registers_loop2
+\1_init_bplcon4_registers_loop2
     move.l  d1,(a0)+         ;BPLCON4
-    dbf     d6,\1_init_BPLCON4_registers_loop2
+    dbf     d6,\1_init_bplcon4_registers_loop2
     add.l   d3,d0            ;nächste Zeile
-    dbf     d7,\1_init_BPLCON4_registers_loop1
+    dbf     d7,\1_init_bplcon4_registers_loop1
     rts
   ELSE
     move.l  a4,-(a7)
     move.l  #(((\3<<24)|(((\2/4)*2)<<16))|$10000)|$fffe,d0 ;WAIT-Befehl
     IFEQ \7
-      move.l  #(BPLCON3<<16)+BPLCON3BITS3,d1 ;High-RGB-Werte
+      move.l  #(BPLCON3<<16)+bplcon3_bits3,d1 ;High-RGB-Werte
     ELSE
-      move.l  #(BPLCON3<<16)+BPLCON3BITS1,d1 ;High-RGB-Werte
+      move.l  #(BPLCON3<<16)+bplcon3_bits1,d1 ;High-RGB-Werte
     ENDC
     IFEQ \7
-      move.l  #(COLOR31<<16)+COLOR00HIGHBITS,a2
+      move.l  #(COLOR31<<16)+color00_high_bits,a2
     ELSE
-      move.l  #(COLOR00<<16)+COLOR00HIGHBITS,a2
+      move.l  #(COLOR00<<16)+color00_high_bits,a2
     ENDC
     IFEQ \7
-      move.l  #(COLOR31<<16)+COLOR00LOWBITS,a4
+      move.l  #(COLOR31<<16)+color00_low_bits,a4
     ELSE
-      move.l  #(COLOR00<<16)+COLOR00LOWBITS,a4
+      move.l  #(COLOR00<<16)+color00_low_bits,a4
     ENDC
     IFEQ \7
-      move.l  #(BPLCON3<<16)+BPLCON3BITS4,d3 ;Low-RGB-Werte
+      move.l  #(BPLCON3<<16)+bplcon3_bits4,d3 ;Low-RGB-Werte
     ELSE
-      move.l  #(BPLCON3<<16)+BPLCON3BITS2,d3 ;Low-RGB-Werte
+      move.l  #(BPLCON3<<16)+bplcon3_bits2,d3 ;Low-RGB-Werte
     ENDC
-    move.l  #(BPLCON4<<16)+(BPLCON4BITS&$00ff),d4
+    move.l  #(BPLCON4<<16)+(bplcon4_bits&$00ff),d4
     IFEQ \6
       IFNC "","\9"
         IFNC "OVERSCAN","\9"
@@ -550,7 +550,7 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN MACRO
     moveq   #1,d5
     ror.l   #8,d5            ;Y-Additionswert $01000000
     MOVEF.W \5-1,d7          ;Anzahl der Zeilen
-\1_init_BPLCON4_registers_loop1
+\1_init_bplcon4_registers_loop1
     move.l  d0,(a0)+         ;WAIT x,y
     move.l  d1,(a0)+         ;High-Werte
     move.l  a2,(a0)+         ;COLOR31/00
@@ -558,20 +558,20 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN MACRO
     move.l  a4,(a0)+         ;COLOR31/00
     IFEQ \6
       IFC "OVERSCAN","\9"
-        COPMOVEQ FMODEBITS2,FMODE
+        COP_MOVE_QUICK fmode_bits2,FMODE
         move.l  d2,(a0)+       ;BPL1DAT
-        COPMOVEQ TRUE,NOOP
-        COPMOVEQ FMODEBITS,FMODE
+        COP_MOVE_QUICK TRUE,NOOP
+        COP_MOVE_QUICK fmode_bits,FMODE
       ELSE
         move.l  d2,(a0)+       ;BPL1DAT
       ENDC
     ENDC
     moveq   #(\4/8)-1,d6     ;Anzahl der Spalten
-\1_init_BPLCON4_registers_loop2
+\1_init_bplcon4_registers_loop2
     move.l  d4,(a0)+         ;BPLCON4
-    dbf     d6,\1_init_BPLCON4_registers_loop2
+    dbf     d6,\1_init_bplcon4_registers_loop2
     add.l   d5,d0            ;nächste Zeile
-    dbf     d7,\1_init_BPLCON4_registers_loop1
+    dbf     d7,\1_init_bplcon4_registers_loop1
     move.l  (a7)+,a4
     rts
   ENDC
@@ -584,7 +584,7 @@ COP_INIT_BPLCON1_CHUNKY_SCREEN MACRO
 ; \3 NUMBER: VSTART
 ; \4 NUMBER: Breite in Pixeln
 ; \5 NUMBER: Höhe in Zeilen
-; \6 WORD: alternative BPLCON1BITS
+; \6 WORD: alternative bplcon1_bits
   IFC "","\1"
     FAIL Makro COP_INIT_BPLCON1_CHUNKY_SCREEN: Labels-Prefix Copperliste [cl1,cl2] fehlt
   ENDC
@@ -601,47 +601,47 @@ COP_INIT_BPLCON1_CHUNKY_SCREEN MACRO
     FAIL Makro COP_INIT_BPLCON1_CHUNKY_SCREEN: Höhe in Zeilen fehlt
   ENDC
   CNOP 0,4
-\1_init_BPLCON1_registers
+\1_init_bplcon1_registers
   move.l  #(((\3<<24)|(((\2/4)*2)<<16))|$10000)|$fffe,d0 ;WAIT-Befehl
   IFC "","\6"
-    move.l  #(BPLCON1<<16)+BPLCON1BITS,d1
+    move.l  #(BPLCON1<<16)+bplcon1_bits,d1
   ELSE
     move.l  #(BPLCON1<<16)+\6,d1
   ENDC
   moveq   #1,d3
   ror.l   #8,d3              ;Y-Additionswert $01000000
   MOVEF.W \5-1,d7            ;Anzahl der Zeilen
-\1_init_BPLCON1_registers_loop1
+\1_init_bplcon1_registers_loop1
   move.l  d0,(a0)+           ;WAIT x,y
   moveq   #(\4/8)-1,d6       ;Anzahl der Spalten
-\1_init_BPLCON1_registers_loop2
+\1_init_bplcon1_registers_loop2
   move.l  d1,(a0)+           ;BPLCON1
-  dbf     d6,\1_init_BPLCON1_registers_loop2
+  dbf     d6,\1_init_bplcon1_registers_loop2
   add.l   d3,d0              ;nächste Zeile
-  dbf     d7,\1_init_BPLCON1_registers_loop1
+  dbf     d7,\1_init_bplcon1_registers_loop1
   rts
   ENDM
 
 
-COP_INIT_COPINT MACRO
+COP_INIT_COPPER_INTERRUPT MACRO
 ; \1 STRING: Label-Prefix Copperliste [cl1,cl2]
 ; \2 WORD: X-Position (optional)
 ; \3 WORD: Y-Postion  (optional)
 ; \4 STRING: "YWRAP" (optional)
   IFC "","\1"
-    FAIL Makro COP_INIT_COPINT: Labels-Prefix Copperliste [cl1,cl2] fehlt
+    FAIL Makro COP_INIT_COPPER_INTERRUPT: Labels-Prefix Copperliste [cl1,cl2] fehlt
   ENDC
   CNOP 0,4
-\1_init_copint
+\1_init_copper_interrupt
   IFC "YWRAP","\4"
-    COPWAIT cl_x_wrap,cl_y_wrap ;Copperliste patchen
+    COP_WAIT CL_X_WRAP,CL_Y_WRAP ;Copperliste patchen
   ENDC
   IFNC "","\2"
     IFNC "","\3"
-      COPWAIT \2,\3
+      COP_WAIT \2,\3
     ENDC
   ENDC
-  COPMOVEQ INTF_COPER+INTF_SETCLR,INTREQ
+  COP_MOVE_QUICK INTF_COPER+INTF_SETCLR,INTREQ
   rts
   ENDM
 
@@ -664,7 +664,7 @@ copy_first_copperlist
     IFEQ \2-2
       move.l  \1_construction2(a3),a0 ;Quelle
       move.l  \1_display(a3),a1 ;2. Ziel
-      move.w  #(copperlist1_SIZE/LONGWORDSIZE)-1,d7 ;Anzahl der Langwörter zum kopieren
+      move.w  #(copperlist1_SIZE/LONGWORD_SIZE)-1,d7 ;Anzahl der Langwörter zum kopieren
 copy_first_copperlist_loop
       move.l  (a0)+,(a1)+        ;1 Langwort kopieren
       dbf     d7,copy_first_copperlist_loop
@@ -673,7 +673,7 @@ copy_first_copperlist_loop
     IFEQ \2-3
       move.l  \1_construction1(a3),a0 ;Quelle
       move.l  \1_construction2(a3),a1 ;1. Ziel
-      move.w  #(copperlist1_SIZE/LONGWORDSIZE)-1,d7 ;Anzahl der Langwörter zum kopieren
+      move.w  #(copperlist1_SIZE/LONGWORD_SIZE)-1,d7 ;Anzahl der Langwörter zum kopieren
       move.l  \1_display(a3),a2 ;2. Ziel
 copy_first_copperlist_loop
       move.l  (a0),(a1)+         ;1 Langwort kopieren
@@ -690,7 +690,7 @@ copy_second_copperlist
     IFEQ \2-2
       move.l  \1_construction2(a3),a0 ;Quelle
       move.l  \1_display(a3),a1 ;2. Ziel
-      move.w  #(copperlist2_SIZE/LONGWORDSIZE)-1,d7 ;Anzahl der Langwörter zum kopieren
+      move.w  #(copperlist2_SIZE/LONGWORD_SIZE)-1,d7 ;Anzahl der Langwörter zum kopieren
 copy_second_copperlist_loop
       move.l  (a0)+,(a1)+        ;1 Langwort kopieren
       dbf     d7,copy_second_copperlist_loop
@@ -699,7 +699,7 @@ copy_second_copperlist_loop
     IFEQ \2-3
       move.l  \1_construction1(a3),a0 ;Quelle
       move.l  \1_construction2(a3),a1 ;1. Ziel
-      move.w  #(copperlist2_SIZE/LONGWORDSIZE)-1,d7 ;Anzahl der Langwörter zum kopieren
+      move.w  #(copperlist2_SIZE/LONGWORD_SIZE)-1,d7 ;Anzahl der Langwörter zum kopieren
       move.l  \1_display(a3),a2 ;2. Ziel
 copy_second_copperlist_loop
       move.l  (a0),(a1)+         ;1 Langwort kopieren
@@ -819,7 +819,7 @@ CONVERT_IMAGE_TO_HAM6_CHUNKY MACRO
 \1_convert_image_data_loop2
   moveq   #8-1,d5            ;Anzahl der Bits pro Byte
 \1_convert_image_data_loop3
-  moveq   #0,d0           ;Farbnummer
+  moveq   #0,d0              ;Farbnummer
   btst    d5,(a0)            ;Bit n in Bitplane0 gesetzt ?
   beq.s   \1_no_bitplane0    ;Nein -> verzweige
   addq.w  #1,d0              ;Farbnummer erhöhen
@@ -846,36 +846,36 @@ CONVERT_IMAGE_TO_HAM6_CHUNKY MACRO
 \1_no_bitplane5
   move.l  d0,d1              ;Farbnummer retten
   and.b   d3,d1              ;Bit 4 oder 5 gesetzt ?
-  bne.s   \1_check_blue      ;Ja -> verzweige
+  bne.s   \1_check_blue_nibble      ;Ja -> verzweige
 \1_use_color_register
   move.w  (a1,d0.l*2),d2     ;Farbwert auslesen
-  bra.s   \1_set_rgb
+  bra.s   \1_set_rgb_nibbles
   CNOP 0,4
-\1_check_blue
+\1_check_blue_nibble
   cmp.b   #$10,d1            ;Blauanteil ändern ?
-  bne.s   \1_check_red       ;Nein -> verzweige
+  bne.s   \1_check_red_nibble ;Nein -> verzweige
   and.w   #$ff0,d2           ;Blauanteil ausmaskieren
   and.w   d4,d0              ;Blauanteil ausmaskieren
   or.b    d0,d2              ;Neuen Blauanteil setzen
-  bra.s   \1_set_rgb
+  bra.s   \1_set_rgb_nibbles
   CNOP 0,4
-\1_check_red
+\1_check_red_nibble
   cmp.b   #$20,d1            ;Rotanteil ändern ?
-  bne.s   \1_check_green     ;Nein -> verzweige
+  bne.s   \1_check_green_nibble ;Nein -> verzweige
   and.w   #$0ff,d2           ;Rotanteil ausmaskieren
   and.w   d4,d0              ;Rotanteil ausmaskieren
   lsl.w   #8,d0              ;Bits in richtige Position bringen
   or.w    d0,d2              ;Neuen Rotanteil setzen
-  bra.s   \1_set_rgb
+  bra.s   \1_set_rgb_nibbles
   CNOP 0,4
-\1_check_green
+\1_check_green_nibble
   cmp.b   d3,d1              ;Grünanteil ändern ?
-  bne.s   \1_set_rgb         ;Nein -> verzweige
+  bne.s   \1_set_rgb_nibbles ;Nein -> verzweige
   and.w   #$f0f,d2           ;Grünanteil ausmaskieren
   and.w   d4,d0              ;Grünanteil ausmaskieren
   lsl.b   #4,d0              ;Bits in richtige Position bringen
   or.b    d0,d2              ;Neuen Grünanteil setzen
-\1_set_rgb
+\1_set_rgb_nibbles
   move.w  d2,(a2)+           ;RGB-Wert retten
   dbf     d5,\1_convert_image_data_loop3
   addq.w  #1,a0              ;Nächstes Byte in Quellbild
@@ -904,8 +904,8 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY MACRO
 \1_convert_image_data
   movem.l a4-a6,-(a7)
   moveq   #16,d3             ;COLOR16
-  move.w  #$0f0f,d4          ;Maske
-  lea     \1_image_data,a0  ;Quellbild
+  move.w  #$0f0f,d4          ;Maske RGB-Nibbles
+  lea     \1_image_data,a0   ;Quellbild
   lea     \1_image_color_table(pc),a1 ;Farbwerte des Playfieldes
   IFC "","\2"
     lea   \1_color_table(pc),a2
@@ -921,7 +921,7 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY MACRO
 \1_convert_image_loop2
   moveq   #8-1,d5            ;Anzahl der Bits pro Byte
 \1_convert_image_loop3
-  moveq   #0,d0           ;Farbnummer
+  moveq   #0,d0              ;Farbnummer
   IFGE \1_image_depth-1
     btst    d5,(a0)          ;Bit n in Bitplane0 gesetzt ?
     beq.s   \1_no_bitplane0  ;Nein -> verzweige
@@ -972,10 +972,10 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY MACRO
   ENDC
   move.l  (a1,d0.l*4),d0     ;RGB8-Farbwert lesen
   move.l  d0,d2              
-  RGB8_TO_RGB4HI d0,d1,d4
-  move.w  d0,(a2)+           ;High-Bits
-  RGB8_TO_RGB4LO d2,d1,d4
-  move.w  d2,(a2)+           ;Low-Bits
+  RGB8_TO_RGB4_HIGH d0,d1,d4
+  move.w  d0,(a2)+           ;High-Nibble
+  RGB8_TO_RGB4_LOW d2,d1,d4
+  move.w  d2,(a2)+           ;Low-Nibble
   dbf     d5,\1_convert_image_loop3
   addq.w  #1,a0              ;Nächstes Byte in Quellbild
   dbf     d6,\1_convert_image_loop2
@@ -1059,37 +1059,37 @@ CONVERT_IMAGE_TO_HAM8_CHUNKY MACRO
 \1_no_bitplane7
   move.l  d0,d1              ;Farbnummer retten
   and.b   d3,d1              ;Bit 6 oder 7 gesetzt ?
-  bne.s   \1_check_blue      ;Ja -> verzweige
+  bne.s   \1_check_blue_nibble      ;Ja -> verzweige
 \1_use_color_register
   move.l  (a1,d0.l*4),d2     ;Farbwert auslesen
-  bra.s   \1_set_rgb
+  bra.s   \1_set_rgb_nibbles
   CNOP 0,4
-\1_check_blue
+\1_check_blue_nibble
   lsl.b   #2,d0              ;Bits in richtige Postion bringen
   cmp.b   #$40,d1            ;Blauanteil ändern ?
-  bne.s   \1_check_red       ;Nein -> verzweige
+  bne.s   \1_check_red_nibble       ;Nein -> verzweige
   move.b  d0,d2              ;Neuen Blauanteil setzen
-  bra.s   \1_set_rgb
+  bra.s   \1_set_rgb_nibbles
   CNOP 0,4
-\1_check_red
+\1_check_red_nibble
   cmp.b   #$80,d1            ;Rotanteil ändern ?
-  bne.s   \1_check_green     ;Nein -> verzweige
+  bne.s   \1_check_green_nibble     ;Nein -> verzweige
   swap    d2
   move.w  d0,d2              ;Neuen Rotanteil setzen
   swap    d2                 ;Bits in richtige Position bringen
-  bra.s   \1_set_rgb
+  bra.s   \1_set_rgb_nibbles
   CNOP 0,4
-\1_check_green
+\1_check_green_nibble
   cmp.b   d3,d1              ;Grünanteil ändern ?
-  bne.s   \1_set_rgb         ;Nein -> verzweige
+  bne.s   \1_set_rgb_nibbles         ;Nein -> verzweige
   and.l   #$ff00ff,d2        ;Grünanteil ausmaskieren
   lsl.w   #8,d0              ;Bits in richtige Position bringen
   or.w    d0,d2              ;Neuen Grünanteil setzen
-\1_set_rgb
+\1_set_rgb_nibbles
   move.l  d2,d0              ;24-Bit Farbwert 
-  RGB8_TO_RGB4HI d0,d1,d4
+  RGB8_TO_RGB4_HIGH d0,d1,d4
   move.w  d0,(a2)+           ;High-Bits
-  RGB8_TO_RGB4LO d0,d1,d4
+  RGB8_TO_RGB4_LOW d0,d1,d4
   move.w  d0,(a2)+           ;Low-Bits
   dbf     d5,\1_translate_image_data_loop3
   addq.w  #1,a0              ;Nächstes Byte in Quellbild
@@ -1207,7 +1207,7 @@ CONVERT_IMAGE_TO_BPLCON4_CHUNKY MACRO
   ENDC
   IFC "W","\0"
     move.b  d0,(a1)+         ;Switchwert eintragen
-    move.b  #BPLCON4BITS&FALSEB,(a1)+
+    move.b  #bplcon4_bits&FALSE_BYTE,(a1)+
   ENDC
   dbf     d5,\1_translate_image_data_loop3
   addq.w  #1,a0              ;Nächstes Byte in Quellbild
@@ -1280,149 +1280,149 @@ swap_second_copperlist
   ENDM
 
 
-CLEAR_COLOR00_SCREEN MACRO
+CLEAR_COLOR00_CHUNKY_SCREEN MACRO
 ; \1 STRING: Labels-Prefix der Routine
 ; \2 STRING: Label-Prefix Copperliste [cl1,cl2]
 ; \3 STRING: Name der Copperliste [construction1,construction2]
 ; \4 STRING: extension[1..n]
 ; \5 NUMBER: Anzahl der Befehle pro Schleifendurchlauf [16,32]
   IFC "","\1"
-    FAIL Makro CLEAR_COLOR00_SCREEN: Labels-Prefix der Routine fehlt
+    FAIL Makro CLEAR_COLOR00_CHUNKY_SCREEN: Labels-Prefix der Routine fehlt
   ENDC
   IFC "","\2"
-    FAIL Makro CLEAR_COLOR00_SCREEN: Label-Prefix Copperliste [cl1,cl2] fehlt
+    FAIL Makro CLEAR_COLOR00_CHUNKY_SCREEN: Label-Prefix Copperliste [cl1,cl2] fehlt
   ENDC
   IFC "","\3"
-    FAIL Makro CLEAR_COLOR00_SCREEN: Name der Copperliste [construction1,construction2] fehlt
+    FAIL Makro CLEAR_COLOR00_CHUNKY_SCREEN: Name der Copperliste [construction1,construction2] fehlt
   ENDC
   IFC "","\4"
-    FAIL Makro CLEAR_COLOR00_SCREEN: Angabe extension[1..n] fehlt
+    FAIL Makro CLEAR_COLOR00_CHUNKY_SCREEN: Angabe extension[1..n] fehlt
   ENDC
   IFC "","\5"
-    FAIL Makro CLEAR_COLOR00_SCREEN: Anzahl der Befehle pro Schleifendurchlauf fehlt
+    FAIL Makro CLEAR_COLOR00_CHUNKY_SCREEN: Anzahl der Befehle pro Schleifendurchlauf fehlt
   ENDC
   CNOP 0,4
   IFC "cl1","\2"
 \1_clear_first_copperlist
     IFC "16","\5"
-      move.w  #COLOR00HIGHBITS,d0
-      move.w  #COLOR00LOWBITS,d1
-      MOVEF.L \2_\4_SIZE*16,d2
+      move.w  #color00_high_bits,d0
+      move.w  #color00_low_bits,d1
+      MOVEF.L \2_\4_size*16,d2
       move.l  \2_\3(a3),a0 
       ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+2,a0
       moveq   #(\2_display_y_size/16)-1,d7
 \1_clear_first_copperlist_loop
       move.w  d0,(a0)            ;COLOR00 high
       move.w  d1,\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high(a0) ;COLOR00 low
-      move.w  d0,\2_\4_SIZE*1(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*1)(a0)
-      move.w  d0,\2_\4_SIZE*2(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*2)(a0)
-      move.w  d0,\2_\4_SIZE*3(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*3)(a0)
-      move.w  d0,\2_\4_SIZE*4(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*4)(a0)
-      move.w  d0,\2_\4_SIZE*5(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*5)(a0)
-      move.w  d0,\2_\4_SIZE*6(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*6)(a0)
-      move.w  d0,\2_\4_SIZE*7(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*7)(a0)
-      move.w  d0,\2_\4_SIZE*8(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*8)(a0)
-      move.w  d0,\2_\4_SIZE*9(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*9)(a0)
-      move.w  d0,\2_\4_SIZE*10(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*10)(a0)
-      move.w  d0,\2_\4_SIZE*11(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*11)(a0)
-      move.w  d0,\2_\4_SIZE*12(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*12)(a0)
-      move.w  d0,\2_\4_SIZE*13(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*13)(a0)
-      move.w  d0,\2_\4_SIZE*14(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*14)(a0)
-      move.w  d0,\2_\4_SIZE*15(a0)
+      move.w  d0,\2_\4_size*1(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*1)(a0)
+      move.w  d0,\2_\4_size*2(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*2)(a0)
+      move.w  d0,\2_\4_size*3(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*3)(a0)
+      move.w  d0,\2_\4_size*4(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*4)(a0)
+      move.w  d0,\2_\4_size*5(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*5)(a0)
+      move.w  d0,\2_\4_size*6(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*6)(a0)
+      move.w  d0,\2_\4_size*7(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*7)(a0)
+      move.w  d0,\2_\4_size*8(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*8)(a0)
+      move.w  d0,\2_\4_size*9(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*9)(a0)
+      move.w  d0,\2_\4_size*10(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*10)(a0)
+      move.w  d0,\2_\4_size*11(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*11)(a0)
+      move.w  d0,\2_\4_size*12(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*12)(a0)
+      move.w  d0,\2_\4_size*13(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*13)(a0)
+      move.w  d0,\2_\4_size*14(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*14)(a0)
+      move.w  d0,\2_\4_size*15(a0)
       add.l   d2,a0              ;nächste Zeile in CL
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*15)-(\2_\4_SIZE*16)(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*15)-(\2_\4_size*16)(a0)
       dbf     d7,\1_clear_first_copperlist_loop
       rts
     ENDC
     IFC "32","\5"
-      move.w  #COLOR00HIGHBITS,d0
-      move.w  #COLOR00LOWBITS,d1
-      MOVEF.L \2_\4_SIZE*32,d2
+      move.w  #color00_high_bits,d0
+      move.w  #color00_low_bits,d1
+      MOVEF.L \2_\4_size*32,d2
       move.l  \2_\3(a3),a0 
       ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+2,a0
       moveq   #(\2_display_y_size/32)-1,d7
 \1_clear_first_copperlist_loop
       move.w  d0,(a0)            ;COLOR00 high
       move.w  d1,\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high(a0) ;COLOR00 low
-      move.w  d0,\2_\4_SIZE*1(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*1)(a0)
-      move.w  d0,\2_\4_SIZE*2(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*2)(a0)
-      move.w  d0,\2_\4_SIZE*3(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*3)(a0)
-      move.w  d0,\2_\4_SIZE*4(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*4)(a0)
-      move.w  d0,\2_\4_SIZE*5(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*5)(a0)
-      move.w  d0,\2_\4_SIZE*6(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*6)(a0)
-      move.w  d0,\2_\4_SIZE*7(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*7)(a0)
-      move.w  d0,\2_\4_SIZE*8(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*8)(a0)
-      move.w  d0,\2_\4_SIZE*9(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*9)(a0)
-      move.w  d0,\2_\4_SIZE*10(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*10)(a0)
-      move.w  d0,\2_\4_SIZE*11(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*11)(a0)
-      move.w  d0,\2_\4_SIZE*12(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*12)(a0)
-      move.w  d0,\2_\4_SIZE*13(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*13)(a0)
-      move.w  d0,\2_\4_SIZE*14(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*14)(a0)
-      move.w  d0,\2_\4_SIZE*15(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*15)(a0)
-      move.w  d0,\2_\4_SIZE*16(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*16)(a0)
-      move.w  d0,\2_\4_SIZE*17(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*17)(a0)
-      move.w  d0,\2_\4_SIZE*18(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*18)(a0)
-      move.w  d0,\2_\4_SIZE*19(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*19)(a0)
-      move.w  d0,\2_\4_SIZE*20(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*20)(a0)
-      move.w  d0,\2_\4_SIZE*21(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*21)(a0)
-      move.w  d0,\2_\4_SIZE*22(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*22)(a0)
-      move.w  d0,\2_\4_SIZE*23(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*23)(a0)
-      move.w  d0,\2_\4_SIZE*24(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*24)(a0)
-      move.w  d0,\2_\4_SIZE*25(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*25)(a0)
-      move.w  d0,\2_\4_SIZE*26(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*26)(a0)
-      move.w  d0,\2_\4_SIZE*27(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*27)(a0)
-      move.w  d0,\2_\4_SIZE*28(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*28)(a0)
-      move.w  d0,\2_\4_SIZE*29(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*29)(a0)
-      move.w  d0,\2_\4_SIZE*30(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*30)(a0)
-      move.w  d0,\2_\4_SIZE*31(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*31)(a0)
-      move.w  d0,\2_\4_SIZE*32(a0)
+      move.w  d0,\2_\4_size*1(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*1)(a0)
+      move.w  d0,\2_\4_size*2(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*2)(a0)
+      move.w  d0,\2_\4_size*3(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*3)(a0)
+      move.w  d0,\2_\4_size*4(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*4)(a0)
+      move.w  d0,\2_\4_size*5(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*5)(a0)
+      move.w  d0,\2_\4_size*6(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*6)(a0)
+      move.w  d0,\2_\4_size*7(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*7)(a0)
+      move.w  d0,\2_\4_size*8(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*8)(a0)
+      move.w  d0,\2_\4_size*9(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*9)(a0)
+      move.w  d0,\2_\4_size*10(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*10)(a0)
+      move.w  d0,\2_\4_size*11(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*11)(a0)
+      move.w  d0,\2_\4_size*12(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*12)(a0)
+      move.w  d0,\2_\4_size*13(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*13)(a0)
+      move.w  d0,\2_\4_size*14(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*14)(a0)
+      move.w  d0,\2_\4_size*15(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*15)(a0)
+      move.w  d0,\2_\4_size*16(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*16)(a0)
+      move.w  d0,\2_\4_size*17(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*17)(a0)
+      move.w  d0,\2_\4_size*18(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*18)(a0)
+      move.w  d0,\2_\4_size*19(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*19)(a0)
+      move.w  d0,\2_\4_size*20(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*20)(a0)
+      move.w  d0,\2_\4_size*21(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*21)(a0)
+      move.w  d0,\2_\4_size*22(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*22)(a0)
+      move.w  d0,\2_\4_size*23(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*23)(a0)
+      move.w  d0,\2_\4_size*24(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*24)(a0)
+      move.w  d0,\2_\4_size*25(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*25)(a0)
+      move.w  d0,\2_\4_size*26(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*26)(a0)
+      move.w  d0,\2_\4_size*27(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*27)(a0)
+      move.w  d0,\2_\4_size*28(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*28)(a0)
+      move.w  d0,\2_\4_size*29(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*29)(a0)
+      move.w  d0,\2_\4_size*30(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*30)(a0)
+      move.w  d0,\2_\4_size*31(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*31)(a0)
+      move.w  d0,\2_\4_size*32(a0)
       add.l   d2,a0              ;nächste Zeile in CL
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*15)-(\2_\4_SIZE*32)(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*15)-(\2_\4_size*32)(a0)
       dbf     d7,\1_clear_first_copperlist_loop
       rts
     ENDC
@@ -1430,124 +1430,124 @@ CLEAR_COLOR00_SCREEN MACRO
   IFC "cl2","\2"
 \1_clear_second_copperlist
     IFC "16","\5"
-      move.w  #COLOR00HIGHBITS,d0
-      move.w  #COLOR00LOWBITS,d1
-      MOVEF.L \2_\4_SIZE*16,d2
+      move.w  #color00_high_bits,d0
+      move.w  #color00_low_bits,d1
+      MOVEF.L \2_\4_size*16,d2
       move.l  \2_\3(a3),a0 
       ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+2,a0
       moveq   #(\2_display_y_size/16)-1,d7
 \1_clear_second_copperlist_loop
       move.w  d0,(a0)            ;COLOR00 high
       move.w  d1,\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high(a0) ;COLOR00 low
-      move.w  d0,\2_\4_SIZE*1(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*1)(a0)
-      move.w  d0,\2_\4_SIZE*2(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*2)(a0)
-      move.w  d0,\2_\4_SIZE*3(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*3)(a0)
-      move.w  d0,\2_\4_SIZE*4(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*4)(a0)
-      move.w  d0,\2_\4_SIZE*5(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*5)(a0)
-      move.w  d0,\2_\4_SIZE*6(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*6)(a0)
-      move.w  d0,\2_\4_SIZE*7(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*7)(a0)
-      move.w  d0,\2_\4_SIZE*8(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*8)(a0)
-      move.w  d0,\2_\4_SIZE*9(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*9)(a0)
-      move.w  d0,\2_\4_SIZE*10(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*10)(a0)
-      move.w  d0,\2_\4_SIZE*11(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*11)(a0)
-      move.w  d0,\2_\4_SIZE*12(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*12)(a0)
-      move.w  d0,\2_\4_SIZE*13(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*13)(a0)
-      move.w  d0,\2_\4_SIZE*14(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*14)(a0)
-      move.w  d0,\2_\4_SIZE*15(a0)
+      move.w  d0,\2_\4_size*1(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*1)(a0)
+      move.w  d0,\2_\4_size*2(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*2)(a0)
+      move.w  d0,\2_\4_size*3(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*3)(a0)
+      move.w  d0,\2_\4_size*4(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*4)(a0)
+      move.w  d0,\2_\4_size*5(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*5)(a0)
+      move.w  d0,\2_\4_size*6(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*6)(a0)
+      move.w  d0,\2_\4_size*7(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*7)(a0)
+      move.w  d0,\2_\4_size*8(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*8)(a0)
+      move.w  d0,\2_\4_size*9(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*9)(a0)
+      move.w  d0,\2_\4_size*10(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*10)(a0)
+      move.w  d0,\2_\4_size*11(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*11)(a0)
+      move.w  d0,\2_\4_size*12(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*12)(a0)
+      move.w  d0,\2_\4_size*13(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*13)(a0)
+      move.w  d0,\2_\4_size*14(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*14)(a0)
+      move.w  d0,\2_\4_size*15(a0)
       add.l   d2,a0              ;nächste Zeile in CL
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*15)-(\2_\4_SIZE*16)(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*15)-(\2_\4_size*16)(a0)
       dbf     d7,\1_clear_second_copperlist_loop
       rts
     ENDC
     IFC "32","\5"
-      move.w  #COLOR00HIGHBITS,d0
-      move.w  #COLOR00LOWBITS,d1
-      MOVEF.L \2_\4_SIZE*32,d2
+      move.w  #color00_high_bits,d0
+      move.w  #color00_low_bits,d1
+      MOVEF.L \2_\4_size*32,d2
       move.l  \2_\3(a3),a0 
       ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+2,a0
       moveq   #(\2_display_y_size/32)-1,d7
 \1_clear_second_copperlist_loop
       move.w  d0,(a0)            ;COLOR00 high
       move.w  d1,\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high(a0) ;COLOR00 low
-      move.w  d0,\2_\4_SIZE*1(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*1)(a0)
-      move.w  d0,\2_\4_SIZE*2(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*2)(a0)
-      move.w  d0,\2_\4_SIZE*3(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*3)(a0)
-      move.w  d0,\2_\4_SIZE*4(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*4)(a0)
-      move.w  d0,\2_\4_SIZE*5(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*5)(a0)
-      move.w  d0,\2_\4_SIZE*6(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*6)(a0)
-      move.w  d0,\2_\4_SIZE*7(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*7)(a0)
-      move.w  d0,\2_\4_SIZE*8(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*8)(a0)
-      move.w  d0,\2_\4_SIZE*9(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*9)(a0)
-      move.w  d0,\2_\4_SIZE*10(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*10)(a0)
-      move.w  d0,\2_\4_SIZE*11(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*11)(a0)
-      move.w  d0,\2_\4_SIZE*12(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*12)(a0)
-      move.w  d0,\2_\4_SIZE*13(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*13)(a0)
-      move.w  d0,\2_\4_SIZE*14(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*14)(a0)
-      move.w  d0,\2_\4_SIZE*15(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*15)(a0)
-      move.w  d0,\2_\4_SIZE*16(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*16)(a0)
-      move.w  d0,\2_\4_SIZE*17(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*17)(a0)
-      move.w  d0,\2_\4_SIZE*18(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*18)(a0)
-      move.w  d0,\2_\4_SIZE*19(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*19)(a0)
-      move.w  d0,\2_\4_SIZE*20(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*20)(a0)
-      move.w  d0,\2_\4_SIZE*21(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*21)(a0)
-      move.w  d0,\2_\4_SIZE*22(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*22)(a0)
-      move.w  d0,\2_\4_SIZE*23(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*23)(a0)
-      move.w  d0,\2_\4_SIZE*24(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*24)(a0)
-      move.w  d0,\2_\4_SIZE*25(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*25)(a0)
-      move.w  d0,\2_\4_SIZE*26(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*26)(a0)
-      move.w  d0,\2_\4_SIZE*27(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*27)(a0)
-      move.w  d0,\2_\4_SIZE*28(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*28)(a0)
-      move.w  d0,\2_\4_SIZE*29(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*29)(a0)
-      move.w  d0,\2_\4_SIZE*30(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*30)(a0)
-      move.w  d0,\2_\4_SIZE*31(a0)
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*31)(a0)
-      move.w  d0,\2_\4_SIZE*32(a0)
+      move.w  d0,\2_\4_size*1(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*1)(a0)
+      move.w  d0,\2_\4_size*2(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*2)(a0)
+      move.w  d0,\2_\4_size*3(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*3)(a0)
+      move.w  d0,\2_\4_size*4(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*4)(a0)
+      move.w  d0,\2_\4_size*5(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*5)(a0)
+      move.w  d0,\2_\4_size*6(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*6)(a0)
+      move.w  d0,\2_\4_size*7(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*7)(a0)
+      move.w  d0,\2_\4_size*8(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*8)(a0)
+      move.w  d0,\2_\4_size*9(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*9)(a0)
+      move.w  d0,\2_\4_size*10(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*10)(a0)
+      move.w  d0,\2_\4_size*11(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*11)(a0)
+      move.w  d0,\2_\4_size*12(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*12)(a0)
+      move.w  d0,\2_\4_size*13(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*13)(a0)
+      move.w  d0,\2_\4_size*14(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*14)(a0)
+      move.w  d0,\2_\4_size*15(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*15)(a0)
+      move.w  d0,\2_\4_size*16(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*16)(a0)
+      move.w  d0,\2_\4_size*17(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*17)(a0)
+      move.w  d0,\2_\4_size*18(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*18)(a0)
+      move.w  d0,\2_\4_size*19(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*19)(a0)
+      move.w  d0,\2_\4_size*20(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*20)(a0)
+      move.w  d0,\2_\4_size*21(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*21)(a0)
+      move.w  d0,\2_\4_size*22(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*22)(a0)
+      move.w  d0,\2_\4_size*23(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*23)(a0)
+      move.w  d0,\2_\4_size*24(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*24)(a0)
+      move.w  d0,\2_\4_size*25(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*25)(a0)
+      move.w  d0,\2_\4_size*26(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*26)(a0)
+      move.w  d0,\2_\4_size*27(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*27)(a0)
+      move.w  d0,\2_\4_size*28(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*28)(a0)
+      move.w  d0,\2_\4_size*29(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*29)(a0)
+      move.w  d0,\2_\4_size*30(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*30)(a0)
+      move.w  d0,\2_\4_size*31(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*31)(a0)
+      move.w  d0,\2_\4_size*32(a0)
       add.l   d2,a0              ;nächste Zeile in CL
-      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_SIZE*15)-(\2_\4_SIZE*32)(a0)
+      move.w  d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*15)-(\2_\4_size*32)(a0)
       dbf     d7,\1_clear_second_copperlist_loop
       rts
     ENDC
@@ -1580,7 +1580,7 @@ CLEAR_BPLCON4_CHUNKY_SCREEN MACRO
   IFC "cl1","\2"
 \1_clear_first_copperlist
     move.l  \2_\3(a3),a0 
-    WAITBLITTER
+    WAIT_BLITTER
     move.l  #(BC0F_DEST+ANBNC+ANBC+ABNC+ABC)<<16,BLTCON0-DMACONR(a6) ;Minterm D=A
     moveq   #FALSE,d0
     move.l  d0,BLTAFWM-DMACONR(a6) ;Maske aus
@@ -1591,7 +1591,7 @@ CLEAR_BPLCON4_CHUNKY_SCREEN MACRO
     IFEQ \1_\5
       moveq   #-2,d0 
     ELSE
-      MOVEF.W BPLCON4BITS,d0
+      MOVEF.W bplcon4_bits,d0
     ENDC
     move.w  d0,BLTADAT-DMACONR(a6) ;Quelle = BPLCON4-Bits
     move.l  #(\1_clear_blit_y_size<<16)+(\1_clear_blit_x_size/16),BLTSIZV-DMACONR(a6) ;Blitter starten
@@ -1600,7 +1600,7 @@ CLEAR_BPLCON4_CHUNKY_SCREEN MACRO
   IFC "cl2","\2"
 \1_clear_second_copperlist
     move.l  \2_\3(a3),a0 
-    WAITBLITTER
+    WAIT_BLITTER
     move.l  #(BC0F_DEST+ANBNC+ANBC+ABNC+ABC)<<16,BLTCON0-DMACONR(a6) ;Minterm D=A
     moveq   #FALSE,d0
     move.l  d0,BLTAFWM-DMACONR(a6) ;Maske aus
@@ -1611,7 +1611,7 @@ CLEAR_BPLCON4_CHUNKY_SCREEN MACRO
     IFEQ \1_\5
       moveq   #-2,d0 
     ELSE
-      MOVEF.W BPLCON4BITS,d0
+      MOVEF.W bplcon4_bits,d0
     ENDC
     move.w  d0,BLTADAT-DMACONR(a6) ;Quelle = BPLCON4-Bits
     move.l  #(\1_clear_blit_y_size<<16)+(\1_clear_blit_x_size/16),BLTSIZV-DMACONR(a6) ;Blitter starten
@@ -1620,7 +1620,7 @@ CLEAR_BPLCON4_CHUNKY_SCREEN MACRO
   ENDM
 
 
-RESTORE_BPLCON4_CHUNKY_SCREEN MACRO
+RESTORE_BLCON4_CHUNKY_SCREEN MACRO
 ; \1 STRING: Labels-Prefix der Routine
 ; \2 STRING: Label-Prefix Copperliste [cl1,cl2]
 ; \3 STRING: Name der Copperliste [construction1,construction2]
@@ -1629,19 +1629,19 @@ RESTORE_BPLCON4_CHUNKY_SCREEN MACRO
 ; \6 LABEL:  Sub-Routine zum Löschen durch die CPU (optional)
 ; \7 LABEL:  Sub-Routine zum Löschen durch den Blitter (optional)
   IFC "","\1"
-    FAIL Makro RESTORE_BPLCON4_CHUNKY_SCREEN: Labels-Prefix der Routine fehlt
+    FAIL Makro RESTORE_BLCON4_CHUNKY_SCREEN: Labels-Prefix der Routine fehlt
   ENDC
   IFC "","\2"
-    FAIL Makro RESTORE_BPLCON4_CHUNKY_SCREEN: Label-Prefix Copperliste [cl1,cl2] fehlt
+    FAIL Makro RESTORE_BLCON4_CHUNKY_SCREEN: Label-Prefix Copperliste [cl1,cl2] fehlt
   ENDC
   IFC "","\3"
-    FAIL Makro RESTORE_BPLCON4_CHUNKY_SCREEN: Name der Copperliste [construction1,construction2] fehlt
+    FAIL Makro RESTORE_BLCON4_CHUNKY_SCREEN: Name der Copperliste [construction1,construction2] fehlt
   ENDC
   IFC "","\4"
-    FAIL Makro RESTORE_BPLCON4_CHUNKY_SCREEN: Angabe extension[1..n] fehlt
+    FAIL Makro RESTORE_BLCON4_CHUNKY_SCREEN: Angabe extension[1..n] fehlt
   ENDC
   IFC "","\5"
-    FAIL Makro RESTORE_BPLCON4_CHUNKY_SCREEN: Anzahl der Befehle pro Schleifendurchlauf [16,32] fehlt
+    FAIL Makro RESTORE_BLCON4_CHUNKY_SCREEN: Anzahl der Befehle pro Schleifendurchlauf [16,32] fehlt
   ENDC
   CNOP 0,4
   IFC "cl1","\2"
@@ -1650,72 +1650,72 @@ restore_first_copperlist
       IFC "","\6"
         IFC "16","\5"
           moveq   #-2,d0       ;2. Wort des WAIT-Befehls
-          MOVEF.L \2_\4_SIZE*16,d1
+          MOVEF.L \2_\4_size*16,d1
           move.l  \2_\3(a3),a0 
           ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
           moveq   #(\2_display_y_size/16)-1,d7
 restore_first_copperlist_loop
           move.w  d0,(a0)      ;WAIT-Befehl wieder herstellen
-          move.w  d0,\2_\4_SIZE*1(a0)
-          move.w  d0,\2_\4_SIZE*2(a0)
-          move.w  d0,\2_\4_SIZE*3(a0)
-          move.w  d0,\2_\4_SIZE*4(a0)
-          move.w  d0,\2_\4_SIZE*5(a0)
-          move.w  d0,\2_\4_SIZE*6(a0)
-          move.w  d0,\2_\4_SIZE*7(a0)
-          move.w  d0,\2_\4_SIZE*8(a0)
-          move.w  d0,\2_\4_SIZE*9(a0)
-          move.w  d0,\2_\4_SIZE*10(a0)
-          move.w  d0,\2_\4_SIZE*11(a0)
-          move.w  d0,\2_\4_SIZE*12(a0)
-          move.w  d0,\2_\4_SIZE*13(a0)
-          move.w  d0,\2_\4_SIZE*14(a0)
-          move.w  d0,\2_\4_SIZE*15(a0)
+          move.w  d0,\2_\4_size*1(a0)
+          move.w  d0,\2_\4_size*2(a0)
+          move.w  d0,\2_\4_size*3(a0)
+          move.w  d0,\2_\4_size*4(a0)
+          move.w  d0,\2_\4_size*5(a0)
+          move.w  d0,\2_\4_size*6(a0)
+          move.w  d0,\2_\4_size*7(a0)
+          move.w  d0,\2_\4_size*8(a0)
+          move.w  d0,\2_\4_size*9(a0)
+          move.w  d0,\2_\4_size*10(a0)
+          move.w  d0,\2_\4_size*11(a0)
+          move.w  d0,\2_\4_size*12(a0)
+          move.w  d0,\2_\4_size*13(a0)
+          move.w  d0,\2_\4_size*14(a0)
+          move.w  d0,\2_\4_size*15(a0)
           add.l   d1,a0              ;16 Zeilen überspringen
-          move.w  d0,(\2_\4_SIZE*15)-(\2_\4_SIZE*16)(a0)
+          move.w  d0,(\2_\4_size*15)-(\2_\4_size*16)(a0)
           dbf     d7,restore_first_copperlist_loop
           rts
         ENDC
         IFC "32","\5"
           moveq   #-2,d0             ;2. Wort des WAIT-Befehls
-          MOVEF.L \2_\4_SIZE*32,d1
+          MOVEF.L \2_\4_size*32,d1
           move.l  \2_\3(a3),a0 
           ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
           moveq   #(\2_display_y_size/32)-1,d7
 restore_first_copperlist_loop
           move.w  d0,(a0)            ;WAIT-Befehl wieder herstellen
-          move.w  d0,\2_\4_SIZE*1(a0)
-          move.w  d0,\2_\4_SIZE*2(a0)
-          move.w  d0,\2_\4_SIZE*3(a0)
-          move.w  d0,\2_\4_SIZE*4(a0)
-          move.w  d0,\2_\4_SIZE*5(a0)
-          move.w  d0,\2_\4_SIZE*6(a0)
-          move.w  d0,\2_\4_SIZE*7(a0)
-          move.w  d0,\2_\4_SIZE*8(a0)
-          move.w  d0,\2_\4_SIZE*9(a0)
-          move.w  d0,\2_\4_SIZE*10(a0)
-          move.w  d0,\2_\4_SIZE*11(a0)
-          move.w  d0,\2_\4_SIZE*12(a0)
-          move.w  d0,\2_\4_SIZE*13(a0)
-          move.w  d0,\2_\4_SIZE*14(a0)
-          move.w  d0,\2_\4_SIZE*15(a0)
-          move.w  d0,\2_\4_SIZE*16(a0)
-          move.w  d0,\2_\4_SIZE*17(a0)
-          move.w  d0,\2_\4_SIZE*18(a0)
-          move.w  d0,\2_\4_SIZE*19(a0)
-          move.w  d0,\2_\4_SIZE*20(a0)
-          move.w  d0,\2_\4_SIZE*21(a0)
-          move.w  d0,\2_\4_SIZE*22(a0)
-          move.w  d0,\2_\4_SIZE*23(a0)
-          move.w  d0,\2_\4_SIZE*24(a0)
-          move.w  d0,\2_\4_SIZE*25(a0)
-          move.w  d0,\2_\4_SIZE*26(a0)
-          move.w  d0,\2_\4_SIZE*27(a0)
-          move.w  d0,\2_\4_SIZE*28(a0)
-          move.w  d0,\2_\4_SIZE*29(a0)
-          move.w  d0,\2_\4_SIZE*30(a0)
+          move.w  d0,\2_\4_size*1(a0)
+          move.w  d0,\2_\4_size*2(a0)
+          move.w  d0,\2_\4_size*3(a0)
+          move.w  d0,\2_\4_size*4(a0)
+          move.w  d0,\2_\4_size*5(a0)
+          move.w  d0,\2_\4_size*6(a0)
+          move.w  d0,\2_\4_size*7(a0)
+          move.w  d0,\2_\4_size*8(a0)
+          move.w  d0,\2_\4_size*9(a0)
+          move.w  d0,\2_\4_size*10(a0)
+          move.w  d0,\2_\4_size*11(a0)
+          move.w  d0,\2_\4_size*12(a0)
+          move.w  d0,\2_\4_size*13(a0)
+          move.w  d0,\2_\4_size*14(a0)
+          move.w  d0,\2_\4_size*15(a0)
+          move.w  d0,\2_\4_size*16(a0)
+          move.w  d0,\2_\4_size*17(a0)
+          move.w  d0,\2_\4_size*18(a0)
+          move.w  d0,\2_\4_size*19(a0)
+          move.w  d0,\2_\4_size*20(a0)
+          move.w  d0,\2_\4_size*21(a0)
+          move.w  d0,\2_\4_size*22(a0)
+          move.w  d0,\2_\4_size*23(a0)
+          move.w  d0,\2_\4_size*24(a0)
+          move.w  d0,\2_\4_size*25(a0)
+          move.w  d0,\2_\4_size*26(a0)
+          move.w  d0,\2_\4_size*27(a0)
+          move.w  d0,\2_\4_size*28(a0)
+          move.w  d0,\2_\4_size*29(a0)
+          move.w  d0,\2_\4_size*30(a0)
           add.l   d1,a0              ;32 Zeilen überspringen
-          move.w  d0,(\2_\4_SIZE*31)-(\2_\4_SIZE*32)(a0)
+          move.w  d0,(\2_\4_size*31)-(\2_\4_size*32)(a0)
           dbf     d7,restore_first_copperlist_loop
           rts
         ENDC
@@ -1724,10 +1724,10 @@ restore_first_copperlist_loop
     IFEQ \1_restore_cl_blitter_enabled
       IFC "","\7"
         move.l  \2_\3(a3),a0   
-        WAITBLITTER
+        WAIT_BLITTER
         ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
         move.l  a0,BLTDPT-DMACONR(a6) ;Ziel = Copperliste
-        move.w  #\2_\4_SIZE-\1_restore_blit_width,BLTDMOD-DMACONR(a6) ;D-Mod
+        move.w  #\2_\4_size-\1_restore_blit_width,BLTDMOD-DMACONR(a6) ;D-Mod
         moveq   #-2,d0         ;2. Wort des Wait-Befehls
         move.w  d0,BLTADAT-DMACONR(a6) ;Quelle = 2. Wort von CWAIT
         move.w  #(\1_restore_blit_y_size*64)+(\1_restore_blit_x_size/16),BLTSIZE-DMACONR(a6) ;Anzahl der Zeilen
@@ -1741,72 +1741,72 @@ restore_second_copperlist
       IFC "","\6"
         IFC "16","\5"
           moveq   #-2,d0       ;2. Wort des WAIT-Befehls
-          MOVEF.L \2_\4_SIZE*16,d1
+          MOVEF.L \2_\4_size*16,d1
           move.l  \2_\3(a3),a0 
           ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
           moveq   #(\2_display_y_size/16)-1,d7
 restore_second_copperlist_loop
           move.w  d0,(a0)      ;WAIT-Befehl wieder herstellen
-          move.w  d0,\2_\4_SIZE*1(a0)
-          move.w  d0,\2_\4_SIZE*2(a0)
-          move.w  d0,\2_\4_SIZE*3(a0)
-          move.w  d0,\2_\4_SIZE*4(a0)
-          move.w  d0,\2_\4_SIZE*5(a0)
-          move.w  d0,\2_\4_SIZE*6(a0)
-          move.w  d0,\2_\4_SIZE*7(a0)
-          move.w  d0,\2_\4_SIZE*8(a0)
-          move.w  d0,\2_\4_SIZE*9(a0)
-          move.w  d0,\2_\4_SIZE*10(a0)
-          move.w  d0,\2_\4_SIZE*11(a0)
-          move.w  d0,\2_\4_SIZE*12(a0)
-          move.w  d0,\2_\4_SIZE*13(a0)
-          move.w  d0,\2_\4_SIZE*14(a0)
-          move.w  d0,\2_\4_SIZE*15(a0)
+          move.w  d0,\2_\4_size*1(a0)
+          move.w  d0,\2_\4_size*2(a0)
+          move.w  d0,\2_\4_size*3(a0)
+          move.w  d0,\2_\4_size*4(a0)
+          move.w  d0,\2_\4_size*5(a0)
+          move.w  d0,\2_\4_size*6(a0)
+          move.w  d0,\2_\4_size*7(a0)
+          move.w  d0,\2_\4_size*8(a0)
+          move.w  d0,\2_\4_size*9(a0)
+          move.w  d0,\2_\4_size*10(a0)
+          move.w  d0,\2_\4_size*11(a0)
+          move.w  d0,\2_\4_size*12(a0)
+          move.w  d0,\2_\4_size*13(a0)
+          move.w  d0,\2_\4_size*14(a0)
+          move.w  d0,\2_\4_size*15(a0)
           add.l   d1,a0              ;16 Zeilen überspringen
-          move.w  d0,(\2_\4_SIZE*15)-(\2_\4_SIZE*16)(a0)
+          move.w  d0,(\2_\4_size*15)-(\2_\4_size*16)(a0)
           dbf     d7,restore_second_copperlist_loop
           rts
         ENDC
         IFC "32","\5"
           moveq   #-2,d0             ;2. Wort des WAIT-Befehls
-          MOVEF.L \2_\4_SIZE*32,d1
+          MOVEF.L \2_\4_size*32,d1
           move.l  \2_\3(a3),a0 
           ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
           moveq   #(\2_display_y_size/32)-1,d7
 restore_second_copperlist_loop
           move.w  d0,(a0)            ;WAIT-Befehl wieder herstellen
-          move.w  d0,\2_\4_SIZE*1(a0)
-          move.w  d0,\2_\4_SIZE*2(a0)
-          move.w  d0,\2_\4_SIZE*3(a0)
-          move.w  d0,\2_\4_SIZE*4(a0)
-          move.w  d0,\2_\4_SIZE*5(a0)
-          move.w  d0,\2_\4_SIZE*6(a0)
-          move.w  d0,\2_\4_SIZE*7(a0)
-          move.w  d0,\2_\4_SIZE*8(a0)
-          move.w  d0,\2_\4_SIZE*9(a0)
-          move.w  d0,\2_\4_SIZE*10(a0)
-          move.w  d0,\2_\4_SIZE*11(a0)
-          move.w  d0,\2_\4_SIZE*12(a0)
-          move.w  d0,\2_\4_SIZE*13(a0)
-          move.w  d0,\2_\4_SIZE*14(a0)
-          move.w  d0,\2_\4_SIZE*15(a0)
-          move.w  d0,\2_\4_SIZE*16(a0)
-          move.w  d0,\2_\4_SIZE*17(a0)
-          move.w  d0,\2_\4_SIZE*18(a0)
-          move.w  d0,\2_\4_SIZE*19(a0)
-          move.w  d0,\2_\4_SIZE*20(a0)
-          move.w  d0,\2_\4_SIZE*21(a0)
-          move.w  d0,\2_\4_SIZE*22(a0)
-          move.w  d0,\2_\4_SIZE*23(a0)
-          move.w  d0,\2_\4_SIZE*24(a0)
-          move.w  d0,\2_\4_SIZE*25(a0)
-          move.w  d0,\2_\4_SIZE*26(a0)
-          move.w  d0,\2_\4_SIZE*27(a0)
-          move.w  d0,\2_\4_SIZE*28(a0)
-          move.w  d0,\2_\4_SIZE*29(a0)
-          move.w  d0,\2_\4_SIZE*30(a0)
+          move.w  d0,\2_\4_size*1(a0)
+          move.w  d0,\2_\4_size*2(a0)
+          move.w  d0,\2_\4_size*3(a0)
+          move.w  d0,\2_\4_size*4(a0)
+          move.w  d0,\2_\4_size*5(a0)
+          move.w  d0,\2_\4_size*6(a0)
+          move.w  d0,\2_\4_size*7(a0)
+          move.w  d0,\2_\4_size*8(a0)
+          move.w  d0,\2_\4_size*9(a0)
+          move.w  d0,\2_\4_size*10(a0)
+          move.w  d0,\2_\4_size*11(a0)
+          move.w  d0,\2_\4_size*12(a0)
+          move.w  d0,\2_\4_size*13(a0)
+          move.w  d0,\2_\4_size*14(a0)
+          move.w  d0,\2_\4_size*15(a0)
+          move.w  d0,\2_\4_size*16(a0)
+          move.w  d0,\2_\4_size*17(a0)
+          move.w  d0,\2_\4_size*18(a0)
+          move.w  d0,\2_\4_size*19(a0)
+          move.w  d0,\2_\4_size*20(a0)
+          move.w  d0,\2_\4_size*21(a0)
+          move.w  d0,\2_\4_size*22(a0)
+          move.w  d0,\2_\4_size*23(a0)
+          move.w  d0,\2_\4_size*24(a0)
+          move.w  d0,\2_\4_size*25(a0)
+          move.w  d0,\2_\4_size*26(a0)
+          move.w  d0,\2_\4_size*27(a0)
+          move.w  d0,\2_\4_size*28(a0)
+          move.w  d0,\2_\4_size*29(a0)
+          move.w  d0,\2_\4_size*30(a0)
           add.l   d1,a0              ;32 Zeilen überspringen
-          move.w  d0,(\2_\4_SIZE*31)-(\2_\4_SIZE*32)(a0)
+          move.w  d0,(\2_\4_size*31)-(\2_\4_size*32)(a0)
           dbf     d7,restore_second_copperlist_loop
           rts
         ENDC
@@ -1815,10 +1815,10 @@ restore_second_copperlist_loop
     IFEQ \1_restore_cl_blitter_enabled
       IFC "","\7"
         move.l  \2_\3(a3),a0   
-        WAITBLITTER
+        WAIT_BLITTER
         ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
         move.l  a0,BLTDPT-DMACONR(a6) ;Ziel = Copperliste
-        move.w  #\2_\4_SIZE-\1_restore_blit_width,BLTDMOD-DMACONR(a6) ;D-Mod
+        move.w  #\2_\4_size-\1_restore_blit_width,BLTDMOD-DMACONR(a6) ;D-Mod
         moveq   #-2,d0         ;2. Wort des Wait-Befehls
         move.w  d0,BLTADAT-DMACONR(a6) ;Quelle = 2. Wort von CWAIT
         move.w  #(\1_restore_blit_y_size*64)+(\1_restore_blit_x_size/16),BLTSIZE-DMACONR(a6) ;Anzahl der Zeilen
@@ -1868,7 +1868,7 @@ SET_TWISTED_BACKGROUND_BARS MACRO
 \1_set_background_bars
   movem.l a4-a5,-(a7)
   IFC "B","\0"
-    moveq   #\1_bar_height*BYTESIZE,d4
+    moveq   #\1_bar_height*BYTE_SIZE,d4
   ENDC
   lea     \1_yz_coordinates(pc),a0 ;Zeiger auf YZ-Koords
   move.l  \2_\3(a3),a2       
@@ -1880,7 +1880,7 @@ SET_TWISTED_BACKGROUND_BARS MACRO
     move.l \6(\7),a5         ;Zeiger auf Tabelle mit Switchwerten
   ENDC
   IFNC "","\8"
-    add.l  #\8*BYTESIZE,a5   ;Offset Tabellenanfamg
+    add.l  #\8*BYTE_SIZE,a5   ;Offset Tabellenanfamg
   ENDC
   IFC "45","\9"
     moveq   #(\2_display_width)-1-1,d7 ;Anzahl der Spalten
@@ -1955,7 +1955,7 @@ SET_TWISTED_FOREGROUND_BARS MACRO
 \1_set_foreground_bars
   movem.l a4-a5,-(a7)
   IFC "B","\0"
-    moveq   #\1_bar_height*BYTESIZE,d4
+    moveq   #\1_bar_height*BYTE_SIZE,d4
   ENDC
   lea     \1_yz_coordinates(pc),a0 ;Zeiger auf YZ-Koords
   move.l  \2_\3(a3),a2       
@@ -2030,236 +2030,236 @@ COPY_TWISTED_BAR MACRO
   IFC "B","\0"
     IFEQ \1_\4-15
       movem.l (a1),d0-d3         ;15 Switchwerte lesen
-      move.b  d0,\2_\3_SIZE*3(a4)
+      move.b  d0,\2_\3_size*3(a4)
       lsr.w   #8,d0
-      move.b  d0,\2_\3_SIZE*2(a4)
+      move.b  d0,\2_\3_size*2(a4)
       swap    d0
-      move.b  d0,\2_\3_SIZE*1(a4)
+      move.b  d0,\2_\3_size*1(a4)
       lsr.w   #8,d0
       move.b  d0,(a4)
-      move.b  d1,\2_\3_SIZE*7(a4)
+      move.b  d1,\2_\3_size*7(a4)
       lsr.w   #8,d1
-      move.b  d1,\2_\3_SIZE*6(a4)
+      move.b  d1,\2_\3_size*6(a4)
       swap    d1
-      move.b  d1,\2_\3_SIZE*5(a4)
+      move.b  d1,\2_\3_size*5(a4)
       lsr.w   #8,d1
-      move.b  d1,\2_\3_SIZE*4(a4)
-      move.b  d2,\2_\3_SIZE*11(a4)
+      move.b  d1,\2_\3_size*4(a4)
+      move.b  d2,\2_\3_size*11(a4)
       lsr.w   #8,d2
-      move.b  d2,\2_\3_SIZE*10(a4)
+      move.b  d2,\2_\3_size*10(a4)
       swap    d2
-      move.b  d2,\2_\3_SIZE*9(a4)
+      move.b  d2,\2_\3_size*9(a4)
       lsr.w   #8,d2
-      move.b  d2,\2_\3_SIZE*8(a4)
+      move.b  d2,\2_\3_size*8(a4)
       lsr.w   #8,d3
-      move.b  d3,\2_\3_SIZE*14(a4)
+      move.b  d3,\2_\3_size*14(a4)
       swap    d3
-      move.b  d3,\2_\3_SIZE*13(a4)
+      move.b  d3,\2_\3_size*13(a4)
       lsr.w   #8,d3
-      move.b  d3,\2_\3_SIZE*12(a4)
+      move.b  d3,\2_\3_size*12(a4)
     ENDC
     IFEQ \1_\4-32
       movem.l (a1)+,d0-d3      ;16 Switchwerte lesen
-      move.b  d0,\2_\3_SIZE*3(a4)
+      move.b  d0,\2_\3_size*3(a4)
       swap    d0
-      move.b  d0,\2_\3_SIZE*1(a4)
+      move.b  d0,\2_\3_size*1(a4)
       lsr.l   #8,d0
       move.b  d0,(a4)
       swap    d0
-      move.b  d0,\2_\3_SIZE*2(a4)
-      move.b  d1,\2_\3_SIZE*7(a4)
+      move.b  d0,\2_\3_size*2(a4)
+      move.b  d1,\2_\3_size*7(a4)
       swap    d1
-      move.b  d1,\2_\3_SIZE*5(a4)
+      move.b  d1,\2_\3_size*5(a4)
       lsr.l   #8,d1
-      move.b  d1,\2_\3_SIZE*4(a4)
+      move.b  d1,\2_\3_size*4(a4)
       swap    d1
-      move.b  d1,\2_\3_SIZE*6(a4)
-      move.b  d2,\2_\3_SIZE*11(a4)
+      move.b  d1,\2_\3_size*6(a4)
+      move.b  d2,\2_\3_size*11(a4)
       swap    d2
-      move.b  d2,\2_\3_SIZE*9(a4)
+      move.b  d2,\2_\3_size*9(a4)
       lsr.l   #8,d2
-      move.b  d2,\2_\3_SIZE*8(a4)
+      move.b  d2,\2_\3_size*8(a4)
       swap    d2
-      move.b  d2,\2_\3_SIZE*10(a4)
-      move.b  d3,\2_\3_SIZE*15(a4)
+      move.b  d2,\2_\3_size*10(a4)
+      move.b  d3,\2_\3_size*15(a4)
       swap    d3
-      move.b  d3,\2_\3_SIZE*13(a4)
+      move.b  d3,\2_\3_size*13(a4)
       lsr.l   #8,d3
-      move.b  d3,\2_\3_SIZE*12(a4)
+      move.b  d3,\2_\3_size*12(a4)
       swap    d3
-      move.b  d3,\2_\3_SIZE*14(a4)
+      move.b  d3,\2_\3_size*14(a4)
       movem.l (a1)+,d0-d3      ;weitere 16 Switchwerte lesen
-      move.b  d0,\2_\3_SIZE*19(a4)
+      move.b  d0,\2_\3_size*19(a4)
       swap    d0
-      move.b  d0,\2_\3_SIZE*17(a4)
+      move.b  d0,\2_\3_size*17(a4)
       lsr.l   #8,d0
-      move.b  d0,\2_\3_SIZE*16(a4)
+      move.b  d0,\2_\3_size*16(a4)
       swap    d0
-      move.b  d0,\2_\3_SIZE*18(a4)
-      move.b  d1,\2_\3_SIZE*23(a4)
+      move.b  d0,\2_\3_size*18(a4)
+      move.b  d1,\2_\3_size*23(a4)
       swap    d1
-      move.b  d1,\2_\3_SIZE*21(a4)
+      move.b  d1,\2_\3_size*21(a4)
       lsr.l   #8,d1
-      move.b  d1,\2_\3_SIZE*20(a4)
+      move.b  d1,\2_\3_size*20(a4)
       swap    d1
-      move.b  d1,\2_\3_SIZE*22(a4)
-      move.b  d2,\2_\3_SIZE*27(a4)
+      move.b  d1,\2_\3_size*22(a4)
+      move.b  d2,\2_\3_size*27(a4)
       swap    d2
-      move.b  d2,\2_\3_SIZE*25(a4)
+      move.b  d2,\2_\3_size*25(a4)
       lsr.l   #8,d2
-      move.b  d2,\2_\3_SIZE*24(a4)
+      move.b  d2,\2_\3_size*24(a4)
       swap    d2
-      move.b  d2,\2_\3_SIZE*26(a4)
-      move.b  d3,\2_\3_SIZE*31(a4)
+      move.b  d2,\2_\3_size*26(a4)
+      move.b  d3,\2_\3_size*31(a4)
       swap    d3
-      move.b  d3,\2_\3_SIZE*29(a4)
+      move.b  d3,\2_\3_size*29(a4)
       lsr.l   #8,d3
-      move.b  d3,\2_\3_SIZE*28(a4)
+      move.b  d3,\2_\3_size*28(a4)
       swap    d3
-      move.b  d3,\2_\3_SIZE*30(a4)
+      move.b  d3,\2_\3_size*30(a4)
     ENDC
     IFEQ \1_\4-48
       movem.l (a1)+,d0-d3        ;16 Switchwerte lesen
-      move.b  d0,\2_\3_SIZE*3(a4)
+      move.b  d0,\2_\3_size*3(a4)
       swap    d0
-      move.b  d0,\2_\3_SIZE*1(a4)
+      move.b  d0,\2_\3_size*1(a4)
       lsr.l   #8,d0
       move.b  d0,(a4)
       swap    d0
-      move.b  d0,\2_\3_SIZE*2(a4)
-      move.b  d1,\2_\3_SIZE*7(a4)
+      move.b  d0,\2_\3_size*2(a4)
+      move.b  d1,\2_\3_size*7(a4)
       swap    d1
-      move.b  d1,\2_\3_SIZE*5(a4)
+      move.b  d1,\2_\3_size*5(a4)
       lsr.l   #8,d1
-      move.b  d1,\2_\3_SIZE*4(a4)
+      move.b  d1,\2_\3_size*4(a4)
       swap    d1
-      move.b  d1,\2_\3_SIZE*6(a4)
-      move.b  d2,\2_\3_SIZE*11(a4)
+      move.b  d1,\2_\3_size*6(a4)
+      move.b  d2,\2_\3_size*11(a4)
       swap    d2
-      move.b  d2,\2_\3_SIZE*9(a4)
+      move.b  d2,\2_\3_size*9(a4)
       lsr.l   #8,d2
-      move.b  d2,\2_\3_SIZE*8(a4)
+      move.b  d2,\2_\3_size*8(a4)
       swap    d2
-      move.b  d2,\2_\3_SIZE*10(a4)
-      move.b  d3,\2_\3_SIZE*15(a4)
+      move.b  d2,\2_\3_size*10(a4)
+      move.b  d3,\2_\3_size*15(a4)
       swap    d3
-      move.b  d3,\2_\3_SIZE*13(a4)
+      move.b  d3,\2_\3_size*13(a4)
       lsr.l   #8,d3
-      move.b  d3,\2_\3_SIZE*12(a4)
+      move.b  d3,\2_\3_size*12(a4)
       swap    d3
-      move.b  d3,\2_\3_SIZE*14(a4)
+      move.b  d3,\2_\3_size*14(a4)
       movem.l (a1)+,d0-d3        ;weitere 16 Switchwerte lesen
-      move.b  d0,\2_\3_SIZE*19(a4)
+      move.b  d0,\2_\3_size*19(a4)
       swap    d0
-      move.b  d0,\2_\3_SIZE*17(a4)
+      move.b  d0,\2_\3_size*17(a4)
       lsr.l   #8,d0
-      move.b  d0,\2_\3_SIZE*16(a4)
+      move.b  d0,\2_\3_size*16(a4)
       swap    d0
-      move.b  d0,\2_\3_SIZE*18(a4)
-      move.b  d1,\2_\3_SIZE*23(a4)
+      move.b  d0,\2_\3_size*18(a4)
+      move.b  d1,\2_\3_size*23(a4)
       swap    d1
-      move.b  d1,\2_\3_SIZE*21(a4)
+      move.b  d1,\2_\3_size*21(a4)
       lsr.l   #8,d1
-      move.b  d1,\2_\3_SIZE*20(a4)
+      move.b  d1,\2_\3_size*20(a4)
       swap    d1
-      move.b  d1,\2_\3_SIZE*22(a4)
-      move.b  d2,\2_\3_SIZE*27(a4)
+      move.b  d1,\2_\3_size*22(a4)
+      move.b  d2,\2_\3_size*27(a4)
       swap    d2
-      move.b  d2,\2_\3_SIZE*25(a4)
+      move.b  d2,\2_\3_size*25(a4)
       lsr.l   #8,d2
-      move.b  d2,\2_\3_SIZE*24(a4)
+      move.b  d2,\2_\3_size*24(a4)
       swap    d2
-      move.b  d2,\2_\3_SIZE*26(a4)
-      move.b  d3,\2_\3_SIZE*31(a4)
+      move.b  d2,\2_\3_size*26(a4)
+      move.b  d3,\2_\3_size*31(a4)
       swap    d3
-      move.b  d3,\2_\3_SIZE*29(a4)
+      move.b  d3,\2_\3_size*29(a4)
       lsr.l   #8,d3
-      move.b  d3,\2_\3_SIZE*28(a4)
+      move.b  d3,\2_\3_size*28(a4)
       swap    d3
-      move.b  d3,\2_\3_SIZE*30(a4)
+      move.b  d3,\2_\3_size*30(a4)
       movem.l (a1)+,d0-d3        ;weitere 16 Switchwerte lesen
-      move.b  d0,\2_\3_SIZE*35(a4)
+      move.b  d0,\2_\3_size*35(a4)
       swap    d0
-      move.b  d0,\2_\3_SIZE*33(a4)
+      move.b  d0,\2_\3_size*33(a4)
       lsr.l   #8,d0
-      move.b  d0,\2_\3_SIZE*32(a4)
+      move.b  d0,\2_\3_size*32(a4)
       swap    d0
-      move.b  d0,\2_\3_SIZE*34(a4)
-      move.b  d1,\2_\3_SIZE*39(a4)
+      move.b  d0,\2_\3_size*34(a4)
+      move.b  d1,\2_\3_size*39(a4)
       swap    d1
-      move.b  d1,\2_\3_SIZE*37(a4)
+      move.b  d1,\2_\3_size*37(a4)
       lsr.l   #8,d1
-      move.b  d1,\2_\3_SIZE*36(a4)
+      move.b  d1,\2_\3_size*36(a4)
       swap    d1
-      move.b  d1,\2_\3_SIZE*38(a4)
-      move.b  d2,\2_\3_SIZE*43(a4)
+      move.b  d1,\2_\3_size*38(a4)
+      move.b  d2,\2_\3_size*43(a4)
       swap    d2
-      move.b  d2,\2_\3_SIZE*41(a4)
+      move.b  d2,\2_\3_size*41(a4)
       lsr.l   #8,d2
-      move.b  d2,\2_\3_SIZE*40(a4)
+      move.b  d2,\2_\3_size*40(a4)
       swap    d2
-      move.b  d2,\2_\3_SIZE*42(a4)
-      move.b  d3,\2_\3_SIZE*47(a4)
+      move.b  d2,\2_\3_size*42(a4)
+      move.b  d3,\2_\3_size*47(a4)
       swap    d3
-      move.b  d3,\2_\3_SIZE*45(a4)
+      move.b  d3,\2_\3_size*45(a4)
       lsr.l   #8,d3
-      move.b  d3,\2_\3_SIZE*44(a4)
+      move.b  d3,\2_\3_size*44(a4)
       swap    d3
-      move.b  d3,\2_\3_SIZE*46(a4)
+      move.b  d3,\2_\3_size*46(a4)
     ENDC
   ENDC
   IFC "W","\0"
     IFEQ \1_\4-14
       movem.l (a1)+,d0-d3    ;8 Switchwerte lesen
-      move.w  d0,\2_\3_SIZE*1(a4)
+      move.w  d0,\2_\3_size*1(a4)
       swap    d0
       move.w  d0,(a4)
-      move.w  d1,\2_\3_SIZE*3(a4)
+      move.w  d1,\2_\3_size*3(a4)
       swap    d1
-      move.w  d1,\2_\3_SIZE*2(a4)
-      move.w  d2,\2_\3_SIZE*5(a4)
+      move.w  d1,\2_\3_size*2(a4)
+      move.w  d2,\2_\3_size*5(a4)
       swap    d2
-      move.w  d2,\2_\3_SIZE*4(a4)
-      move.w  d3,\2_\3_SIZE*7(a4)
+      move.w  d2,\2_\3_size*4(a4)
+      move.w  d3,\2_\3_size*7(a4)
       swap    d3
-      move.w  d3,\2_\3_SIZE*6(a4)
+      move.w  d3,\2_\3_size*6(a4)
       movem.l (a1),d0-d2     ;weitere 6 Switchwerte lesen
-      move.w  d0,\2_\3_SIZE*9(a4)
+      move.w  d0,\2_\3_size*9(a4)
       swap    d0
-      move.w  d0,\2_\3_SIZE*8(a4)
-      move.w  d1,\2_\3_SIZE*11(a4)
+      move.w  d0,\2_\3_size*8(a4)
+      move.w  d1,\2_\3_size*11(a4)
       swap    d1
-      move.w  d1,\2_\3_SIZE*10(a4)
-      move.w  d2,\2_\3_SIZE*13(a4)
+      move.w  d1,\2_\3_size*10(a4)
+      move.w  d2,\2_\3_size*13(a4)
       swap    d2
-      move.w  d2,\2_\3_SIZE*12(a4)
+      move.w  d2,\2_\3_size*12(a4)
     ENDC
     IFEQ \1_\4-15
       movem.l (a1)+,d0-d3    ;8 Switchwerte lesen
-      move.w  d0,\2_\3_SIZE*1(a4)
+      move.w  d0,\2_\3_size*1(a4)
       swap    d0
       move.w  d0,(a4)
-      move.w  d1,\2_\3_SIZE*3(a4)
+      move.w  d1,\2_\3_size*3(a4)
       swap    d1
-      move.w  d1,\2_\3_SIZE*2(a4)
-      move.w  d2,\2_\3_SIZE*5(a4)
+      move.w  d1,\2_\3_size*2(a4)
+      move.w  d2,\2_\3_size*5(a4)
       swap    d2
-      move.w  d2,\2_\3_SIZE*4(a4)
-      move.w  d3,\2_\3_SIZE*7(a4)
+      move.w  d2,\2_\3_size*4(a4)
+      move.w  d3,\2_\3_size*7(a4)
       swap    d3
-      move.w  d3,\2_\3_SIZE*6(a4)
+      move.w  d3,\2_\3_size*6(a4)
       movem.l (a1),d0-d3     ;weitere 7 Switchwerte lesen
-      move.w  d0,\2_\3_SIZE*9(a4)
+      move.w  d0,\2_\3_size*9(a4)
       swap    d0
-      move.w  d0,\2_\3_SIZE*8(a4)
-      move.w  d1,\2_\3_SIZE*11(a4)
+      move.w  d0,\2_\3_size*8(a4)
+      move.w  d1,\2_\3_size*11(a4)
       swap    d1
-      move.w  d1,\2_\3_SIZE*10(a4)
-      move.w  d2,\2_\3_SIZE*13(a4)
+      move.w  d1,\2_\3_size*10(a4)
+      move.w  d2,\2_\3_size*13(a4)
       swap    d2
-      move.w  d2,\2_\3_SIZE*12(a4)
+      move.w  d2,\2_\3_size*12(a4)
       swap    d3
-      move.w  d3,\2_\3_SIZE*14(a4)
+      move.w  d3,\2_\3_size*14(a4)
     ENDC
   ENDC
   ENDM

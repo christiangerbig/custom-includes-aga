@@ -1,15 +1,15 @@
 ; -- Raster-Routines
 
-SEPARATE_PF_SOFTSCROLL_64PIXEL_LORES MACRO
+SEPARATE_PLAYFIELD_SOFTSCROLL_64PIXEL_LORES MACRO
 ; \1 WORD: PF1 X-Koordinate
 ; \2 WORD: PF2 X-Koordinate
 ; \3 Datenregister D[0..7] Maske für H0-H7 (optional)
 ; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
   IFC "","\1"
-    FAIL Makro SEPARATE_PF_SOFTSCROLL_64PIXEL: PF1 X-Koordinate fehlt
+    FAIL Makro SEPARATE_PLAYFIELD_SOFTSCROLL_64PIXEL_LORES: PF1 X-Koordinate fehlt
   ENDC
   IFC "","\2"
-    FAIL Makro SEPARATE_PF_SOFTSCROLL_64PIXEL: PF1 Y-Koordinate fehlt
+    FAIL Makro SEPARATE_PLAYFIELD_SOFTSCROLL_64PIXEL_LORES: PF1 Y-Koordinate fehlt
   ENDC
   IFC "","\3"
     and.w   #$00ff,\1        ;%-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
@@ -162,12 +162,12 @@ BITPLANE_SOFTSCROLL_64PIXEL_LORES MACRO
   ENDM
 
 
-ODD_PF_SOFTSCROLL_64PIXEL_LORES MACRO
+ODD_PLAYFIELD_SOFTSCROLL_64PIXEL_LORES MACRO
 ; \1 WORD: X-Koordinate
 ; \2 Datenregister D[0..7] Maske für H0-H7 (optional)
 ; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
   IFC "","\1"
-    FAIL Makro ODD_PF_SOFTSCROLL_64PIXEL_LORES: X-Koordinate fehlt
+    FAIL Makro ODD_PLAYFIELD_SOFTSCROLL_64PIXEL_LORES: X-Koordinate fehlt
   ENDC
   IFC "","\2"
     and.w   #$00ff,\1        ;%-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
@@ -211,7 +211,7 @@ swap_playfield\*RIGHT(\1,1)_loop
       move.w  (a1)+,(a0)       ;BPLxPTH
       addq.w  #8,a0
       move.w  (a1)+,4-8(a0)    ;BPLxPTL
-      dbf     d7,swap_playfield\*RIGHT(\1,1)_loop
+      dbf     d7,SWAP_PLAYFIELD\*RIGHT(\1,1)_loop
       rts
     ELSE
       move.l  cl1_display(a3),a0
@@ -228,7 +228,7 @@ swap_playfield\*RIGHT(\1,1)_loop
       swap    d0             ;High
       move.w  d0,(a0)        ;BPLxPTH
       addq.w  #8,a0
-      dbf     d7,swap_playfield\*RIGHT(\1,1)_loop
+      dbf     d7,SWAP_PLAYFIELD\*RIGHT(\1,1)_loop
       rts
     ENDC
   ENDC
@@ -246,7 +246,7 @@ swap_playfield\*RIGHT(\1,1)_loop
       move.w  (a2)+,(a0)       ;BPLxPTH
       addq.w  #8,a0
       move.w  (a2)+,4-8(a0)    ;BPLxPTL
-      dbf     d7,swap_playfield\*RIGHT(\1,1)_loop
+      dbf     d7,SWAP_PLAYFIELD\*RIGHT(\1,1)_loop
       rts
     ELSE
       move.l  cl1_display(a3),a0
@@ -265,7 +265,7 @@ swap_playfield\*RIGHT(\1,1)_loop
       swap    d0             ;High
       move.w  d0,(a0)        ;BPLxPTH
       addq.w  #8,a0
-      dbf     d7,swap_playfield\*RIGHT(\1,1)_loop
+      dbf     d7,SWAP_PLAYFIELD\*RIGHT(\1,1)_loop
       rts
     ENDC
   ENDC
