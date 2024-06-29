@@ -1,6 +1,6 @@
 ; -- Commands
 
-COP_MOVE MACRO
+COP_MOVE  MACRO
 ; \1 WORD: 16-Bit Wert
 ; \2 WORD CUSTOM-Registeroffset
   IFC "","\1"
@@ -14,14 +14,14 @@ COP_MOVE MACRO
   ENDM
 
 
-COP_MOVE_QUICK MACRO
+COP_MOVEQ MACRO
 ; \1 WORD: 16-Bit Wert
 ; \2 WORD CUSTOM-Registeroffset
   IFC "","\1"
-    FAIL Makro COP_MOVE_QUICK: 16-Bit Wert fehlt
+    FAIL Makro COP_MOVEQ: 16-Bit Wert fehlt
   ENDC
   IFC "","\2"
-    FAIL Makro COP_MOVE_QUICK: CUSTOM-Registeroffset fehlt
+    FAIL Makro COP_MOVEQ: CUSTOM-Registeroffset fehlt
   ENDC
   move.l  #((\2)<<16)|((\1)&$ffff),(a0)+ ;CUSTOM-Registeroffset + Wert für Register
   ENDM
@@ -40,19 +40,19 @@ COP_WAIT MACRO
   ENDM
 
 
-COP_WAIT_BLITTER MACRO
+COP_WAITBLT MACRO
   move.l  #$00010000,(a0)+ ;BFD-Bit=0, auf Blitter warten
   ENDM
 
 
-COP_WAIT_BLITTER2 MACRO
+COP_WAITBLT2 MACRO
 ; \1 ... X-position (Bits 2-8)
 ; \2 ... Y-Position (Bits 0-7)
   IFC "","\1"
-    FAIL Makro COP_WAIT_BLITTER2: X-position (Bits 2-8) fehlt
+    FAIL Makro COP_WAITBLT2: X-position (Bits 2-8) fehlt
   ENDC
   IFC "","\2"
-    FAIL Makro COP_WAIT_BLITTER2: Y-Position (Bits 0-7) fehlt
+    FAIL Makro COP_WAITBLT2: Y-Position (Bits 0-7) fehlt
   ENDC
   move.l  #((((\2)<<24)|((((\1)/4)*2)<<16))|$10000)|$7ffe,(a0)+ ;Y-Pos, X-Pos, WAIT-Kennung, BFD-Bit=0, auf Blitter warten
   ENDM
@@ -71,7 +71,7 @@ COP_SKIP MACRO
   ENDM
 
 
-COP_LIST_END MACRO
+COP_LISTEND MACRO
   moveq   #-2,d0
   move.l  d0,(a0)
   ENDM
@@ -93,77 +93,77 @@ COP_INIT_PLAYFIELD_REGISTERS MACRO
   IFC "","\3"
 \1_init_playfield_registers
     IFC "","\2"
-      COP_MOVE_QUICK diwstrt_bits,DIWSTRT
-      COP_MOVE_QUICK diwstop_bits,DIWSTOP
-      COP_MOVE_QUICK ddfstrt_bits,DDFSTRT
-      COP_MOVE_QUICK ddfstop_bits,DDFSTOP
-      COP_MOVE_QUICK bplcon0_bits,BPLCON0
-      COP_MOVE_QUICK bplcon1_bits,BPLCON1
-      COP_MOVE_QUICK bplcon2_bits,BPLCON2
-      COP_MOVE_QUICK bplcon3_bits1,BPLCON3 ;High-Bits der Farbwerte
-      COP_MOVE_QUICK pf1_plane_moduli,BPL1MOD
+      COP_MOVEQ diwstrt_bits,DIWSTRT
+      COP_MOVEQ diwstop_bits,DIWSTOP
+      COP_MOVEQ ddfstrt_bits,DDFSTRT
+      COP_MOVEQ ddfstop_bits,DDFSTOP
+      COP_MOVEQ bplcon0_bits,BPLCON0
+      COP_MOVEQ bplcon1_bits,BPLCON1
+      COP_MOVEQ bplcon2_bits,BPLCON2
+      COP_MOVEQ bplcon3_bits1,BPLCON3 ;High-Bits der Farbwerte
+      COP_MOVEQ pf1_plane_moduli,BPL1MOD
       IFGT pf_depth-1
         IFD pf2_plane_moduli
-          COP_MOVE_QUICK pf2_plane_moduli,BPL2MOD
+          COP_MOVEQ pf2_plane_moduli,BPL2MOD
         ELSE
-          COP_MOVE_QUICK pf1_plane_moduli,BPL2MOD
+          COP_MOVEQ pf1_plane_moduli,BPL2MOD
         ENDC
       ENDC
-      COP_MOVE_QUICK bplcon4_bits,BPLCON4
-      COP_MOVE_QUICK diwhigh_bits,DIWHIGH
-      COP_MOVE_QUICK fmode_bits,FMODE
+      COP_MOVEQ bplcon4_bits,BPLCON4
+      COP_MOVEQ diwhigh_bits,DIWHIGH
+      COP_MOVEQ fmode_bits,FMODE
       rts
     ELSE
       IFC "NOBITPLANES","\2"
-        COP_MOVE_QUICK diwstrt_bits,DIWSTRT
-        COP_MOVE_QUICK diwstop_bits,DIWSTOP
-        COP_MOVE_QUICK bplcon0_bits,BPLCON0
-        COP_MOVE_QUICK bplcon3_bits1,BPLCON3
-        COP_MOVE_QUICK bplcon4_bits,BPLCON4
-        COP_MOVE_QUICK diwhigh_bits,DIWHIGH
+        COP_MOVEQ diwstrt_bits,DIWSTRT
+        COP_MOVEQ diwstop_bits,DIWSTOP
+        COP_MOVEQ bplcon0_bits,BPLCON0
+        COP_MOVEQ bplcon3_bits1,BPLCON3
+        COP_MOVEQ bplcon4_bits,BPLCON4
+        COP_MOVEQ diwhigh_bits,DIWHIGH
         rts
       ENDC
       IFC "NOBITPLANESSPR","\2"
-        COP_MOVE_QUICK diwstrt_bits,DIWSTRT
-        COP_MOVE_QUICK diwstop_bits,DIWSTOP
-        COP_MOVE_QUICK bplcon0_bits,BPLCON0
-        COP_MOVE_QUICK bplcon3_bits1,BPLCON3
-        COP_MOVE_QUICK bplcon4_bits,BPLCON4
-        COP_MOVE_QUICK diwhigh_bits,DIWHIGH
-        COP_MOVE_QUICK fmode_bits,FMODE
+        COP_MOVEQ diwstrt_bits,DIWSTRT
+        COP_MOVEQ diwstop_bits,DIWSTOP
+        COP_MOVEQ bplcon0_bits,BPLCON0
+        COP_MOVEQ bplcon3_bits1,BPLCON3
+        COP_MOVEQ bplcon4_bits,BPLCON4
+        COP_MOVEQ diwhigh_bits,DIWHIGH
+        COP_MOVEQ fmode_bits,FMODE
         rts
       ENDC
       IFC "BLANK","\2"
-        COP_MOVE_QUICK bplcon0_bits,BPLCON0
-        COP_MOVE_QUICK bplcon3_bits1,BPLCON3 ;High-Bits der Farbwerte
+        COP_MOVEQ bplcon0_bits,BPLCON0
+        COP_MOVEQ bplcon3_bits1,BPLCON3 ;High-Bits der Farbwerte
         rts
       ENDC
       IFC "BLANKSPR","\2"
-        COP_MOVE_QUICK bplcon0_bits,BPLCON0
-        COP_MOVE_QUICK bplcon3_bits1,BPLCON3 ;High-Bits der Farbwerte
-        COP_MOVE_QUICK bplcon4_bits,BPLCON4
-        COP_MOVE_QUICK fmode_bits,FMODE
+        COP_MOVEQ bplcon0_bits,BPLCON0
+        COP_MOVEQ bplcon3_bits1,BPLCON3 ;High-Bits der Farbwerte
+        COP_MOVEQ bplcon4_bits,BPLCON4
+        COP_MOVEQ fmode_bits,FMODE
         rts
       ENDC
     ENDC
   ELSE
 \1_\3_init_playfield_registers
-    COP_MOVE_QUICK \3_ddfstrt_bits,DDFSTRT
-    COP_MOVE_QUICK \3_ddfstop_bits,DDFSTOP
+    COP_MOVEQ \3_ddfstrt_bits,DDFSTRT
+    COP_MOVEQ \3_ddfstop_bits,DDFSTOP
     IFC "TRIGGERBITPLANES","\4"
-      COP_MOVE_QUICK \3_bplcon0_bits,BPLCON0
+      COP_MOVEQ \3_bplcon0_bits,BPLCON0
     ENDC
-    COP_MOVE_QUICK \3_bplcon1_bits,BPLCON1
-    COP_MOVE_QUICK \3_bplcon2_bits,BPLCON2
-    COP_MOVE_QUICK \3_bplcon3_bits1,BPLCON3 ;High-Bits der Farbwerte
-    COP_MOVE_QUICK \3_pf1_plane_moduli,BPL1MOD
+    COP_MOVEQ \3_bplcon1_bits,BPLCON1
+    COP_MOVEQ \3_bplcon2_bits,BPLCON2
+    COP_MOVEQ \3_bplcon3_bits1,BPLCON3 ;High-Bits der Farbwerte
+    COP_MOVEQ \3_pf1_plane_moduli,BPL1MOD
     IFD \3_pf2_plane_moduli
-      COP_MOVE_QUICK \3_pf2_plane_moduli,BPL2MOD
+      COP_MOVEQ \3_pf2_plane_moduli,BPL2MOD
     ELSE
-      COP_MOVE_QUICK \3_pf1_plane_moduli,BPL2MOD
+      COP_MOVEQ \3_pf1_plane_moduli,BPL2MOD
     ENDC
-    COP_MOVE_QUICK \3_bplcon4_bits,BPLCON4
-    COP_MOVE_QUICK \3_fmode_bits,FMODE
+    COP_MOVEQ \3_bplcon4_bits,BPLCON4
+    COP_MOVEQ \3_fmode_bits,FMODE
     rts
   ENDC
   ENDM
@@ -316,7 +316,7 @@ COP_SELECT_COLOR_HIGH_BANK MACRO
   IFC "","\1"
     FAIL Makro COP_SELECT_COLOR_HIGH_BANK MACRO: Color-Bank Nummer 0..7 fehlt
   ENDC
-    COP_MOVE_QUICK bplcon3_bits1+(BPLCON3F_BANK0*\1),BPLCON3 ;High-Bits
+    COP_MOVEQ bplcon3_bits1+(BPLCON3F_BANK0*\1),BPLCON3 ;High-Bits
   IFNC "","\2"
     or.w     #\2,-2(a0)      ;High-Bits
   ENDC
@@ -329,7 +329,7 @@ COP_SELECT_COLOR_LOW_BANK MACRO
   IFC "","\1"
     FAIL Makro COP_SELECT_COLOR_LOW_BANK MACRO: Color-Bank Nummer 0..7 fehlt
   ENDC
-    COP_MOVE_QUICK bplcon3_bits2+(BPLCON3F_BANK0*\1),BPLCON3 ;Low-Bits
+    COP_MOVEQ bplcon3_bits2+(BPLCON3F_BANK0*\1),BPLCON3 ;Low-Bits
   IFNC "","\2"
     or.w     #\2,-2(a0)      ;Low-Bits
   ENDC
@@ -407,7 +407,7 @@ patch_copperlist2
     bra.s   \1_init_color00_registers_skip
     CNOP 0,4
 no_patch_copperlist2
-    COP_MOVE_QUICK TRUE,NOOP
+    COP_MOVEQ TRUE,NOOP
 \1_init_color00_registers_skip
   ENDC
   add.l   d6,d0              ;nächste Zeile
@@ -432,10 +432,10 @@ COP_RESET_COLOR00 MACRO
   CNOP 0,4
 \1_reset_color00
   COP_WAIT \2,(\3)&$ff
-  COP_MOVE_QUICK bplcon3_bits1,BPLCON3
-  COP_MOVE_QUICK color00_high_bits,COLOR00
-  COP_MOVE_QUICK bplcon3_bits2,BPLCON3
-  COP_MOVE_QUICK color00_low_bits,COLOR00
+  COP_MOVEQ bplcon3_bits1,BPLCON3
+  COP_MOVEQ color00_high_bits,COLOR00
+  COP_MOVEQ bplcon3_bits2,BPLCON3
+  COP_MOVEQ color00_low_bits,COLOR00
   rts
   ENDM
 
@@ -497,12 +497,12 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN MACRO
     move.l  d0,(a0)+         ;WAIT x,y
     IFEQ \6
       IFC "OVERSCAN","\9"
-        COP_MOVE_QUICK fmode_bits2,FMODE
-        move.l  d2,(a0)+       ;BPL1DAT
-        COP_MOVE_QUICK TRUE,NOOP
-        COP_MOVE_QUICK fmode_bits,FMODE
+        COP_MOVEQ fmode_bits2,FMODE
+        move.l  d2,(a0)+     ;BPL1DAT
+        COP_MOVEQ TRUE,NOOP
+        COP_MOVEQ fmode_bits,FMODE
       ELSE
-        move.l  d2,(a0)+       ;BPL1DAT
+        move.l  d2,(a0)+     ;BPL1DAT
       ENDC
     ENDC
     moveq   #(\4/8)-1,d6     ;Anzahl der Spalten
@@ -558,10 +558,10 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN MACRO
     move.l  a4,(a0)+         ;COLOR31/00
     IFEQ \6
       IFC "OVERSCAN","\9"
-        COP_MOVE_QUICK fmode_bits2,FMODE
+        COP_MOVEQ fmode_bits2,FMODE
         move.l  d2,(a0)+       ;BPL1DAT
-        COP_MOVE_QUICK TRUE,NOOP
-        COP_MOVE_QUICK fmode_bits,FMODE
+        COP_MOVEQ TRUE,NOOP
+        COP_MOVEQ fmode_bits,FMODE
       ELSE
         move.l  d2,(a0)+       ;BPL1DAT
       ENDC
@@ -623,13 +623,13 @@ COP_INIT_BPLCON1_CHUNKY_SCREEN MACRO
   ENDM
 
 
-COP_INIT_COPPER_INTERRUPT MACRO
+COP_INIT_COPINT MACRO
 ; \1 STRING: Label-Prefix Copperliste [cl1,cl2]
 ; \2 WORD: X-Position (optional)
 ; \3 WORD: Y-Postion  (optional)
 ; \4 STRING: "YWRAP" (optional)
   IFC "","\1"
-    FAIL Makro COP_INIT_COPPER_INTERRUPT: Labels-Prefix Copperliste [cl1,cl2] fehlt
+    FAIL Makro COP_INIT_COPINT: Labels-Prefix Copperliste [cl1,cl2] fehlt
   ENDC
   CNOP 0,4
 \1_init_copper_interrupt
@@ -641,7 +641,7 @@ COP_INIT_COPPER_INTERRUPT MACRO
       COP_WAIT \2,\3
     ENDC
   ENDC
-  COP_MOVE_QUICK INTF_COPER+INTF_SETCLR,INTREQ
+  COP_MOVEQ INTF_COPER+INTF_SETCLR,INTREQ
   rts
   ENDM
 

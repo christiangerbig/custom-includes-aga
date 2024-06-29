@@ -1690,8 +1690,8 @@ esb_CPU060_store_buffer_on
 INIT_MIRROR_SWITCH_TABLE MACRO
 ; \0 STRING: Größenangabe B/W
 ; \1 STRING: Labels-Prefix der Routine
-; \2 NUMBER: Erster Switchwert
-; \3 NUMBER: Additionswert für Switchwert
+; \2 NUMBER: Erster Switchwert (optional)
+; \3 NUMBER: Additionswert für Switchwert (optional)
 ; \4 BYTE SIGNED: Anzahl der Farbverläufe
 ; \5 BYTE SINGED: Anzahl der Abschnitte pro Farbverlauf
 ; \6 POINTER: Tabelle mit Switchwerten
@@ -1705,12 +1705,6 @@ INIT_MIRROR_SWITCH_TABLE MACRO
   ENDC
   IFC "","\1"
     FAIL Makro MIRROR_SWITCH_TABLE: Labels-Prefix fehlt
-  ENDC
-  IFC "","\2"
-    FAIL Makro MIRROR_SWITCH_TABLE: Erster Switchwert fehlt
-  ENDC
-  IFC "","\3"
-    FAIL Makro MIRROR_SWITCH_TABLE: Additionswert für Switchwert fehlt
   ENDC
   IFC "","\4"
     FAIL Makro INIT_MIRROR_SWITCH_TABLE: Anzahl der Farbverläufe fehlt
@@ -1734,8 +1728,12 @@ INIT_MIRROR_SWITCH_TABLE MACRO
     add.l  #\8,a0            ;Offset Tabellenanfang
   ENDC
   IFC "B","\0"
-    moveq   #\2,d0           ;Erster Switchwert
-    moveq   #\3,d2           ;Additionswert für Switchwert
+    IFNC "","\2"
+      moveq   #\2,d0         ;Erster Switchwert
+    ENDC
+    IFNC "","\3"
+      moveq   #\3,d2         ;Additionswert für Switchwert
+    ENDC
     moveq   #\4-1,d7         ;Anzahl der Farbverläufe
 \1_init_mirror_switch_table_loop1
     MOVEF.W \5-1,d6          ;Anzahl der Farb/Switchwerte pro Farbverlauf
@@ -1756,8 +1754,12 @@ INIT_MIRROR_SWITCH_TABLE MACRO
     dbf     d7,\1_init_mirror_switch_table_loop1
   ENDC
   IFC "W","\0"
-    move.l  #(\2<<8)+bplcon4_bits,d0 ;Erster Switchwert
-    move.l  #\3<<8,d2 ;Additionswert für Switchwert
+    IFNC "","\2"
+      move.l  #(\2<<8)+bplcon4_bits,d0 ;Erster Switchwert
+    ENDC
+    IFNC "","\3"
+      move.l  #\3<<8,d2 ;Additionswert für Switchwert
+    ENDC
     moveq   #\4-1,d7         ;Anzahl der Farbverläufe
 \1_init_mirror_switch_table_loop1
     MOVEF.W \5-1,d6          ;Anzahl der Farb/Switchwerte pro Farbverlauf

@@ -6,7 +6,7 @@
 ; -------------------------------------------------
   RSRESET
 
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
 
 shell_parameters_length  RS.L 1
 shell_parameters_pointer RS.L 1
@@ -22,7 +22,7 @@ fast_memory_available    RS.W 1
 
   ELSE
 
-    IFD pass_global_references
+    IFD LINKER_PASS_GLOBAL_REFERENCES
       RS_ALIGN_LONGWORD
 global_references_table  RS.L 1
     ENDC
@@ -33,7 +33,7 @@ custom_error_code        RS.W 1
   RS_ALIGN_LONGWORD
 dos_return_code          RS.L 1
 
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
 os_view                  RS.L 1
 os_screen                RS.L 1
 os_monitor_id            RS.L 1
@@ -259,7 +259,7 @@ extra_memory             RS.L 1
 chip_memory              RS.L 1
   ENDC
 
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
 exception_vectors_base   RS.L 1
   ENDC
 

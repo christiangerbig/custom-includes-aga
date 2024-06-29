@@ -4,7 +4,7 @@
 
 ; ## Speicherstellen für Namen ##
 ; -------------------------------
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
 dos_name                   DC.B "dos.library",TRUE
 graphics_name              DC.B "graphics.library",TRUE
     EVEN

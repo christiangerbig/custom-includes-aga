@@ -4,7 +4,7 @@
 
 ; ** Fehlermeldungen **
 ; ---------------------
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
 
 error_text_graphics_library
     DC.B "Couldn't open graphics.library !",10,10

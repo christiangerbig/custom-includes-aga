@@ -8,16 +8,16 @@
 variables                DS.B variables_size
   CNOP 0,4
 _SysBase                 DC.L 0
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
 _DOSBase                 DC.L 0
   ENDC
 _GfxBase                 DC.L 0
 
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
 _IntuitionBase           DC.L 0
 _CIABase                 DC.L 0
 exception_vecs_save      DS.B exception_vectors_size
-    IFD pass_global_references
+    IFD LINKER_PASS_GLOBAL_REFERENCES
 global_references_table  DS.B global_references_SIZE
     ENDC
   ENDC

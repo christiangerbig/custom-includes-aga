@@ -2,12 +2,12 @@
 ; Datum:        19.6.2024
 ; Version:      1.0
 
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
     INCLUDE "screen-taglist-offsets.i"
     INCLUDE "sprite-taglist-offsets.i"
     INCLUDE "custom-error-entry.i"
   ENDC
-  IFD pass_global_references
+  IFD LINKER_PASS_GLOBAL_REFERENCES
     INCLUDE "global-references-offsets.i"
   ENDC
 
@@ -16,12 +16,12 @@ start_all
   movem.l d2-d7/a2-a6,-(a7)
   lea     variables(pc),a3   ;Basisadresse aller Variablen
   bsr     init_variables
-  IFD sys_taken_over
+  IFD LINKER_SYS_TAKEN_OVER
     tst.l   dos_return_code(a3) ;Ist bereits ein Fehler aufgetreten ?
     bne     end_final        ;Ja -> verzweige
   ENDC
   bsr     init_structures
-  IFD sys_taken_over
+  IFD LINKER_SYS_TAKEN_OVER
     IFD custom_memory_used
       bsr     init_custom_memory_table ;Wird von außen aufgerufen
       bsr     extend_global_references_table ;Wird von außen aufgerufen
@@ -248,7 +248,7 @@ start_all
     bne.s   cleanup_all_memory ;Ja -> verzweige
   ENDC
 
-  IFD sys_taken_over
+  IFD LINKER_SYS_TAKEN_OVER
 ; ** Custom-Speicher belegen **
     IFD custom_memory_used
       bsr     alloc_custom_memory ;Wird von außen aufgerufen
@@ -260,7 +260,7 @@ start_all
     bsr     alloc_vectors_memory
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
     bne     cleanup_all_memory ;Ja -> verzweige
-    IFD pass_global_references
+    IFD LINKER_PASS_GLOBAL_REFERENCES
       bsr     init_global_references_table
     ENDC
   ENDC
@@ -268,7 +268,7 @@ start_all
 ; ** Variablen initialisieren **
   bsr     init_own_variables
 
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
 ; ** Maschine übernehmen **
 ; -------------------------
     bsr     disable_system   
@@ -283,13 +283,13 @@ start_all
     bsr     save_exception_vectors
   ENDC
     bsr     init_exception_vectors
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
     bsr     exception_vectors_to_fast_memory
   ENDC
   move.l  #_CIAB,a5          ;CIA-B-Base
   lea     _CIAA-_CIAB(a5),a4 ;CIA-A-Base
   move.l  #_CUSTOM+DMACONR,a6 ;DMACONR
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
     bsr     save_hardware_registers
     bsr     clear_important_registers
     bsr     turn_off_drive_motors
@@ -306,25 +306,25 @@ start_all
 
 ; ** Ausführen des eigentlichen Programms **
 ; ------------------------------------------
-  IFD sys_taken_over
-    IFD pass_return_code
+  IFD LINKER_SYS_TAKEN_OVER
+    IFD LINKER_PASS_RETURN_CODE
       move.l  dos_return_code(a3),d0
       move.w  custom_error_code(a3),d1
     ENDC
-    IFD pass_global_references
+    IFD LINKER_PASS_GLOBAL_REFERENCES
       move.l  global_references_table(a3),a0
     ENDC
   ELSE
-    IFD pass_return_code
+    IFD LINKER_PASS_RETURN_CODE
       move.l  dos_return_code(a3),d0
       move.w  custom_error_code(a3),d1
     ENDC
-    IFD pass_global_references
+    IFD LINKER_PASS_GLOBAL_REFERENCES
       lea     global_references_table(pc),a0
     ENDC
   ENDC
   bsr     main_routine
-  IFD pass_return_code
+  IFD LINKER_PASS_RETURN_CODE
     move.l  d0,dos_return_code(a3)
     move.w  d1,custom_error_code(a3)
   ENDC
@@ -339,7 +339,7 @@ start_all
   ENDC
   bsr     stop_own_display
 
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
 ; ** alte System-Parameter wieder herstellem **
 ; ---------------------------------------------
     bsr     clear_important_registers2
@@ -364,7 +364,7 @@ start_all
 ; -------------------------------------
 cleanup_all_memory
 
-  IFD sys_taken_over
+  IFD LINKER_SYS_TAKEN_OVER
 ; ** Speicherbelegung Custom-Memory freigeben **
     IFD custom_memory_used
       bsr     free_custom_memory ;Wird von außen aufgerufen
@@ -448,26 +448,26 @@ cleanup_all_memory
 
 ; ** Timer-Device schließen **
 cleanup_timer_device
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
     bsr     close_timer_device
   ENDC
 
 
 ; ** Intuition-Bibliothek wieder schließen **
 cleanup_intuition_library
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
     bsr     close_intuition_library
   ENDC
 
 ; ** Graphics-Bibliothek wieder schließen **
 cleanup_graphics_library
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
     bsr     close_graphics_library
   ENDC
 
 ; ** Dos-Bibliothek wieder schließen **
 cleanup_dos_library
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
     bsr     print_error_message
     move.l  d0,dos_return_code(a3)
     bsr     close_dos_library
@@ -475,7 +475,7 @@ cleanup_dos_library
 
 ; ** Ggf. Workbench-Message beantworten **
 cleanup_wb_message
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
     IFEQ workbench_start_enabled
       bsr     reply_wb_message
     ENDC
@@ -488,11 +488,11 @@ output_rasterlines_number
   ELSE
     move.l  dos_return_code(a3),d0
   ENDC
-  IFD sys_taken_over
-    IFD pass_return_code
+  IFD LINKER_SYS_TAKEN_OVER
+    IFD LINKER_PASS_RETURN_CODE
       move.w  custom_error_code(a3),d1
     ENDC
-    IFD pass_global_references
+    IFD LINKER_PASS_GLOBAL_REFERENCES
       move.l  global_references_table(a3),a0
     ENDC
   ENDC
@@ -503,8 +503,8 @@ output_rasterlines_number
 ; ------------------------------
   CNOP 0,4
 init_variables
-  IFD sys_taken_over
-    IFD pass_global_references
+  IFD LINKER_SYS_TAKEN_OVER
+    IFD LINKER_PASS_GLOBAL_REFERENCES
       move.l    a0,global_references_table(a3)
       lea       _SysBase(pc),a1
       move.l    (a0)+,(a1)   ;Zeiger auf Exec-Base
@@ -516,7 +516,7 @@ init_variables
       move.l  d2,dos_return_code(a3)
       move.w  #NO_CUSTOM_ERROR,custom_error_code(a3)
     ELSE
-      IFD pass_return_code
+      IFD LINKER_PASS_RETURN_CODE
         move.l  d0,dos_return_code(a3)
         move.w  d1,custom_error_code(a3)
       ENDC
@@ -556,7 +556,7 @@ init_variables
 ; -----------------------------------
   CNOP 0,4
 init_structures
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
     bsr     init_easy_request_structure
     bsr     init_timer_io_structure
   ENDC
@@ -568,7 +568,7 @@ init_structures
   ENDC
   rts
 
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
 
 ; ** Tabelle mit Fehlermeldungen initialisieren **
 ; ------------------------------------------------
@@ -1158,7 +1158,7 @@ spr_init_structure
 
 ; ** Testen, ob von der Workbench ein Start erfolgte **
 ; -----------------------------------------------------
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
     IFEQ workbench_start_enabled
       CNOP 0,4
 test_start_from_workbench
@@ -2083,7 +2083,7 @@ chip_memory_error
     rts
   ENDC
 
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
 ; ** Ggf. FAST-Memory für Vektoren belegen **
 ; -------------------------------------------
   CNOP 0,4
@@ -2114,7 +2114,7 @@ vectors_memory_error
     moveq   #RETURN_ERROR,d0  
     rts
 
-    IFD pass_global_references
+    IFD LINKER_PASS_GLOBAL_REFERENCES
       CNOP 0,4
 init_global_references_table
       lea     global_references_table(pc),a0
@@ -2515,7 +2515,7 @@ copy_exception_vectors_loop
 ; --------------------------------------------
   CNOP 0,4
 init_exception_vectors
-  IFD sys_taken_over
+  IFD LINKER_SYS_TAKEN_OVER
     IFNE intena_bits&(~INTF_SETCLR)
       lea     read_vbr(pc),a5 ;Zeiger auf Supervisor-Routine
       CALLEXEC Supervisor    ;Routine ausführen
@@ -2552,7 +2552,7 @@ init_exception_vectors
     lea     level_6_int_handler(pc),a1
     move.l  a1,LEVEL_6_AUTOVECTOR(a0) ;Neuer LEVEL_6_AUTOVECTOR
   ENDC
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
     lea     level_7_int_handler(pc),a1
     move.l  a1,LEVEL_7_AUTOVECTOR(a0) ;Neuer LEVEL_7_AUTOVECTOR
   ENDC
@@ -2572,7 +2572,7 @@ init_exception_vectors
   ENDC
   CALLEXECQ CacheClearU
 
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
 ; ** Interruptvektoren ggf. ins Fast-Ram **
 ; -----------------------------------------
     CNOP 0,4
@@ -2789,7 +2789,7 @@ stop_CIA_timers
     CNOP 0,4
 stop_own_interrupts
     IFNE intena_bits-INTF_SETCLR
-      IFND sys_taken_over
+      IFND LINKER_SYS_TAKEN_OVER
         move.w  #INTF_INTEN,INTENA-DMACONR(a6) ;Interrupts aus
       ELSE
         move.w  #intena_bits&(~INTF_SETCLR),INTENA-DMACONR(a6) ;Interrupts aus
@@ -2810,14 +2810,14 @@ stop_own_display
   IFNE dma_bits&DMAF_BLITTER
     WAIT_BLITTER
   ENDC
-  IFD sys_taken_over
+  IFD LINKER_SYS_TAKEN_OVER
     move.w  #dma_bits&(~DMAF_SETCLR),DMACON-DMACONR(a6) ;DMA aus
   ELSE
     move.w  #DMAF_MASTER,DMACON-DMACONR(a6) ;DMA aus
   ENDC
   rts
 
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
 ; ** Wichtige Register löschen **
 ; -------------------------------
     CNOP 0,4
@@ -3535,7 +3535,7 @@ no_free_cl1_memory1
     rts
   ENDC
 
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
 ; ** Timer-Device schließen **
 ; ----------------------------
     CNOP 0,4
@@ -3557,7 +3557,7 @@ close_graphics_library
     move.l  _GfxBase(pc),a1
     CALLEXECQ CloseLibrary
 
-  IFND sys_taken_over
+  IFND LINKER_SYS_TAKEN_OVER
 ; ** Fehler ausgeben **
 ; ---------------------
     CNOP 0,4

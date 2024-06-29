@@ -44,7 +44,7 @@ do_alloc_bitmap_memory
   sub.l   a0,a0            ;Friendbitmap = Null
   CALLGRAFQ AllocBitMap    ;Speicher reservieren
 
-  IFD sys_taken_over
+  IFD LINKER_SYS_TAKEN_OVER
     IFNE intena_bits&(~INTF_SETCLR)
 ; ** VBR auslesen **
 ; ------------------

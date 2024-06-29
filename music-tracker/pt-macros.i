@@ -98,7 +98,7 @@ pt_InitRegisters
   move.w  d0,AUD1VOL-DMACONR(a6)
   move.w  d0,AUD2VOL-DMACONR(a6)
   move.w  d0,AUD3VOL-DMACONR(a6)
-  IFD sys_taken_over
+  IFD LINKER_SYS_TAKEN_OVER
     moveq   #DMAF_AUD0+DMAF_AUD1+DMAF_AUD2+DMAF_AUD3,d0
     move.w  d0,DMACON-DMACONR(a6) ;Channel DMA off
   ENDC
