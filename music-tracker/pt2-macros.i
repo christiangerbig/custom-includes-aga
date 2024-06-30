@@ -308,7 +308,7 @@ pt_PlvSkip
   move.b  n_cmd(a2),d2
   lsr.b   #NIBBLE_SHIFT_BITS,d2 ;Get lower nibble of sample number
   and.b   (a2),d0            ;Get upper nibble of sample number
-  addq.w  #pt_noteinfo_SIZE/4,d1 ;Next channel data
+  addq.w  #pt_noteinfo_size/4,d1 ;Next channel data
   or.b    d0,d2              ;Get sample number $01..$1f
   beq.s   pt_SetRegisters    ;If no sample number -> skip
   subq.w  #1,d2              ;x = sample number - 1
@@ -737,7 +737,7 @@ pt_SetDMA
   or.b    d0,CIACRB(a5)    ;Start CIA-B timerB for DMA wait
  
 pt_Dskip
-  addq.w  #pt_pattposdata_SIZE/4,pt_PatternPosition(a3) ;Next pattern position
+  addq.w  #pt_pattposdata_size/4,pt_PatternPosition(a3) ;Next pattern position
  ;--> EEx "Pattern Delay" <--
   IFNE pt_usedefx&pt_ecmdbitpattdelay
    move.b  pt_PattDelayTime(a3),d0 ;Get pattern delay time
@@ -749,7 +749,7 @@ pt_DskipC
    beq.s   pt_DskipA         ;If zero -> skip
    subq.b  #1,pt_PattDelayTime2(a3) ;Decrement pattern delay time2
    beq.s   pt_DskipA         ;If zero -> skip
-   subq.w  #pt_pattposdata_SIZE/4,pt_PatternPosition(a3) ;Previous pattern position
+   subq.w  #pt_pattposdata_size/4,pt_PatternPosition(a3) ;Previous pattern position
 pt_DskipA
   ENDC
 ;--> E6x "Jump to Loop" <--
@@ -759,7 +759,7 @@ pt_DskipA
    move.b  d5,pt_PBreakFlag(a3) ;Clear pattern break flag
    moveq   #0,d0          ;Needed for word access
    move.b  pt_PBreakPosition(a3),d0 ;Get pattern break position
-   MULUF.W 2,d0              ;*(pt_pattposdata_SIZE/4)
+   MULUF.W 2,d0              ;*(pt_pattposdata_size/4)
    move.b  d5,pt_PBreakPosition(a3) ;Clear pattern break position
    MULUF.W 2,d0
    move.w  d0,pt_PatternPosition(a3) ;Set new pattern position
@@ -772,7 +772,7 @@ pt_NextPosition
   moveq   #0,d0         ;Needed for word access
   move.b  pt_PBreakPosition(a3),d0 ;Get pattern break position
   move.b  d5,pt_PBreakPosition(a3) ;Set back pattern break position = Zero
-  MULUF.W pt_pattposdata_SIZE/4,d0 ;Offset to pattern data
+  MULUF.W pt_pattposdata_size/4,d0 ;Offset to pattern data
   move.w  d0,pt_PatternPosition(a3) ;Save new pattern position
   move.w  pt_SongPosition(a3),d1 ;Get song position
   addq.w  #1,d1              ;Next song position
@@ -1378,7 +1378,7 @@ pt_JmpLoopCnt
   CNOP 0,4
 pt_SetLoop
   move.w  pt_PatternPosition(a3),d0 ;Get pattern position
-  lsr.w   #2,d0              ;/(pt_pattposdata_SIZE/4)
+  lsr.w   #2,d0              ;/(pt_pattposdata_size/4)
   move.b  d0,n_pattpos(a2)   ;Save pattern position
   rts
   ENDM

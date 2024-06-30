@@ -3,7 +3,6 @@
 ; Version:      3.4
 
 ; ** Struktur, die alle Variablenoffsets enthält **
-; -------------------------------------------------
   RSRESET
 
   IFND LINKER_SYS_TAKEN_OVER

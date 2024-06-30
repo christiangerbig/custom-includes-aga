@@ -3,7 +3,7 @@
 ; Version:      1.2
 
 ; ** Struktur, die alle Eigenschaften der Sprites enthält **
-; ----------------------------------------------------------
+
   IFNE spr_number
 
     RSRESET

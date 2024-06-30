@@ -116,21 +116,21 @@ spr_copy_structures
   move.l  a4,-(a7)
   lea     spr_pointers_construction(pc),a2 ;Zeiger auf Sprites
   lea     spr_pointers_display(pc),a4 ;Zeiger auf Sprites
-  move.w  #(sprite0_SIZE/4)-1,d7 ;Anzahl der Langwörter
+  move.w  #(sprite0_size/4)-1,d7 ;Anzahl der Langwörter
   bsr.s   spr_copy_data
-  move.w  #(sprite1_SIZE/4)-1,d7 ;Anzahl der Langwörter
+  move.w  #(sprite1_size/4)-1,d7 ;Anzahl der Langwörter
   bsr.s   spr_copy_data
-  move.w  #(sprite2_SIZE/4)-1,d7 ;Anzahl der Langwörter
+  move.w  #(sprite2_size/4)-1,d7 ;Anzahl der Langwörter
   bsr.s   spr_copy_data
-  move.w  #(sprite3_SIZE/4)-1,d7 ;Anzahl der Langwörter
+  move.w  #(sprite3_size/4)-1,d7 ;Anzahl der Langwörter
   bsr.s   spr_copy_data
-  move.w  #(sprite4_SIZE/4)-1,d7 ;Anzahl der Langwörter
+  move.w  #(sprite4_size/4)-1,d7 ;Anzahl der Langwörter
   bsr.s   spr_copy_data
-  move.w  #(sprite5_SIZE/4)-1,d7 ;Anzahl der Langwörter
+  move.w  #(sprite5_size/4)-1,d7 ;Anzahl der Langwörter
   bsr.s   spr_copy_data
-  move.w  #(sprite6_SIZE/4)-1,d7 ;Anzahl der Langwörter
+  move.w  #(sprite6_size/4)-1,d7 ;Anzahl der Langwörter
   bsr.s   spr_copy_data
-  move.w  #(sprite7_SIZE/4)-1,d7 ;Anzahl der Langwörter
+  move.w  #(sprite7_size/4)-1,d7 ;Anzahl der Langwörter
   bsr.s   spr_copy_data
   move.l  (a7)+,a4
   rts

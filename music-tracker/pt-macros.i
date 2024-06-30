@@ -177,7 +177,7 @@ pt_InitSkip
     move.l  pt_SamplesDataPointer(a3),a2 ;Pointers to samples
   ENDC
   lea     pt_SampleStarts(pc),a1 ;Table for sample pointers
-  moveq   #pt_sampleinfo_SIZE,d1 ;Length of sample info structure in bytes
+  moveq   #pt_sampleinfo_size,d1 ;Length of sample info structure in bytes
   moveq   #pt_samplesnum-1,d7 ;Number of samples in module
 pt_InitLoop2
   move.l  a2,(a1)+           ;Save pointer to sample data

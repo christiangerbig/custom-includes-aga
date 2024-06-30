@@ -3,7 +3,6 @@
 ; Version:      2.6
 
 ; ** Fehlermeldungen **
-; ---------------------
   IFND LINKER_SYS_TAKEN_OVER
 
 error_text_graphics_library

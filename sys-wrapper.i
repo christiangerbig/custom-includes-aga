@@ -11,8 +11,7 @@
     INCLUDE "global-references-offsets.i"
   ENDC
 
-
-start_all
+; ** Beginn **
   movem.l d2-d7/a2-a6,-(a7)
   lea     variables(pc),a3   ;Basisadresse aller Variablen
   bsr     init_variables
@@ -39,7 +38,6 @@ start_all
 
 
 ; ## Initialisierungsroutinen aufrufen ##
-; ---------------------------------------
 
 ; ** Dos-Bibliothek öffnen **
     bsr     open_dos_library
@@ -270,7 +268,6 @@ start_all
 
   IFND LINKER_SYS_TAKEN_OVER
 ; ** Maschine übernehmen **
-; -------------------------
     bsr     disable_system   
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
     bne.s   cleanup_all_memory ;Ja -> verzweige
@@ -305,7 +302,6 @@ start_all
   ENDC
 
 ; ** Ausführen des eigentlichen Programms **
-; ------------------------------------------
   IFD LINKER_SYS_TAKEN_OVER
     IFD LINKER_PASS_RETURN_CODE
       move.l  dos_return_code(a3),d0
@@ -330,7 +326,6 @@ start_all
   ENDC
 
 ; ** Alles stoppen **
-; -------------------
   IFEQ ciaa_ta_continuous_enabled&ciaa_tb_continuous_enabled&ciab_ta_continuous_enabled&ciab_tb_continuous_enabled
     bsr     stop_CIA_timers
   ENDC
@@ -341,7 +336,6 @@ start_all
 
   IFND LINKER_SYS_TAKEN_OVER
 ; ** alte System-Parameter wieder herstellem **
-; ---------------------------------------------
     bsr     clear_important_registers2
     bsr     restore_hardware_registers
     IFD all_caches
@@ -353,15 +347,13 @@ start_all
     bsr     restore_exception_vectors
   
   ; ** Betriebssystem übernimmt wieder Maschine **
-  ; ----------------------------------------------
-    bsr     enable_system
+      bsr     enable_system
     IFEQ text_output_enabled
       bsr     print_text
     ENDC
   ENDC
 
 ; ** Freigabe des belegten Speichers **
-; -------------------------------------
 cleanup_all_memory
 
   IFD LINKER_SYS_TAKEN_OVER
@@ -500,7 +492,6 @@ output_rasterlines_number
   rts
 
 ; ** Variablen initialisieren **
-; ------------------------------
   CNOP 0,4
 init_variables
   IFD LINKER_SYS_TAKEN_OVER
@@ -511,7 +502,7 @@ init_variables
       lea       _GfxBase(pc),a1
       move.l    (a0),(a1)    ;Zeiger auf GFX-Base
     ENDC
-    IFD wrapper
+    IFD LINKER_WRAPPER
       moveq   #RETURN_OK,d2
       move.l  d2,dos_return_code(a3)
       move.w  #NO_CUSTOM_ERROR,custom_error_code(a3)
@@ -553,7 +544,6 @@ init_variables
   rts
 
 ; ** Strukturen und initialisieren **
-; -----------------------------------
   CNOP 0,4
 init_structures
   IFND LINKER_SYS_TAKEN_OVER
@@ -571,7 +561,6 @@ init_structures
   IFND LINKER_SYS_TAKEN_OVER
 
 ; ** Tabelle mit Fehlermeldungen initialisieren **
-; ------------------------------------------------
     CNOP 0,4
 init_custom_error_table
     moveq   #GRAPHICS_LIBRARY_COULD_NOT_OPEN-1,d0
@@ -854,12 +843,11 @@ init_custom_error_table
     rts
 
 ; ** Easy-Request-Struktur initialisieren **
-; ------------------------------------------
     CNOP 0,4
 init_easy_request_structure
     IFNE intena_bits&INTF_PORTS
       lea     tcp_request_structure(pc),a0 ;Zeiger auf Easy-Struktur
-      moveq   #EasyStruct_SIZEOF,d0
+      moveq   #EasyStruct_sizeOF,d0
       move.l  d0,(a0)+           ;Größe der Struktur
       moveq   #0,d0
       move.l  d0,(a0)+           ;Keine Flags
@@ -872,7 +860,7 @@ init_easy_request_structure
     ENDC
     IFEQ requires_multiscan_monitor
       lea     vga_request_monitor_structure(pc),a0 ;Zeiger auf Easy-Struktur
-      moveq   #EasyStruct_SIZEOF,d0
+      moveq   #EasyStruct_sizeOF,d0
       move.l  d0,(a0)+         ;Größe der Struktur
       moveq   #0,d0
       move.l  d0,(a0)+         ;Keine Flags
@@ -886,7 +874,6 @@ init_easy_request_structure
     rts
   
 ; ** Timer-IO-Struktur initialisieren **
-; --------------------------------------
     CNOP 0,4
 init_timer_io_structure
     lea     timer_io_structure(pc),a0
@@ -898,14 +885,12 @@ init_timer_io_structure
     rts
   
 ; ** Taglisten initialisieren **
-; ------------------------------
     CNOP 0,4
 init_taglists
     bsr.s   spr_init_taglist
     bra.s   init_downgrade_screen_taglist
   
 ; ** Sprite-Tagliste initialisieren **
-; ------------------------------------
     CNOP 0,4
 spr_init_taglist
     lea     spr_taglist(pc),a0
@@ -917,7 +902,6 @@ spr_init_taglist
     rts
   
 ; ** Screen-TagListe initialisieren **
-; ------------------------------------
     CNOP 0,4
 init_downgrade_screen_taglist
     lea     downgrade_screen_taglist(pc),a0
@@ -974,7 +958,6 @@ init_downgrade_screen_taglist
   ENDC
 
 ; ** Extra-Playfield-Struktur initialisieren **
-; ---------------------------------------------
   IFNE extra_pf_number
     CNOP 0,4
 init_extra_pf_structure
@@ -1063,7 +1046,6 @@ init_extra_pf_structure
   ENDC
 
 ; ** Sprite-Eigenschaften-Struktur initialisieren **
-; --------------------------------------------------
   IFNE spr_x_size1|spr_x_size2
     CNOP 0,4
 spr_init_structure
@@ -1188,8 +1170,7 @@ task_error
     ENDC
   
   ; ** DOS-Library öffnen **
-  ; ------------------------
-    CNOP 0,4
+      CNOP 0,4
 open_dos_library
     lea     dos_name(pc),a1
     moveq   #ANY_LIBRARY_VERSION,d0
@@ -1205,7 +1186,6 @@ dos_library_error
     rts
 
 ; ** Graphics-Library öffnen **
-; -----------------------------
     CNOP 0,4
 open_graphics_library
     lea     graphics_name(pc),a1
@@ -1223,7 +1203,6 @@ gfx_library_error
     rts
 
 ; ** Systemkonstanten überprüfen **
-; ---------------------------------
     CNOP 0,4
 check_system
     move.l  _SysBase(pc),a6
@@ -1293,8 +1272,7 @@ system_error3
     rts
   
   ; ** Auf bestimmte CPU hin überprüfen **
-  ; --------------------------------------
-    IFEQ requires_68030
+      IFEQ requires_68030
       CNOP 0,4
 check_cpu_requirements
       btst   #AFB_68030,cpu_flags+1(a3) ;68030+ ?
@@ -1335,7 +1313,6 @@ check_cpu_error
     ENDC
   
 ; ** Generell auf Fast-Memory prüfen **
-; -------------------------------------
     IFEQ requires_fast_memory
       CNOP 0,4
 check_memory_requirements
@@ -1351,7 +1328,6 @@ no_fast_memory
     ENDC
   
 ; ** Intuition-Library öffnen **
-; ------------------------------
     CNOP 0,4
 open_intuition_library
     lea     intuition_name(pc),a1
@@ -1369,7 +1345,6 @@ intuition_library_error
     rts
   
 ; ** Userabfrage, wenn TCP-Stack vorhanden ist **
-; -----------------------------------------------
     IFNE intena_bits&INTF_PORTS
       CNOP 0,4
 do_tcp_stack_request
@@ -1386,7 +1361,7 @@ tcp_stack_found
       CALLLIBS Permit
       move.l  a3,a4              ;Inhalt von a3 retten
       sub.l   a0,a0              ;Requester erscheint auf Workbench
-      lea     tcp_request_structure(pc),a1
+      lea     tcp_requester_structure(pc),a1
       move.l  a0,a2              ;Keine IDCMP-Flags
       move.l  a0,a3              ;Keine Argumentenliste
       CALLINT EasyRequestArgs
@@ -1409,7 +1384,7 @@ tcp_quit_prg
     ENDC
   
 ; ** Userabfrage, ob Multifrequenz-Monitor angeschlossen ist **
-; -------------------------------------------------------------
+
     IFEQ requires_multiscan_monitor
       CNOP 0,4
 do_monitor_request
@@ -1431,7 +1406,7 @@ do_monitor_request_error
     ENDC
   
 ; ** CIA-A und CIA-B Resources öffnen und ICR-Register retten **
-; --------------------------------------------------------------
+
     CNOP 0,4
 open_ciax_resources
     lea     CIAA_name(pc),a1
@@ -1465,7 +1440,6 @@ ciab_resources_error
     rts
   
 ; ** Timer-Device öffnen **
-; -------------------------
     CNOP 0,4
 open_timer_device
     lea     timer_device_name(pc),a0
@@ -1485,7 +1459,6 @@ open_timer_device_error
   ENDC
 
 ; ** Speicher für erste Copperliste belegen **
-; --------------------------------------------
   IFNE cl1_size1
     CNOP 0,4
 alloc_cl1_memory1
@@ -1502,7 +1475,6 @@ cl1_memory_error1
     rts
   ENDC
 ; ** Speicher für zweite Copperliste belegen **
-; ---------------------------------------------
   IFNE cl1_size2
     CNOP 0,4
 alloc_cl1_memory2
@@ -1519,7 +1491,6 @@ cl1_memory_error2
     rts
   ENDC
 ; ** Speicher für dritte Copperlisten belegen **
-; ----------------------------------------------
   IFNE cl1_size3
     CNOP 0,4
 alloc_cl1_memory3
@@ -1537,7 +1508,6 @@ cl1_memory_error3
   ENDC
 
 ; ** Speicher für erste Copperliste belegen **
-; --------------------------------------------
   IFNE cl2_size1
     CNOP 0,4
 alloc_cl2_memory1
@@ -1554,7 +1524,6 @@ cl2_memory_error1
     rts
   ENDC
 ; ** Speicher für zweite Copperlisten belegen **
-; ----------------------------------------------
   IFNE cl2_size2
     CNOP 0,4
 alloc_cl2_memory2
@@ -1571,7 +1540,6 @@ cl2_memory_error2
     rts
   ENDC
 ; ** Speicher für dritte Copperlisten belegen **
-; ----------------------------------------------
   IFNE cl2_size3
     CNOP 0,4
 alloc_cl2_memory3
@@ -1589,7 +1557,6 @@ cl2_memory_error3
   ENDC
 
 ; ** Speicher für erstes Playfield belegen **
-; -------------------------------------------
   IFNE pf1_x_size1
     CNOP 0,4
 alloc_pf1_memory1
@@ -1609,7 +1576,6 @@ pf1_memory_error1
     moveq   #RETURN_ERROR,d0  
     rts
 ; ** Speicher des ersten Playfields überprüfen **
-; -----------------------------------------------
     CNOP 0,4
 check_pf1_memory1
     move.l  pf1_bitmap1(a3),a0 ;Zeiger auf Bitmap-Struktur
@@ -1633,7 +1599,6 @@ pf1_memory_error2
   ENDC
 
 ; ** Speicher für zweites Playfield belegen **
-; --------------------------------------------
   IFNE pf1_x_size2
     CNOP 0,4
 alloc_pf1_memory2
@@ -1653,7 +1618,6 @@ pf1_memory_error3
     moveq   #RETURN_ERROR,d0  
     rts
 ; ** Speicher des zweiten Playfields überprüfen **
-; ------------------------------------------------
     CNOP 0,4
 check_pf1_memory2
     move.l  pf1_bitmap2(a3),a0 ;Zeiger auf Bitmap-Struktur
@@ -1677,7 +1641,6 @@ pf1_memory_error4
   ENDC
 
 ; ** Speicher für drittes Playfield belegen **
-; --------------------------------------------
   IFNE pf1_x_size3
     CNOP 0,4
 alloc_pf1_memory3
@@ -1697,7 +1660,6 @@ pf1_memory_error5
     moveq   #RETURN_ERROR,d0     
     rts
 ; ** Speicher des dritten Playfields überprüfen **
-; ------------------------------------------------
     CNOP 0,4
 check_pf1_memory3
     move.l  pf1_bitmap3(a3),a0 ;Zeiger auf Bitmap-Struktur
@@ -1721,7 +1683,6 @@ pf1_memory_error6
   ENDC
 
 ; ** Speicher für erstes Playfield belegen **
-; -------------------------------------------
   IFNE pf2_x_size1
     CNOP 0,4
 alloc_pf2_memory1
@@ -1741,8 +1702,7 @@ pf2_memory_error1
     moveq   #RETURN_ERROR,d0         
     rts
 ; ** Speicher des ersten Playfields überprüfen **
-; -----------------------------------------------
-  CNOP 0,4
+    CNOP 0,4
 check_pf2_memory1
     move.l  pf2_bitmap1(a3),a0 ;Zeiger auf Bitmap-Struktur
     moveq   #BMA_FLAGS,d1    ;Attribute
@@ -1765,7 +1725,6 @@ pf2_memory_error2
   ENDC
 
 ; ** Speicher für zweites Playfield belegen **
-; --------------------------------------------
   IFNE pf2_x_size2
     CNOP 0,4
 alloc_pf2_memory2
@@ -1785,7 +1744,6 @@ pf2_memory_error3
     moveq   #RETURN_ERROR,d0      
     rts
 ; ** Speicher des zweiten Playfields überprüfen **
-; ------------------------------------------------
     CNOP 0,4
 check_pf2_memory2
     move.l  pf2_bitmap2(a3),a0 ;Zeiger auf Bitmap-Struktur
@@ -1809,7 +1767,6 @@ pf2_memory_error4
   ENDC
 
 ; ** Speicher für drittes Playfield belegen **
-; --------------------------------------------
   IFNE pf2_x_size3
     CNOP 0,4
 alloc_pf2_memory3
@@ -1829,7 +1786,6 @@ pf2_memory_error5
     moveq   #RETURN_ERROR,d0      
     rts
 ; ** Speicher des dritten Playfields überprüfen **
-; ------------------------------------------------
     CNOP 0,4
 check_pf2_memory3
     move.l  pf2_bitmap3(a3),a0 ;Zeiger auf Bitmap-Struktur
@@ -1853,7 +1809,6 @@ pf2_memory_error6
   ENDC
 
 ; ** Speicher für Extra-Playfield belegen **
-; ------------------------------------------
   IFNE extra_pf_number
     CNOP 0,4
 alloc_extra_pf_memory
@@ -1880,7 +1835,6 @@ extra_pf_memory_error
     moveq   #RETURN_ERROR,d0      
     rts
 ; ** Speicher des Extra-Playfields überprüfen **
-; ----------------------------------------------
     CNOP 0,4
 check_extra_pf_memory
     lea     extra_pf_bitmap1(a3),a2 ;Zeiger auf Bitmap-Struktur
@@ -1897,7 +1851,7 @@ extra_pf_check_loop
     btst    #BMB_INTERLEAVED,d0 ;Bitmap an einem Stück ?
     beq.s   extra_pf_memory_error2 ;Nein -> verzweige
 no_extra_pf_check
-    ADDF.W  extra_pf_attribute_SIZE,a4 ;nächster Eintrag
+    ADDF.W  extra_pf_attribute_size,a4 ;nächster Eintrag
     dbf     d7,extra_pf_check_loop
 no_extra_pf_check2
     moveq   #RETURN_OK,d0
@@ -1910,7 +1864,6 @@ extra_pf_memory_error2
   ENDC
 
 ; ** Speicher für erste Spritestruktur belegen **
-; -----------------------------------------------
   IFNE spr_x_size1
     CNOP 0,4
 alloc_sprite_memory1
@@ -1937,7 +1890,6 @@ spr_memory_error1
     rts
 
 ; ** Speicher der ersten Spritestruktur überprüfen **
-; ---------------------------------------------------
     CNOP 0,4
 check_sprite_memory1
     lea     spr0_bitmap1(a3),a2 ;Zeiger auf Sprite-Bitmap-Struktur
@@ -1961,7 +1913,6 @@ spr_memory_error2
   ENDC
 
 ; ** Speicher für zweite Spritestruktur belegen **
-; ------------------------------------------------
   IFNE spr_x_size2
     CNOP 0,4
 alloc_sprite_memory2
@@ -2012,7 +1963,6 @@ spr_memory_error4
   ENDC
 
 ; ** Speicher für Audio-Daten belegen **
-; --------------------------------------
   IFNE audio_memory_size
     CNOP 0,4
 alloc_audio_memory
@@ -2030,7 +1980,6 @@ audio_memory_error
   ENDC
 
 ; ** Speicher für Diskettenpuffer belegen **
-; ------------------------------------------
   IFNE disk_memory_size
     CNOP 0,4
 alloc_disk_memory
@@ -2048,7 +1997,6 @@ disk_memory_error
   ENDC
 
 ; ** Extra-Memory belegen **
-; --------------------------
   IFNE extra_memory_size
     CNOP 0,4
 alloc_extra_memory
@@ -2066,7 +2014,6 @@ extra_memory_error
   ENDC
 
 ; ** Chip-Memory belegen **
-; -------------------------
   IFNE chip_memory_size
     CNOP 0,4
 alloc_chip_memory
@@ -2085,7 +2032,6 @@ chip_memory_error
 
   IFND LINKER_SYS_TAKEN_OVER
 ; ** Ggf. FAST-Memory für Vektoren belegen **
-; -------------------------------------------
   CNOP 0,4
 alloc_vectors_memory
     lea     read_vbr(pc),a5  ;Zeiger auf Supervisor-Routine
@@ -2097,7 +2043,7 @@ alloc_vectors_memory
     bne.s   no_alloc_vectors_memory ;Ja -> verzweige
     tst.w   fast_memory_available(a3) ;FAST-Memory vorhanden ?
     bne.s   no_alloc_vectors_memory ;Nein -> verzweige
-    move.l  #exception_vectors_SIZE,d0
+    move.l  #exception_vectors_size,d0
     bsr     do_alloc_fast_memory
     move.l  d0,exception_vectors_base(a3)
     beq.s   vectors_memory_error
@@ -2124,8 +2070,7 @@ init_global_references_table
     ENDC
   
   ; ** Betriebssystem ausschalten **
-  ; --------------------------------
-    CNOP 0,4
+      CNOP 0,4
 disable_system
     MOVEF.L delay_time1,d1
     CALLDOS Delay
@@ -2354,7 +2299,6 @@ wbf_color_values32_memory_error
       rts
   
 ; ** Farben ausblenden **
-; -----------------------
       CNOP 0,4
 workbench_fader_out
       tst.w   wbfo_active(a3) ;Fading-Out an ?
@@ -2470,7 +2414,6 @@ wbfo_increase_blue
       bra.s   wbfo_matched_blue
   
 ; ** Neue Farbwerte in Copperliste eintragen **
-; ---------------------------------------------
       CNOP 0,4
 wbf_set_new_colors32
       move.l  wbf_color_cache32(a3),a1
@@ -2479,7 +2422,6 @@ wbf_set_new_colors32
     ENDC
   
 ; ** Alle Caches aktivieren **
-; ----------------------------
     IFD all_caches
       CNOP 0,4
 enable_all_caches
@@ -2491,7 +2433,6 @@ enable_all_caches
     ENDC
   
 ; ** Store Buffer des 68060 aktivieren **
-; ---------------------------------------
     IFD no_store_buffer
       CNOP 0,4
 disable_store_buffer
@@ -2499,12 +2440,11 @@ disable_store_buffer
     ENDC
   
 ; ** Exception-Vektoren retten **
-; -------------------------------
     CNOP 0,4
 save_exception_vectors
     move.l  os_VBR(a3),a0    ;Quelle = Reset (Initial SSP)
     lea     exception_vecs_save(pc),a1 ;Ziel
-    MOVEF.W (exception_vectors_SIZE/4)-1,d7 ;Anzahl der Vektoren
+    MOVEF.W (exception_vectors_size/4)-1,d7 ;Anzahl der Vektoren
 copy_exception_vectors_loop
     move.l  (a0)+,(a1)+      ;Vektor kopieren
     dbf     d7,copy_exception_vectors_loop
@@ -2512,7 +2452,6 @@ copy_exception_vectors_loop
  ENDC
   
 ; ** Neue Zeiger auf Autovektoren eintragen **
-; --------------------------------------------
   CNOP 0,4
 init_exception_vectors
   IFD LINKER_SYS_TAKEN_OVER
@@ -2574,14 +2513,13 @@ init_exception_vectors
 
   IFND LINKER_SYS_TAKEN_OVER
 ; ** Interruptvektoren ggf. ins Fast-Ram **
-; -----------------------------------------
     CNOP 0,4
 exception_vectors_to_fast_memory
     move.l  exception_vectors_base(a3),d0 ;Sollen Vektoren verschoben werden ?
     beq.s   no_vbr_move      ;FALSE -> verzweige
     move.l  d0,a1            ;Ziel = FAST-Memory
     move.l  os_VBR(a3),a0    ;Quelle = Reset (Initial SSP)
-    MOVEF.W (exception_vectors_SIZE/4)-1,d7 ;Anzahl der Langwörter zum Kopieren
+    MOVEF.W (exception_vectors_size/4)-1,d7 ;Anzahl der Langwörter zum Kopieren
 copy_exception_vectors_loop2
     move.l  (a0)+,(a1)+      ;1 Langwort kopieren
     dbf     d7,copy_exception_vectors_loop2
@@ -2595,7 +2533,6 @@ no_vbr_move
     rts
   
 ; ** Hardware-Register retten **
-; ------------------------------
     CNOP 0,4
 save_hardware_registers
     move.w  (a6),os_DMACON(a3)
@@ -2650,7 +2587,6 @@ save_hardware_registers
     rts
   
 ; ** Wichtige Register löschen **
-; -------------------------------
     CNOP 0,4
 clear_important_registers
     move.w  #$7fff,d0        ;Bits 0-14 löschen
@@ -2679,8 +2615,7 @@ clear_important_registers
     rts
   
   ; ** Noch laufende Floppy-Motoren ausstellen **
-  ; ---------------------------------------------
-    CNOP 0,4
+  ;    CNOP 0,4
 turn_off_drive_motors
     move.b  CIAPRB(a5),d0
     moveq   #CIAF_DSKSEL0+CIAF_DSKSEL1+CIAF_DSKSEL2+CIAF_DSKSEL3,d1 ;Unit 0-3
@@ -2696,7 +2631,6 @@ turn_off_drive_motors
   ENDC
 
 ; ** Eigenes Display starten **
-; -----------------------------
   CNOP 0,4
 start_own_display
   bsr     wait_vbi
@@ -2704,7 +2638,7 @@ start_own_display
   moveq   #copcon_bits,d0     ;Copper kann ggf. auf Blitteregister zurückgreifen
   move.w  d0,COPCON-DMACONR(a6)
   IFNE cl2_size3
-    IFD own_display_set_second_copperlist
+    IFD SET_SECOND_COPPERLIST
       move.l  cl2_display(a3),COP2LC-DMACONR(a6) ;2. Copperliste eintragen
     ENDC
   ENDC
@@ -2717,7 +2651,6 @@ start_own_display
   rts
 
 ; ** Eigene Interrupts starten **
-; -------------------------------
   IFNE (intena_bits-INTF_SETCLR)|(ciaa_icr_bits-CIAICRF_SETCLR)|(ciab_icr_bits-CIAICRF_SETCLR)
     CNOP 0,4
 start_own_interrupts
@@ -2736,7 +2669,6 @@ start_own_interrupts
   ENDC
 
 ; ** CIA-Timer starten **
-; -----------------------
   IFEQ ciaa_ta_continuous_enabled&ciaa_tb_continuous_enabled&ciab_ta_continuous_enabled&ciab_tb_continuous_enabled
     CNOP 0,4
 start_CIA_timers
@@ -2760,7 +2692,6 @@ start_CIA_timers
   ENDC
 
 ; ** Timer stoppen **
-; -------------------
   IFEQ ciaa_ta_continuous_enabled&ciaa_tb_continuous_enabled&ciab_ta_continuous_enabled&ciab_tb_continuous_enabled
     CNOP 0,4
 stop_CIA_timers
@@ -2784,7 +2715,6 @@ stop_CIA_timers
   ENDC
 
 ; ** Eigene Interrupts stoppen **
-; -------------------------------
   IFNE (intena_bits-INTF_SETCLR)|(ciaa_icr_bits-CIAICRF_SETCLR)|(ciab_icr_bits-CIAICRF_SETCLR)
     CNOP 0,4
 stop_own_interrupts
@@ -2799,7 +2729,6 @@ stop_own_interrupts
   ENDC
 
 ; ** Eigenes Display stoppen **
-; -----------------------------
   CNOP 0,4
 stop_own_display
   IFNE copcon_bits&COPCONF_CDANG
@@ -2819,7 +2748,6 @@ stop_own_display
 
   IFND LINKER_SYS_TAKEN_OVER
 ; ** Wichtige Register löschen **
-; -------------------------------
     CNOP 0,4
 clear_important_registers2
     move.w  #$7fff,d0
@@ -2856,7 +2784,6 @@ clear_important_registers2
     rts
   
 ; ** Alten Inhalt in Register zurückschreiben **
-; ----------------------------------------------
     CNOP 0,4
 restore_hardware_registers
     move.b  os_CIAAPRA(a3),CIAPRA(a4)
@@ -2973,20 +2900,18 @@ enable_store_buffer
     ENDC
   
   ; ** Alte Exception-Vektoren ggf. zurückschreiben **
-  ; --------------------------------------------------
-    CNOP 0,4
+  ;    CNOP 0,4
 restore_exception_vectors
     lea     exception_vecs_save(pc),a0 ;Quelle
     move.l  os_VBR(a3),a1    ;Ziel = Reset (Initial SSP)
-    MOVEF.W (exception_vectors_SIZE/LONGWORD_SIZE)-1,d7 ;Anzahl der Vektoren
+    MOVEF.W (exception_vectors_size/LONGWORD_SIZE)-1,d7 ;Anzahl der Vektoren
 copy_vectors_loop3
     move.l  (a0)+,(a1)+      ;Vektor kopieren
     dbf     d7,copy_vectors_loop3
     CALLEXECQ CacheClearU
   
   ; ** Betriebssystem wieder aktivieren **
-  ; --------------------------------------
-    CNOP 0,4
+      CNOP 0,4
 enable_system
     CALLEXEC Enable          ;Interrupts an
 
@@ -3000,9 +2925,9 @@ update_clock
     move.l  d0,d1            
     ext.l   d0               ;Auf 32 Bit erweitern
     swap    d1               ;Rest der Division
-    add.l   d0,IO_SIZE+TV_SECS(a1) ;Unix-Time Sekunden setzen
+    add.l   d0,IO_size+TV_SECS(a1) ;Unix-Time Sekunden setzen
     mulu.w  #10000,d1        ;In µs
-    add.l   d1,IO_SIZE+TV_MICRO(a1) ;Unix-Time Mikrosekunden setzen
+    add.l   d1,IO_size+TV_MICRO(a1) ;Unix-Time Mikrosekunden setzen
     CALLLIBS DoIO
   
 restore_os_view
@@ -3072,7 +2997,6 @@ wbfi_skip_fade_in
       rts
   
 ; ** Farben einblenden **
-; -----------------------
   CNOP 0,4
 workbench_fade_enabledr_in
       tst.w   wbfi_active(a3) ;Fading-In an ?
@@ -3203,8 +3127,7 @@ no_delay
     ENDC
   
   ; ** formatierten Text ausgeben **
-  ; --------------------------------
-    IFEQ text_output_enabled
+      IFEQ text_output_enabled
       CNOP 0,4
 print_text
       lea     format_string(pc),a0
@@ -3237,13 +3160,12 @@ put_ch_proc
     ENDC
   
 ; ** Speicher für Vektoren wieder freigeben **
-; --------------------------------------------
     CNOP 0,4
 free_vectors_memory
     move.l  exception_vectors_base(a3),d0
     beq.s   no_free_vectors_memory ;Wenn Null -> verzweige
     move.l  d0,a1
-    move.l  #exception_vectors_SIZE,d0
+    move.l  #exception_vectors_size,d0
     CALLEXECQ FreeMem
     CNOP 0,4
 no_free_vectors_memory
@@ -3251,7 +3173,6 @@ no_free_vectors_memory
   ENDC
 
 ; ** Speicher für CHIP-Memory freigeben **
-; ----------------------------------------
   IFNE CHIP_memory_size
     CNOP 0,4
 free_chip_memory
@@ -3266,7 +3187,6 @@ no_free_chip_memory
   ENDC
 
 ; ** Speicher für Extra-Memory freigeben **
-; -----------------------------------------
   IFNE extra_memory_size
     CNOP 0,4
 free_extra_memory
@@ -3281,7 +3201,6 @@ no_free_extra_memory
   ENDC
 
 ; ** Speicher für Disk-Data wieder freigeben **
-; ---------------------------------------------
   IFNE disk_memory_size
     CNOP 0,4
 free_disk_memory
@@ -3296,7 +3215,6 @@ no_free_disk_memory
   ENDC
 
 ; ** Speicher für Audio-Data wieder freigeben **
-; ----------------------------------------------
   IFNE audio_memory_size
     CNOP 0,4
 free_audio_memory
@@ -3311,7 +3229,6 @@ no_free_audio_memory
   ENDC
 
 ; ** Speicher für zweite Sprite-Bitmap wieder freigeben **
-; --------------------------------------------------------
   IFNE spr_x_size2
     CNOP 0,4
 free_sprite_memory2
@@ -3328,7 +3245,6 @@ no_free_sprite_memory2
   ENDC
 
 ; ** Speicher für erste Sprite-Bitmap wieder freigeben **
-; -------------------------------------------------------
   IFNE spr_x_size1
     CNOP 0,4
 free_sprite_memory1
@@ -3345,7 +3261,7 @@ no_free_sprite_memory1
   ENDC
 
 ; ** Speicher für Extra-Playfield-Bitmap wieder freigeben **
-; ----------------------------------------------------------
+
   IFNE extra_pf_number
     CNOP 0,4
 free_extra_pf_memory
@@ -3362,7 +3278,7 @@ no_free_extra_pf_memory
   ENDC
 
 ; ** Speicher für dritte Playfield-Bitmap wieder freigeben **
-; -----------------------------------------------------------
+
   IFNE pf2_x_size3
     CNOP 0,4
 free_pf2_memory3
@@ -3376,7 +3292,7 @@ no_free_pf2_memory3
   ENDC
 
 ; ** Speicher für zweite Playfield-Bitmap wieder freigeben **
-; -----------------------------------------------------------
+
   IFNE pf2_x_size2
     CNOP 0,4
 free_pf2_memory2
@@ -3390,7 +3306,7 @@ no_free_pf2_memory2
   ENDC
 
 ; ** Speicher für erste Playfield-Bitmap wieder freigeben **
-; ----------------------------------------------------------
+
   IFNE pf2_x_size1
     CNOP 0,4
 free_pf2_memory1
@@ -3404,7 +3320,7 @@ no_free_pf2_memory1
   ENDC
 
 ; ** Speicher für dritte Playfield-Bitmap wieder freigeben **
-; -----------------------------------------------------------
+
   IFNE pf1_x_size3
     CNOP 0,4
 free_pf1_memory3
@@ -3418,7 +3334,7 @@ no_free_pf1_memory3
   ENDC
 
 ; ** Speicher für zweite Playfield-Bitmap wieder freigeben **
-; -----------------------------------------------------------
+
   IFNE pf1_x_size2
     CNOP 0,4
 free_pf1_memory2
@@ -3432,7 +3348,7 @@ no_free_pf1_memory2
   ENDC
 
 ; ** Speicher für erste Playfield-Bitmap wieder freigeben **
-; ----------------------------------------------------------
+
   IFNE pf1_x_size1
     CNOP 0,4
 free_pf1_memory1
@@ -3446,7 +3362,6 @@ no_free_pf1_memory1
   ENDC
 
 ; ** Speicher dritte Copperliste wieder freigeben **
-; --------------------------------------------------
   IFNE cl2_size3
     CNOP 0,4
 free_cl2_memory3
@@ -3461,7 +3376,6 @@ no_free_cl2_memory3
   ENDC
 
 ; ** Speicher zweite Copperliste wieder freigeben **
-; --------------------------------------------------
   IFNE cl2_size2
     CNOP 0,4
 free_cl2_memory2
@@ -3476,7 +3390,6 @@ no_free_cl2_memory2
   ENDC
 
 ; ** Speicher erste Copperliste wieder freigeben **
-; -------------------------------------------------
   IFNE cl2_size1
     CNOP 0,4
 free_cl2_memory1
@@ -3491,7 +3404,6 @@ no_free_cl2_memory1
   ENDC
 
 ; ** Speicher dritte Copperliste wieder freigeben **
-; --------------------------------------------------
   IFNE cl1_size3
     CNOP 0,4
 free_cl1_memory3
@@ -3506,7 +3418,6 @@ no_free_cl1_memory3
   ENDC
 
 ; ** Speicher zweite Copperliste wieder freigeben **
-; --------------------------------------------------
   IFNE cl1_size2
     CNOP 0,4
 free_cl1_memory2
@@ -3521,7 +3432,6 @@ no_free_cl1_memory2
   ENDC
 
 ; ** Speicher erste Copperliste wieder freigeben **
-; -------------------------------------------------
   IFNE cl1_size1
     CNOP 0,4
 free_cl1_memory1
@@ -3537,21 +3447,18 @@ no_free_cl1_memory1
 
   IFND LINKER_SYS_TAKEN_OVER
 ; ** Timer-Device schließen **
-; ----------------------------
     CNOP 0,4
 close_timer_device
     lea     timer_io_structure(pc),a1
     CALLEXECQ CloseDevice
   
   ; ** Intuition-Libary schließen **
-  ; --------------------------------
-    CNOP 0,4
+      CNOP 0,4
 close_intuition_library
     move.l  _IntuitionBase(pc),a1
     CALLEXECQ CloseLibrary
 
 ; ** Graphics-Libary schließen **
-; -------------------------------
     CNOP 0,4
 close_graphics_library
     move.l  _GfxBase(pc),a1
@@ -3559,7 +3466,6 @@ close_graphics_library
 
   IFND LINKER_SYS_TAKEN_OVER
 ; ** Fehler ausgeben **
-; ---------------------
     CNOP 0,4
 print_error_message
     move.w  custom_error_code(a3),d4 ;Ist ein eigener Fehler aufgetreten ?
@@ -3594,14 +3500,12 @@ raw_open_error
   ENDC
 
 ; ** DOS-Libary schließen **
-; --------------------------
     CNOP 0,4
 close_dos_library
     move.l  _DOSBase(pc),a1
     CALLEXECQ CloseLibrary
 
 ; ** WB-Message ggf. noch beantworten **
-; --------------------------------------
     IFEQ workbench_start_enabled
       CNOP 0,4
 reply_wb_message

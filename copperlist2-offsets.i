@@ -3,7 +3,7 @@
 ; Version:      4.2
 
 ; ** Struktur, die alle Registeroffsets der 1. Copperliste enthält **
-; -------------------------------------------------------------------
+
   IFD diwstrt_bits
 cl2_DIWSTRT      RS.L 1
   ENDC

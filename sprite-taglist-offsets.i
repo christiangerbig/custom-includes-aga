@@ -3,7 +3,6 @@
 ; Version:      1.0
 
 ; ** Struktur, die alle Sprite-Taglist-Offsets enthält **
-; --------------------------------------------------------
   RSRESET
 
 sprite_taglist        RS.B 0

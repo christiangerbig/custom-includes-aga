@@ -664,7 +664,7 @@ copy_first_copperlist
     IFEQ \2-2
       move.l  \1_construction2(a3),a0 ;Quelle
       move.l  \1_display(a3),a1 ;2. Ziel
-      move.w  #(copperlist1_SIZE/LONGWORD_SIZE)-1,d7 ;Anzahl der Langwörter zum kopieren
+      move.w  #(copperlist1_size/LONGWORD_SIZE)-1,d7 ;Anzahl der Langwörter zum kopieren
 copy_first_copperlist_loop
       move.l  (a0)+,(a1)+        ;1 Langwort kopieren
       dbf     d7,copy_first_copperlist_loop
@@ -673,7 +673,7 @@ copy_first_copperlist_loop
     IFEQ \2-3
       move.l  \1_construction1(a3),a0 ;Quelle
       move.l  \1_construction2(a3),a1 ;1. Ziel
-      move.w  #(copperlist1_SIZE/LONGWORD_SIZE)-1,d7 ;Anzahl der Langwörter zum kopieren
+      move.w  #(copperlist1_size/LONGWORD_SIZE)-1,d7 ;Anzahl der Langwörter zum kopieren
       move.l  \1_display(a3),a2 ;2. Ziel
 copy_first_copperlist_loop
       move.l  (a0),(a1)+         ;1 Langwort kopieren
@@ -690,7 +690,7 @@ copy_second_copperlist
     IFEQ \2-2
       move.l  \1_construction2(a3),a0 ;Quelle
       move.l  \1_display(a3),a1 ;2. Ziel
-      move.w  #(copperlist2_SIZE/LONGWORD_SIZE)-1,d7 ;Anzahl der Langwörter zum kopieren
+      move.w  #(copperlist2_size/LONGWORD_SIZE)-1,d7 ;Anzahl der Langwörter zum kopieren
 copy_second_copperlist_loop
       move.l  (a0)+,(a1)+        ;1 Langwort kopieren
       dbf     d7,copy_second_copperlist_loop
@@ -699,7 +699,7 @@ copy_second_copperlist_loop
     IFEQ \2-3
       move.l  \1_construction1(a3),a0 ;Quelle
       move.l  \1_construction2(a3),a1 ;1. Ziel
-      move.w  #(copperlist2_SIZE/LONGWORD_SIZE)-1,d7 ;Anzahl der Langwörter zum kopieren
+      move.w  #(copperlist2_size/LONGWORD_SIZE)-1,d7 ;Anzahl der Langwörter zum kopieren
       move.l  \1_display(a3),a2 ;2. Ziel
 copy_second_copperlist_loop
       move.l  (a0),(a1)+         ;1 Langwort kopieren

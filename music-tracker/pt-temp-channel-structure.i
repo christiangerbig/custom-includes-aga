@@ -1,5 +1,4 @@
 ; ** Temporary audio channel structure **
-; ---------------------------------------
   RSRESET
 
 n_audchantemp           RS.B 0
@@ -45,4 +44,4 @@ n_channel_data_position RS.W 1
 n_note_trigger          RS.B 1
   ENDC
 
-n_audchantemp_SIZE      RS.B 0
+n_audchantemp_size      RS.B 0

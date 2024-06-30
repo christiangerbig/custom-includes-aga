@@ -3,7 +3,6 @@
 ; Version:      1.0
 
 ; ** Struktur, die alle Exception-Vektoren-Offsets enthält **
-; -----------------------------------------------------------
   RSRESET
 
 RESET_INITIAL_SSP       RS.L 1
@@ -53,4 +52,4 @@ MMU_ERRORS              RS.L 3
 RESERVED4               RS.L 5
 USER_DEVICE_INTERRUPTS  RS.L 192
 
-exception_vectors_SIZE  RS.B 0
+exception_vectors_size  RS.B 0

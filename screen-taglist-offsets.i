@@ -3,7 +3,6 @@
 ; Version:      1.2
 
 ; ** Struktur, die alle Screen-Taglist-Offsets enthält **
-; -------------------------------------------------------
   RSRESET
 
 screen_taglist       RS.B 0
@@ -27,4 +26,4 @@ sctl_SA_Draggable    RS.L 2
 sctl_SA_Interleaved  RS.L 2
 sctl_SA_Colors32     RS.L 2
 sctl_TAG_DONE        RS.L 1
-screen_taglist_SIZE  RS.B 0
+screen_taglist_size  RS.B 0

@@ -3,10 +3,8 @@
 ; Version:      4.5
 
 ; ## Hilfsroutinen ##
-; -------------------
 
 ; ** FAST/CHIP-Memory reservieren und löschen **
-; ----------------------------------------------
 ; d0 ... Größe des Speicherbereichs
 ;        Rückgabewert: Zeiger auf Speicherbereich wenn erfolgreich
   CNOP 0,4
@@ -15,7 +13,6 @@ do_alloc_memory
   CALLEXECQ AllocMem         ;Speicher reservieren
 
 ; ** CHIP-Memory reservieren und löschen **
-; -----------------------------------------
 ; d0 ... Größe des Speicherbereichs
 ;        Rückgabewert: Zeiger auf Speicherbereich wenn erfolgreich
   CNOP 0,4
@@ -24,7 +21,6 @@ do_alloc_chip_memory
   CALLEXECQ AllocMem         ;Speicher reservieren
 
 ; ** FAST-Memory reservieren und löschen **
-; -----------------------------------------
 ; d0 ... Größe des Speicherbereichs
 ;        Rückgabewert: Zeiger auf Speicherbereich wenn erfolgreich
   CNOP 0,4
@@ -33,7 +29,6 @@ do_alloc_fast_memory
   CALLEXECQ AllocMem         ;Speicher reservieren
 
 ; ** Bitmap-Memory reservieren und löschen **
-; -------------------------------------------
 ; d0 ... Breite des Playfiels in Pixeln
 ;        Rückgabewert: Zeiger auf Speicherbereich wenn erfolgreich
 ; d1 ... Höhe des Playfiels in Zeilen
@@ -47,7 +42,6 @@ do_alloc_bitmap_memory
   IFD LINKER_SYS_TAKEN_OVER
     IFNE intena_bits&(~INTF_SETCLR)
 ; ** VBR auslesen **
-; ------------------
 ; d0 ... Rückgabewert Inhalt von VBR
   CNOP 0,4
 read_VBR
@@ -60,7 +54,6 @@ read_VBR
   ELSE
 
 ; ** VBR auslesen **
-; ------------------
 ; d0 ... Rückgabewert Inhalt von VBR
     CNOP 0,4
 read_VBR
@@ -71,7 +64,6 @@ read_VBR
     rte
 
 ; ** VBR beschreiben **
-; ---------------------
 ; d0 ... neuer Inhalt von VBR
     CNOP 0,4
 write_VBR
@@ -84,7 +76,6 @@ write_VBR
   ENDC
 
 ; ** Auf bestimmte Rasterzeile warten **
-; --------------------------------------
   CNOP 0,4
 wait_beam_position
   move.l  #$0003ff00,d1      ;Maske
@@ -101,7 +92,6 @@ wait_beam_loop
   rts
 
 ; ** Auf vertikale Austastlücke warten **
-; ---------------------------------------
   CNOP 0,4
 wait_vbi
   lea     INTREQR-DMACONR(a6),a0
@@ -113,7 +103,6 @@ wait_vbi_loop
   rts
 
 ; ** Auf Copperinterrupt warten **
-; --------------------------------
   CNOP 0,4
 wait_copint
   lea     INTREQR-DMACONR(a6),a0
@@ -125,7 +114,6 @@ wait_copint_loop
   rts
 
 ; ** RGB8-High-Werte in Copperliste schreiben **
-; ----------------------------------------------
 ; a0 POINTER: Copperliste
 ; a1 POINTER: Tabelle mit Farbwerten
 ; d3 WORD: erstes Farbregister
@@ -143,7 +131,6 @@ cop_init_high_colors_loop
   rts
 
 ; ** RGB8-Low-Werte in Copperliste schreiben **
-; ---------------------------------------------
 ; a0 POINTER: Copperliste
 ; a1 POINTER: Tabelle mit Farbwerten
 ; d3 WORD: erstes Farbregister
@@ -161,7 +148,6 @@ cop_init_low_colors_loop
   rts
 
 ; ** RGB8-High-Werte in Farbtabelle schreiben **
-; ----------------------------------------------
 ; a0 WORD: Farbregister
 ; a1 POINTER: Tabelle mit Farbwerten
 ; d7 BYTE_SIGNED: Anzahl der Farben
@@ -176,7 +162,6 @@ cpu_init_high_colors_loop
   rts
 
 ; ** RGB8-Low-Werte in Farbtabelle schreiben **
-; ---------------------------------------------
 ; a0 WORD: Farbregister
 ; a1 POINTER: Tabelle mit Farbwerten
 ; d7 BYTE_SIGNED: Anzahl der Farben

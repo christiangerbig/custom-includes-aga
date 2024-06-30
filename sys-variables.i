@@ -3,7 +3,6 @@
 ; Version:      2.1
 
 ; ## Speicherstellen allgemein ##
-; -------------------------------
   CNOP 0,4
 variables                DS.B variables_size
   CNOP 0,4
@@ -18,7 +17,7 @@ _IntuitionBase           DC.L 0
 _CIABase                 DC.L 0
 exception_vecs_save      DS.B exception_vectors_size
     IFD LINKER_PASS_GLOBAL_REFERENCES
-global_references_table  DS.B global_references_SIZE
+global_references_table  DS.B global_references_size
     ENDC
   ENDC
 

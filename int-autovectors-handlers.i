@@ -3,10 +3,8 @@
 ; Version:      2.0
 
 ; ## Interrupt-Handler ##
-; ------------------------
   
 ; ** Level-1-Interrupt-Handler **
-; -------------------------------
   IFNE intena_bits&(INTF_TBE+INTF_DSKBLK+INTF_SOFTINT)
     CNOP 0,4
 level_1_int_handler
@@ -39,7 +37,6 @@ rt_level_1_int3
     rte
 
 ; ** Ausgabepuffer des seriellen Ports leer **
-; --------------------------------------------
     IFNE intena_bits&INTF_TBE
     CNOP 0,4
 TBE_int_handler
@@ -50,7 +47,6 @@ TBE_int_handler
     ENDC
 
 ; ** Disk-DMA beendet **
-; ----------------------
     IFNE intena_bits&INTF_DSKBLK
     CNOP 0,4
 DSKBLK_int_handler
@@ -61,7 +57,6 @@ DSKBLK_int_handler
     ENDC
 
 ; ** Software-Interrupt **
-; ------------------------
     IFNE intena_bits&INTF_SOFTINT
     CNOP 0,4
 SOFTINT_int_handler
@@ -75,7 +70,6 @@ SOFTINT_int_handler
 
 
 ; ** Level-2-Interrupt-Handler **
-; -------------------------------
   IFNE intena_bits&INTF_PORTS
     CNOP 0,4
 level_2_int_handler
@@ -120,7 +114,6 @@ rt_level_2_int5
     rte
 
 ; ** Externer Level-2-Interrupt **
-; --------------------------------
     IFNE intena_bits&INTF_PORTS
       CNOP 0,4
 PORTS_int_handler
@@ -131,7 +124,6 @@ PORTS_int_handler
     ENDC
 
 ; ** Unterlauf Timer A **
-; -----------------------
     IFNE ciaa_icr_bits&CIAICRF_TA
     CNOP 0,4
 ciaa_ta_int_handler
@@ -142,7 +134,6 @@ ciaa_ta_int_handler
     ENDC
 
 ; ** Unterlauf Timer B **
-; -----------------------
     IFNE ciaa_icr_bits&CIAICRF_TB
     CNOP 0,4
 ciaa_tb_int_handler
@@ -153,7 +144,6 @@ ciaa_tb_int_handler
     ENDC
 
 ; ** Alarm-Interrupt **
-; ---------------------
     IFNE ciaa_icr_bits&CIAICRF_ALRM
     CNOP 0,4
 CIAA_ALRM_int_handler
@@ -164,7 +154,6 @@ CIAA_ALRM_int_handler
     ENDC
 
 ; ** Serieller-Port-Interrupt **
-; ------------------------------
     IFNE ciaa_icr_bits&CIAICRF_SP
     CNOP 0,4
 CIAA_SP_int_handler
@@ -175,7 +164,6 @@ CIAA_SP_int_handler
     ENDC
 
 ; ** Flag-Interrupt **
-; --------------------
     IFNE ciaa_icr_bits&CIAICRF_FLG
     CNOP 0,4
 CIAA_FLG_int_handler
@@ -189,7 +177,6 @@ CIAA_FLG_int_handler
 
 
 ; ** Level-3-Interrupt-Handler **
-; -------------------------------
   IFNE intena_bits&(INTF_COPER+INTF_VERTB+INTF_BLIT)
     CNOP 0,4
 level_3_int_handler
@@ -221,7 +208,6 @@ rt_level_3_int3
     rte
 
 ; ** Copper hat Interrupt erzeugt **
-; ----------------------------------
     IFNE intena_bits&INTF_COPER
     CNOP 0,4
 COPPER_int_handler
@@ -232,7 +218,6 @@ COPPER_int_handler
     ENDC
 
 ; ** Beginn der vertikalen Austastlücke **
-; ----------------------------------------
     IFNE intena_bits&INTF_VERTB
     CNOP 0,4
 VERTB_int_handler
@@ -243,7 +228,6 @@ VERTB_int_handler
     ENDC
 
 ; ** Blitteroperation beendet **
-; ------------------------------
     IFNE intena_bits&INTF_BLIT
     CNOP 0,4
 BLIT_int_handler
@@ -257,7 +241,6 @@ BLIT_int_handler
 
 
 ; ** Level-4-Interrupt-Handler **
-; -------------------------------
   IFNE intena_bits&(INTF_AUD0+INTF_AUD1+INTF_AUD2+INTF_AUD3)
     CNOP 0,4
 level_4_int_handler
@@ -294,7 +277,6 @@ rt_level_4_int4
     rte
 
 ; ** Audiokanal 0 ist fertig mit Datenausgabe **
-; ----------------------------------------------
     IFNE intena_bits&INTF_AUD0
     CNOP 0,4
 AUD0_int_handler
@@ -305,7 +287,6 @@ AUD0_int_handler
     ENDC
 
 ; ** Audiokanal 1 ist fertig mit Datenausgabe **
-; ----------------------------------------------
     IFNE intena_bits&INTF_AUD1
     CNOP 0,4
 AUD1_int_handler
@@ -316,7 +297,6 @@ AUD1_int_handler
     ENDC
 
 ; ** Audiokanal 2 ist fertig mit Datenausgabe **
-; ----------------------------------------------
     IFNE intena_bits&INTF_AUD2
     CNOP 0,4
 AUD2_int_handler
@@ -327,7 +307,6 @@ AUD2_int_handler
     ENDC
 
 ; ** Audiokanal 3 ist fertig mit Datenausgabe **
-; ----------------------------------------------
     IFNE intena_bits&INTF_AUD3
     CNOP 0,4
 AUD3_int_handler
@@ -341,7 +320,6 @@ AUD3_int_handler
 
 
 ; ** Level-5-Interrupt-Handler **
-; -------------------------------
   IFNE intena_bits&(INTF_RBF+INTF_DSKSYNC)
     CNOP 0,4
 level_5_int_handler
@@ -368,7 +346,6 @@ rt_level_5_int2
     rte
 
 ; ** Serieller Port ist voll **
-; -----------------------------
     IFNE intena_bits&INTF_RBF
     CNOP 0,4
 RBF_int_handler
@@ -379,7 +356,6 @@ RBF_int_handler
     ENDC
 
 ; ** Disk-Synchronisationswert erkannt **
-; ---------------------------------------
     IFNE intena_bits&INTF_DSKSYNC
     CNOP 0,4
 DSKSYNC_int_handler
@@ -393,7 +369,6 @@ DSKSYNC_int_handler
 
 
 ; ** Level-6-Interrupt-Handler **
-; -------------------------------
   IFNE intena_bits&INTF_EXTER
     CNOP 0,4
 level_6_int_handler
@@ -438,7 +413,6 @@ rt_level_6_int5
     rte
 
 ; ** Externer Level-6-Interrupt **
-; --------------------------------
     IFNE intena_bits&INTF_EXTER
       CNOP 0,4
 EXTER_int_handler
@@ -449,7 +423,6 @@ EXTER_int_handler
     ENDC
 
 ; ** Unterlauf Timer A **
-; -----------------------
     IFNE ciab_icr_bits&CIAICRF_TA
     CNOP 0,4
 ciab_ta_int_handler
@@ -460,7 +433,6 @@ ciab_ta_int_handler
     ENDC
 
 ; ** Unterlauf Timer B **
-; -----------------------
     IFNE ciab_icr_bits&CIAICRF_TB
     CNOP 0,4
 ciab_tb_int_handler
@@ -471,7 +443,6 @@ ciab_tb_int_handler
     ENDC
 
 ; ** Alarm-Interrupt **
-; ---------------------
     IFNE ciab_icr_bits&CIAICRF_ALRM
     CNOP 0,4
 CIAB_ALRM_int_handler
@@ -482,7 +453,6 @@ CIAB_ALRM_int_handler
     ENDC
 
 ; ** Serieller-Port-Interrupt **
-; ------------------------------
     IFNE ciab_icr_bits&CIAICRF_SP
     CNOP 0,4
 CIAB_SP_int_handler
@@ -493,7 +463,6 @@ CIAB_SP_int_handler
     ENDC
 
 ; ** Flag-Interrupt **
-; --------------------
     IFNE ciab_icr_bits&CIAICRF_FLG
     CNOP 0,4
 CIAB_FLG_int_handler
@@ -507,7 +476,6 @@ CIAB_FLG_int_handler
 
 
 ; ** Level-7-Interrupt-Handler **
-; -------------------------------
   CNOP 0,4
 level_7_int_handler
   movem.l d0-d7/a0-a6,-(a7)
