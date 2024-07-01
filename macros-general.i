@@ -62,7 +62,7 @@ AUDIO_TEST MACRO
   move.w  d0,AUD1VOL-DMACONR(a6)
   move.w  d0,AUD2VOL-DMACONR(a6)
   move.w  d0,AUD3VOL-DMACONR(a6)
-  move.w  #DMAF_AUD0+DMAF_AUD1+DMAF_AUD2+DMAF_AUD3+DMAF_SETCLR,DMACON-DMACONR(a6) ;Audio-DMA starten
+  move.w  #DMAF_AUD0|DMAF_AUD1|DMAF_AUD2|DMAF_AUD3|DMAF_SETCLR,DMACON-DMACONR(a6) ;Audio-DMA starten
   ENDM
 
 
@@ -1354,7 +1354,7 @@ INIT_CHARACTERS_OFFSETS MACRO
     moveq   #0,d0         ;X-Offset erstes Zeichen in Zeichen-Playfieldvorlage
     moveq   #\1_image_plane_width,d1 ;X-Offset letztes Zeichen in Zeichen-Playfieldvorlage
     move.w  d1,d2            ;X-Offset Resetwert
-    MOVEF.W \1_image_plane_width*\1_image_depth*(\1_origin_character_y_size+1),d3              ;Y-Offset für nächste Reihe der Zeichen in Zeichen-Playfieldvorlage
+    MOVEF.W \1_image_plane_width*\1_image_depth*(\1_origin_character_y_size+1),d3 ;Y-Offset für nächste Reihe der Zeichen in Zeichen-Playfieldvorlage
     lea     \1_characters_offsets(pc),a0 ;Offsets der Zeichen in Zeichen-Playfieldvorlage
     moveq   #\1_ascii_end-\1_ascii-1,d7 ;Anzahl der Zeichen des Fonts
 \1_init_characters_offsets_loop
@@ -1608,13 +1608,13 @@ CPU_SELECT_COLOR_HIGH_BANK MACRO
   ENDC
   IFC "","\2"
     IFNE \1
-      move.w  #bplcon3_bits1+(BPLCON3F_BANK0*\1),BPLCON3-DMACONR(a6) ;High-Bits
+      move.w  #bplcon3_bits1|(BPLCON3F_BANK0*\1),BPLCON3-DMACONR(a6) ;High-Bits
     ELSE
-      MOVEF.W bplcon3_bits1+(BPLCON3F_BANK0*\1),d0
+      MOVEF.W bplcon3_bits1|(BPLCON3F_BANK0*\1),d0
       move.w  d0,BPLCON3-DMACONR(a6) ;High-Bits
     ENDC
   ELSE
-    MOVEF.W bplcon3_bits1+(BPLCON3F_BANK0*\1),d0
+    MOVEF.W bplcon3_bits1|(BPLCON3F_BANK0*\1),d0
     or.w    #\2,d0
     move.w  d0,BPLCON3-DMACONR(a6) ;High-Bits
   ENDC
@@ -1628,9 +1628,9 @@ CPU_SELECT_COLOR_LOW_BANK MACRO
     FAIL Makro CPU_SELECT_COLOR_LOW_BANK: Color-Bank-Nummer fehlt
   ENDC
   IFC "","\2"
-    move.w  #bplcon3_bits2+(BPLCON3F_BANK0*\1),BPLCON3-DMACONR(a6) ;Low-Bits
+    move.w  #bplcon3_bits2|(BPLCON3F_BANK0*\1),BPLCON3-DMACONR(a6) ;Low-Bits
   ELSE
-    MOVEF.W bplcon3_bits2+(BPLCON3F_BANK0*\1),d0
+    MOVEF.W bplcon3_bits2|(BPLCON3F_BANK0*\1),d0
     or.w    #\2,d0
     move.w  d0,BPLCON3-DMACONR(a6) ;Low-Bits
   ENDC
@@ -1643,14 +1643,14 @@ DISABLE_060_STORE_BUFFER MACRO
   bpl.s   dsb_no_CPU060      ;Nein -> verzweige
   lea     dsb_CPU060_store_buffer_off(pc),a5 ;Zeiger auf Supervisor-Routine
   CALLLIBS Supervisor
-  move.l  d0,OS_CACR(a3)     ;alten Inhalt retten
+  move.l  d0,os_cacr(a3)     ;alten Inhalt retten
 dsb_no_CPU060
   rts
 ; ** Store-Buffer deaktivieren **
 ; d0 ... Alter Inhalt von CACR
   CNOP 0,4
 dsb_CPU060_store_buffer_off
-  or.w    #SRF_I0+SRF_I1+SRF_I2,SR ;Level-7-Interruptebene
+  or.w    #SRF_I0|SRF_I1|SRF_I2,SR ;Level-7-Interruptebene
   nop
   movec.l CACR,d0            ;Alter Inhalt von CACR
   move.l  d0,d1              
@@ -1669,7 +1669,7 @@ ENABLE_060_STORE_BUFFER MACRO
   tst.b   AttnFlags+1(a6)    ;CPU 68060 ?
   bpl.s   esb_no_CPU060      ;Nein -> verzweige
   lea     esb_CPU060_store_buffer_on(pc),a5 ;Zeiger auf Supervisor-Routine
-  move.l  OS_CACR(a3),d1     ;Alter Inhalt von CACR
+  move.l  os_cacr(a3),d1     ;Alter Inhalt von CACR
   CALLLIBQ Supervisor
 esb_no_CPU060
   rts
@@ -1677,7 +1677,7 @@ esb_no_CPU060
 ; d1 ... alter Inhalt von CACR
   CNOP 0,4
 esb_CPU060_store_buffer_on
-  or.w    #SRF_I0+SRF_I1+SRF_I2,SR ;Level-7-Interruptebene
+  or.w    #SRF_I0|SRF_I1|SRF_I2,SR ;Level-7-Interruptebene
   nop
   CPUSHA  BC                 ;Instruction/Data/Branch-Caches flushen
   nop
@@ -1755,7 +1755,7 @@ INIT_MIRROR_SWITCH_TABLE MACRO
   ENDC
   IFC "W","\0"
     IFNC "","\2"
-      move.l  #(\2<<8)+bplcon4_bits,d0 ;Erster Switchwert
+      move.l  #(\2<<8)|bplcon4_bits,d0 ;Erster Switchwert
     ENDC
     IFNC "","\3"
       move.l  #\3<<8,d2 ;Additionswert für Switchwert
@@ -1856,7 +1856,7 @@ INIT_NESTED_MIRROR_SWITCH_TABLE MACRO
     dbf     d7,\1_init_nested_mirror_switch_table_loop1
   ENDC
   IFC "W","\0"
-    move.l  #(\2<<8)+bplcon4_bits,d0 ;Erster Switchwert
+    move.l  #(\2<<8)|bplcon4_bits,d0 ;Erster Switchwert
     move.l  #\3<<8,d2 ;Additionswert für Switchwert
     moveq   #\4-1,d7         ;Anzahl der Farbverläufe
 \1_init_nested_mirror_switch_table_loop1

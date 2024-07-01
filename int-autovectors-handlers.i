@@ -5,7 +5,7 @@
 ; ## Interrupt-Handler ##
   
 ; ** Level-1-Interrupt-Handler **
-  IFNE intena_bits&(INTF_TBE+INTF_DSKBLK+INTF_SOFTINT)
+  IFNE intena_bits&(INTF_TBE|INTF_DSKBLK|INTF_SOFTINT)
     CNOP 0,4
 level_1_int_handler
     movem.l d0-d7/a0-a6,-(a7)
@@ -13,7 +13,7 @@ level_1_int_handler
     move.l  #_CIAB,a5        ;CIA-B-Base
     lea     (_CIAA-_CIAB)(a5),a4 ;CIA-A-Base
     move.l  #_CUSTOM+DMACONR,a6 ;DMACONR
-    moveq   #intena_bits&(INTF_TBE+INTF_DSKBLK+INTF_SOFTINT),d0 ;Nur Bits 0-2
+    moveq   #intena_bits&(INTF_TBE|INTF_DSKBLK|INTF_SOFTINT),d0 ;Nur Bits 0-2
     and.w   INTREQR-DMACONR(a6),d0
 
     IFNE intena_bits&INTF_TBE
@@ -177,7 +177,7 @@ CIAA_FLG_int_handler
 
 
 ; ** Level-3-Interrupt-Handler **
-  IFNE intena_bits&(INTF_COPER+INTF_VERTB+INTF_BLIT)
+  IFNE intena_bits&(INTF_COPER|INTF_VERTB|INTF_BLIT)
     CNOP 0,4
 level_3_int_handler
     movem.l d0-d7/a0-a6,-(a7)
@@ -185,7 +185,7 @@ level_3_int_handler
     move.l  #_CIAB,a5        ;CIA-B-Base
     lea     (_CIAA-_CIAB)(a5),a4 ;CIA-A-Base
     move.l  #_CUSTOM+DMACONR,a6 ;DMACONR
-    moveq   #intena_bits&(INTF_COPER+INTF_VERTB+INTF_BLIT),d0 ;Nur Bits 4-6
+    moveq   #intena_bits&(INTF_COPER|INTF_VERTB|INTF_BLIT),d0 ;Nur Bits 4-6
     and.w   INTREQR-DMACONR(a6),d0 ;Interrupts 
     IFNE intena_bits&INTF_COPER
       btst    #INTB_COPER,d0 ;COPER-Interrupt ?
@@ -241,7 +241,7 @@ BLIT_int_handler
 
 
 ; ** Level-4-Interrupt-Handler **
-  IFNE intena_bits&(INTF_AUD0+INTF_AUD1+INTF_AUD2+INTF_AUD3)
+  IFNE intena_bits&(INTF_AUD0|INTF_AUD1|INTF_AUD2|INTF_AUD3)
     CNOP 0,4
 level_4_int_handler
     movem.l d0-d7/a0-a6,-(a7)
@@ -250,7 +250,7 @@ level_4_int_handler
     lea     (_CIAA-_CIAB)(a5),a4 ;CIA-A-Base
     move.l  #_CUSTOM+DMACONR,a6 ;DMACONR
     move.w  INTREQR-DMACONR(a6),d0 ;Interrupts 
-    and.w   #intena_bits&(INTF_AUD0+INTF_AUD1+INTF_AUD2+INTF_AUD3),d0 ;Nur Bits 7-10
+    and.w   #intena_bits&(INTF_AUD0|INTF_AUD1|INTF_AUD2|INTF_AUD3),d0 ;Nur Bits 7-10
     IFNE intena_bits&INTF_AUD0
       btst    #INTB_AUD0,d0  ;AUD0-Interrupt ?
       bne.s   AUD0_int_handler
@@ -320,7 +320,7 @@ AUD3_int_handler
 
 
 ; ** Level-5-Interrupt-Handler **
-  IFNE intena_bits&(INTF_RBF+INTF_DSKSYNC)
+  IFNE intena_bits&(INTF_RBF|INTF_DSKSYNC)
     CNOP 0,4
 level_5_int_handler
     movem.l d0-d7/a0-a6,-(a7)
@@ -329,7 +329,7 @@ level_5_int_handler
     lea     (_CIAA-_CIAB)(a5),a4 ;CIA-A-Base
     move.l  #_CUSTOM+DMACONR,a6 ;DMACONR
     move.w  INTREQR-DMACONR(a6),d0 ;Interrupts 
-    and.w   #intena_bits&(INTF_RBF+INTF_DSKSYNC),d0 ;Nur Bits 11-12
+    and.w   #intena_bits&(INTF_RBF|INTF_DSKSYNC),d0 ;Nur Bits 11-12
     IFNE intena_bits&INTF_RBF
       btst    #INTB_RBF,d0   ;RBF-Interrupt ?
       bne.s   RBF_int_handler

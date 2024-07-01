@@ -40,19 +40,19 @@ COP_WAIT MACRO
   ENDM
 
 
-COP_WAITBLT MACRO
+COP_WAITBLIT MACRO
   move.l  #$00010000,(a0)+ ;BFD-Bit=0, auf Blitter warten
   ENDM
 
 
-COP_WAITBLT2 MACRO
+COP_WAITBLIT2 MACRO
 ; \1 ... X-position (Bits 2-8)
 ; \2 ... Y-Position (Bits 0-7)
   IFC "","\1"
-    FAIL Makro COP_WAITBLT2: X-position (Bits 2-8) fehlt
+    FAIL Makro COP_WAITBLIT2: X-position (Bits 2-8) fehlt
   ENDC
   IFC "","\2"
-    FAIL Makro COP_WAITBLT2: Y-Position (Bits 0-7) fehlt
+    FAIL Makro COP_WAITBLIT2: Y-Position (Bits 0-7) fehlt
   ENDC
   move.l  #((((\2)<<24)|((((\1)/4)*2)<<16))|$10000)|$7ffe,(a0)+ ;Y-Pos, X-Pos, WAIT-Kennung, BFD-Bit=0, auf Blitter warten
   ENDM
@@ -316,7 +316,7 @@ COP_SELECT_COLOR_HIGH_BANK MACRO
   IFC "","\1"
     FAIL Makro COP_SELECT_COLOR_HIGH_BANK MACRO: Color-Bank Nummer 0..7 fehlt
   ENDC
-    COP_MOVEQ bplcon3_bits1+(BPLCON3F_BANK0*\1),BPLCON3 ;High-Bits
+    COP_MOVEQ bplcon3_bits1|(BPLCON3F_BANK0*\1),BPLCON3 ;High-Bits
   IFNC "","\2"
     or.w     #\2,-2(a0)      ;High-Bits
   ENDC
@@ -329,7 +329,7 @@ COP_SELECT_COLOR_LOW_BANK MACRO
   IFC "","\1"
     FAIL Makro COP_SELECT_COLOR_LOW_BANK MACRO: Color-Bank Nummer 0..7 fehlt
   ENDC
-    COP_MOVEQ bplcon3_bits2+(BPLCON3F_BANK0*\1),BPLCON3 ;Low-Bits
+    COP_MOVEQ bplcon3_bits2|(BPLCON3F_BANK0*\1),BPLCON3 ;Low-Bits
   IFNC "","\2"
     or.w     #\2,-2(a0)      ;Low-Bits
   ENDC
@@ -478,7 +478,7 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN MACRO
 \1_init_bplcon4_registers
   IFNE \8
     move.l  #(((\3<<24)|(((\2/4)*2)<<16))|$10000)|$fffe,d0 ;WAIT-Befehl
-    move.l  #(BPLCON4<<16)+(bplcon4_bits&$00ff),d1
+    move.l  #(BPLCON4<<16)|(bplcon4_bits&$00ff),d1
     IFEQ \6
       IFNC "","\9"
         IFNC "OVERSCAN","\9"
@@ -516,26 +516,26 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN MACRO
     move.l  a4,-(a7)
     move.l  #(((\3<<24)|(((\2/4)*2)<<16))|$10000)|$fffe,d0 ;WAIT-Befehl
     IFEQ \7
-      move.l  #(BPLCON3<<16)+bplcon3_bits3,d1 ;High-RGB-Werte
+      move.l  #(BPLCON3<<16)|bplcon3_bits3,d1 ;High-RGB-Werte
     ELSE
-      move.l  #(BPLCON3<<16)+bplcon3_bits1,d1 ;High-RGB-Werte
+      move.l  #(BPLCON3<<16)|bplcon3_bits1,d1 ;High-RGB-Werte
     ENDC
     IFEQ \7
-      move.l  #(COLOR31<<16)+color00_high_bits,a2
+      move.l  #(COLOR31<<16)|color00_high_bits,a2
     ELSE
-      move.l  #(COLOR00<<16)+color00_high_bits,a2
+      move.l  #(COLOR00<<16)|color00_high_bits,a2
     ENDC
     IFEQ \7
-      move.l  #(COLOR31<<16)+color00_low_bits,a4
+      move.l  #(COLOR31<<16)|color00_low_bits,a4
     ELSE
-      move.l  #(COLOR00<<16)+color00_low_bits,a4
+      move.l  #(COLOR00<<16)|color00_low_bits,a4
     ENDC
     IFEQ \7
-      move.l  #(BPLCON3<<16)+bplcon3_bits4,d3 ;Low-RGB-Werte
+      move.l  #(BPLCON3<<16)|bplcon3_bits4,d3 ;Low-RGB-Werte
     ELSE
-      move.l  #(BPLCON3<<16)+bplcon3_bits2,d3 ;Low-RGB-Werte
+      move.l  #(BPLCON3<<16)|bplcon3_bits2,d3 ;Low-RGB-Werte
     ENDC
-    move.l  #(BPLCON4<<16)+(bplcon4_bits&$00ff),d4
+    move.l  #(BPLCON4<<16)|(bplcon4_bits&$00ff),d4
     IFEQ \6
       IFNC "","\9"
         IFNC "OVERSCAN","\9"
@@ -604,9 +604,9 @@ COP_INIT_BPLCON1_CHUNKY_SCREEN MACRO
 \1_init_bplcon1_registers
   move.l  #(((\3<<24)|(((\2/4)*2)<<16))|$10000)|$fffe,d0 ;WAIT-Befehl
   IFC "","\6"
-    move.l  #(BPLCON1<<16)+bplcon1_bits,d1
+    move.l  #(BPLCON1<<16)|bplcon1_bits,d1
   ELSE
-    move.l  #(BPLCON1<<16)+\6,d1
+    move.l  #(BPLCON1<<16)|\6,d1
   ENDC
   moveq   #1,d3
   ror.l   #8,d3              ;Y-Additionswert $01000000
@@ -641,7 +641,7 @@ COP_INIT_COPINT MACRO
       COP_WAIT \2,\3
     ENDC
   ENDC
-  COP_MOVEQ INTF_COPER+INTF_SETCLR,INTREQ
+  COP_MOVEQ INTF_COPER|INTF_SETCLR,INTREQ
   rts
   ENDM
 
@@ -1580,8 +1580,8 @@ CLEAR_BPLCON4_CHUNKY_SCREEN MACRO
   IFC "cl1","\2"
 \1_clear_first_copperlist
     move.l  \2_\3(a3),a0 
-    WAIT_BLITTER
-    move.l  #(BC0F_DEST+ANBNC+ANBC+ABNC+ABC)<<16,BLTCON0-DMACONR(a6) ;Minterm D=A
+    WAITBLIT
+    move.l  #(BC0F_DEST|ANBNC|ANBC|ABNC|ABC)<<16,BLTCON0-DMACONR(a6) ;Minterm D=A
     moveq   #FALSE,d0
     move.l  d0,BLTAFWM-DMACONR(a6) ;Maske aus
     ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
@@ -1594,14 +1594,14 @@ CLEAR_BPLCON4_CHUNKY_SCREEN MACRO
       MOVEF.W bplcon4_bits,d0
     ENDC
     move.w  d0,BLTADAT-DMACONR(a6) ;Quelle = BPLCON4-Bits
-    move.l  #(\1_clear_blit_y_size<<16)+(\1_clear_blit_x_size/16),BLTSIZV-DMACONR(a6) ;Blitter starten
+    move.l  #(\1_clear_blit_y_size<<16)|(\1_clear_blit_x_size/16),BLTSIZV-DMACONR(a6) ;Blitter starten
     rts
   ENDC
   IFC "cl2","\2"
 \1_clear_second_copperlist
     move.l  \2_\3(a3),a0 
-    WAIT_BLITTER
-    move.l  #(BC0F_DEST+ANBNC+ANBC+ABNC+ABC)<<16,BLTCON0-DMACONR(a6) ;Minterm D=A
+    WAITBLIT
+    move.l  #(BC0F_DEST|ANBNC|ANBC|ABNC|ABC)<<16,BLTCON0-DMACONR(a6) ;Minterm D=A
     moveq   #FALSE,d0
     move.l  d0,BLTAFWM-DMACONR(a6) ;Maske aus
     ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
@@ -1614,7 +1614,7 @@ CLEAR_BPLCON4_CHUNKY_SCREEN MACRO
       MOVEF.W bplcon4_bits,d0
     ENDC
     move.w  d0,BLTADAT-DMACONR(a6) ;Quelle = BPLCON4-Bits
-    move.l  #(\1_clear_blit_y_size<<16)+(\1_clear_blit_x_size/16),BLTSIZV-DMACONR(a6) ;Blitter starten
+    move.l  #(\1_clear_blit_y_size<<16)|(\1_clear_blit_x_size/16),BLTSIZV-DMACONR(a6) ;Blitter starten
     rts
   ENDC
   ENDM
@@ -1724,13 +1724,13 @@ restore_first_copperlist_loop
     IFEQ \1_restore_cl_blitter_enabled
       IFC "","\7"
         move.l  \2_\3(a3),a0   
-        WAIT_BLITTER
+        WAITBLIT
         ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
         move.l  a0,BLTDPT-DMACONR(a6) ;Ziel = Copperliste
         move.w  #\2_\4_size-\1_restore_blit_width,BLTDMOD-DMACONR(a6) ;D-Mod
         moveq   #-2,d0         ;2. Wort des Wait-Befehls
         move.w  d0,BLTADAT-DMACONR(a6) ;Quelle = 2. Wort von CWAIT
-        move.w  #(\1_restore_blit_y_size*64)+(\1_restore_blit_x_size/16),BLTSIZE-DMACONR(a6) ;Anzahl der Zeilen
+        move.w  #(\1_restore_blit_y_size*64)|(\1_restore_blit_x_size/16),BLTSIZE-DMACONR(a6) ;Anzahl der Zeilen
         rts
       ENDC
     ENDC
@@ -1815,13 +1815,13 @@ restore_second_copperlist_loop
     IFEQ \1_restore_cl_blitter_enabled
       IFC "","\7"
         move.l  \2_\3(a3),a0   
-        WAIT_BLITTER
+        WAITBLIT
         ADDF.W  \2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
         move.l  a0,BLTDPT-DMACONR(a6) ;Ziel = Copperliste
         move.w  #\2_\4_size-\1_restore_blit_width,BLTDMOD-DMACONR(a6) ;D-Mod
         moveq   #-2,d0         ;2. Wort des Wait-Befehls
         move.w  d0,BLTADAT-DMACONR(a6) ;Quelle = 2. Wort von CWAIT
-        move.w  #(\1_restore_blit_y_size*64)+(\1_restore_blit_x_size/16),BLTSIZE-DMACONR(a6) ;Anzahl der Zeilen
+        move.w  #(\1_restore_blit_y_size*64)|(\1_restore_blit_x_size/16),BLTSIZE-DMACONR(a6) ;Anzahl der Zeilen
         rts
       ENDC
     ENDC

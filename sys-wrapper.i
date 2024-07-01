@@ -2,6 +2,29 @@
 ; Datum:        19.6.2024
 ; Version:      1.0
 
+; Control-Labels
+
+; LINKER_SYS_TAKEN_OVER
+; LINKER_PASS_RETURN_CODE
+; LINKER_PASS_GLOBAL_REFERENCES
+; LINKER_WRAPPER
+
+; CUSTOM_MEMORY_USED
+
+; SAVE_BEAMCON0
+
+; AGA_CHECK_BY_HARDWARE
+
+; ALL_CACHES
+; NO_060_STORE_BUFFER
+
+; TRAP0
+; TRAP1
+; TRAP2
+
+; SET_SECOND_COPPERLIST
+
+
   IFND LINKER_SYS_TAKEN_OVER
     INCLUDE "screen-taglist-offsets.i"
     INCLUDE "sprite-taglist-offsets.i"
@@ -21,7 +44,7 @@
   ENDC
   bsr     init_structures
   IFD LINKER_SYS_TAKEN_OVER
-    IFD custom_memory_used
+    IFD CUSTOM_MEMORY_USED
       bsr     init_custom_memory_table ;Wird von außen aufgerufen
       bsr     extend_global_references_table ;Wird von außen aufgerufen
     ENDC
@@ -248,7 +271,7 @@
 
   IFD LINKER_SYS_TAKEN_OVER
 ; ** Custom-Speicher belegen **
-    IFD custom_memory_used
+    IFD CUSTOM_MEMORY_USED
       bsr     alloc_custom_memory ;Wird von außen aufgerufen
       move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
       bne.s   cleanup_timer_device ;Ja -> verzweige
@@ -271,10 +294,10 @@
     bsr     disable_system   
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
     bne.s   cleanup_all_memory ;Ja -> verzweige
-    IFD all_caches
+    IFD ALL_CACHES
       bsr     enable_all_caches
     ENDC
-    IFD no_store_buffer
+    IFD NO_060_STORE_BUFFER
       bsr     disable_store_buffer
     ENDC
     bsr     save_exception_vectors
@@ -338,10 +361,10 @@
 ; ** alte System-Parameter wieder herstellem **
     bsr     clear_important_registers2
     bsr     restore_hardware_registers
-    IFD all_caches
+    IFD ALL_CACHES
       bsr     enable_os_caches
     ENDC
-    IFD no_store_buffer
+    IFD NO_060_STORE_BUFFER
       bsr     enable_store_buffer
     ENDC
     bsr     restore_exception_vectors
@@ -358,7 +381,7 @@ cleanup_all_memory
 
   IFD LINKER_SYS_TAKEN_OVER
 ; ** Speicherbelegung Custom-Memory freigeben **
-    IFD custom_memory_used
+    IFD CUSTOM_MEMORY_USED
       bsr     free_custom_memory ;Wird von außen aufgerufen
     ENDC
   ELSE
@@ -474,7 +497,7 @@ cleanup_wb_message
   ENDC
 
 end_final
-  IFD measure_rastertime
+  IFD MEASURE_RASTERTIME
     move.l  rt_rasterlines_number(a3),d0
 output_rasterlines_number
   ELSE
@@ -537,7 +560,7 @@ init_variables
     lea     _SysBase(pc),a0
     move.l  exec_base.w,(a0)
   ENDC
-  IFD measure_rastertime
+  IFD MEASURE_RASTERTIME
     moveq   #0,d0
     move.l  d0,rt_rasterlines_number(a3)
   ENDC
@@ -1215,7 +1238,7 @@ check_cpu
     beq.s   system_error2      ;Nein -> verzweige
 check_chipset
       move.l  _GfxBase(pc),a1
-    IFD aga_check_by_hardware_enables
+    IFD AGA_CHECK_BY_HARDWARE
       move.l  #_CUSTOM+DENISEID,a0 ;DENISEID
       move.w  -(DENISEID-VPOSR)(a0),d0
       and.w   #$7e00,d0        ;Nur Bits 8-14
@@ -1416,7 +1439,7 @@ open_ciax_resources
     beq.s   ciaa_resources_error ;Wenn Fehler -> verzweige
     moveq   #0,d0              ;keine Maske
     CALLCIA AbleICR
-    move.b  d0,os_CIAAICR(a3)  
+    move.b  d0,os_ciaa_icr(a3)
   
     lea     CIAB_name(pc),a1
     CALLEXEC OpenResource
@@ -1425,7 +1448,7 @@ open_ciax_resources
     beq.s   ciab_resources_error ;Wenn Fehler -> verzweige
     moveq   #0,d0              ;keine Maske
     CALLCIA AbleICR
-    move.b  d0,os_CIABICR(a3)  
+    move.b  d0,os_ciab_icr(a3)
     moveq   #RETURN_OK,d0
     rts
     CNOP 0,4
@@ -2036,7 +2059,7 @@ chip_memory_error
 alloc_vectors_memory
     lea     read_vbr(pc),a5  ;Zeiger auf Supervisor-Routine
     CALLEXEC Supervisor
-    move.l  d0,os_VBR(a3)    ;Inhalt von VBR retten
+    move.l  d0,os_vbr(a3)    ;Inhalt von VBR retten
     move.l  d0,a1            ;Speicheradresse -> a1
     CALLLIBS TypeOfMem
     and.b   #MEMF_FAST,d0    ;FAST-Memory ?
@@ -2051,7 +2074,7 @@ alloc_vectors_memory
     rts
     CNOP 0,4
 no_alloc_vectors_memory
-    move.l  os_VBR(a3),vbr_save(a3)
+    move.l  os_vbr(a3),vbr_save(a3)
     moveq   #RETURN_OK,d0
     rts
     CNOP 0,4
@@ -2212,21 +2235,21 @@ check_downgrade_screen_mode
 get_os_view_parameters
     CALLINT ViewAddress
     move.l  d0,os_view(a3)   
-    IFD save_BEAMCON0
+    IFD SAVE_BEAMCON0
       move.l  d0,a0
       CALLGRAF GfxLookUp
       move.l  d0,a0          ;Zeiger auf ViewExtra-Struktur retten
       move.l  ve_monitor(a0),a0 ;Zeiger auf MonitorSpec-Struktur 
-      move.w  ms_BeamCon0(a0),os_BEAMCON0(a3) ;BEAMCON0 des Views retten
+      move.w  ms_BeamCon0(a0),os_beamcon0(a3) ;BEAMCON0 des Views retten
     ENDC
 
 get_os_copperlist_pointers
     move.l  _GfxBase(pc),a6
     IFNE cl1_size3
-      move.l  gb_Copinit(a6),os_COP1LC(a3) ;COP1LC retten
+      move.l  gb_Copinit(a6),os_cop1lc(a3) ;COP1LC retten
     ENDC
     IFNE cl2_size3
-      move.l  gb_LOFlist(a6),os_COP2LC(a3) ;COP2LC (LOFlist, da OS das LOF-Bit bei non-Interlaced immer setzt!) retten
+      move.l  gb_LOFlist(a6),os_cop2lc(a3) ;COP2LC (LOFlist, da OS das LOF-Bit bei non-Interlaced immer setzt!) retten
     ENDC
   
 downgrade_display
@@ -2422,18 +2445,18 @@ wbf_set_new_colors32
     ENDC
   
 ; ** Alle Caches aktivieren **
-    IFD all_caches
+    IFD ALL_CACHES
       CNOP 0,4
 enable_all_caches
-      move.l  #CACRF_EnableI+CACRF_IBE+CACRF_EnableD+CACRF_DBE+CACRF_WriteAllocate+CACRF_EnableE+CACRF_CopyBack,d0 ;Alle Caches einschalten
-      move.l  #CACRF_EnableI+CACRF_FreezeI+CACRF_ClearI+CACRF_IBE+CACRF_EnableD+CACRF_FreezeD+CACRF_ClearD+CACRF_DBE+CACRF_WriteAllocate+CACRF_EnableE+CACRF_CopyBack,d1 ;Alle Bits ändern
+      move.l  #CACRF_EnableI|CACRF_IBE|CACRF_EnableD|CACRF_DBE|CACRF_WriteAllocate|CACRF_EnableE|CACRF_CopyBack,d0 ;Alle Caches einschalten
+      move.l  #CACRF_EnableI|CACRF_FreezeI|CACRF_ClearI|CACRF_IBE|CACRF_EnableD|CACRF_FreezeD|CACRF_ClearD|CACRF_DBE|CACRF_WriteAllocate|CACRF_EnableE|CACRF_CopyBack,d1 ;Alle Bits ändern
       CALLEXEC CacheControl
-      move.l  d0,os_CACR(a3)
+      move.l  d0,os_cacr(a3)
       rts
     ENDC
   
 ; ** Store Buffer des 68060 aktivieren **
-    IFD no_store_buffer
+    IFD NO_060_STORE_BUFFER
       CNOP 0,4
 disable_store_buffer
       DISABLE_060_STORE_BUFFER
@@ -2442,7 +2465,7 @@ disable_store_buffer
 ; ** Exception-Vektoren retten **
     CNOP 0,4
 save_exception_vectors
-    move.l  os_VBR(a3),a0    ;Quelle = Reset (Initial SSP)
+    move.l  os_vbr(a3),a0    ;Quelle = Reset (Initial SSP)
     lea     exception_vecs_save(pc),a1 ;Ziel
     MOVEF.W (exception_vectors_size/4)-1,d7 ;Anzahl der Vektoren
 copy_exception_vectors_loop
@@ -2467,7 +2490,7 @@ init_exception_vectors
   ENDC
 
 ; ** Level-1 - Level-7-Interrupt-Vektoren **
-  IFNE intena_bits&(INTF_TBE+INTF_DSKBLK+INTF_SOFTINT)
+  IFNE intena_bits&(INTF_TBE|INTF_DSKBLK|INTF_SOFTINT)
     lea     level_1_int_handler(pc),a1
     move.l  a1,LEVEL_1_AUTOVECTOR(a0) ;Neuer LEVEL_1_AUTOVECTOR
   ENDC
@@ -2475,15 +2498,15 @@ init_exception_vectors
     lea     level_2_int_handler(pc),a1
     move.l  a1,LEVEL_2_AUTOVECTOR(a0) ;Neuer LEVEL_2_AUTOVECTOR
   ENDC
-  IFNE intena_bits&(INTF_COPER+INTF_VERTB+INTF_BLIT)
+  IFNE intena_bits&(INTF_COPER|INTF_VERTB|INTF_BLIT)
     lea     level_3_int_handler(pc),a1
     move.l  a1,LEVEL_3_AUTOVECTOR(a0) ;Neuer LEVEL_3_AUTOVECTOR
   ENDC
-  IFNE intena_bits&(INTF_AUD0+INTF_AUD1+INTF_AUD2+INTF_AUD3)
+  IFNE intena_bits&(INTF_AUD0|INTF_AUD1|INTF_AUD2|INTF_AUD3)
     lea     level_4_int_handler(pc),a1
     move.l  a1,LEVEL_4_AUTOVECTOR(a0) ;Neuer LEVEL_4_AUTOVECTOR
   ENDC
-  IFNE intena_bits&(INTF_RBF+INTF_DSKSYNC)
+  IFNE intena_bits&(INTF_RBF|INTF_DSKSYNC)
     lea     level_5_int_handler(pc),a1
     move.l  a1,LEVEL_5_AUTOVECTOR(a0) ;Neuer LEVEL_5_AUTOVECTOR
   ENDC
@@ -2518,7 +2541,7 @@ exception_vectors_to_fast_memory
     move.l  exception_vectors_base(a3),d0 ;Sollen Vektoren verschoben werden ?
     beq.s   no_vbr_move      ;FALSE -> verzweige
     move.l  d0,a1            ;Ziel = FAST-Memory
-    move.l  os_VBR(a3),a0    ;Quelle = Reset (Initial SSP)
+    move.l  os_vbr(a3),a0    ;Quelle = Reset (Initial SSP)
     MOVEF.W (exception_vectors_size/4)-1,d7 ;Anzahl der Langwörter zum Kopieren
 copy_exception_vectors_loop2
     move.l  (a0)+,(a1)+      ;1 Langwort kopieren
@@ -2535,28 +2558,28 @@ no_vbr_move
 ; ** Hardware-Register retten **
     CNOP 0,4
 save_hardware_registers
-    move.w  (a6),os_DMACON(a3)
-    move.w  INTENAR-DMACONR(a6),os_INTENA(a3)
-    move.w  ADKCONR-DMACONR(a6),os_ADKCON(a3)
+    move.w  (a6),os_dmacon(a3)
+    move.w  INTENAR-DMACONR(a6),os_intena(a3)
+    move.w  ADKCONR-DMACONR(a6),os_adkcon(a3)
   
-    move.b  CIAPRA(a4),os_CIAAPRA(a3)
+    move.b  CIAPRA(a4),os_ciaa_pra(a3)
     move.b  CIACRA(a4),d0
-    move.b  d0,os_ciaa_cra_bits(a3)
+    move.b  d0,os_ciaa_cra(a3)
     and.b   #~(CIACRAF_START),d0 ;Timer A stoppen
     or.b    #CIACRAF_LOAD,d0 ;Zählwert laden
     move.b  d0,CIACRA(a4)
     nop
-    move.b  CIATALO(a4),os_CIAATALO(a3)
-    move.b  CIATAHI(a4),os_CIAATAHI(a3)
+    move.b  CIATALO(a4),os_ciaa_talo(a3)
+    move.b  CIATAHI(a4),os_ciaa_tahi(a3)
   
     move.b  CIACRB(a4),d0
-    move.b  d0,os_ciaa_crb_bits(a3)
+    move.b  d0,os_ciaa_crb(a3)
     and.b   #~(CIACRBF_ALARM-CIACRBF_START),d0 ;Timer B stoppen
     or.b    #CIACRBF_LOAD,d0 ;Zählwert laden
     move.b  d0,CIACRB(a4)
     nop
-    move.b  CIATBLO(a4),os_CIAATBLO(a3)
-    move.b  CIATBHI(a4),os_CIAATBHI(a3)
+    move.b  CIATBLO(a4),os_ciaa_tblo(a3)
+    move.b  CIATBHI(a4),os_ciaa_tbhi(a3)
   
     moveq   #0,d0
     move.b  CIATODHI(a4),d0  ;CIA-A TOD-clock Bits 23-16
@@ -2566,24 +2589,24 @@ save_hardware_registers
     move.b  CIATODLOW(a4),d0 ;CIA-A TOD-clock Bits 7-0
     move.l  d0,tod_time_save(a3) 
   
-    move.b  CIAPRB(a5),os_CIABPRB(a3)
+    move.b  CIAPRB(a5),os_ciab_prb(a3)
     move.b  CIACRA(a5),d0
-    move.b  d0,os_ciaa_cra_bits(a3)
+    move.b  d0,os_ciaa_cra(a3)
     and.b   #~(CIACRAF_START),d0 ;Timer A stoppen
     or.b    #CIACRAF_LOAD,d0 ;Zählwert laden
     move.b  d0,CIACRA(a5)
     nop
-    move.b  CIATALO(a5),os_CIABTALO(a3)
-    move.b  CIATAHI(a5),os_CIABTAHI(a3)
+    move.b  CIATALO(a5),os_ciab_talo(a3)
+    move.b  CIATAHI(a5),os_ciab_tahi(a3)
   
     move.b  CIACRB(a5),d0
-    move.b  d0,os_ciab_crb_bits(a3)
+    move.b  d0,os_ciab_crb(a3)
     and.b   #~(CIACRBF_ALARM-CIACRBF_START),d0 ;Timer B stoppen
     or.b    #CIACRBF_LOAD,d0 ;Zählwert laden
     move.b  d0,CIACRB(a5)
     nop
-    move.b  CIATBLO(a5),os_CIABTBLO(a3)
-    move.b  CIATBHI(a5),os_CIABTBHI(a3)
+    move.b  CIATBLO(a5),os_ciab_tblo(a3)
+    move.b  CIATBHI(a5),os_ciab_tbhi(a3)
     rts
   
 ; ** Wichtige Register löschen **
@@ -2596,7 +2619,7 @@ clear_important_registers
     move.w  d0,ADKCON-DMACONR(a6) ;ADKCON löschen
   
     moveq   #0,d0
-    move.w  d0,JOYTEST-DMACONR(a6) ;Maus + Joystickposition löschen
+    move.w  d0,JOYTEST-DMACONR(a6) ;Maus- und Joystickposition löschen
     move.w  d0,FMODE-DMACONR(a6) ;Fetchmode Sprites & Bitplanes = 1x
     move.l  d0,SPR0DATA-DMACONR(a6) ;Spritebitmaps löschen
     move.l  d0,SPR1DATA-DMACONR(a6)
@@ -2618,7 +2641,7 @@ clear_important_registers
   ;    CNOP 0,4
 turn_off_drive_motors
     move.b  CIAPRB(a5),d0
-    moveq   #CIAF_DSKSEL0+CIAF_DSKSEL1+CIAF_DSKSEL2+CIAF_DSKSEL3,d1 ;Unit 0-3
+    moveq   #CIAF_DSKSEL0|CIAF_DSKSEL1|CIAF_DSKSEL2|CIAF_DSKSEL3,d1 ;Unit 0-3
     or.b    d1,d0
     move.b  d0,CIAPRB(a5)    ;df0: bis df3: deaktivieren
     tas     d0
@@ -2737,7 +2760,7 @@ stop_own_display
   ENDC
   bsr     wait_beam_position
   IFNE dma_bits&DMAF_BLITTER
-    WAIT_BLITTER
+    WAITBLIT
   ENDC
   IFD LINKER_SYS_TAKEN_OVER
     move.w  #dma_bits&(~DMAF_SETCLR),DMACON-DMACONR(a6) ;DMA aus
@@ -2786,56 +2809,56 @@ clear_important_registers2
 ; ** Alten Inhalt in Register zurückschreiben **
     CNOP 0,4
 restore_hardware_registers
-    move.b  os_CIAAPRA(a3),CIAPRA(a4)
+    move.b  os_ciaa_pra(a3),CIAPRA(a4)
   
-    move.b  os_CIAATALO(a3),CIATALO(a4)
+    move.b  os_ciaa_talo(a3),CIATALO(a4)
     nop
-    move.b  os_CIAATAHI(a3),CIATAHI(a4)
+    move.b  os_ciaa_tahi(a3),CIATAHI(a4)
   
-    move.b  os_CIAATBLO(a3),CIATBLO(a4)
+    move.b  os_ciaa_tblo(a3),CIATBLO(a4)
     nop
-    move.b  os_CIAATBHI(a3),CIATBHI(a4)
+    move.b  os_ciaa_tbhi(a3),CIATBHI(a4)
   
-    move.b  os_CIAAICR(a3),d0
+    move.b  os_ciaa_icr(a3),d0
     tas     d0               ;Bit 7 ggf. setzen
     move.b  d0,CIAICR(a4)
   
-    move.b  os_ciaa_cra_bits(a3),d0
+    move.b  os_ciaa_cra(a3),d0
     btst    #CIACRAB_RUNMODE,d0 ;Continuous-Modus ?
     bne.s   ciaa_ta_no_continuous ;Nein -> verzweige
     or.b    #CIACRAF_START,d0 ;Ja -> Timer A starten
 ciaa_ta_no_continuous
     move.b  d0,CIACRA(a4)
   
-    move.b  os_ciaa_crb_bits(a3),d0
+    move.b  os_ciaa_crb(a3),d0
     btst    #CIACRBB_RUNMODE,d0 ;Continuous-Modus ?
     bne.s   ciaa_tb_no_continuous ;Nein -> verzweige
     or.b    #CIACRBF_START,d0 ;Ja -> Timer B starten
 ciaa_tb_no_continuous
     move.b  d0,CIACRB(a4)
   
-    move.b  os_CIABPRB(a3),CIAPRB(a5)
+    move.b  os_ciab_prb(a3),CIAPRB(a5)
   
-    move.b  os_CIABTALO(a3),CIATALO(a5)
+    move.b  os_ciab_talo(a3),CIATALO(a5)
     nop
-    move.b  os_CIABTAHI(a3),CIATAHI(a5)
+    move.b  os_ciab_tahi(a3),CIATAHI(a5)
   
-    move.b  os_CIABTBLO(a3),CIATBLO(a5)
+    move.b  os_ciab_tblo(a3),CIATBLO(a5)
     nop
-    move.b  os_CIABTBHI(a3),CIATBHI(a5)
+    move.b  os_ciab_tbhi(a3),CIATBHI(a5)
   
-    move.b  os_CIABICR(a3),d0
+    move.b  os_ciab_icr(a3),d0
     tas     d0               ;Bit 7 ggf. setzen
     move.b  d0,CIAICR(a5)
   
-    move.b  os_ciab_cra_bits(a3),d0
+    move.b  os_ciab_cra(a3),d0
     btst    #CIACRAB_RUNMODE,d0 ;Continuous-Modus ?
     bne.s   ciab_ta_no_continuous ;Nein -> verzweige
     or.b    #CIACRAF_START,d0 ;Ja -> Timer A starten
 ciab_ta_no_continuous
     move.b  d0,CIACRA(a5)
   
-    move.b  os_ciab_crb_bits(a3),d0
+    move.b  os_ciab_crb(a3),d0
     btst    #CIACRBB_RUNMODE,d0 ;Continuous-Modus ?
     bne.s   ciab_tb_no_continuous ;Nein -> verzweige
     or.b    #CIACRBF_START,d0 ;Ja -> Timer B starten
@@ -2861,40 +2884,40 @@ no_tod_overflow
 save_tod
     move.l  d1,tod_time_save(a3) 
   
-    IFD save_BEAMCON0
-      move.w  os_BEAMCON0(a3),BEAMCON0-DMACONR(a6)
+    IFD SAVE_BEAMCON0
+      move.w  os_beamcon0(a3),BEAMCON0-DMACONR(a6)
     ENDC
     IFNE cl2_size3
-      move.l  os_COP2LC(a3),COP2LC-DMACONR(a6)
+      move.l  os_cop2lc(a3),COP2LC-DMACONR(a6)
     ENDC
     IFNE cl1_size3
-      move.l  os_COP1LC(a3),COP1LC-DMACONR(a6)
+      move.l  os_cop1lc(a3),COP1LC-DMACONR(a6)
     ENDC
     moveq   #0,d0
     move.w  d0,COPJMP1-DMACONR(a6)
   
-    move.w  os_DMACON(a3),d0
+    move.w  os_dmacon(a3),d0
     and.w   #~DMAF_RASTER,d0 ;Bitplane-DMA ggf. aus
     or.w    #DMAF_SETCLR,d0  ;Bit 15 ggf. setzen
     move.w  d0,DMACON-DMACONR(a6)
-    move.w  os_INTENA(a3),d0
+    move.w  os_intena(a3),d0
     or.w    #INTF_SETCLR,d0  ;Bit 15 ggf. setzen
     move.w  d0,INTENA-DMACONR(a6)
-    move.w  os_ADKCON(a3),d0
+    move.w  os_adkcon(a3),d0
     or.w    #ADKF_SETCLR,d0  ;Bit 15 ggf. setzen
     move.w  d0,ADKCON-DMACONR(a6)
-    move.l  os_VBR(a3),d0
+    move.l  os_vbr(a3),d0
     lea     write_VBR(pc),a5 ;Zeiger auf Supervisor-Routine
     CALLEXECQ Supervisor
   
-    IFD all_caches
+    IFD ALL_CACHES
 enable_os_caches
-      move.l  os_CACR(a3),d0
-      move.l  #CACRF_EnableI+CACRF_FreezeI+CACRF_ClearI+CACRF_IBE+CACRF_EnableD+CACRF_FreezeD+CACRF_ClearD+CACRF_DBE+CACRF_WriteAllocate+CACRF_EnableE+CACRF_CopyBack,d1 ;Alle Bits ändern
+      move.l  os_cacr(a3),d0
+      move.l  #CACRF_EnableI|CACRF_FreezeI|CACRF_ClearI|CACRF_IBE|CACRF_EnableD|CACRF_FreezeD|CACRF_ClearD|CACRF_DBE|CACRF_WriteAllocate|CACRF_EnableE|CACRF_CopyBack,d1 ;Alle Bits ändern
       CALLEXECQ CacheControl
     ENDC
   
-    IFD no_store_buffer
+    IFD NO_060_STORE_BUFFER
 enable_store_buffer
       ENABLE_060_STORE_BUFFER
     ENDC
@@ -2903,7 +2926,7 @@ enable_store_buffer
   ;    CNOP 0,4
 restore_exception_vectors
     lea     exception_vecs_save(pc),a0 ;Quelle
-    move.l  os_VBR(a3),a1    ;Ziel = Reset (Initial SSP)
+    move.l  os_vbr(a3),a1    ;Ziel = Reset (Initial SSP)
     MOVEF.W (exception_vectors_size/LONGWORD_SIZE)-1,d7 ;Anzahl der Vektoren
 copy_vectors_loop3
     move.l  (a0)+,(a1)+      ;Vektor kopieren

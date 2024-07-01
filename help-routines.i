@@ -9,7 +9,7 @@
 ;        Rückgabewert: Zeiger auf Speicherbereich wenn erfolgreich
   CNOP 0,4
 do_alloc_memory
-  move.l  #MEMF_CLEAR+MEMF_PUBLIC,d1
+  move.l  #MEMF_CLEAR|MEMF_PUBLIC,d1
   CALLEXECQ AllocMem         ;Speicher reservieren
 
 ; ** CHIP-Memory reservieren und löschen **
@@ -17,7 +17,7 @@ do_alloc_memory
 ;        Rückgabewert: Zeiger auf Speicherbereich wenn erfolgreich
   CNOP 0,4
 do_alloc_chip_memory
-  move.l  #MEMF_CLEAR+MEMF_CHIP+MEMF_PUBLIC,d1
+  move.l  #MEMF_CLEAR|MEMF_CHIP|MEMF_PUBLIC,d1
   CALLEXECQ AllocMem         ;Speicher reservieren
 
 ; ** FAST-Memory reservieren und löschen **
@@ -25,7 +25,7 @@ do_alloc_chip_memory
 ;        Rückgabewert: Zeiger auf Speicherbereich wenn erfolgreich
   CNOP 0,4
 do_alloc_fast_memory
-  move.l  #MEMF_CLEAR+MEMF_FAST+MEMF_PUBLIC,d1
+  move.l  #MEMF_CLEAR|MEMF_FAST|MEMF_PUBLIC,d1
   CALLEXECQ AllocMem         ;Speicher reservieren
 
 ; ** Bitmap-Memory reservieren und löschen **
@@ -35,7 +35,7 @@ do_alloc_fast_memory
 ; d2 ... Anzahl der Bitplanes
   CNOP 0,4
 do_alloc_bitmap_memory
-  moveq   #BMF_CLEAR+BMF_DISPLAYABLE+BMF_INTERLEAVED,d3 ;Flags
+  moveq   #BMF_CLEAR|BMF_DISPLAYABLE|BMF_INTERLEAVED,d3 ;Flags
   sub.l   a0,a0            ;Friendbitmap = Null
   CALLGRAFQ AllocBitMap    ;Speicher reservieren
 
@@ -45,7 +45,7 @@ do_alloc_bitmap_memory
 ; d0 ... Rückgabewert Inhalt von VBR
   CNOP 0,4
 read_VBR
-  or.w    #SRF_I0+SRF_I1+SRF_I2,SR ;Level-7-Interruptebene
+  or.w    #SRF_I0|SRF_I1|SRF_I2,SR ;Level-7-Interruptebene
   nop
   movec   VBR,d0
   nop
@@ -57,7 +57,7 @@ read_VBR
 ; d0 ... Rückgabewert Inhalt von VBR
     CNOP 0,4
 read_VBR
-    or.w    #SRF_I0+SRF_I1+SRF_I2,SR ;Level-7-Interruptebene
+    or.w    #SRF_I0|SRF_I1|SRF_I2,SR ;Level-7-Interruptebene
     nop
     movec   VBR,d0
     nop
@@ -67,7 +67,7 @@ read_VBR
 ; d0 ... neuer Inhalt von VBR
     CNOP 0,4
 write_VBR
-    or.w    #SRF_I0+SRF_I1+SRF_I2,SR ;Level-7-Interruptebene
+    or.w    #SRF_I0|SRF_I1|SRF_I2,SR ;Level-7-Interruptebene
     nop
     movec   d0,VBR
     nop

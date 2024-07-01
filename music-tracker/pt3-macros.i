@@ -18,13 +18,13 @@ PT3_INIT_VARIABLES MACRO
   moveq   #pt_defaultticks,d2
   move.w  d2,pt_CurrSpeed(a3) ;Set as default 6 ticks
   move.w  d0,pt_DMACONtemp(a3)
-  moveq   #DMAF_AUD0+DMAF_AUD1+DMAF_AUD2+DMAF_AUD3,d2
+  moveq   #DMAF_AUD0|DMAF_AUD1|DMAF_AUD2|DMAF_AUD3,d2
   move.w  d2,pt_ActiveChannels(a3) ;All audio channels are active
   move.l  d0,pt_PatternPointer(a3)
   move.w  d0,pt_PatternPosition(a3)
   move.w  d0,pt_SongPosition(a3)
 ;--> E9 "Retrig Note" or ED "Note Delay" <--
-  IFNE pt_usedefx&(pt_ecmdbitretrignote+pt_ecmdbitnotedelay)
+  IFNE pt_usedefx&(pt_ecmdbitretrignote|pt_ecmdbitnotedelay)
     move.w d0,pt_RtnDMACONtemp(a3)
   ENDC
   moveq   #FALSE,d1
@@ -42,12 +42,12 @@ PT3_INIT_VARIABLES MACRO
   move.b  d1,pt_SetAllChanDMAFlag(a3) ;FALSE = Deactivate set routine
   move.b  d1,pt_InitAllChanLoopDataFlag(a3) ;FALSE = Deactivate init routine
 ;--> Bxx "Position Jump"or Dxx "Pattern Break" <--
-  IFNE pt_usedfx&(pt_cmdbitposjump+pt_cmdbitpattbreak)
+  IFNE pt_usedfx&(pt_cmdbitposjump|pt_cmdbitpattbreak)
     move.b  d0,pt_PBreakPosition(a3)
     move.b  d0,pt_PosJumpFlag(a3)
   ENDC
 ;--> E1 "Fine Portamento Up" or E2 "Fine Portamento Down" <--
-  IFNE pt_usedefx&(pt_ecmdbitfineportup+pt_ecmdbitfineportdown)
+  IFNE pt_usedefx&(pt_ecmdbitfineportup|pt_ecmdbitfineportdown)
     move.b  d0,pt_LowMask(a3)
   ENDC
 ;--> E6x "Jump to Loop" <--
@@ -105,7 +105,7 @@ pt_NoNewAllChannels
   lea     pt_audchan4temp(pc),a2 ;Pointer to fourth channel temporary structure (see above)
   bsr.s   pt_CheckEffects
 ;--> E9 "Retrig Note" or ED "Note Delay" <--
-  IFNE pt_usedefx&(pt_ecmdbitretrignote+pt_ecmdbitnotedelay)
+  IFNE pt_usedefx&(pt_ecmdbitretrignote|pt_ecmdbitnotedelay)
 pt_RtnChkAllChannels
     tst.w    pt_RtnDMACONtemp(a3) ;"Retrig Note" or "Note Delay"used by one of the channels?
     beq.s    pt_NoRtnSetTimer ;Zero -> skip
@@ -230,12 +230,12 @@ pt_CheckEffects2End
   ENDC
 
 ;--> 3xx "Tone Portamento" or 5xy "Tone Portamento + Volume Slide" <--
-  IFNE pt_usedfx&(pt_cmdbittoneport+pt_cmdbittoneportvolslide)
+  IFNE pt_usedfx&(pt_cmdbittoneport|pt_cmdbittoneportvolslide)
     PT3_EFFECT_TONE_PORTAMENTO
   ENDC
  
 ;--> 4xy "Vibrato" or 6xy "Vibrato + Volume Slide" <--
-  IFNE pt_usedfx&(pt_cmdbitvibrato+pt_cmdbitvibratovolslide)
+  IFNE pt_usedfx&(pt_cmdbitvibrato|pt_cmdbitvibratovolslide)
     PT3_EFFECT_VIBRATO
   ENDC
 
@@ -248,7 +248,7 @@ pt_CheckEffects2End
   IFNE pt_usedefx
     CNOP 0,4
 pt_ExtCommands
-    IFNE pt_usedefx&(pt_ecmdbitretrignote+pt_ecmdbitnotecut+pt_ecmdbitnotedelay)
+    IFNE pt_usedefx&(pt_ecmdbitretrignote|pt_ecmdbitnotecut|pt_ecmdbitnotedelay)
       move.b  n_cmdlo(a2),d0 ;Get channel extended effect command number
       lsr.b   #NIBBLE_SHIFT_BITS,d0 ;Shift command number to lower nibble
       cmp.b   #8,d0
@@ -279,7 +279,7 @@ pt_ExtCommandsEnd
   ENDC
  
 ;--> 5xy "Tone Portamento + Volume Slide" or 6xy "Vibrato + Volume Slide or Axy "Volume Slide" <--
-  IFNE pt_usedfx&(pt_cmdbittoneport+pt_cmdbittoneportvolslide+pt_cmdbitvibratovolslide+pt_cmdbitvolslide)
+  IFNE pt_usedfx&(pt_cmdbittoneport|pt_cmdbittoneportvolslide|pt_cmdbitvibratovolslide|pt_cmdbitvolslide)
     PT3_EFFECT_VOLUME_SLIDE
   ELSE
     IFNE pt_usedefx&pt_ecmdbitfinevolslideup
@@ -502,7 +502,7 @@ pt_DoSetSampleFinetune
   ENDC
 
 ;--> 3 "Tone Portamento" or 5 "Tone Portamento + Volume Slide" <--
-  IFNE pt_usedfx&(pt_cmdbittoneport+pt_cmdbittoneportvolslide)
+  IFNE pt_usedfx&(pt_cmdbittoneport|pt_cmdbittoneportvolslide)
     CNOP 0,4
 pt_ChkTonePorta
     bsr.s  pt_SetTonePorta
@@ -510,7 +510,7 @@ pt_ChkTonePorta
   ENDC
 
 ;--> 3 "Tone Portamento" or 5 "Tone Portamento + Volume Slide" <--
-  IFNE pt_usedfx&(pt_cmdbittoneport+pt_cmdbittoneportvolslide)
+  IFNE pt_usedfx&(pt_cmdbittoneport|pt_cmdbittoneportvolslide)
     CNOP 0,4
 pt_SetTonePorta
     IFEQ pt_finetune_enabled
@@ -566,7 +566,7 @@ pt_NoSampleStart
 
 ; ** Check audio channel for more effect commands at tick #1 **
 pt_CheckMoreEffects
-  IFNE pt_usedfx&(pt_cmdbitnotused+pt_cmdbitsetsampleoffset+pt_cmdbitposjump+pt_cmdbitsetvolume+pt_cmdbitpattbreak+pt_cmdbitextended+pt_cmdbitsetspeed)
+  IFNE pt_usedfx&(pt_cmdbitnotused|pt_cmdbitsetsampleoffset|pt_cmdbitposjump|pt_cmdbitsetvolume|pt_cmdbitpattbreak|pt_cmdbitextended|pt_cmdbitsetspeed)
     moveq   #pt_cmdmask,d0
     and.b   n_cmd(a2),d0     ;Get channel effect command number without lower nibble of sample number
     cmp.b   #pt_cmdnotused,d0 ;0-8 ?
@@ -766,7 +766,7 @@ pt_MoreExtCommands
   ENDC
 
 ;--> E9x "Retrig Note" or EDx "Note Delay" <--
-  IFNE pt_usedefx&(pt_ecmdbitretrignote+pt_ecmdbitnotedelay)
+  IFNE pt_usedefx&(pt_ecmdbitretrignote|pt_ecmdbitnotedelay)
     PT3_EFFECT_RETRIG_NOTE
   ENDC 
 

@@ -202,7 +202,7 @@ pt_InitFtuPeriodTableStarts
   lea     pt_PeriodTable(pc),a0 ;Period table pointer, finetune = 0
   lea     pt_FtuPeriodTableStarts(pc),a1 ;Table for period table pointers
   moveq   #pt_PeriodTableEnd-pt_PeriodTable,d0 ;Period table length in bytes
-  moveq   #pt_finetune_enablednum-1,d7 ;Number of finetune values
+  moveq   #pt_finetunenum-1,d7 ;Number of finetune values
 pt_InitFtuPerTableStartsLoop
   move.l  a0,(a1)+           ;Save pointer
   add.l   d0,a0              ;Pointer to next period table, finetune + n

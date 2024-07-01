@@ -52,45 +52,47 @@ wbfo_active              RS.W 1
     ENDC
 
     IFNE cl1_size3
-os_COP1LC                RS.L 1
+os_cop1lc                RS.L 1
     ENDC
     IFNE cl2_size3
-os_COP2LC                RS.L 1
+os_cop2lc                RS.L 1
     ENDC
 
-    IFD save_BEAMCON0
-os_BEAMCON0              RS.L 1
+    IFD SAVE_BEAMCON0
+os_beamcon0              RS.L 1
     ENDC
 
-os_VBR                   RS.L 1
-    IFD all_caches
-os_CACR                  RS.L 1
+os_vbr                   RS.L 1
+    IFD ALL_CACHES
+os_cacr                  RS.L 1
     ENDC
-    IFD no_store_buffer
-os_CACR                  RS.L 1
+    IFD NO_060_STORE_BUFFER
+      IFND ALL_CACHES
+os_cacr                  RS.L 1
+      ENDC
     ENDC
 
-os_DMACON                RS.W 1
-os_INTENA                RS.W 1
-os_ADKCON                RS.W 1
+os_dmacon                RS.W 1
+os_intena                RS.W 1
+os_adkcon                RS.W 1
 
-os_CIAAPRA               RS.B 1
-os_CIAATALO              RS.B 1
-os_CIAATAHI              RS.B 1
-os_CIAATBLO              RS.B 1
-os_CIAATBHI              RS.B 1
-os_CIAAICR               RS.B 1
-os_ciaa_cra_bits               RS.B 1
-os_ciaa_crb_bits               RS.B 1
+os_ciaa_pra              RS.B 1
+os_ciaa_talo             RS.B 1
+os_ciaa_tahi             RS.B 1
+os_ciaa_tblo             RS.B 1
+os_ciaa_tbhi             RS.B 1
+os_ciaa_icr              RS.B 1
+os_ciaa_cra              RS.B 1
+os_ciaa_crb              RS.B 1
 
-os_CIABPRB               RS.B 1
-os_CIABTALO              RS.B 1
-os_CIABTAHI              RS.B 1
-os_CIABTBLO              RS.B 1
-os_CIABTBHI              RS.B 1
-os_CIABICR               RS.B 1
-os_ciab_cra_bits               RS.B 1
-os_ciab_crb_bits               RS.B 1
+os_ciab_prb              RS.B 1
+os_ciab_talo             RS.B 1
+os_ciab_tahi             RS.B 1
+os_ciab_tblo             RS.B 1
+os_ciab_tbhi             RS.B 1
+os_ciab_icr              RS.B 1
+os_ciab_cra              RS.B 1
+os_ciab_crb              RS.B 1
 
     RS_ALIGN_LONGWORD
 tod_time_save            RS.L 1
@@ -262,6 +264,6 @@ chip_memory              RS.L 1
 exception_vectors_base   RS.L 1
   ENDC
 
-  IFD measure_rastertime
+  IFD MEASURE_RASTERTIME
 rt_rasterlines_number    RS.L 1
   ENDC

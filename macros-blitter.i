@@ -1,11 +1,11 @@
-WAIT_BLITTER MACRO
+WAITBLIT MACRO
 wait_blitter_loop\@
   btst    #DMAB_BLTDONE-8,(a6) ;ggf. auf Blitter warten
   bne.s   wait_blitter_loop\@        ;Wenn False -> Schleife
   ENDM
 
 
-WAIT_BLITTER_QUICK MACRO
+WAITBLITQ MACRO
 ; \1 ... Datenregister mit BBUSY-Bit
 wait_blitter_quick_loop\@
   btst    \1,(a6)            ;ggf. auf Blitter warten

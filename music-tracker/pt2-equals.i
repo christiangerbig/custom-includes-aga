@@ -21,7 +21,7 @@ pt_arpdiv                   EQU 3
 pt_periodsnum               EQU 36
 pt_portminper               EQU 113 ;Note period "B-3"
 pt_portmaxper               EQU 856 ;Note period "C-1"
-pt_finetune_enablednum              EQU 16
+pt_finetunenum              EQU 16
 pt_minvol                   EQU 0
 pt_maxvol                   EQU 64
 pt_wavetypemask             EQU $03
