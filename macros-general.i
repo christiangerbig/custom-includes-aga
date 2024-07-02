@@ -1755,7 +1755,7 @@ INIT_MIRROR_SWITCH_TABLE MACRO
   ENDC
   IFC "W","\0"
     IFNC "","\2"
-      move.l  #(\2<<8)|bplcon4_bits,d0 ;Erster Switchwert
+      move.l  #(\2<<8)+bplcon4_bits,d0 ;Erster Switchwert
     ENDC
     IFNC "","\3"
       move.l  #\3<<8,d2 ;Additionswert für Switchwert
@@ -1856,7 +1856,7 @@ INIT_NESTED_MIRROR_SWITCH_TABLE MACRO
     dbf     d7,\1_init_nested_mirror_switch_table_loop1
   ENDC
   IFC "W","\0"
-    move.l  #(\2<<8)|bplcon4_bits,d0 ;Erster Switchwert
+    move.l  #(\2<<8)+bplcon4_bits,d0 ;Erster Switchwert
     move.l  #\3<<8,d2 ;Additionswert für Switchwert
     moveq   #\4-1,d7         ;Anzahl der Farbverläufe
 \1_init_nested_mirror_switch_table_loop1

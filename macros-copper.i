@@ -383,10 +383,10 @@ COP_INIT_COLOR00_REGISTERS MACRO
   CNOP 0,4
 \1_init_color00_registers
   move.l  #(((\1_vstart1<<24)|(((\1_hstart1/4)*2)<<16))|$10000)|$fffe,d0 ;WAIT-Befehl
-  move.l  #(BPLCON3<<16)|bplcon3_bits1,d1 ;High-Werte
-  move.l  #(COLOR00<<16)|color00_high_bits,d2
-  move.l  #(BPLCON3<<16)|bplcon3_bits2,d3 ;Low-RGB-Werte
-  move.l  #(COLOR00<<16)|color00_low_bits,d4
+  move.l  #(BPLCON3<<16)+bplcon3_bits1,d1 ;High-Werte
+  move.l  #(COLOR00<<16)+color00_high_bits,d2
+  move.l  #(BPLCON3<<16)+bplcon3_bits2,d3 ;Low-RGB-Werte
+  move.l  #(COLOR00<<16)+color00_low_bits,d4
   IFC "YWRAP","\2"
     move.l  #(((CL_Y_WRAP<<24)|(((\1_hstart1/4)*2)<<16))|$10000)|$fffe,d5 ;WAIT-Befehl
   ENDC
@@ -516,24 +516,24 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN MACRO
     move.l  a4,-(a7)
     move.l  #(((\3<<24)|(((\2/4)*2)<<16))|$10000)|$fffe,d0 ;WAIT-Befehl
     IFEQ \7
-      move.l  #(BPLCON3<<16)|bplcon3_bits3,d1 ;High-RGB-Werte
+      move.l  #(BPLCON3<<16)+bplcon3_bits3,d1 ;High-RGB-Werte
     ELSE
-      move.l  #(BPLCON3<<16)|bplcon3_bits1,d1 ;High-RGB-Werte
+      move.l  #(BPLCON3<<16)+bplcon3_bits1,d1 ;High-RGB-Werte
     ENDC
     IFEQ \7
-      move.l  #(COLOR31<<16)|color00_high_bits,a2
+      move.l  #(COLOR31<<16)+color00_high_bits,a2
     ELSE
-      move.l  #(COLOR00<<16)|color00_high_bits,a2
+      move.l  #(COLOR00<<16)+color00_high_bits,a2
     ENDC
     IFEQ \7
-      move.l  #(COLOR31<<16)|color00_low_bits,a4
+      move.l  #(COLOR31<<16)+color00_low_bits,a4
     ELSE
-      move.l  #(COLOR00<<16)|color00_low_bits,a4
+      move.l  #(COLOR00<<16)+color00_low_bits,a4
     ENDC
     IFEQ \7
-      move.l  #(BPLCON3<<16)|bplcon3_bits4,d3 ;Low-RGB-Werte
+      move.l  #(BPLCON3<<16)+bplcon3_bits4,d3 ;Low-RGB-Werte
     ELSE
-      move.l  #(BPLCON3<<16)|bplcon3_bits2,d3 ;Low-RGB-Werte
+      move.l  #(BPLCON3<<16)+bplcon3_bits2,d3 ;Low-RGB-Werte
     ENDC
     move.l  #(BPLCON4<<16)|(bplcon4_bits&$00ff),d4
     IFEQ \6
@@ -604,7 +604,7 @@ COP_INIT_BPLCON1_CHUNKY_SCREEN MACRO
 \1_init_bplcon1_registers
   move.l  #(((\3<<24)|(((\2/4)*2)<<16))|$10000)|$fffe,d0 ;WAIT-Befehl
   IFC "","\6"
-    move.l  #(BPLCON1<<16)|bplcon1_bits,d1
+    move.l  #(BPLCON1<<16)+bplcon1_bits,d1
   ELSE
     move.l  #(BPLCON1<<16)|\6,d1
   ENDC
