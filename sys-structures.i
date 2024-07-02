@@ -4,7 +4,7 @@
 
 ; ## Speicherstellen für Tabellen und Strukturen ##
 ;
-  IFND LINKER_SYS_TAKEN_OVER
+  IFND DEF_SYS_TAKEN_OVER
 
 ; ** Easy-Struktur für TCP-Stack-Abfrage **
     IFNE intena_bits&INTF_PORTS

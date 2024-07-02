@@ -3,7 +3,7 @@
 ; Version:      2.6
 
 ; ** Fehlermeldungen **
-  IFND LINKER_SYS_TAKEN_OVER
+  IFND DEF_SYS_TAKEN_OVER
 
 error_text_graphics_library
     DC.B "Couldn't open graphics.library !",10,10
@@ -29,21 +29,21 @@ error_text_chipset
 error_text_chipset_end
     EVEN
 
-    IFEQ requires_68030
+    IFEQ requires_030_cpu
 error_text_cpu_2
       DC.B "This programm needs a 68030 cpu or better !",10,10
       DC.B "Press any key.",10
 error_text_cpu_2_end
       EVEN
     ENDC
-    IFEQ requires_68040
+    IFEQ requires_040_cpu
 error_text_cpu_2
       DC.B "This programm needs a 68040 cpu or better !",10,10
       DC.B "Press any key.",10
 error_text_cpu_2_end
       EVEN
     ENDC
-    IFEQ requires_68060
+    IFEQ requires_060_cpu
 error_text_cpu_2
       DC.B "This programm needs a 68060 cpu or better !",10,10
       DC.B "Press any key.",10

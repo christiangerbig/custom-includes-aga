@@ -5,7 +5,7 @@
 ; ** Struktur, die alle Variablenoffsets enthält **
   RSRESET
 
-  IFND LINKER_SYS_TAKEN_OVER
+  IFND DEF_SYS_TAKEN_OVER
 
 shell_parameters_length  RS.L 1
 shell_parameters_pointer RS.L 1
@@ -21,7 +21,7 @@ fast_memory_available    RS.W 1
 
   ELSE
 
-    IFD LINKER_PASS_GLOBAL_REFERENCES
+    IFD DEF_PASS_GLOBAL_REFERENCES
       RS_ALIGN_LONGWORD
 global_references_table  RS.L 1
     ENDC
@@ -32,7 +32,7 @@ custom_error_code        RS.W 1
   RS_ALIGN_LONGWORD
 dos_return_code          RS.L 1
 
-  IFND LINKER_SYS_TAKEN_OVER
+  IFND DEF_SYS_TAKEN_OVER
 os_view                  RS.L 1
 os_screen                RS.L 1
 os_monitor_id            RS.L 1
@@ -58,16 +58,16 @@ os_cop1lc                RS.L 1
 os_cop2lc                RS.L 1
     ENDC
 
-    IFD SAVE_BEAMCON0
+    IFD DEF_SAVE_BEAMCON0
 os_beamcon0              RS.L 1
     ENDC
 
 os_vbr                   RS.L 1
-    IFD ALL_CACHES
+    IFD DEF_ALL_CACHES
 os_cacr                  RS.L 1
     ENDC
-    IFD NO_060_STORE_BUFFER
-      IFND ALL_CACHES
+    IFD DEF_NO_060_STORE_BUFFER
+      IFND DEF_ALL_CACHES
 os_cacr                  RS.L 1
       ENDC
     ENDC
@@ -260,10 +260,10 @@ extra_memory             RS.L 1
 chip_memory              RS.L 1
   ENDC
 
-  IFND LINKER_SYS_TAKEN_OVER
+  IFND DEF_SYS_TAKEN_OVER
 exception_vectors_base   RS.L 1
   ENDC
 
-  IFD MEASURE_RASTERTIME
+  IFD DEF_MEASURE_RASTERTIME
 rt_rasterlines_number    RS.L 1
   ENDC
