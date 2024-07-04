@@ -2,7 +2,6 @@
 ; Datum:        27.06.2024
 ; Version:      5.7
 
-; ** Konstanten **
 
 ; **** Main ****
 TRUE                                EQU 0

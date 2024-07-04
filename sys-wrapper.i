@@ -4,35 +4,35 @@
 
 ; Globale Labels
 
-; DEF_SYS_TAKEN_OVER
-; DEF_PASS_RETURN_CODE
-; DEF_PASS_GLOBAL_REFERENCES
-; DEF_WRAPPER
+; SYS_TAKEN_OVER
+; PASS_RETURN_CODE
+; PASS_GLOBAL_REFERENCES
+; WRAPPER
 
-; DEF_CUSTOM_MEMORY_USED
+; CUSTOM_MEMORY_USED
 
-; DEF_SAVE_BEAMCON0
+; SAVE_BEAMCON0
 
-; DEF_AGA_CHECK_BY_HARDWARE
+; AGA_CHECK_BY_HARDWARE
 
-; DEF_ALL_CACHES
-; DEF_NO_060_STORE_BUFFER
+; ALL_CACHES
+; NO_060_STORE_BUFFER
 
-; DEF_TRAP0
-; DEF_TRAP1
-; DEF_TRAP2
+; TRAP0
+; TRAP1
+; TRAP2
 
-; DEF_SET_SECOND_COPPERLIST
+; SET_SECOND_COPPERLIST
 
-; DEF_MEASURE_RASTERTIME
+; MEASURE_RASTERTIME
 
 
-  IFND DEF_SYS_TAKEN_OVER
+  IFND SYS_TAKEN_OVER
     INCLUDE "screen-taglist-offsets.i"
     INCLUDE "sprite-taglist-offsets.i"
     INCLUDE "custom-error-entry.i"
   ENDC
-  IFD DEF_PASS_GLOBAL_REFERENCES
+  IFD PASS_GLOBAL_REFERENCES     SET 1
     INCLUDE "global-references-offsets.i"
   ENDC
 
@@ -40,13 +40,13 @@
   movem.l d2-d7/a2-a6,-(a7)
   lea     variables(pc),a3   ;Basisadresse aller Variablen
   bsr     init_variables
-  IFD DEF_SYS_TAKEN_OVER
+  IFD SYS_TAKEN_OVER
     tst.l   dos_return_code(a3) ;Ist bereits ein Fehler aufgetreten ?
     bne     end_final        ;Ja -> verzweige
   ENDC
   bsr     init_structures
-  IFD DEF_SYS_TAKEN_OVER
-    IFD DEF_CUSTOM_MEMORY_USED
+  IFD SYS_TAKEN_OVER
+    IFD CUSTOM_MEMORY_USED
       bsr     init_custom_memory_table ;Wird von außen aufgerufen
       bsr     extend_global_references_table ;Wird von außen aufgerufen
     ENDC
@@ -271,9 +271,9 @@
     bne.s   cleanup_all_memory ;Ja -> verzweige
   ENDC
 
-  IFD DEF_SYS_TAKEN_OVER
+  IFD SYS_TAKEN_OVER
 ; ** Custom-Speicher belegen **
-    IFD DEF_CUSTOM_MEMORY_USED
+    IFD CUSTOM_MEMORY_USED
       bsr     alloc_custom_memory ;Wird von außen aufgerufen
       move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
       bne.s   cleanup_timer_device ;Ja -> verzweige
@@ -283,7 +283,7 @@
     bsr     alloc_vectors_memory
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
     bne     cleanup_all_memory ;Ja -> verzweige
-    IFD DEF_PASS_GLOBAL_REFERENCES
+    IFD PASS_GLOBAL_REFERENCES     SET 1
       bsr     init_global_references_table
     ENDC
   ENDC
@@ -291,27 +291,27 @@
 ; ** Variablen initialisieren **
   bsr     init_own_variables
 
-  IFND DEF_SYS_TAKEN_OVER
+  IFND SYS_TAKEN_OVER
 ; ** Maschine übernehmen **
     bsr     disable_system   
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
     bne.s   cleanup_all_memory ;Ja -> verzweige
-    IFD DEF_ALL_CACHES
+    IFD ALL_CACHES
       bsr     enable_all_caches
     ENDC
-    IFD DEF_NO_060_STORE_BUFFER
+    IFD NO_060_STORE_BUFFER
       bsr     disable_store_buffer
     ENDC
     bsr     save_exception_vectors
   ENDC
     bsr     init_exception_vectors
-  IFND DEF_SYS_TAKEN_OVER
+  IFND SYS_TAKEN_OVER
     bsr     exception_vectors_to_fast_memory
   ENDC
   move.l  #_CIAB,a5          ;CIA-B-Base
   lea     _CIAA-_CIAB(a5),a4 ;CIA-A-Base
   move.l  #_CUSTOM+DMACONR,a6 ;DMACONR
-  IFND DEF_SYS_TAKEN_OVER
+  IFND SYS_TAKEN_OVER
     bsr     save_hardware_registers
     bsr     clear_important_registers
     bsr     turn_off_drive_motors
@@ -327,25 +327,25 @@
   ENDC
 
 ; ** Ausführen des eigentlichen Programms **
-  IFD DEF_SYS_TAKEN_OVER
-    IFD DEF_PASS_RETURN_CODE
+  IFD SYS_TAKEN_OVER
+    IFD PASS_RETURN_CODE
       move.l  dos_return_code(a3),d0
       move.w  custom_error_code(a3),d1
     ENDC
-    IFD DEF_PASS_GLOBAL_REFERENCES
+    IFD PASS_GLOBAL_REFERENCES     SET 1
       move.l  global_references_table(a3),a0
     ENDC
   ELSE
-    IFD DEF_PASS_RETURN_CODE
+    IFD PASS_RETURN_CODE
       move.l  dos_return_code(a3),d0
       move.w  custom_error_code(a3),d1
     ENDC
-    IFD DEF_PASS_GLOBAL_REFERENCES
+    IFD PASS_GLOBAL_REFERENCES     SET 1
       lea     global_references_table(pc),a0
     ENDC
   ENDC
   bsr     main_routine
-  IFD DEF_PASS_RETURN_CODE
+  IFD PASS_RETURN_CODE
     move.l  d0,dos_return_code(a3)
     move.w  d1,custom_error_code(a3)
   ENDC
@@ -359,14 +359,14 @@
   ENDC
   bsr     stop_own_display
 
-  IFND DEF_SYS_TAKEN_OVER
+  IFND SYS_TAKEN_OVER
 ; ** alte System-Parameter wieder herstellem **
     bsr     clear_important_registers2
     bsr     restore_hardware_registers
-    IFD DEF_ALL_CACHES
+    IFD ALL_CACHES
       bsr     enable_os_caches
     ENDC
-    IFD DEF_NO_060_STORE_BUFFER
+    IFD NO_060_STORE_BUFFER
       bsr     enable_store_buffer
     ENDC
     bsr     restore_exception_vectors
@@ -381,9 +381,9 @@
 ; ** Freigabe des belegten Speichers **
 cleanup_all_memory
 
-  IFD DEF_SYS_TAKEN_OVER
+  IFD SYS_TAKEN_OVER
 ; ** Speicherbelegung Custom-Memory freigeben **
-    IFD DEF_CUSTOM_MEMORY_USED
+    IFD CUSTOM_MEMORY_USED
       bsr     free_custom_memory ;Wird von außen aufgerufen
     ENDC
   ELSE
@@ -465,26 +465,26 @@ cleanup_all_memory
 
 ; ** Timer-Device schließen **
 cleanup_timer_device
-  IFND DEF_SYS_TAKEN_OVER
+  IFND SYS_TAKEN_OVER
     bsr     close_timer_device
   ENDC
 
 
 ; ** Intuition-Bibliothek wieder schließen **
 cleanup_intuition_library
-  IFND DEF_SYS_TAKEN_OVER
+  IFND SYS_TAKEN_OVER
     bsr     close_intuition_library
   ENDC
 
 ; ** Graphics-Bibliothek wieder schließen **
 cleanup_graphics_library
-  IFND DEF_SYS_TAKEN_OVER
+  IFND SYS_TAKEN_OVER
     bsr     close_graphics_library
   ENDC
 
 ; ** Dos-Bibliothek wieder schließen **
 cleanup_dos_library
-  IFND DEF_SYS_TAKEN_OVER
+  IFND SYS_TAKEN_OVER
     bsr     print_error_message
     move.l  d0,dos_return_code(a3)
     bsr     close_dos_library
@@ -492,24 +492,24 @@ cleanup_dos_library
 
 ; ** Ggf. Workbench-Message beantworten **
 cleanup_wb_message
-  IFND DEF_SYS_TAKEN_OVER
+  IFND SYS_TAKEN_OVER
     IFEQ workbench_start_enabled
       bsr     reply_wb_message
     ENDC
   ENDC
 
 end_final
-  IFD DEF_MEASURE_RASTERTIME
+  IFD MEASURE_RASTERTIME
     move.l  rt_rasterlines_number(a3),d0
 output_rasterlines_number
   ELSE
     move.l  dos_return_code(a3),d0
   ENDC
-  IFD DEF_SYS_TAKEN_OVER
-    IFD DEF_PASS_RETURN_CODE
+  IFD SYS_TAKEN_OVER
+    IFD PASS_RETURN_CODE
       move.w  custom_error_code(a3),d1
     ENDC
-    IFD DEF_PASS_GLOBAL_REFERENCES
+    IFD PASS_GLOBAL_REFERENCES     SET 1
       move.l  global_references_table(a3),a0
     ENDC
   ENDC
@@ -519,20 +519,20 @@ output_rasterlines_number
 ; ** Variablen initialisieren **
   CNOP 0,4
 init_variables
-  IFD DEF_SYS_TAKEN_OVER
-    IFD DEF_PASS_GLOBAL_REFERENCES
+  IFD SYS_TAKEN_OVER
+    IFD PASS_GLOBAL_REFERENCES     SET 1
       move.l    a0,global_references_table(a3)
       lea       _SysBase(pc),a1
       move.l    (a0)+,(a1)   ;Zeiger auf Exec-Base
       lea       _GfxBase(pc),a1
       move.l    (a0),(a1)    ;Zeiger auf GFX-Base
     ENDC
-    IFD DEF_WRAPPER
+    IFD WRAPPER
       moveq   #RETURN_OK,d2
       move.l  d2,dos_return_code(a3)
       move.w  #NO_CUSTOM_ERROR,custom_error_code(a3)
     ELSE
-      IFD DEF_PASS_RETURN_CODE
+      IFD PASS_RETURN_CODE
         move.l  d0,dos_return_code(a3)
         move.w  d1,custom_error_code(a3)
       ENDC
@@ -562,7 +562,7 @@ init_variables
     lea     _SysBase(pc),a0
     move.l  exec_base.w,(a0)
   ENDC
-  IFD DEF_MEASURE_RASTERTIME
+  IFD MEASURE_RASTERTIME
     moveq   #0,d0
     move.l  d0,rt_rasterlines_number(a3)
   ENDC
@@ -571,7 +571,7 @@ init_variables
 ; ** Strukturen und initialisieren **
   CNOP 0,4
 init_structures
-  IFND DEF_SYS_TAKEN_OVER
+  IFND SYS_TAKEN_OVER
     bsr     init_easy_request_structure
     bsr     init_timer_io_structure
   ENDC
@@ -583,7 +583,7 @@ init_structures
   ENDC
   rts
 
-  IFND DEF_SYS_TAKEN_OVER
+  IFND SYS_TAKEN_OVER
 
 ; ** Tabelle mit Fehlermeldungen initialisieren **
     CNOP 0,4
@@ -1165,7 +1165,7 @@ spr_init_structure
 
 ; ** Testen, ob von der Workbench ein Start erfolgte **
 ; -----------------------------------------------------
-  IFND DEF_SYS_TAKEN_OVER
+  IFND SYS_TAKEN_OVER
     IFEQ workbench_start_enabled
       CNOP 0,4
 test_start_from_workbench
@@ -2055,7 +2055,7 @@ chip_memory_error
     rts
   ENDC
 
-  IFND DEF_SYS_TAKEN_OVER
+  IFND SYS_TAKEN_OVER
 ; ** Ggf. FAST-Memory für Vektoren belegen **
   CNOP 0,4
 alloc_vectors_memory
@@ -2085,7 +2085,7 @@ vectors_memory_error
     moveq   #RETURN_ERROR,d0  
     rts
 
-    IFD DEF_PASS_GLOBAL_REFERENCES
+    IFD PASS_GLOBAL_REFERENCES     SET 1
       CNOP 0,4
 init_global_references_table
       lea     global_references_table(pc),a0
@@ -2237,7 +2237,7 @@ check_downgrade_screen_mode
 get_os_view_parameters
     CALLINT ViewAddress
     move.l  d0,os_view(a3)   
-    IFD DEF_SAVE_BEAMCON0
+    IFD _SAVE_BEAMCON0
       move.l  d0,a0
       CALLGRAF GfxLookUp
       move.l  d0,a0          ;Zeiger auf ViewExtra-Struktur retten
@@ -2447,7 +2447,7 @@ wbf_set_new_colors32
     ENDC
   
 ; ** Alle Caches aktivieren **
-    IFD DEF_ALL_CACHES
+    IFD ALL_CACHES
       CNOP 0,4
 enable_all_caches
       move.l  #CACRF_EnableI|CACRF_IBE|CACRF_EnableD|CACRF_DBE|CACRF_WriteAllocate|CACRF_EnableE|CACRF_CopyBack,d0 ;Alle Caches einschalten
@@ -2458,7 +2458,7 @@ enable_all_caches
     ENDC
   
 ; ** Store Buffer des 68060 aktivieren **
-    IFD DEF_NO_060_STORE_BUFFER
+    IFD NO_060_STORE_BUFFER
       CNOP 0,4
 disable_store_buffer
       DISABLE_060_STORE_BUFFER
@@ -2479,7 +2479,7 @@ copy_exception_vectors_loop
 ; ** Neue Zeiger auf Autovektoren eintragen **
   CNOP 0,4
 init_exception_vectors
-  IFD DEF_SYS_TAKEN_OVER
+  IFD SYS_TAKEN_OVER
     IFNE intena_bits&(~INTF_SETCLR)
       lea     read_vbr(pc),a5 ;Zeiger auf Supervisor-Routine
       CALLEXEC Supervisor    ;Routine ausführen
@@ -2516,27 +2516,27 @@ init_exception_vectors
     lea     level_6_int_handler(pc),a1
     move.l  a1,LEVEL_6_AUTOVECTOR(a0) ;Neuer LEVEL_6_AUTOVECTOR
   ENDC
-  IFND DEF_SYS_TAKEN_OVER
+  IFND SYS_TAKEN_OVER
     lea     level_7_int_handler(pc),a1
     move.l  a1,LEVEL_7_AUTOVECTOR(a0) ;Neuer LEVEL_7_AUTOVECTOR
   ENDC
 
 ; ** Trap0-2-Interrupt-Vektoren **
-  IFD DEF_TRAP0
+  IFD TRAP0
     lea     trap_0_handler(pc),a1
     move.l  a1,TRAP_0_VECTOR(a0) ;Neuer Trap#0-Vektor
   ENDC
-  IFD DEF_TRAP1
+  IFD TRAP1
     lea     trap_1_handler(pc),a1
     move.l  a1,TRAP_1_VECTOR(a0) ;Neuer Trap#1-Vektor
   ENDC
-  IFD DEF_TRAP2
+  IFD TRAP2
     lea     trap_2_handler(pc),a1
     move.l  a1,TRAP_2_VECTOR(a0) ;Neuer Trap#2-Vektor
   ENDC
   CALLEXECQ CacheClearU
 
-  IFND DEF_SYS_TAKEN_OVER
+  IFND SYS_TAKEN_OVER
 ; ** Interruptvektoren ggf. ins Fast-Ram **
     CNOP 0,4
 exception_vectors_to_fast_memory
@@ -2663,7 +2663,7 @@ start_own_display
   moveq   #copcon_bits,d0     ;Copper kann ggf. auf Blitteregister zurückgreifen
   move.w  d0,COPCON-DMACONR(a6)
   IFNE cl2_size3
-    IFD DEF_SET_SECOND_COPPERLIST
+    IFD SET_SECOND_COPPERLIST
       move.l  cl2_display(a3),COP2LC-DMACONR(a6) ;2. Copperliste eintragen
     ENDC
   ENDC
@@ -2744,7 +2744,7 @@ stop_CIA_timers
     CNOP 0,4
 stop_own_interrupts
     IFNE intena_bits-INTF_SETCLR
-      IFND DEF_SYS_TAKEN_OVER
+      IFND SYS_TAKEN_OVER
         move.w  #INTF_INTEN,INTENA-DMACONR(a6) ;Interrupts aus
       ELSE
         move.w  #intena_bits&(~INTF_SETCLR),INTENA-DMACONR(a6) ;Interrupts aus
@@ -2764,14 +2764,14 @@ stop_own_display
   IFNE dma_bits&DMAF_BLITTER
     WAITBLIT
   ENDC
-  IFD DEF_SYS_TAKEN_OVER
+  IFD SYS_TAKEN_OVER
     move.w  #dma_bits&(~DMAF_SETCLR),DMACON-DMACONR(a6) ;DMA aus
   ELSE
     move.w  #DMAF_MASTER,DMACON-DMACONR(a6) ;DMA aus
   ENDC
   rts
 
-  IFND DEF_SYS_TAKEN_OVER
+  IFND SYS_TAKEN_OVER
 ; ** Wichtige Register löschen **
     CNOP 0,4
 clear_important_registers2
@@ -2886,7 +2886,7 @@ no_tod_overflow
 save_tod
     move.l  d1,tod_time_save(a3) 
   
-    IFD DEF_SAVE_BEAMCON0
+    IFD _SAVE_BEAMCON0
       move.w  os_beamcon0(a3),BEAMCON0-DMACONR(a6)
     ENDC
     IFNE cl2_size3
@@ -2912,14 +2912,14 @@ save_tod
     lea     write_VBR(pc),a5 ;Zeiger auf Supervisor-Routine
     CALLEXECQ Supervisor
   
-    IFD DEF_ALL_CACHES
+    IFD ALL_CACHES
 enable_os_caches
       move.l  os_cacr(a3),d0
       move.l  #CACRF_EnableI|CACRF_FreezeI|CACRF_ClearI|CACRF_IBE|CACRF_EnableD|CACRF_FreezeD|CACRF_ClearD|CACRF_DBE|CACRF_WriteAllocate|CACRF_EnableE|CACRF_CopyBack,d1 ;Alle Bits ändern
       CALLEXECQ CacheControl
     ENDC
   
-    IFD DEF_NO_060_STORE_BUFFER
+    IFD NO_060_STORE_BUFFER
 enable_store_buffer
       ENABLE_060_STORE_BUFFER
     ENDC
@@ -3470,7 +3470,7 @@ no_free_cl1_memory1
     rts
   ENDC
 
-  IFND DEF_SYS_TAKEN_OVER
+  IFND SYS_TAKEN_OVER
 ; ** Timer-Device schließen **
     CNOP 0,4
 close_timer_device
@@ -3489,7 +3489,7 @@ close_graphics_library
     move.l  _GfxBase(pc),a1
     CALLEXECQ CloseLibrary
 
-  IFND DEF_SYS_TAKEN_OVER
+  IFND SYS_TAKEN_OVER
 ; ** Fehler ausgeben **
     CNOP 0,4
 print_error_message

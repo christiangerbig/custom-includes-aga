@@ -2,8 +2,7 @@
 ; Datum:        27.10.2023
 ; Version:      2.1
 
-; ## Speicherstellen für Namen ##
-  IFND DEF_SYS_TAKEN_OVER
+  IFND SYS_TAKEN_OVER
 dos_name                   DC.B "dos.library",0
 graphics_name              DC.B "graphics.library",0
     EVEN

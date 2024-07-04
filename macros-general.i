@@ -1987,13 +1987,13 @@ INIT_COLOR_GRADIENT_RGB8 MACRO
 ; \7 LONGWORD: Offset Anfang Farbtabelle (optional)
 ; \8 LONGWORD: Offset zum nächsten Wert in Farbtabelle (optional)
   IFC "","\1"
-    FAIL Makro DEF_COLOR_GRADIENT_RGB8: RGB8 Startwert/Istwert fehlt
+    FAIL Makro COLOR_GRADIENT_RGB8       SET 1: RGB8 Startwert/Istwert fehlt
   ENDC
   IFC "","\2"
-    FAIL Makro DEF_COLOR_GRADIENT_RGB8: RGB8 Endwert/Sollwert fehlt
+    FAIL Makro COLOR_GRADIENT_RGB8       SET 1: RGB8 Endwert/Sollwert fehlt
   ENDC              
   IFC "","\3"
-    FAIL Makro DEF_COLOR_GRADIENT_RGB8: Anzahl der Farbwerte fehlt
+    FAIL Makro COLOR_GRADIENT_RGB8       SET 1: Anzahl der Farbwerte fehlt
   ENDC
   move.l  #\1,d0             ;RGB-Istwert
   move.l  #\2,d6             ;RGB-Sollwert

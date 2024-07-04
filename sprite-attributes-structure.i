@@ -2,7 +2,6 @@
 ; Datum:        19.04.2024
 ; Version:      1.2
 
-; ** Struktur, die alle Eigenschaften der Sprites enthält **
 
   IFNE spr_number
 

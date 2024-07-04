@@ -4,10 +4,10 @@
 
 ; ** Globale Labels **
 
-; DEF_SYS_TAKEN_OVER
+; SYS_TAKEN_OVER
 
-; DEF_COLOR_GRADIENT_RGB4
-; DEF_COLOR_GRADIENT_RGB8
+; COLOR_GRADIENT_RGB4
+; COLOR_GRADIENT_RGB8
 
 
 ; ** FAST/CHIP-Memory reservieren und löschen **
@@ -45,7 +45,7 @@ do_alloc_bitmap_memory
   sub.l   a0,a0            ;Friendbitmap = Null
   CALLGRAFQ AllocBitMap    ;Speicher reservieren
 
-  IFD DEF_SYS_TAKEN_OVER
+  IFD SYS_TAKEN_OVER
     IFNE intena_bits&(~INTF_SETCLR)
 ; ** VBR auslesen **
 ; d0 ... Rückgabewert Inhalt von VBR
@@ -180,7 +180,7 @@ cpu_init_low_colors_loop
   dbf     d7,cpu_init_low_colors_loop
   rts
 
-  IFD DEF_COLOR_GRADIENT_RGB4
+  IFD COLOR_GRADIENT_RGB4
 ; ** RGB4-Farbverlauf **
 ; d0 ... 12-Bit-RGB-Istwert
 ; d6 ... 12-Bit-RGB-Sollwert
@@ -265,7 +265,7 @@ increase_blue_rgb4
     bra.s   merge_nibbles_rgb4
   ENDC
 
-  IFD DEF_COLOR_GRADIENT_RGB8
+  IFD COLOR_GRADIENT_RGB8
 ; ** RGB8-Farbverlauf **
 ; d0 ... 24-Bit-RGB-Istwert
 ; d6 ... 24-Bit-RGB-Sollwert

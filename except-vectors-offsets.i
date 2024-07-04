@@ -2,7 +2,6 @@
 ; Datum:        02.09.2000
 ; Version:      1.0
 
-; ** Struktur, die alle Exception-Vektoren-Offsets enthält **
   RSRESET
 
 RESET_INITIAL_SSP       RS.L 1

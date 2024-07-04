@@ -3,7 +3,7 @@
 ; Version:      1.0
 
 
-PT_FADE_OUT MACRO
+PT_FADE_OUT_VOLUME MACRO
 ; \1 STRING: Variablen-Offset für Variable, die auf TRUE gesetzt wird, wenn fertig
   CNOP 0,4
 pt_fade_out_music
@@ -21,7 +21,7 @@ pt_fade_out_music
   move.w  pt_fade_out_delay_counter(a3),d0 ;Verzögerungszähler auslesen
   subq.w  #1,d0              ;und verringern
   bne.s   pt_no_fade_out_volume ;Wenn <> Null -> verzweige
-pt_fade_out_volume
+
   move.w  pt_master_volume(a3),d1 ;Mastervolume = Null ?
   beq.s   pt_fade_out_music_finished ;Ja -> verzweige
   subq.w  #1,d1              ;Mastervolume verringern
@@ -98,7 +98,7 @@ pt_InitRegisters
   move.w  d0,AUD1VOL-DMACONR(a6)
   move.w  d0,AUD2VOL-DMACONR(a6)
   move.w  d0,AUD3VOL-DMACONR(a6)
-  IFD DEF_SYS_TAKEN_OVER
+  IFD SYS_TAKEN_OVER
     moveq   #DMAF_AUD0+DMAF_AUD1+DMAF_AUD2+DMAF_AUD3,d0
     move.w  d0,DMACON-DMACONR(a6) ;Channel DMA off
   ENDC

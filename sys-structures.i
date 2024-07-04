@@ -2,9 +2,8 @@
 ; Datum:        27.10.2023
 ; Version:      1.9
 
-; ## Speicherstellen für Tabellen und Strukturen ##
 ;
-  IFND DEF_SYS_TAKEN_OVER
+  IFND SYS_TAKEN_OVER
 
 ; ** Easy-Struktur für TCP-Stack-Abfrage **
     IFNE intena_bits&INTF_PORTS

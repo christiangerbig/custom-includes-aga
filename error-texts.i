@@ -3,7 +3,7 @@
 ; Version:      2.6
 
 ; ** Fehlermeldungen **
-  IFND DEF_SYS_TAKEN_OVER
+  IFND SYS_TAKEN_OVER
 
 error_text_graphics_library
     DC.B "Couldn't open graphics.library !",10,10
