@@ -50,6 +50,12 @@ ASCII_CTRL_P                        EQU 16
 ASCII_CTRL_S                        EQU 19
 ASCII_CTRL_W                        EQU 23
 
+; **** Display-Downgrader ****
+custom_screen_top                   EQU 0
+custom_screen_left                  EQU 0
+custom_screen_x_size                EQU 2
+custom_screen_y_size                EQU 2
+custom_screen_depth                 EQU 1
 
 ; **** Workbench-Fader ****
 wbf_colors_number_max               EQU 256

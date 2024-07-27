@@ -1,4 +1,4 @@
-; Includedatei: "normsource-includes/sprite-structure.i"
+; Includedatei: "normsource-includes/sprite-attributes-structure.i"
 ; Datum:        19.04.2024
 ; Version:      1.2
 
@@ -7,11 +7,11 @@
 
     RSRESET
 
-sprite_attr        RS.B 0
+sprite_attribues      RS.B 0
 
-sprite_attr_x_size RS.L 1
-sprite_attr_y_size RS.L 1
-sprite_attr_depth  RS.L 1
+sa_x_size             RS.L 1
+sa_y_size             RS.L 1
+sa_depth              RS.L 1
 
-sprite_attr_size   RS.B 0
+sprite_attribues_size RS.B 0
   ENDC

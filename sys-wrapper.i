@@ -29,10 +29,10 @@
 
   IFND SYS_TAKEN_OVER
     INCLUDE "screen-taglist-offsets.i"
-    INCLUDE "sprite-taglist-offsets.i"
+    INCLUDE "videocontrol-taglist-offsets.i"
     INCLUDE "custom-error-entry.i"
   ENDC
-  IFD PASS_GLOBAL_REFERENCES     SET 1
+  IFD PASS_GLOBAL_REFERENCES
     INCLUDE "global-references-offsets.i"
   ENDC
 
@@ -52,7 +52,7 @@
     ENDC
   ELSE
     bsr     init_custom_error_table
-    bsr     init_taglists
+    bsr     init_tag_lists
 
 ; ** Testen, ob der Start ggf. von der Workbench aus erfolgte **
     IFEQ workbench_start_enabled
@@ -283,7 +283,7 @@
     bsr     alloc_vectors_memory
     move.l  d0,dos_return_code(a3) ;Fehler aufgetreten ?
     bne     cleanup_all_memory ;Ja -> verzweige
-    IFD PASS_GLOBAL_REFERENCES     SET 1
+    IFD PASS_GLOBAL_REFERENCES
       bsr     init_global_references_table
     ENDC
   ENDC
@@ -332,7 +332,7 @@
       move.l  dos_return_code(a3),d0
       move.w  custom_error_code(a3),d1
     ENDC
-    IFD PASS_GLOBAL_REFERENCES     SET 1
+    IFD PASS_GLOBAL_REFERENCES
       move.l  global_references_table(a3),a0
     ENDC
   ELSE
@@ -340,7 +340,7 @@
       move.l  dos_return_code(a3),d0
       move.w  custom_error_code(a3),d1
     ENDC
-    IFD PASS_GLOBAL_REFERENCES     SET 1
+    IFD PASS_GLOBAL_REFERENCES
       lea     global_references_table(pc),a0
     ENDC
   ENDC
@@ -509,7 +509,7 @@ output_rasterlines_number
     IFD PASS_RETURN_CODE
       move.w  custom_error_code(a3),d1
     ENDC
-    IFD PASS_GLOBAL_REFERENCES     SET 1
+    IFD PASS_GLOBAL_REFERENCES
       move.l  global_references_table(a3),a0
     ENDC
   ENDC
@@ -520,7 +520,7 @@ output_rasterlines_number
   CNOP 0,4
 init_variables
   IFD SYS_TAKEN_OVER
-    IFD PASS_GLOBAL_REFERENCES     SET 1
+    IFD PASS_GLOBAL_REFERENCES
       move.l    a0,global_references_table(a3)
       lea       _SysBase(pc),a1
       move.l    (a0)+,(a1)   ;Zeiger auf Exec-Base
@@ -911,63 +911,64 @@ init_timer_io_structure
   
 ; ** Taglisten initialisieren **
     CNOP 0,4
-init_taglists
-    bsr.s   spr_init_taglist
-    bra.s   init_downgrade_screen_taglist
-  
-; ** Sprite-Tagliste initialisieren **
+init_tag_lists
+    bsr.s   init_video_control_tag_list
+    bra.s   init_custom_screen_tag_list
+
+
     CNOP 0,4
-spr_init_taglist
-    lea     spr_taglist(pc),a0
-    move.l  #VTAG_SPRITERESN_GET,(a0)+
-    moveq   #0,d0
-    move.l  d0,(a0)+
-    moveq   #TAG_DONE,d1
-    move.l  d1,(a0)
+init_video_control_tag_list
+    lea     spr_video_control_tag_list+(ti_SIZEOF*1)(pc),a0
+    moveq   #TAG_DONE,d2
+    move.l  d2,(a0)
     rts
-  
-; ** Screen-TagListe initialisieren **
+
+
     CNOP 0,4
-init_downgrade_screen_taglist
-    lea     downgrade_screen_taglist(pc),a0
+init_custom_screen_tag_list
+    lea     custom_screen_tag_list(pc),a0
     move.l  #SA_Left,(a0)+
-    moveq   #0,d0
-    move.l  d0,(a0)+
+    moveq   #custom_screen_left,d2
+    move.l  d2,(a0)+
     move.l  #SA_Top,(a0)+
-    move.l  d0,(a0)+
+    moveq   #custom_screen_top,d2
+    move.l  d2,(a0)+
     move.l  #SA_Width,(a0)+
-    moveq   #2,d2
+    moveq   #custom_screen_x_size,d2
     move.l  d2,(a0)+
     move.l  #SA_Height,(a0)+
-    moveq   #2,d2
+    moveq   #custom_screen_y_size,d2
     move.l  d2,(a0)+
     move.l  #SA_Depth,(a0)+
-    moveq   #1,d2
+    moveq   #custom_screen_depth,d2
     move.l  d2,(a0)+
-    move.l  #SA_DetailPen,(a0)+
-    move.l  d0,(a0)+
-    move.l  #SA_BlockPen,(a0)+
-    move.l  d0,(a0)+
-    move.l  #SA_Title,(a0)+
-    lea     downgrade_screen_name(pc),a1
-    move.l  a1,(a0)+
-    move.l  #SA_Font,(a0)+
-    move.l  d0,(a0)+
-    move.l  #SA_SysFont,(a0)+
-    move.l  d0,(a0)+
-    move.l  #SA_Type,(a0)+
-    move.l  #CUSTOMSCREEN,(a0)+
     move.l  #SA_DisplayID,(a0)+
     IFEQ requires_multiscan_monitor
       move.l  #VGA_MONITOR_ID|VGAPRODUCT_KEY,(a0)+
     ELSE
       move.l  #PAL_MONITOR_ID|LORES_KEY,(a0)+
     ENDC
-    move.l  #SA_ShowTitle,(a0)+
+    move.l  #SA_DetailPen,(a0)+
+    moveq   #0,d0
     move.l  d0,(a0)+
+    move.l  #SA_BlockPen,(a0)+
+    move.l  d0,(a0)+
+    move.l  #SA_Title,(a0)+
+    lea     custom_screen_name(pc),a1
+    move.l  a1,(a0)+
+    move.l  #SA_Colors32,(a0)+
+    move.l  d0,(a0)+  	; Zeiger eird später initialisiert
+    move.l  #SA_Font,(a0)+
+    move.l  d0,(a0)+
+    move.l  #SA_SysFont,(a0)+
+    move.l  d0,(a0)+
+    move.l  #SA_Type,(a0)+
+    move.l  #CUSTOMSCREEN,(a0)+
     move.l  #SA_Behind,(a0)+
     move.l  d0,(a0)+
     move.l  #SA_Quiet,(a0)+
+    move.l  d0,(a0)+
+    move.l  #SA_ShowTitle,(a0)+
     move.l  d0,(a0)+
     move.l  #SA_AutoScroll,(a0)+
     move.l  d0,(a0)+
@@ -975,8 +976,6 @@ init_downgrade_screen_taglist
     move.l  d0,(a0)+
     move.l  #SA_Interleaved,(a0)+
     move.l  d0,(a0)+
-    move.l  #SA_Colors32,(a0)+
-    move.l  d0,(a0)+           ;Farbtabelle noch nicht in Speicher belegt
     moveq   #TAG_DONE,d2
     move.l  d2,(a0)
     rts
@@ -2085,7 +2084,7 @@ vectors_memory_error
     moveq   #RETURN_ERROR,d0  
     rts
 
-    IFD PASS_GLOBAL_REFERENCES     SET 1
+    IFD PASS_GLOBAL_REFERENCES
       CNOP 0,4
 init_global_references_table
       lea     global_references_table(pc),a0
@@ -2118,13 +2117,15 @@ get_os_monitor_id
     move.l  d0,os_monitor_id(a3) ;Monitor-ID retten
   
 get_os_sprite_resolution
-    lea     spr_taglist(pc),a1
+    lea     spr_video_control_tag_list(pc),a1
+    move.l  #VTAG_SPRITERESN_GET,vctl_VTAG_SPRITERESN+ti_Tag(a1)
+    clr.l   vctl_VTAG_SPRITERESN+ti_Data(a1)
     move.l  sc_ViewPort+vp_ColorMap(a2),a4 ;Zeiger auf Farbtabelle
     move.l  a4,a0            ;Zeiger auf Farbtabelle
     CALLLIBS VideoControl
-    lea     spr_taglist(pc),a1 ;Zeiger auf Sprite-Tagliste
-    move.l  sprtl_VTAG_SPRITERESN+ti_Data(a1),os_sprite_resolution(a3) ;Alte Spriteauflösung retten
-  
+    lea     spr_video_control_tag_list(pc),a1
+    move.l  vctl_VTAG_SPRITERESN+ti_Data(a1),os_sprite_resolution(a3)
+
     IFEQ workbench_fade_enabled
 wbf_get_os_screen_colors_number
       move.l  a2,a0          ;Zeiger auf Screen
@@ -2160,7 +2161,7 @@ wbf_get_os_screen_colors32
   
 wbf_init_color_values32
       move.l  wbf_color_cache32(a3),a1 ;Ziel 32-Bit RGB-Werte
-      lea     downgrade_screen_taglist(pc),a0 ;Zeiger auf Screen-TagListe
+      lea     custom_screen_tag_list(pc),a0
       move.l  a1,sctl_SA_Colors32+ti_Data(a0)
       move.l  wbf_color_values32(a3),a0 ;Quelle 32-Bit RGB-Werte
       move.w  #wbf_colors_number_max,(a1)+ ;Anzahl der Farben
@@ -2191,7 +2192,7 @@ alloc_screen_color_table32_memory
   
 init_screen_color_table32
       move.l  screen_color_table32(a3),a0
-      lea     downgrade_screen_taglist(pc),a1
+      lea     custom_screen_tag_list(pc),a1
       move.l  a0,sctl_SA_Colors32+ti_Data(a1)
       move.w  #wbf_colors_number_max,(a0)+ ;Alle 256 Farben
       moveq   #TRUE,d3
@@ -2214,14 +2215,14 @@ init_screen_color_table32_loop
       move.l  d3,(a0)
     ENDC
   
-open_downgrade_screen
+open_custom_screen
     sub.l   a0,a0            ;Keine NewScreen-Struktur
-    lea     downgrade_screen_taglist(pc),a1
+    lea     custom_screen_tag_list(pc),a1
     CALLINT OpenScreenTagList
-    move.l  d0,downgrade_screen(a3)
-    beq     open_downgrade_screen_error ;Wenn Null -> verzweige
+    move.l  d0,custom_screen(a3)
+    beq     open_custom_screen_error ;Wenn Null -> verzweige
   
-check_downgrade_screen_mode
+check_custom_screen_mode
     move.l  d0,a0            ;Screenstruktur Custom-Screen
     ADDF.W  sc_ViewPort,a0   ;Zeiger auf Viewport des Custom-Screens
     CALLGRAF GetVPModeID
@@ -2232,7 +2233,7 @@ check_downgrade_screen_mode
     ELSE
       cmp.l   #PAL_MONITOR_ID|LORES_KEY,d0 ;Hat der Downgrade-Screen den gewünschten Modus?
     ENDC
-    bne     check_downgrade_screen_mode_error ;Nein -> verzweige
+    bne     check_custom_screen_mode_error ;Nein -> verzweige
   
 get_os_view_parameters
     CALLINT ViewAddress
@@ -2300,12 +2301,12 @@ screen_color_table32_memory_error
     ENDC
 
     CNOP 0,4
-open_downgrade_screen_error
+open_custom_screen_error
     move.w  #SCREEN_COULD_NOT_OPEN,custom_error_code(a3)
     moveq   #RETURN_FAIL,d0
     rts
     CNOP 0,4
-check_downgrade_screen_mode_error
+check_custom_screen_mode_error
     move.w  #SCREEN_DISPLAY_MODE_NOT_AVAILABLE,custom_error_code(a3)
     moveq   #RETURN_FAIL,d0
     rts
@@ -2965,7 +2966,7 @@ restore_os_view
     CALLLIBS LoadView
     CALLLIBS WaitTOF
     CALLLIBS WaitTOF         ;Bei Interlace
-    move.l  downgrade_screen(a3),a0
+    move.l  custom_screen(a3),a0
     CALLINT CloseScreen
   
     IFNE workbench_fade_enabled
@@ -2979,10 +2980,10 @@ free_screen_color_table32
   
 restore_os_sprite_resolution
     move.l  os_screen(a3),a2
-    lea     spr_taglist(pc),a1
     move.l  sc_ViewPort+vp_ColorMap(a2),a0
-    move.l  #VTAG_SPRITERESN_SET,sprtl_VTAG_SPRITERESN+ti_Tag(a1)
-    move.l  os_sprite_resolution(a3),sprtl_VTAG_SPRITERESN+ti_Data(a1) ;alte Auflösung
+    lea     spr_video_control_tag_list(pc),a1
+    move.l  #VTAG_SPRITERESN_SET,vctl_VTAG_SPRITERESN+ti_Tag(a1)
+    move.l  os_sprite_resolution(a3),vctl_VTAG_SPRITERESN+ti_Data(a1)
     CALLGRAF VideoControl
     move.l  a2,a0            ;Zeiger auf alten Screen
     CALLINT MakeScreen

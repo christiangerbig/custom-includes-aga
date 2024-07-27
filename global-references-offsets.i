@@ -2,7 +2,6 @@
 ; Datum:        15.4.2024
 ; Version:      1.1
 
-; ** Struktur, die alle Einträge der Global-References-Tabelle enthält **
   RSRESET
 
 global_references      RS.B 0

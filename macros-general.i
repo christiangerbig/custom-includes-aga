@@ -14,7 +14,7 @@ wait_left_button_loop\@
 
 wait_right_mouse_button MACRO
 wait_right_button_loop\@
-  btst    #POTINPB_DATLY,POTINP-DMACONR(a6)
+  btst    #POTINPB_DATLY-8,POTINP-DMACONR(a6)
   bne.s   wait_right_button_loop\@
   ENDM
 

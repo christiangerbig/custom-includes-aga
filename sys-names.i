@@ -34,7 +34,7 @@ vga_requester_text         DC.B "This demo opens a VGA screen with",10
 vga_requester_gadgets_text DC.B "Proceed|Quit",0
       EVEN
     ENDC
-downgrade_screen_name      DC.B "Downgrade 15kHz screen",0
+custom_screen_name      DC.B "Downgrade 15kHz screen",0
     EVEN
 file_name                  DC.B "RAW:0/0/640/80/  **  Message Window  **  ",0
     EVEN

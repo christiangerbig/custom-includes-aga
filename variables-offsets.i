@@ -23,7 +23,7 @@ fast_memory_available    RS.W 1
 
   ELSE
 
-    IFD PASS_GLOBAL_REFERENCES     SET 1
+    IFD PASS_GLOBAL_REFERENCES
       RS_ALIGN_LONGWORD
 global_references_table  RS.L 1
     ENDC
@@ -43,7 +43,7 @@ os_sprite_resolution     RS.L 1
     IFNE workbench_fade_enabled
 screen_color_table32     RS.L 1
     ENDC
-downgrade_screen         RS.L 1
+custom_screen            RS.L 1
 
     IFEQ workbench_fade_enabled
 wbf_colors_number        RS.L 1
