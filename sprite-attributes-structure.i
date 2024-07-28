@@ -7,11 +7,11 @@
 
     RSRESET
 
-sprite_attribues      RS.B 0
+sprite_attributes      RS.B 0
 
-sa_x_size             RS.L 1
-sa_y_size             RS.L 1
-sa_depth              RS.L 1
+spratt_x_size          RS.L 1
+spratt_y_size          RS.L 1
+spratt_depth           RS.L 1
 
-sprite_attribues_size RS.B 0
+sprite_attributes_size RS.B 0
   ENDC
