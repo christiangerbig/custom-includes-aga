@@ -372,6 +372,26 @@ JOY1DATB_X0                         EQU 0
 DSKLENF_DMAEN                       EQU $8000
 DSKLENF_WRITE                       EQU $4000
 
+POTGOF_OUTRY                        EQU $8000
+POTGOF_DATRY                        EQU $4000
+POTGOF_OUTRX                        EQU $2000
+POTGOF_DATRX                        EQU $1000
+POTGOF_OUTLY                        EQU $0800
+POTGOF_DATLY                        EQU $0400
+POTGOF_OUTLX                        EQU $0200
+POTGOF_DATLX                        EQU $0100
+POTGOF_START                        EQU $0001
+
+POTGOB_OUTRY                        EQU 15
+POTGOB_DATRY                        EQU 14
+POTGOB_OUTRX                        EQU 13
+POTGOB_DATRX                        EQU 12
+POTGOB_OUTLY                        EQU 11
+POTGOB_DATLY                        EQU 10
+POTGOB_OUTLX                        EQU 9
+POTGOB_DATLX                        EQU 8
+POTGOB_START                        EQU 0
+
 POTINPF_OUTRY                       EQU $8000
 POTINPF_DATRY                       EQU $4000
 POTINPF_OUTRX                       EQU $2000

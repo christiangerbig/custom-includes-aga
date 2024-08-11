@@ -2096,7 +2096,7 @@ init_global_references_table
   ; ** Betriebssystem ausschalten **
       CNOP 0,4
 disable_system
-    MOVEF.L delay_time1,d1
+    MOVEF.L delay_time1,d1   ;Wegen Schreib/Lesezugriffen auf Laufwerke
     CALLDOS Delay
   
 get_os_screen
@@ -2115,7 +2115,7 @@ get_os_monitor_id
     beq     vp_monitor_id_error ;Ja -> verzweige
     and.l   #MONITOR_ID_MASK,d0 ;Ohne Auflösung
     move.l  d0,os_monitor_id(a3) ;Monitor-ID retten
-  
+
 get_os_sprite_resolution
     lea     spr_video_control_tag_list(pc),a1
     move.l  #VTAG_SPRITERESN_GET,vctl_VTAG_SPRITERESN+ti_Tag(a1)
