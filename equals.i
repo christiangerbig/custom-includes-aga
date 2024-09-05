@@ -10,6 +10,9 @@ FALSE_BYTE                          EQU $ff
 FALSE_WORD                          EQU $ffff
 FALSE_LONGWORD                      EQU $ffffffff
 
+BOOL_TRUE                           EQU 1
+BOOL_FALSE                          EQU 0
+
 BYTE_SIZE                           EQU 1
 WORD_SIZE                           EQU 2
 LONGWORD_SIZE                       EQU 4
