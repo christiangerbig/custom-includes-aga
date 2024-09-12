@@ -1,6 +1,5 @@
-; Includedatei: "normsource-includes/help-routines.i"
-; Datum:        19.06.2024
-; Version:      4.5
+; Datum:	05.09.2024
+; Version:      4.6
 
 ; ** Globale Labels **
 
@@ -10,344 +9,383 @@
 ; COLOR_GRADIENT_RGB8
 
 
-; ** FAST/CHIP-Memory reservieren und löschen **
-; d0 ... Größe des Speicherbereichs
-;        Rückgabewert: Zeiger auf Speicherbereich wenn erfolgreich
-  CNOP 0,4
+; Input
+; d0.l	... Größe des Speicherbereichs
+; Result
+; d0.l	... Rückgabewert: Zeiger auf Speicherbereich wenn erfolgreich
+	CNOP 0,4
 do_alloc_memory
-  move.l  #MEMF_CLEAR|MEMF_PUBLIC,d1
-  CALLEXECQ AllocMem         ;Speicher reservieren
+	move.l	#MEMF_CLEAR|MEMF_PUBLIC,d1
+	CALLEXECQ AllocMem
 
-; ** CHIP-Memory reservieren und löschen **
-; d0 ... Größe des Speicherbereichs
-;        Rückgabewert: Zeiger auf Speicherbereich wenn erfolgreich
-  CNOP 0,4
+
+; Input
+; d0.l	... Größe des Speicherbereichs
+; Result
+; d0.l	... Rückgabewert: Zeiger auf Speicherbereich wenn erfolgreich
+	CNOP 0,4
 do_alloc_chip_memory
-  move.l  #MEMF_CLEAR|MEMF_CHIP|MEMF_PUBLIC,d1
-  CALLEXECQ AllocMem         ;Speicher reservieren
+	move.l	#MEMF_CLEAR|MEMF_CHIP|MEMF_PUBLIC,d1
+	CALLEXECQ AllocMem
 
-; ** FAST-Memory reservieren und löschen **
-; d0 ... Größe des Speicherbereichs
-;        Rückgabewert: Zeiger auf Speicherbereich wenn erfolgreich
-  CNOP 0,4
+
+; Input
+; d0.l	... Größe des Speicherbereichs
+; Result
+; d0.l	... Rückgabewert: Zeiger auf Speicherbereich wenn erfolgreich
+	CNOP 0,4
 do_alloc_fast_memory
-  move.l  #MEMF_CLEAR|MEMF_FAST|MEMF_PUBLIC,d1
-  CALLEXECQ AllocMem         ;Speicher reservieren
+	move.l	#MEMF_CLEAR|MEMF_FAST|MEMF_PUBLIC,d1
+	CALLEXECQ AllocMem
 
-; ** Bitmap-Memory reservieren und löschen **
-; d0 ... Breite des Playfiels in Pixeln
-;        Rückgabewert: Zeiger auf Speicherbereich wenn erfolgreich
-; d1 ... Höhe des Playfiels in Zeilen
-; d2 ... Anzahl der Bitplanes
-  CNOP 0,4
+
+; Input
+; d0.l	... Breite des Playfiels in Pixeln
+; d1.l	... Höhe des Playfiels in Zeilen
+; d2.l	... Anzahl der Bitplanes
+; Result
+; d0.l	... Rückgabewert: Zeiger auf Speicherbereich wenn erfolgreich
+	CNOP 0,4
 do_alloc_bitmap_memory
-  moveq   #BMF_CLEAR|BMF_DISPLAYABLE|BMF_INTERLEAVED,d3 ;Flags
-  sub.l   a0,a0            ;Friendbitmap = Null
-  CALLGRAFQ AllocBitMap    ;Speicher reservieren
+	moveq	#BMF_CLEAR|BMF_DISPLAYABLE|BMF_INTERLEAVED,d3 ; Flags
+	sub.l	a0,a0			; Keine Friendbitmap
+	CALLGRAFQ AllocBitMap
 
-  IFD SYS_TAKEN_OVER
-    IFNE intena_bits&(~INTF_SETCLR)
-; ** VBR auslesen **
-; d0 ... Rückgabewert Inhalt von VBR
-      CNOP 0,4
+	IFD SYS_TAKEN_OVER
+		IFNE intena_bits&(~INTF_SETCLR)
+; Input
+; Result
+; d0.l	... Rückgabewert: Inhalt von VBR
+			CNOP 0,4
 read_VBR
-      or.w    #SRF_I0|SRF_I1|SRF_I2,SR ;Level-7-Interruptebene
-      nop
-      movec   VBR,d0
-      nop
-      rte
-    ENDC
-  ELSE
-
-; ** VBR auslesen **
+			or.w	#SRF_I0|SRF_I1|SRF_I2,SR ; Level-7-Interruptebene
+			nop
+			movec	VBR,d0
+			nop
+			rte
+		ENDC
+	ELSE
+; Input
+; Result
 ; d0 ... Rückgabewert Inhalt von VBR
-      CNOP 0,4
+			CNOP 0,4
 read_VBR
-    or.w    #SRF_I0|SRF_I1|SRF_I2,SR ;Level-7-Interruptebene
-    nop
-    movec   VBR,d0
-    nop
-    rte
+			or.w	#SRF_I0|SRF_I1|SRF_I2,SR ; Level-7-Interruptebene
+			nop
+			movec	VBR,d0
+			nop
+			rte
 
-; ** VBR beschreiben **
-; d0 ... neuer Inhalt von VBR
-    CNOP 0,4
+
+; Input
+; d0.l	... neuer Inhalt von VBR
+; Result
+; d0	... Kein Rückgabewert
+		CNOP 0,4
 write_VBR
-    or.w    #SRF_I0|SRF_I1|SRF_I2,SR ;Level-7-Interruptebene
-    nop
-    movec   d0,VBR
-    nop
-    rte
+		or.w	#SRF_I0|SRF_I1|SRF_I2,SR ; Level-7-Interruptebene
+		nop
+		movec	d0,VBR
+		nop
+		rte
 
-  ENDC
+	ENDC
 
-; ** Auf bestimmte Rasterzeile warten **
-  CNOP 0,4
+
+; Input
+; Result
+; d0	... Kein Rückgabewert
+	CNOP 0,4
 wait_beam_position
-  move.l  #$0003ff00,d1      ;Maske
-  move.l  #beam_position<<8,d2 ;Y-Position
-  lea     VPOSR-DMACONR(a6),a0
-  lea     VHPOSR-DMACONR(a6),a1
+	move.l	#$0003ff00,d1		; Maske vertikale Position
+	move.l	#beam_position<<8,d2	; Y-Position
+	lea	VPOSR-DMACONR(a6),a0
+	lea	VHPOSR-DMACONR(a6),a1
 wait_beam_position_loop
-  move.w  (a0),d0            ;VPOSR
-  swap    d0                 ;Bits in richtige Position bringen
-  move.w  (a1),d0            ;VHPOSR
-  and.l   d1,d0              ;Nur Y-Position
-  cmp.l   d2,d0              ;Auf bestimmte Rasterzeile warten
-  blt.s   wait_beam_position_loop
-  rts
+	move.w	(a0),d0			; VPOSR
+	swap	d0		 	; Bits in richtige Position bringen
+	move.w	(a1),d0			; VHPOSR
+	and.l	d1,d0			; Nur vertikale Position
+	cmp.l	d2,d0			; Auf bestimmte Rasterzeile warten
+	blt.s	wait_beam_position_loop
+	rts
 
-; ** Auf vertikale Austastlücke warten **
-  CNOP 0,4
+
+; Input
+; Result
+; d0	... Kein Rückgabewert
+	CNOP 0,4
 wait_vbi
-  lea     INTREQR-DMACONR(a6),a0
+	lea	INTREQR-DMACONR(a6),a0
 wait_vbi_loop
-  moveq   #INTF_VERTB,d0
-  and.w   (a0),d0            ;VERTB-Interrupt ?
-  beq.s   wait_vbi_loop      ;Nein -> verzweige
-  move.w  d0,INTREQ-DMACONR(a6) ;VERTB-Interrupt löschen
-  rts
+	moveq	#INTF_VERTB,d0
+	and.w	(a0),d0			; VERTB-Interrupt ?
+	beq.s	wait_vbi_loop		; Nein -> verzweige
+	move.w	d0,INTREQ-DMACONR(a6)	; VERTB-Interrupt löschen
+	rts
 
-; ** Auf Copperinterrupt warten **
-  CNOP 0,4
+
+; Input
+; Result
+; d0	... Kein Rückgabewert
+	CNOP 0,4
 wait_copint
-  lea     INTREQR-DMACONR(a6),a0
+	lea	INTREQR-DMACONR(a6),a0
 wait_copint_loop
-  moveq   #INTF_COPER,d0
-  and.w   (a0),d0            ;COPER-Interrupt ?
-  beq.s   wait_copint_loop   ;Nein -> verzweige
-  move.w  d0,INTREQ-DMACONR(a6) ;COPER-Interrupt löschen
-  rts
+	moveq	#INTF_COPER,d0
+	and.w	(a0),d0			; COPER-Interrupt ?
+	beq.s	wait_copint_loop	; Nein -> verzweige
+	move.w	d0,INTREQ-DMACONR(a6)	; COPER-Interrupt löschen
+	rts
 
-; ** RGB8-High-Werte in Copperliste schreiben **
-; a0 POINTER: Copperliste
-; a1 POINTER: Tabelle mit Farbwerten
-; d3 WORD: erstes Farbregister
-; d7 BYTE_SIGNED: Anzahl der Farben
-  CNOP 0,4
+
+; Input
+; a0	... Copperliste
+; a1	... Tabelle mit Farbwerten
+; d3.w	... erstes Farbregister
+; d7.w	... Anzahl der Farben
+; Result
+; d0	... Kein Rückgabewert
+	CNOP 0,4
 cop_init_high_colors
-  move.w  #$0f0f,d2          ;Maske RGB-Nibbles
+	move.w	#$0f0f,d2		; Maske RGB4-Nibbles
 cop_init_high_colors_loop
-  move.l  (a1)+,d0           ;24 Bit-Farbwert 
-  RGB8_TO_RGB4_HIGH d0,d1,d2
-  move.w  d3,(a0)+           ;COLORxx
-  addq.w  #2,d3              ;nächstes Farbregister
-  move.w  d0,(a0)+           ;High-Bits
-  dbf     d7,cop_init_high_colors_loop
-  rts
+	move.l	(a1)+,d0		; RGB8-Farbwert
+	RGB8_TO_RGB4_HIGH d0,d1,d2
+	move.w	d3,(a0)+		; COLORxx
+	addq.w	#2,d3			; nächstes Farbregister
+	move.w	d0,(a0)+		; High-Bits
+	dbf	d7,cop_init_high_colors_loop
+	rts
 
-; ** RGB8-Low-Werte in Copperliste schreiben **
-; a0 POINTER: Copperliste
-; a1 POINTER: Tabelle mit Farbwerten
-; d3 WORD: erstes Farbregister
-; d7 BYTE_SIGNED: Anzahl der Farben
-  CNOP 0,4
+
+; Input
+; a0	,,, Copperliste
+; a1	,,, Tabelle mit Farbwerten
+; d3.w	... erstes Farbregister
+; d7.w	... Anzahl der Farben
+; Result
+; d0	... Kein Rückgabewert
+	CNOP 0,4
 cop_init_low_colors
-  move.w  #$0f0f,d2          ;Maske RGB-Nibbles
+	move.w	#$0f0f,d2		; Maske RGB4-Nibbles
 cop_init_low_colors_loop
-  move.l  (a1)+,d0           ;24 Bit-Farbwert 
-  RGB8_TO_RGB4_LOW d0,d1,d2
-  move.w  d3,(a0)+           ;COLORxx
-  addq.w  #2,d3              ;nächstes Farbregister
-  move.w  d0,(a0)+           ;Low-Bits
-  dbf     d7,cop_init_low_colors_loop
-  rts
+	move.l	(a1)+,d0		; RGB8-Farbwert
+	RGB8_TO_RGB4_LOW d0,d1,d2
+	move.w	d3,(a0)+		; COLORxx
+	addq.w	#2,d3			; nächstes Farbregister
+	move.w	d0,(a0)+		; Low-Bits
+	dbf	d7,cop_init_low_colors_loop
+	rts
 
-; ** RGB8-High-Werte in Farbtabelle schreiben **
-; a0 WORD: Farbregister
-; a1 POINTER: Tabelle mit Farbwerten
-; d7 BYTE_SIGNED: Anzahl der Farben
-  CNOP 0,4
+
+; Input
+; a0	,,, Farbregister-Adresse
+; a1	,,, Tabelle mit Farbwerten
+; d7.w	... Anzahl der Farben
+; Result
+; d0	... Kein Rückgabewert
+	CNOP 0,4
 cpu_init_high_colors
-  move.w  #$0f0f,d2          ;Maske RGB-Nibbles
+	move.w	#$0f0f,d2		; Maske RGB4-Nibbles
 cpu_init_high_colors_loop
-  move.l  (a1)+,d0           ;24 Bit-Farbwert 
-  RGB8_TO_RGB4_HIGH d0,d1,d2
-  move.w  d0,(a0)+           ;COLORxx
-  dbf     d7,cpu_init_high_colors_loop
-  rts
+	move.l	(a1)+,d0		; RGB8-Farbwert
+	RGB8_TO_RGB4_HIGH d0,d1,d2
+	move.w	d0,(a0)+		; COLORxx
+	dbf	d7,cpu_init_high_colors_loop
+	rts
 
-; ** RGB8-Low-Werte in Farbtabelle schreiben **
-; a0 WORD: Farbregister
-; a1 POINTER: Tabelle mit Farbwerten
-; d7 BYTE_SIGNED: Anzahl der Farben
+
+; Input
+; a0	,,, Farbregister-Adresse
+; a1	,,, Tabelle mit Farbwerten
+; d7.w	... Anzahl der Farben
+; Result
+; d0	... Kein Rückgabewert
+	CNOP 0,4
 cpu_init_low_colors
-  move.w  #$0f0f,d2          ;Maske RGB-Nibbles
+	move.w	#$0f0f,d2		; Maske RGB4-Nibbles
 cpu_init_low_colors_loop
-  move.l  (a1)+,d0           ;24 Bit-Farbwert 
-  RGB8_TO_RGB4_LOW d0,d1,d2
-  move.w  d0,(a0)+           ;COLORxx
-  dbf     d7,cpu_init_low_colors_loop
-  rts
+	move.l	(a1)+,d0		; RGB8-Farbwert
+	RGB8_TO_RGB4_LOW d0,d1,d2
+	move.w	d0,(a0)+		; COLORxx
+	dbf	d7,cpu_init_low_colors_loop
+	rts
 
-  IFD COLOR_GRADIENT_RGB4
-; ** RGB4-Farbverlauf **
-; d0 ... 12-Bit-RGB-Istwert
-; d6 ... 12-Bit-RGB-Sollwert
-; d7 ... Anzahl der Farbwerte
-; a0 ... Zeiger auf Farbtabelle
-; a1 ... Additions-/Subtraktionswert für Rot
-; a2 ... Additions-/Subtraktionswert für Grün
-; a4 ... Additions-/Subtraktionswert für Blau
-; a5 ... Offset
-    CNOP 0,4
+
+	IFD COLOR_GRADIENT_RGB4
+; Input
+; d0.w	... RGB4-Istwert
+; d6.w	... RGB4-Sollwert
+; d7.w	... Anzahl der Farbwerte
+; a0	... Zeiger auf Farbtabelle
+; a1.w	... Additions-/Subtraktionswert für Rot
+; a2.w	... Additions-/Subtraktionswert für Grün
+; a4.w	... Additions-/Subtraktionswert für Blau
+; a5	... Offset
+; Result
+; d0	... Kein Rückgabewert
+		CNOP 0,4
 init_color_gradient_rgb4_loop
-    move.w  d0,(a0)          ;RGB-Wert in Farbtabelle schreiben
-    add.l   a5,a0            ;Offset
-    move.w  d0,d1            ;4-Bit-Grünwert
-    moveq   #$0f,d2          ;Maske Blauanteil
-    and.w   #$0f0,d1         ;Nur Grünanteil
-    and.b   d0,d2            ;Nur Blauanteil
-    move.w  d6,d3            ;4-Bit-Sollwert 
-    clr.b   d0               ;Nur Rotanteil
-    move.w  d3,d4            ;4-Bit-Grünwert
-    moveq   #$0f,d5          ;Maske Blauanteil
-    and.w   #$0f0,d4         ;Nur Grünanteil
-    and.b   d3,d5            ;Nur Blauanteil
-    clr.b   d3               ;Nur Rotanteil
-    cmp.w   d3,d0            ;Ist-Rotwert mit Soll-Rotwert vergleichen
-    bgt.s   decrease_red_rgb4 ;Wenn Ist-Rotwert > Soll-Rotwert -> verzweige
-    blt.s   increase_red_rgb4 ;Wenn Ist-Rotwert < Soll-Rotwert -> verzweige
+		move.w	d0,(a0)		; RGB4-Wert in Farbtabelle schreiben
+		add.l	a5,a0		; Offset
+		move.w	d0,d1		; Grünwert-Nibble
+		moveq	#$0f,d2		; Maske Blauwert-Nibble
+		and.w	#$0f0,d1	; Grünwert-Nibble
+		and.b	d0,d2		; Blauwert-Nibble
+		move.w	d6,d3		; RGB4-Sollwert
+		clr.b	d0		; Rotwertt-Nibble
+		move.w	d3,d4		; Grünwert-Nibble
+		moveq	#$0f,d5		; Blauwert-Nibble
+		and.w	#$0f0,d4	; Grünwert-Nibble
+		and.b	d3,d5		; Blauwert-Nibble
+		clr.b	d3		; Rotwert-Nibble
+		cmp.w	d3,d0
+		bgt.s	decrease_red_rgb4
+		blt.s	increase_red_rgb4
 check_green_nibble_rgb4
-    cmp.w   d4,d1            ;Ist-Grünwert mit Soll-Grünwert vergleichen
-    bgt.s   decrease_green_rgb4 ;Wenn Ist-Grünwert > Soll-Grünwert -> verzweige
-    blt.s   increase_green_rgb4 ;Wenn Ist-Grünwert < Soll-Grünwert -> verzweige
+		cmp.w	d4,d1
+		bgt.s	decrease_green_rgb4
+		blt.s	increase_green_rgb4
 check_blue_nibble_rgb4
-    cmp.b   d5,d2            ;Ist-Blauwert mit Soll-Blauwert vergleichen
-    bgt.s   decrease_blue_rgb4 ;Wenn Ist-Blauwert < Soll-Blauwert -> verzweige
-    blt.s   increase_blue_rgb4 ;Wenn Ist-Blauwert > Soll-Blauwert -> verzweige
+		cmp.b	d5,d2
+		bgt.s	decrease_blue_rgb4
+		blt.s	increase_blue_rgb4
 merge_nibbles_rgb4
-    move.b  d1,d0              ;neuer Grünwert $RG0
-    or.b    d2,d0              ;neuer Blauwert $RGB
-    dbf     d7,init_color_gradient_rgb4_loop
-    rts
-    CNOP 0,4
+		move.b	d1,d0		; Neues Grümwert-Nibble
+		or.b	d2,d0		; Neues Blauwert-Nibble
+		dbf	d7,init_color_gradient_rgb4_loop
+		rts
+		CNOP 0,4
 decrease_red_rgb4
-    sub.w   a1,d0              ;Rotanteil verringern
-    cmp.w   d3,d0              ;Ist-Rotwert > Soll-Rotwert ?
-    bgt.s   check_green_nibble_rgb4   ;Ja -> verzweige
-    move.w  d3,d0              ;Ist-Rotwert = Soll-Rotwert
-    bra.s   check_green_nibble_rgb4
-    CNOP 0,4
+		sub.w	a1,d0
+		cmp.w	d3,d0
+		bgt.s	check_green_nibble_rgb4
+		move.w	d3,d0		; Ist-Rotwert-Nibble = Soll-Rotwert-Nibble
+		bra.s	check_green_nibble_rgb4
+		CNOP 0,4
 increase_red_rgb4
-    add.w   a1,d0              ;Rotanteil erhöhen
-    cmp.w   d3,d0              ;Ist-Rotwert < Soll-Rotwert ?
-    blt.s   check_green_nibble_rgb4 ;Ja -> verzweige
-    move.w  d3,d0              ;Ist-Rotwert = Soll-Rotwert
-    bra.s   check_green_nibble_rgb4
-    CNOP 0,4
+		add.w	a1,d0
+		cmp.w	d3,d0
+		blt.s	check_green_nibble_rgb4
+		move.w	d3,d0		; Ist-Rotwert-Nibble = Soll-Rotwert-Nibble
+		bra.s	check_green_nibble_rgb4
+		CNOP 0,4
 decrease_green_rgb4
-    sub.w   a2,d1              ;Grünanteil verringern
-    cmp.w   d4,d1              ;Ist-Grünwert > Soll-Grünwert ?
-    bgt.s   check_blue_nibble_rgb4    ;Ja -> verzweige
-    move.w  d4,d1              ;Ist-Grünwert = Soll-Grünwert
-    bra.s   check_blue_nibble_rgb4
-    CNOP 0,4
+		sub.w	a2,d1
+		cmp.w	d4,d1
+		bgt.s	check_blue_nibble_rgb4
+		move.w	d4,d1		; Ist-Grünwert-Nibble = Soll-Grünwert-Nibble
+		bra.s	check_blue_nibble_rgb4
+		CNOP 0,4
 increase_green_rgb4
-    add.w   a2,d1              ;Grünanteil erhöhen
-    cmp.w   d1,d4              ;Ist-Grünwert < Soll-Grünwert ?
-    blt.s   check_blue_nibble_rgb4    ;Ja -> verzweige
-    move.w  d4,d1              ;Ist-Grünwert = Soll-Grünwert
-    bra.s   check_blue_nibble_rgb4
-    CNOP 0,4
+		add.w	a2,d1
+		cmp.w	d1,d4
+		blt.s	check_blue_nibble_rgb4
+		move.w	d4,d1		; Ist-Grünwert-Nibble = Soll-Grünwert-Nibble
+		bra.s	check_blue_nibble_rgb4
+		CNOP 0,4
 decrease_blue_rgb4
-    sub.w   a4,d2              ;Blauanteil verringern
-    cmp.b   d5,d2              ;Ist-Blauwert > Soll-Blauwert ?
-    bgt.s   merge_nibbles_rgb4 ;Ja -> verzweige
-    move.b  d5,d2              ;Ist-Blauwert = Soll-Blauwert
-    bra.s   merge_nibbles_rgb4
-    CNOP 0,4
+		sub.w	a4,d2
+		cmp.b	d5,d2
+		bgt.s	merge_nibbles_rgb4
+		move.b	d5,d2		; Ist-Blauwert-Nibble = Soll-Blauwert-Nibble
+		bra.s	merge_nibbles_rgb4
+		CNOP 0,4
 increase_blue_rgb4
-    add.w   a4,d2              ;Blauanteil erhöhen
-    cmp.b   d5,d2              ;Ist-Blauwert < Soll-Blauwert ?
-    blt.s   merge_nibbles_rgb4 ;Ja -> verzweige
-    move.b  d5,d2              ;Ist-Blauwert = Soll-Blauwert
-    bra.s   merge_nibbles_rgb4
-  ENDC
+		add.w	a4,d2
+		cmp.b	d5,d2
+		blt.s	merge_nibbles_rgb4
+		move.b	d5,d2		; Ist-Blauwert-Nibble = Soll-Blauwert-Nibble
+		bra.s	merge_nibbles_rgb4
+	ENDC
 
-  IFD COLOR_GRADIENT_RGB8
-; ** RGB8-Farbverlauf **
-; d0 ... 24-Bit-RGB-Istwert
-; d6 ... 24-Bit-RGB-Sollwert
-; d7 ... Anzahl der Farbwerte
-; a0 ... Zeiger auf Farbtabelle
-; a1 ... Additions-/Subtraktionswert für Rot
-; a2 ... Additions-/Subtraktionswert für Grün
-; a4 ... Additions-/Subtraktionswert für Blau
-; a5 ... Offset
-    CNOP 0,4
+
+	IFD COLOR_GRADIENT_RGB8
+; Input
+; d0.l	... RGB8-Istwert
+; d6.l	... RGB8-Sollwert
+; d7.w	... Anzahl der Farbwerte
+; a0	... Zeiger auf Farbtabelle
+; a1	... Additions-/Subtraktionswert für Rot
+; a2	... Additions-/Subtraktionswert für Grün
+; a4.w	... Additions-/Subtraktionswert für Blau
+; a5	... Offset
+; Result
+; d0	... Kein Rückgabewert
+		CNOP 0,4
 init_color_gradient_rgb8_loop
-    move.l  d0,(a0)            ;RGB-Wert in Farbtabelle schreiben
-    add.l   a5,a0              ;Offset
-    moveq   #TRUE,d1
-    move.w  d0,d1              ;8-Bit-Grünwert
-    moveq   #TRUE,d2
-    clr.b   d1                 ;Nur Grünanteil
-    move.b  d0,d2              ;8-Bit-Blauwert
-    clr.w   d0                 ;Nur Rotanteil
-    move.l  d6,d3              ;8-Bit-Sollwert 
-    moveq   #TRUE,d4
-    move.w  d3,d4              ;8-Bit-Grünwert
-    moveq   #TRUE,d5
-    move.b  d3,d5              ;8-Bit-Blauwert
-    clr.w   d3                 ;Nur Rotanteil
-    clr.b   d4                 ;Nur Grünanteil
-    cmp.l   d3,d0              ;Ist-Rotwert mit Soll-Rotwert vergleichen
-    bgt.s   decrease_red_nibble_rgb8 ;Wenn Ist-Rotwert > Soll-Rotwert -> verzweige
-    blt.s   increase_red_nibble_rgb8 ;Wenn Ist-Rotwert < Soll-Rotwert -> verzweige
+		move.l	d0,(a0)		; RGB8-Wert in Farbtabelle schreiben
+		add.l	a5,a0		; Offset
+		moveq	#0,d1
+		move.w	d0,d1		; Grünwert-Byte
+		moveq	#0,d2
+		clr.b	d1		; Grünwert-Byte
+		move.b	d0,d2		; Blauwert-Byte
+		clr.w	d0		; Rotwert-Byte
+		move.l	d6,d3		; RGB8-Sollwert
+		moveq	#0,d4
+		move.w	d3,d4		; Grünwert-Byte
+		moveq	#0,d5
+		move.b	d3,d5		; Blauwert-Byte
+		clr.w	d3		; Rotwert-Byte
+		clr.b	d4		; Grünwert-Byte
+		cmp.l	d3,d0
+		bgt.s	decrease_red_nibble_rgb8
+		blt.s	increase_red_nibble_rgb8
 check_green_nibble_rgb8
-    cmp.l   d4,d1              ;Ist-Grünwert mit Soll-Grünwert vergleichen
-    bgt.s   decrease_green_nibble_rgb8 ;Wenn Ist-Grünwert > Soll-Grünwert -> verzweige
-    blt.s   increase_green_nibble_rgb8 ;Wenn Ist-Grünwert < Soll-Grünwert -> verzweige
+		cmp.l	d4,d1
+		bgt.s	decrease_green_nibble_rgb8
+		blt.s	increase_green_nibble_rgb8
 check_blue_nibble_rgb8
-    cmp.w   d5,d2              ;Ist-Blauwert mit Soll-Blauwert vergleichen
-    bgt.s   decrease_blue_nibble_rgb8 ;Wenn Ist-Blauwert > Soll-Blauwert -> verzweige
-    blt.s   increase_blue_nibble_rgb8 ;Wenn Ist-Blauwert < Soll-Blauwert -> verzweige
+		cmp.w	d5,d2
+		bgt.s	decrease_blue_nibble_rgb8
+		blt.s	increase_blue_nibble_rgb8
 merge_nibbles_rgb8
-    move.w  d1,d0              ;neuer Grünwert $RrGg00
-    move.b  d2,d0              ;neuer Blauwert $RrGgBb
-    dbf     d7,init_color_gradient_rgb8_loop
-    rts
-    CNOP 0,4
+		move.w	d1,d0		; Neues Grünwert-Byte
+		move.b	d2,d0		; neues Blauwert-Byte
+		dbf	d7,init_color_gradient_rgb8_loop
+		rts
+		CNOP 0,4
 decrease_red_nibble_rgb8
-    sub.l   a1,d0              ;Rotanteil verringern
-    cmp.l   d3,d0              ;Ist-Rotwert > Soll-Rotwert ?
-    bgt.s   check_green_nibble_rgb8 ;Ja -> verzweige
-    move.l  d3,d0              ;Ist-Rotwert = Soll-Rotwert
-    bra.s   check_green_nibble_rgb8
-    CNOP 0,4
+		sub.l	a1,d0
+		cmp.l	d3,d0
+		bgt.s	check_green_nibble_rgb8
+		move.l	d3,d0		; Ist-Rotwert-Byte = Soll-Rotwert-Byte
+		bra.s	check_green_nibble_rgb8
+		CNOP 0,4
 increase_red_nibble_rgb8
-    add.l   a1,d0              ;Rotanteil erhöhen
-    cmp.l   d3,d0              ;Ist-Rotwert < Soll-Rotwert ?
-    blt.s   check_green_nibble_rgb8 ;Ja -> verzweige
-    move.l  d3,d0              ;Ist-Rotwert = Soll-Rotwert
-    bra.s   check_green_nibble_rgb8
-    CNOP 0,4
+		add.l	a1,d0
+		cmp.l	d3,d0
+		blt.s	check_green_nibble_rgb8
+		move.l	d3,d0		; Ist-Rotwert-Byte = Soll-Rotwert-Byte
+		bra.s	check_green_nibble_rgb8
+		CNOP 0,4
 decrease_green_nibble_rgb8
-    sub.l   a2,d1              ;Grünanteil verringern
-    cmp.l   d4,d1              ;Ist-Grünwert > Soll-Grünwert ?
-    bgt.s   check_blue_nibble_rgb8  ;Ja -> verzweige
-    move.l  d4,d1              ;Ist-Grünwert = Soll-Grünwert
-    bra.s   check_blue_nibble_rgb8
-    CNOP 0,4
+		sub.l	a2,d1
+		cmp.l	d4,d1
+		bgt.s	check_blue_nibble_rgb8
+		move.l	d4,d1		; Ist-Grünwert-Byte = Soll-Grünwert-Byte
+		bra.s	 check_blue_nibble_rgb8
+		CNOP 0,4
 increase_green_nibble_rgb8
-    add.l   a2,d1              ;Grünanteil erhöhen
-    cmp.l   d4,d1              ;Ist-Grünwert < Soll-Grünwert ?
-    blt.s   check_blue_nibble_rgb8  ;Ja -> verzweige
-    move.l  d4,d1              ;Ist-Grünwert = Soll-Grünwert
-    bra.s   check_blue_nibble_rgb8
-    CNOP 0,4
+		add.l	a2,d1							;Grünanteil erhöhen
+		cmp.l	d4,d1							;Ist-Grünwert < Soll-Grünwert ?
+		blt.s	check_blue_nibble_rgb8
+		move.l	d4,d1		; Ist-Grünwert-Byte = Soll-Grünwert-Byte
+		bra.s	check_blue_nibble_rgb8
+		CNOP 0,4
 decrease_blue_nibble_rgb8
-    sub.w   a4,d2              ;Blauanteil verringern
-    cmp.w   d5,d2              ;Ist-Blauwert > Soll-Blauwert ?
-    bgt.s   merge_nibbles_rgb8 ;Ja -> verzweige
-    move.w  d5,d2              ;Ist-Blauwert = Soll-Blauwert
-    bra.s   merge_nibbles_rgb8
-    CNOP 0,4
+		sub.w	a4,d2
+		cmp.w	d5,d2
+		bgt.s	merge_nibbles_rgb8
+		move.w	d5,d2		; Ist-Blauwert-Byte = Soll-Blauwert-Byte
+		bra.s	merge_nibbles_rgb8
+		CNOP 0,4
 increase_blue_nibble_rgb8
-    add.w   a4,d2              ;Blauanteil erhöhen
-    cmp.w   d5,d2              ;Ist-Blauwert < Soll-Blauwert ?
-    blt.s   merge_nibbles_rgb8 ;Ja -> verzweige
-    move.w  d5,d2              ;Ist-Blauwert = Soll-Blauwert
-    bra.s   merge_nibbles_rgb8
-  ENDC
+		add.w	a4,d2
+		cmp.w	d5,d2
+		blt.s	merge_nibbles_rgb8
+		move.w	d5,d2		; Ist-Blauwert-Byte = Soll-Blauwert-Byte
+		bra.s	merge_nibbles_rgb8
+	ENDC

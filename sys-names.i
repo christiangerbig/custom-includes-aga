@@ -1,41 +1,49 @@
-; Includedatei: "normsource-includes/sys-names.i"
-; Datum:        27.10.2023
-; Version:      2.1
+; Datum:	07.09.2024
+; Version:	2.2
 
-  IFND SYS_TAKEN_OVER
-dos_name                   DC.B "dos.library",0
-graphics_name              DC.B "graphics.library",0
-    EVEN
-intuition_name             DC.B "intuition.library",0
-ciaa_name                  DC.B "ciaa.resource",0
-ciab_name                  DC.B "ciab.resource",0
-timer_device_name          DC.B "timer.device",0
-    EVEN
-    IFNE intena_bits&INTF_PORTS
-bsdsocket_name             DC.B "bsdsocket.library",0
-tcp_requester_title        DC.B "TCP/IP-stack request",0
-      EVEN
-tcp_requester_text         DC.B "An active TCP/IP-stack was detected.",10
-                           DC.B "This may affect the interrupt handling",10
-                           DC.B "of the demo and freeze it.",10
-                           DC.B "Please close your application and proceed.",10,0
-      EVEN
-tcp_requester_gadgets_text DC.B "Proceed|Skip|Quit",0
-      EVEN
-    ENDC
-    IFEQ requires_multiscan_monitor
-vga_requester_title        DC.B "System monitor request",0
-      EVEN
-vga_requester_text         DC.B "This demo opens a VGA screen with",10
-                           DC.B "a horizontal frequency of 31 kHz.",10
-                           DC.B "Check your monitor to be able",10
-                           DC.B "to display this video mode.",0
-      EVEN
-vga_requester_gadgets_text DC.B "Proceed|Quit",0
-      EVEN
-    ENDC
-custom_screen_name      DC.B "Downgrade 15kHz screen",0
-    EVEN
-file_name                  DC.B "RAW:0/0/640/80/  **  Message Window  **  ",0
-    EVEN
-  ENDC
+	IFND SYS_TAKEN_OVER
+dos_name			DC.B "dos.library",0
+		EVEN
+graphics_name			DC.B "graphics.library",0
+		EVEN
+intuition_name			DC.B "intuition.library",0
+ciaa_name			DC.B "ciaa.resource",0
+		EVEN
+ciab_name			DC.B "ciab.resource",0
+		EVEN
+timer_device_name		DC.B "timer.device",0
+		EVEN
+
+		IFEQ requires_multiscan_monitor
+monitor_request_title		DC.B "System monitor request",0
+			EVEN
+monitor_request_text		DC.B "This demo opens a VGA screen with",ASCII_LINE_FEED
+				DC.B "a horizontal frequency of 31 kHz.",ASCII_LINE_FEED
+				DC.B "Check your monitor to be able",ASCII_LINE_FEED
+				DC.B "to display this video mode.",0
+			EVEN
+monitor_request_gadgets_text	DC.B "Proceed|Quit",0
+			EVEN
+		ENDC
+
+		IFNE intena_bits&INTF_PORTS
+bsdsocket_name			DC.B "bsdsocket.library",0
+			EVEN
+
+tcp_request_title		DC.B "TCP/IP-stack request",0
+			EVEN
+tcp_request_text		DC.B "An active TCP/IP-stack was detected.",ASCII_LINE_FEED
+				DC.B "This may affect the interrupt handling",ASCII_LINE_FEED
+				DC.B "of the demo and freeze it.",ASCII_LINE_FEED
+				DC.B "Please close this application and proceed.",ASCII_LINE_FEED,0
+			EVEN
+tcp_request_gadgets_text DC.B "Proceed|Quit",0
+			EVEN
+		ENDC
+
+degrade_screen_name		DC.B "Degrade screen",0
+		EVEN
+		
+raw_name			DC.B "RAW:0/0/640/80/  **  Message Window  **  ",0
+		EVEN
+	ENDC

@@ -1,41 +1,41 @@
-; Includedatei: "normsource-includes/sys-structures.i"
-; Datum:        27.10.2023
-; Version:      1.9
+; Datum:	08.09.2023
+; Version:	2.0
 
-;
   IFND SYS_TAKEN_OVER
+		IFEQ requires_multiscan_monitor
+			CNOP 0,4
+monitor_request
+			DS.B EasyStruct_SIZEOF
+		ENDC
 
-; ** Easy-Struktur für TCP-Stack-Abfrage **
-    IFNE intena_bits&INTF_PORTS
-      CNOP 0,4
-tcp_requester_structure
-      DS.B EasyStruct_SIZEOF
-    ENDC
-  
-; ** Easy-Struktur für Monitorabfrage **
-    IFEQ requires_multiscan_monitor
-      CNOP 0,4
-vga_requester_monitor_structure
-      DS.B EasyStruct_SIZEOF
-    ENDC
-  
-; ** Timer-Request-Struktur für Timer-Device **
-    CNOP 0,4
-timer_io_structure
-    DS.B IOTV_SIZE
-  
-; ** Tagliste für Spriteauflösung **
-    CNOP 0,4
-spr_video_control_tag_list
-    DS.B video_control_tag_list_size
-  
-; ** Tagliste für Screen **
-    CNOP 0,4
-custom_screen_tag_list
-    DS.B screen_tag_list_size
 
-; ** Struktur für Fehlermeldungen **
-    CNOP 0,4
+		IFNE intena_bits&INTF_PORTS
+			CNOP 0,4
+tcp_request
+			DS.B EasyStruct_SIZEOF
+		ENDC
+
+
+		CNOP 0,4
+timer_io
+		DS.B IOTV_SIZE
+	
+
+		CNOP 0,4
+video_control_tags
+		DS.B video_control_tag_list_size
+	
+
+		CNOP 0,4
+degrade_screen_colors
+		DS.B screen_02_colors_size
+
+		CNOP 0,4
+degrade_screen_tags
+		DS.B screen_tag_list_size
+
+
+		CNOP 0,4
 custom_error_table
-    DS.B custom_error_entry_size*custom_errors_number
-  ENDC
+		DS.B custom_error_entry_size*custom_errors_number
+	ENDC

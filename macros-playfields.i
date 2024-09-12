@@ -1,345 +1,346 @@
-; -- Inits---
+; -- Inits --
 
-INIT_BPLCON0_BITS MACRO
+INIT_BPLCON0_BITS		MACRO
 ; \1 STRING: Label
 ; \2 NUMBER: Playfield-Depth
 ; \3 STRING: Zusätzliche Bits (optiona)
-  IFC "","\1"
-    FAIL Makro INIT_BPLCON0_BITS: Label fehlt
-  ENDC
-  IFC "","\2"
-    FAIL Makro INIT_BPLCON0_BITS: PF-Depth fehlt
-  ENDC
-  IFC "","\3"
+	IFC "","\1"
+		FAIL Makro INIT_BPLCON0_BITS: Label fehlt
+	ENDC
+	IFC "","\2"
+		FAIL Makro INIT_BPLCON0_BITS: PF-Depth fehlt
+	ENDC
+	IFC "","\3"
 \1 EQU BPLCON0F_ECSENA|((\2>>3)*BPLCON0F_BPU3)|(BPLCON0F_COLOR)|((\2&$07)*BPLCON0F_BPU0)
-  ELSE
+	ELSE
 \1 EQU BPLCON0F_ECSENA|((\2>>3)*BPLCON0F_BPU3)|(BPLCON0F_COLOR)|((\2&$07)*BPLCON0F_BPU0)|\3
-  ENDC
-  ENDM
+	ENDC
+	ENDM
 
 
-INIT_BPLCON4_BITS MACRO
+INIT_BPLCON4_BITS		MACRO
 ; \1 STRING: Label
 ; \2 NUMBER: Switchwert Bitplanes
 ; \3 NUMBER: Switchwert ungerade Sprites
 ; \4 NUMBER: Switchwert gerade Sprites
-  IFC "","\1"
-    FAIL Makro INIT_BPLCON4_BITS: Label fehlt
-  ENDC
-  IFC "","\2"
-    FAIL Makro INIT_BPLCON4_BITS: Switchwert Bitplanes fehlt
-  ENDC
-  IFC "","\3"
-    FAIL Makro INIT_BPLCON4_BITS: Switchwert ungerade Sprites fehlt
-  ENDC
-  IFC "","\4"
-    FAIL Makro INIT_BPLCON4_BITS: Switchwert gerade Sprites fehlt
-  ENDC
+	IFC "","\1"
+		FAIL Makro INIT_BPLCON4_BITS: Label fehlt
+	ENDC
+	IFC "","\2"
+		FAIL Makro INIT_BPLCON4_BITS: Switchwert Bitplanes fehlt
+	ENDC
+	IFC "","\3"
+		FAIL Makro INIT_BPLCON4_BITS: Switchwert ungerade Sprites fehlt
+	ENDC
+	IFC "","\4"
+		FAIL Makro INIT_BPLCON4_BITS: Switchwert gerade Sprites fehlt
+	ENDC
 \1 EQU (BPLCON4F_BPLAM0*\2)|(BPLCON4F_OSPRM4*\3)|(BPLCON4F_ESPRM4*\4)
-  ENDM
+	ENDM
 
 
-INIT_DIWSTRT_BITS MACRO
+INIT_DIWSTRT_BITS		MACRO
 ; \1 STRING: Label
-  IFC "","\1"
-    FAIL Makro INIT_DIWSTRT_BITS: Label fehlt
-  ENDC
+	IFC "","\1"
+		FAIL Makro INIT_DIWSTRT_BITS: Label fehlt
+	ENDC
 \1 EQU ((display_window_vstart&$ff)*DIWSTRTF_V0)|(display_window_hstart&$ff)
-  ENDM
+	ENDM
 
 
-INIT_DIWSTOP_BITS MACRO
+INIT_DIWSTOP_BITS		MACRO
 ; \1 STRING: Label
-  IFC "","\1"
-    FAIL Makro INIT_DIWSTOP_BITS: Label fehlt
-  ENDC
+	IFC "","\1"
+		FAIL Makro INIT_DIWSTOP_BITS: Label fehlt
+	ENDC
 \1 EQU ((display_window_vstop&$ff)*DIWSTOPF_V0)|(display_window_hstop&$ff)
-  ENDM
+	ENDM
 
 
-INIT_DIWHIGH_BITS MACRO
+INIT_DIWHIGH_BITS		MACRO
 ; \1 STRING: Label
 ; \2 STRING: zusätzliche Bits (optional)
-  IFC "","\1"
-    FAIL Makro INIT_DIWHIGH_BITS: Label fehlt
-  ENDC
-  IFC "","\2"
+	IFC "","\1"
+		FAIL Makro INIT_DIWHIGH_BITS: Label fehlt
+	ENDC
+	IFC "","\2"
 \1 EQU (((display_window_hstop&$100)>>8)*DIWHIGHF_HSTOP8)|(((display_window_vstop&$700)>>8)*DIWHIGHF_VSTOP8)+(((display_window_hstart&$100)>>8)*DIWHIGHF_HSTART8)|((display_window_vstart&$700)>>8)
-  ELSE
+	ELSE
 \1 EQU (((display_window_hstop&$100)>>8)*DIWHIGHF_HSTOP8)|(((display_window_vstop&$700)>>8)*DIWHIGHF_VSTOP8)+(((display_window_hstart&$100)>>8)*DIWHIGHF_HSTART8)|((display_window_vstart&$700)>>8)|\2
-  ENDC
-  ENDM
+	ENDC
+	ENDM
 
 
-; -- Raster-Routines
+; -- Raster-Routines --
 
-SEPARATE_PLAYFIELD_SOFTSCROLL_64PIXEL_LORES MACRO
+DUALPF_SOFTSCROLL_64PIXEL_LORES	MACRO
 ; \1 WORD: PF1 X-Koordinate
 ; \2 WORD: PF2 X-Koordinate
 ; \3 Datenregister D[0..7] Maske für H0-H7 (optional)
 ; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
-  IFC "","\1"
-    FAIL Makro SEPARATE_PLAYFIELD_SOFTSCROLL_64PIXEL_LORES: PF1 X-Koordinate fehlt
-  ENDC
-  IFC "","\2"
-    FAIL Makro SEPARATE_PLAYFIELD_SOFTSCROLL_64PIXEL_LORES: PF1 Y-Koordinate fehlt
-  ENDC
-  IFC "","\3"
-    and.w   #$00ff,\1        ;%-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
-  ELSE
-    and.w   \3,\1            ;%-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
-  ENDC
-  IFC "","\3"
-    and.w   #$00ff,\2        ;%-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
-  ELSE
-    and.w   \3,\2            ;%-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
-  ENDC
-  lsl.w   #2,\1              ;%-- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0 -- --
-  lsl.w   #2,\2              ;%-- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0 -- --
-  ror.b   #4,\1              ;%-- -- -- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2
-  ror.b   #4,\2              ;%-- -- -- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2
-  lsl.w   #2,\1              ;%-- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2 -- --
-  lsl.w   #2,\2              ;%-- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2 -- --
-  lsr.b   #2,\1              ;%-- -- -- -- H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2
-  lsr.b   #2,\2              ;%-- -- -- -- H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2
-  lsl.b   #4,\2              ;%H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2 -- -- -- --
-  or.w    \2,\1              ;%H7 H6 H1 H0 H7 H6 H1 H0 H5 H4 H3 H2 H5 H4 H3 H2
-  ENDM
+	IFC "","\1"
+		FAIL Makro DUALPF_SOFTSCROLL_64PIXEL_LORES: PF1 X-Koordinate fehlt
+	ENDC
+	IFC "","\2"
+		FAIL Makro DUALPF_SOFTSCROLL_64PIXEL_LORES: PF1 Y-Koordinate fehlt
+	ENDC
+	IFC "","\3"
+		and.w	 #$00ff,\1	; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
+	ELSE
+		and.w	 \3,\1		; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
+	ENDC
+	IFC "","\3"
+		and.w	 #$00ff,\2	; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
+	ELSE
+		and.w	 \3,\2		; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
+	ENDC
+	lsl.w	#2,\1			; %-- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0 -- --
+	lsl.w	#2,\2			; %-- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0 -- --
+	ror.b	#4,\1			; %-- -- -- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2
+	ror.b	#4,\2			; %-- -- -- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2
+	lsl.w	#2,\1			; %-- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2 -- --
+	lsl.w	#2,\2			; %-- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2 -- --
+	lsr.b	#2,\1			; %-- -- -- -- H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2
+	lsr.b	#2,\2			; %-- -- -- -- H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2
+	lsl.b	#4,\2			; %H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2 -- -- -- --
+	or.w	\2,\1			; %H7 H6 H1 H0 H7 H6 H1 H0 H5 H4 H3 H2 H5 H4 H3 H2
+	ENDM
 
 
-BITPLANE_SOFTSCROLL_8PIXEL_LORES MACRO
+PF_SOFTSCROLL_8PIXEL_LORES	MACRO
 ; \1 WORD: X-Koordinate
 ; \2 WORD: Scratch-Register
 ; \3 Datenregister D[0..7] Maske für H0-H4 (optional)
 ; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
-  IFC "","\1"
-    FAIL Makro BITPLANE_SOFTSCROLL_8PIXEL_LORES: PF1 X-Koordinate fehlt
-  ENDC
-  IFC "","\2"
-    FAIL Makro BITPLANE_SOFTSCROLL_8PIXEL_LORES: PF1 Y-Koordinate fehlt
-  ENDC
-  IFC "","\3"
-    and.w    #$001f,\1       ;%-- -- -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0
-  ELSE
-    and.w    \3,\1           ;%-- -- -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0
-  ENDC
-  lsl.b   #2,\1              ;%-- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0 -- --
-  ror.b   #4,\1              ;%-- -- -- -- -- -- -- -- H1 H0 -- -- -- H4 H3 H2
-  lsl.w   #2,\1              ;%-- -- -- -- -- -- H1 H0 -- -- -- H4 H3 H2 -- --
-  lsr.b   #2,\1              ;%-- -- -- -- -- -- H1 H0 -- -- -- -- -- H4 H3 H2
-  move.w  \1,\2              ;%-- -- -- -- -- -- H1 H0 -- -- -- -- -- H4 H3 H2
-  lsl.w   #4,\2              ;%-- -- H1 H0 -- -- -- -- -- H4 H3 H2 -- -- -- --
-  or.w    \2,\1              ;%-- -- H1 H0 -- -- H1 H0 -- H4 H3 H2 -- H4 H3 H2
-  ENDM
+	IFC "","\1"
+		FAIL Makro PF_SOFTSCROLL_8PIXEL_LORES: PF1 X-Koordinate fehlt
+	ENDC
+	IFC "","\2"
+		FAIL Makro PF_SOFTSCROLL_8PIXEL_LORES: PF1 Y-Koordinate fehlt
+	ENDC
+	IFC "","\3"
+		and.w	#$001f,\1 	; %-- -- -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0
+	ELSE
+		and.w	\3,\1		; %-- -- -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0
+	ENDC
+	lsl.b	#2,\1			; %-- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0 -- --
+	ror.b	#4,\1			; %-- -- -- -- -- -- -- -- H1 H0 -- -- -- H4 H3 H2
+	lsl.w	#2,\1			; %-- -- -- -- -- -- H1 H0 -- -- -- H4 H3 H2 -- --
+	lsr.b	#2,\1			; %-- -- -- -- -- -- H1 H0 -- -- -- -- -- H4 H3 H2
+	move.w	\1,\2			; %-- -- -- -- -- -- H1 H0 -- -- -- -- -- H4 H3 H2
+	lsl.w	#4,\2			; %-- -- H1 H0 -- -- -- -- -- H4 H3 H2 -- -- -- --
+	or.w	\2,\1			; %-- -- H1 H0 -- -- H1 H0 -- H4 H3 H2 -- H4 H3 H2
+	ENDM
 
 
-BITPLANE_SOFTSCROLL_16PIXEL_LORES MACRO
+PF_SOFTSCROLL_16PIXEL_LORES	MACRO
 ; \1 WORD: X-Koordinate
 ; \2 WORD: Scratch-Register
 ; \3 Datenregister D[0..7] Maske für H0-H5 (optional)
 ; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
-  IFC "","\1"
-    FAIL Makro BITPLANE_SOFTSCROLL_16PIXEL_LORES: PF1 X-Koordinate fehlt
-  ENDC
-  IFC "","\2"
-    FAIL Makro BITPLANE_SOFTSCROLL_16PIXEL_LORES: Scratch-Register fehlt
-  ENDC
-  IFC "","\3"
-    and.w    #$003f,\1       ;%-- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
-  ELSE
-    and.w    \3,\1           ;%-- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
-  ENDC
-  ror.b   #2,\1              ;%-- -- -- -- -- -- -- -- H1 H0 -- -- H5 H4 H3 H2
-  lsl.w   #2,\1              ;%-- -- -- -- -- -- H1 H0 -- -- H5 H4 H3 H2 -- --
-  lsr.b   #2,\1              ;%-- -- -- -- -- -- H1 H0 -- -- -- -- H5 H4 H3 H2
-  move.w  \1,\2              ;%-- -- -- -- -- -- H1 H0 -- -- -- -- H5 H4 H3 H2
-  lsl.w   #4,\2              ;%-- -- H1 H0 -- -- -- -- H5 H4 H3 H2 -- -- -- --
-  or.w    \2,\1              ;%-- -- H1 H0 -- -- H1 H0 H5 H4 H3 H2 H5 H4 H3 H2
-  ENDM
+	IFC "","\1"
+		FAIL Makro PF_SOFTSCROLL_16PIXEL_LORES: PF1 X-Koordinate fehlt
+	ENDC
+	IFC "","\2"
+		FAIL Makro PF_SOFTSCROLL_16PIXEL_LORES: Scratch-Register fehlt
+	ENDC
+	IFC "","\3"
+		and.w	#$003f,\1	; %-- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
+	ELSE
+		and.w	\3,\1		; %-- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
+	ENDC
+	ror.b	#2,\1			; %-- -- -- -- -- -- -- -- H1 H0 -- -- H5 H4 H3 H2
+	lsl.w	#2,\1			; %-- -- -- -- -- -- H1 H0 -- -- H5 H4 H3 H2 -- --
+	lsr.b	#2,\1			; %-- -- -- -- -- -- H1 H0 -- -- -- -- H5 H4 H3 H2
+	move.w	\1,\2			; %-- -- -- -- -- -- H1 H0 -- -- -- -- H5 H4 H3 H2
+	lsl.w	#4,\2			; %-- -- H1 H0 -- -- -- -- H5 H4 H3 H2 -- -- -- --
+	or.w	\2,\1			; %-- -- H1 H0 -- -- H1 H0 H5 H4 H3 H2 H5 H4 H3 H2
+	ENDM
 
 
-BITPLANE_SOFTSCROLL_8PIXEL_HIRES MACRO
+PF_SOFTSCROLL_8PIXEL_HIRES	MACRO
 ; \1 WORD: X-Koordinate
 ; \2 WORD: Scratch-Register
 ; \3 Datenregister D[0..7] Maske für H0-H3 (optional)
 ; Rückgabewert: [\1 WORD] BPLCON2 Softscrollwert
-  IFC "","\1"
-    FAIL Makro BITPLANE_SOFTSCROLL_8PIXEL_HIRES: PF1 X-Koordinate fehlt
-  ENDC
-  IFC "","\2"
-    FAIL Makro BITPLANE_SOFTSCROLL_8PIXEL_HIRES: Scratch-Register fehlt
-  ENDC
-  IFC "","\3"
-    and.w    #$000f,\1       ;%-- -- -- -- -- -- -- -- -- -- -- -- H3 H2 H1 H0
-  ELSE
-    and.w    \3,\1           ;%-- -- -- -- -- -- -- -- -- -- -- -- H3 H2 H1 H0
-  ENDC
-  lsl.b   #2,\1              ;%-- -- -- -- -- -- -- -- -- -- H3 H2 H1 H0 -- --
-  ror.b   #4,\1              ;%-- -- -- -- -- -- -- -- H1 H0 -- -- -- -- H3 H2
-  lsl.w   #2,\1              ;%-- -- -- -- -- -- H1 H0 -- -- -- -- H3 H2 -- --
-  lsr.b   #2,\1              ;%-- -- -- -- -- -- H1 H0 -- -- -- -- -- -- H3 H2
-  move.w  \1,\2              ;%-- -- -- -- -- -- H1 H0 -- -- -- -- -- -- H3 H2
-  lsl.w   #4,\2              ;%-- -- H1 H0 -- -- -- -- -- -- H3 H2 -- -- -- --
-  or.w    \2,\1              ;%-- -- H1 H0 -- -- H1 H0 -- -- H3 H2 -- -- H3 H2
-  ENDM
+	IFC "","\1"
+		FAIL Makro PF_SOFTSCROLL_8PIXEL_HIRES: PF1 X-Koordinate fehlt
+	ENDC
+	IFC "","\2"
+		FAIL Makro PF_SOFTSCROLL_8PIXEL_HIRES: Scratch-Register fehlt
+	ENDC
+	IFC "","\3"
+		and.w	#$000f,\1 	; %-- -- -- -- -- -- -- -- -- -- -- -- H3 H2 H1 H0
+	ELSE
+		and.w	\3,\1		; %-- -- -- -- -- -- -- -- -- -- -- -- H3 H2 H1 H0
+	ENDC
+	lsl.b	#2,\1			; %-- -- -- -- -- -- -- -- -- -- H3 H2 H1 H0 -- --
+	ror.b	#4,\1			; %-- -- -- -- -- -- -- -- H1 H0 -- -- -- -- H3 H2
+	lsl.w	#2,\1			; %-- -- -- -- -- -- H1 H0 -- -- -- -- H3 H2 -- --
+	lsr.b	#2,\1			; %-- -- -- -- -- -- H1 H0 -- -- -- -- -- -- H3 H2
+	move.w	\1,\2			; %-- -- -- -- -- -- H1 H0 -- -- -- -- -- -- H3 H2
+	lsl.w	#4,\2			; %-- -- H1 H0 -- -- -- -- -- -- H3 H2 -- -- -- --
+	or.w	\2,\1			; %-- -- H1 H0 -- -- H1 H0 -- -- H3 H2 -- -- H3 H2
+	ENDM
 
 
-BITPLANE_SOFTSCROLL_16PIXEL_HIRES MACRO
+PF_SOFTSCROLL_16PIXEL_HIRES	MACRO
 ; \1 WORD: X-Koordinate
 ; \2 WORD: Scratch-Register
 ; \3 Datenregister D[0..7] Maske für H0-H4 (optional)
 ; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
-  IFC "","\1"
-    FAIL Makro BITPLANE_SOFTSCROLL_16PIXEL_HIRES: PF1 X-Koordinate fehlt
-  ENDC
-  IFC "","\2"
-    FAIL Makro BITPLANE_SOFTSCROLL_16PIXEL_HIRES: Scratch-Register fehlt
-  ENDC
-  IFC "","\3"
-    and.w    #$001f,\1       ;%-- -- -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0
-  ELSE
-    and.w    \3,\1           ;%-- -- -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0
-  ENDC
-  ror.b   #2,\1              ;%-- -- -- -- -- -- -- -- H1 H0 -- -- -- H4 H3 H2
-  lsl.w   #2,\1              ;%-- -- -- -- -- -- H1 H0 -- -- -- H4 H3 H2 -- --
-  lsr.b   #2,\1              ;%-- -- -- -- -- -- H1 H0 -- -- -- -- -- H4 H3 H2
-  move.w  \1,\2              ;%-- -- -- -- -- -- H1 H0 -- -- -- -- -- H4 H3 H2
-  lsl.w   #4,\2              ;%-- -- H1 H0 -- -- -- -- -- H4 H3 H2 -- -- -- --
-  or.w    \2,\1              ;%-- -- H1 H0 -- -- H1 H0 -- H4 H3 H2 -- H4 H3 H2
-  ENDM
+	IFC "","\1"
+		FAIL Makro PF_SOFTSCROLL_16PIXEL_HIRES: PF1 X-Koordinate fehlt
+	ENDC
+	IFC "","\2"
+		FAIL Makro PF_SOFTSCROLL_16PIXEL_HIRES: Scratch-Register fehlt
+	ENDC
+	IFC "","\3"
+		and.w	#$001f,\1	; %-- -- -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0
+	ELSE
+		and.w	\3,\1		; %-- -- -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0
+	ENDC
+	ror.b	#2,\1			; %-- -- -- -- -- -- -- -- H1 H0 -- -- -- H4 H3 H2
+	lsl.w	#2,\1			; %-- -- -- -- -- -- H1 H0 -- -- -- H4 H3 H2 -- --
+	lsr.b	#2,\1			; %-- -- -- -- -- -- H1 H0 -- -- -- -- -- H4 H3 H2
+	move.w	\1,\2			; %-- -- -- -- -- -- H1 H0 -- -- -- -- -- H4 H3 H2
+	lsl.w	#4,\2			; %-- -- H1 H0 -- -- -- -- -- H4 H3 H2 -- -- -- --
+	or.w	\2,\1			; %-- -- H1 H0 -- -- H1 H0 -- H4 H3 H2 -- H4 H3 H2
+	ENDM
 
 
-BITPLANE_SOFTSCROLL_64PIXEL_LORES MACRO
+PF_SOFTSCROLL_64PIXEL_LORES	MACRO
 ; \1 WORD: X-Koordinate
 ; \2 WORD: Scratch-Register
 ; \3 Datenregister D[0..7] Maske für H0-H7 (optional)
 ; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
-  IFC "","\1"
-    FAIL Makro BITPLANE_SOFTSCROLL_64PIXEL_LORES: PF1 X-Koordinate fehlt
-  ENDC
-  IFC "","\2"
-    FAIL Makro BITPLANE_SOFTSCROLL_64PIXEL_LORES: Scratch-Register fehlt
-  ENDC
-  IFC "","\3"
-    and.w   #$00ff,\1        ;%-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
-  ELSE
-    and.w   \3,\1            ;%-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
-  ENDC
-  lsl.w   #2,\1              ;%-- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0 -- --
-  ror.b   #4,\1              ;%-- -- -- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2
-  lsl.w   #2,\1              ;%-- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2 -- --
-  lsr.b   #2,\1              ;%-- -- -- -- H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2
-  move.w  \1,\2              ;%-- -- -- -- H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2
-  lsl.w   #4,\2              ;%H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2 -- -- -- --
-  or.w    \2,\1              ;%H7 H6 H1 H0 H7 H6 H1 H0 H5 H4 H3 H2 H5 H4 H3 H2
-  ENDM
+	IFC "","\1"
+		FAIL Makro PF_SOFTSCROLL_64PIXEL_LORES: PF1 X-Koordinate fehlt
+	ENDC
+	IFC "","\2"
+		FAIL Makro PF_SOFTSCROLL_64PIXEL_LORES: Scratch-Register fehlt
+	ENDC
+	IFC "","\3"
+		and.w	#$00ff,\1	; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
+	ELSE
+		and.w	\3,\1		; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
+	ENDC
+	lsl.w	#2,\1			; %-- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0 -- --
+	ror.b	#4,\1			; %-- -- -- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2
+	lsl.w	#2,\1			; %-- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2 -- --
+	lsr.b	#2,\1			; %-- -- -- -- H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2
+	move.w	\1,\2			; %-- -- -- -- H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2
+	lsl.w	#4,\2			; %H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2 -- -- -- --
+	or.w	\2,\1			; %H7 H6 H1 H0 H7 H6 H1 H0 H5 H4 H3 H2 H5 H4 H3 H2
+	ENDM
 
 
-ODD_PLAYFIELD_SOFTSCROLL_64PIXEL_LORES MACRO
+ODDPF_SOFTSCROLL_64PIXEL_LORES	MACRO
 ; \1 WORD: X-Koordinate
 ; \2 Datenregister D[0..7] Maske für H0-H7 (optional)
 ; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
-  IFC "","\1"
-    FAIL Makro ODD_PLAYFIELD_SOFTSCROLL_64PIXEL_LORES: X-Koordinate fehlt
-  ENDC
-  IFC "","\2"
-    and.w   #$00ff,\1        ;%-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
-  ELSE
-    and.w   \2,\1            ;%-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
-  ENDC
-  lsl.w   #2,\1              ;%-- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0 -- --
-  ror.b   #4,\1              ;%-- -- -- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2
-  lsl.w   #2,\1              ;%-- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2 -- --
-  lsr.b   #2,\1              ;%-- -- -- -- H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2
-  ENDM
+	IFC "","\1"
+		FAIL Makro ODDPF_SOFTSCROLL_64PIXEL_LORES: X-Koordinate fehlt
+	ENDC
+	IFC "","\2"
+		and.w	#$00ff,\1	; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
+	ELSE
+		and.w	\2,\1		; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
+	ENDC
+	lsl.w	#2,\1			; %-- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0 -- --
+	ror.b	#4,\1			; %-- -- -- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2
+	lsl.w	#2,\1			; %-- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2 -- --
+	lsr.b	#2,\1			; %-- -- -- -- H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2
+	ENDM
 
-; -- Raster routines
 
-SWAP_PLAYFIELD MACRO
+; -- Raster routines --
+
+SWAP_PLAYFIELD			MACRO
 ; \1 STRING: Labels-Prefix der Routine
 ; \2 NUMBER: Anzahl der Playfields [2,3]
 ; \3 BYTE SIGNED: Anzahl der Bitplanes
 ; \4 WORD: X-Offset (optional)
 ; \5 WORD: Y-Offset (optional)
-  IFC "","\1"
-    FAIL Makro SWAP_PLAYFIELD: Labels-Prefix der Routine fehlt
-  ENDC
-  IFC "","\2"
-    FAIL Makro SWAP_PLAYFIELD: Anzahl der Playfields fehlt
-  ENDC
-  IFC "","\3"
-    FAIL Makro SWAP_PLAYFIELD: Anzahl der Bitplanes fehlt
-  ENDC
-  CNOP 0,4
+	IFC "","\1"
+		FAIL Makro SWAP_PLAYFIELD: Labels-Prefix der Routine fehlt
+	ENDC
+	IFC "","\2"
+		FAIL Makro SWAP_PLAYFIELD: Anzahl der Playfields fehlt
+	ENDC
+	IFC "","\3"
+		FAIL Makro SWAP_PLAYFIELD: Anzahl der Bitplanes fehlt
+	ENDC
+	CNOP 0,4
 swap_playfield\*RIGHT(\1,1)
-  IFEQ \2-2
-    IFC "","\4"
-      move.l  cl1_display(a3),a0
-      move.l  \1_construction2(a3),a1
-      ADDF.W  cl1_BPL1PTH+2,a0
-      move.l  \1_display(a3),\1_construction2(a3)
-      move.l  a1,\1_display(a3)
-      moveq   #\1_depth3-1,d7   ;Anzahl der Planes
+	IFEQ \2-2
+		IFC "","\4"
+			move.l	cl1_display(a3),a0
+			move.l	\1_construction2(a3),a1
+			ADDF.W	cl1_BPL1PTH+2,a0
+			move.l	\1_display(a3),\1_construction2(a3)
+			move.l	a1,\1_display(a3)
+			moveq	#\1_depth3-1,d7	; Anzahl der Planes
 swap_playfield\*RIGHT(\1,1)_loop
-      move.w  (a1)+,(a0)       ;BPLxPTH
-      addq.w  #8,a0
-      move.w  (a1)+,4-8(a0)    ;BPLxPTL
-      dbf     d7,SWAP_PLAYFIELD\*RIGHT(\1,1)_loop
-      rts
-    ELSE
-      move.l  cl1_display(a3),a0
-      move.l  \1_construction2(a3),a1
-      ADDF.W  cl1_BPL1PTH+2,a0
-      move.l  \1_display(a3),\1_construction2(a3)
-      MOVEF.L (\4/8)+(\5*\1_plane_width*\1_depth3),d1
-      move.l  a1,\1_display(a3)
-      moveq   #\1_depth3-1,d7   ;Anzahl der Planes
+			move.w	(a1)+,(a0) ; BPLxPTH
+			addq.w	#8,a0
+			move.w	(a1)+,4-8(a0) ; BPLxPTL
+			dbf	d7,SWAP_PLAYFIELD\*RIGHT(\1,1)_loop
+			rts
+		ELSE
+			move.l	cl1_display(a3),a0
+			move.l	\1_construction2(a3),a1
+			ADDF.W	cl1_BPL1PTH+2,a0
+			move.l	\1_display(a3),\1_construction2(a3)
+			MOVEF.L (\4/8)+(\5*\1_plane_width*\1_depth3),d1
+			move.l	a1,\1_display(a3)
+			moveq	#\1_depth3-1,d7	 ; Anzahl der Planes
 swap_playfield\*RIGHT(\1,1)_loop
-      move.l  (a1)+,d0
-      add.l   d1,d0
-      move.w  d0,4(a0)       ;BPLxPTL
-      swap    d0             ;High
-      move.w  d0,(a0)        ;BPLxPTH
-      addq.w  #8,a0
-      dbf     d7,SWAP_PLAYFIELD\*RIGHT(\1,1)_loop
-      rts
-    ENDC
-  ENDC
-  IFEQ \2-3
-    IFC "","\4"
-      move.l  cl1_display(a3),a0
-      move.l  \1_construction1(a3),a1
-      move.l  \1_construction2(a3),a2
-      move.l  \1_display(a3),\1_construction1(a3)
-      move.l  a1,\1_construction2(a3)
-      ADDF.W  cl1_BPL1PTH+2,a0   
-      move.l  a2,\1_display(a3)
-      moveq   #\3-1,d7         ;Anzahl der Planes
+			move.l	(a1)+,d0
+			add.l	d1,d0
+			move.w	d0,4(a0) ; BPLxPTL
+			swap	d0	; High
+			move.w	d0,(a0)	; BPLxPTH
+			addq.w	#8,a0
+			dbf	d7,SWAP_PLAYFIELD\*RIGHT(\1,1)_loop
+			rts
+		ENDC
+	ENDC
+	IFEQ \2-3
+		IFC "","\4"
+			move.l	cl1_display(a3),a0
+			move.l	\1_construction1(a3),a1
+			move.l	\1_construction2(a3),a2
+			move.l	\1_display(a3),\1_construction1(a3)
+			move.l	a1,\1_construction2(a3)
+			ADDF.W	cl1_BPL1PTH+2,a0	 
+			move.l	a2,\1_display(a3)
+			moveq	#\3-1,d7 ; Anzahl der Planes
 swap_playfield\*RIGHT(\1,1)_loop
-      move.w  (a2)+,(a0)       ;BPLxPTH
-      addq.w  #8,a0
-      move.w  (a2)+,4-8(a0)    ;BPLxPTL
-      dbf     d7,SWAP_PLAYFIELD\*RIGHT(\1,1)_loop
-      rts
-    ELSE
-      move.l  cl1_display(a3),a0
-      move.l  \1_construction1(a3),a1
-      move.l  \1_construction2(a3),a2
-      move.l  \1_display(a3),\1_construction1(a3)
-      MOVEF.L (\4/8)+(\5*\1_plane_width*\1_depth3),d1
-      move.l  a1,\1_construction2(a3)
-      ADDF.W  cl1_BPL1PTH+2,a0   
-      move.l  a2,\1_display(a3)
-      moveq   #\3-1,d7         ;Anzahl der Planes
+			move.w	(a2)+,(a0) ; BPLxPTH
+			addq.w	#8,a0
+			move.w	(a2)+,4-8(a0) ; BPLxPTL
+			dbf	d7,SWAP_PLAYFIELD\*RIGHT(\1,1)_loop
+			rts
+		ELSE
+			move.l	cl1_display(a3),a0
+			move.l	\1_construction1(a3),a1
+			move.l	\1_construction2(a3),a2
+			move.l	\1_display(a3),\1_construction1(a3)
+			MOVEF.L (\4/8)+(\5*\1_plane_width*\1_depth3),d1
+			move.l	a1,\1_construction2(a3)
+			ADDF.W	cl1_BPL1PTH+2,a0	 
+			move.l	a2,\1_display(a3)
+			moveq	#\3-1,d7 ; Anzahl der Planes
 swap_playfield\*RIGHT(\1,1)_loop
-      move.l  (a2)+,d0
-      add.l   d1,d0
-      move.w  d0,4(a0)       ;BPLxPTL
-      swap    d0             ;High
-      move.w  d0,(a0)        ;BPLxPTH
-      addq.w  #8,a0
-      dbf     d7,SWAP_PLAYFIELD\*RIGHT(\1,1)_loop
-      rts
-    ENDC
-  ENDC
-  ENDM
+			move.l	(a2)+,d0
+			add.l	d1,d0
+			move.w	d0,4(a0) ; BPLxPTL
+			swap	d0						 ;High
+			move.w	d0,(a0) ; BPLxPTH
+			addq.w	#8,a0
+			dbf	d7,SWAP_PLAYFIELD\*RIGHT(\1,1)_loop
+			rts
+		ENDC
+	ENDC
+	ENDM
