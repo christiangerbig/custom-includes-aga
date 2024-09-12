@@ -59,9 +59,20 @@ degrade_screen_y_size		EQU 2
 degrade_screen_depth		EQU 1
 degrade_screen_colors_number	EQU 2
 
+invisible_window_left		EQU 0
+invisible_window_top		EQU 0
+invisible_window_x_size		EQU degrade_screen_x_size
+invisible_window_y_size		EQU degrade_screen_y_size
+
+cleared_sprite_x_size		EQU 16	; 1x Bandwidth
+cleared_sprite_y_size		EQU 1
+cleared_sprite_x_offset		EQU 0
+cleared_sprite_y_offset		EQU 0
+sprites_colors_number		EQU 16
+
 ; **** Screen-Fader ****
 sf_colors_number		EQU 256
-sfi_fader_speed			EQU 6
+sfi_fader_speed			EQU 7
 sfo_fader_speed			EQU 6
 
 ; **** OS ****
@@ -75,7 +86,7 @@ exec_base			EQU $0004
 ANY_LIBRARY_VERSION		EQU 0
 
 ; **** Custom_Errors ****
-custom_errors_number		EQU 45
+custom_errors_number		EQU 47
 
 NO_CUSTOM_ERROR			EQU 0
 
@@ -141,12 +152,15 @@ CUSTOM_MEMORY_NO_MEMORY		EQU 40
 
 EXCEPTION_VECTORS_NO_MEMORY	EQU 41
 
-VIEWPORT_MONITOR_ID_NOT_FOUND	EQU 42
+CLEARED_SPRITE_NO_MEMORY	EQU 42
 
-SCREEN_FADER_NO_MEMORY		EQU 43
+VIEWPORT_MONITOR_ID_NOT_FOUND	EQU 43
 
-SCREEN_COULD_NOT_OPEN		EQU 44
-SCREEN_MODE_NOT_AVAILABLE	EQU 45
+SCREEN_FADER_NO_MEMORY		EQU 44
+
+SCREEN_COULD_NOT_OPEN		EQU 45
+SCREEN_MODE_NOT_AVAILABLE	EQU 46
+WINDOW_COULD_NOT_OPEN		EQU 47
 
 ; **** Chipset ****
 _CUSTOM				EQU $dff000

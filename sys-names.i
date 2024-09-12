@@ -43,6 +43,9 @@ tcp_request_gadgets_text DC.B "Proceed|Quit",0
 
 degrade_screen_name		DC.B "Degrade screen",0
 		EVEN
+
+invisible_window_name		DC.B "Invisible window",0
+		EVEN
 		
 raw_name			DC.B "RAW:0/0/640/80/  **  Message Window  **  ",0
 		EVEN

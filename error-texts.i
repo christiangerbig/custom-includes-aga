@@ -247,6 +247,23 @@ error_text_exception_vectors
 error_text_exception_vectors_end
 		EVEN
 
+error_text_cleared_sprite
+		DC.B "Couldn't allocate memory for cleared_sprite !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Press any key.",ASCII_LINE_FEED
+error_text_cleared_sprite_end
+		EVEN
+
+error_text_active_screen
+		DC.B "Couldn't find active Screen !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Press any key.",ASCII_LINE_FEED
+error_text_active_screen_end
+		EVEN
+error_text_viewport
+		DC.B "Couldn't get viewport monitor ID !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Press any key.",ASCII_LINE_FEED
+error_text_viewport_end
+		EVEN
+
 error_text_screen_color_table
 		DC.B "Couldn't allocate memory for downgrade screen color table !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
@@ -262,16 +279,10 @@ error_text_screen_display_mode
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_screen_display_mode_end
 		EVEN
-
-error_text_active_screen
-		DC.B "Couldn't find active Screen !",ASCII_LINE_FEED,ASCII_LINE_FEED
+error_text_window
+		DC.B "Couldn't open invisible window !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
-error_text_active_screen_end
-		EVEN
-error_text_viewport
-		DC.B "Couldn't get viewport monitor ID !",ASCII_LINE_FEED,ASCII_LINE_FEED
-		DC.B "Press any key.",ASCII_LINE_FEED
-error_text_viewport_end
+error_text_window_end
 		EVEN
 
 		IFEQ screen_fader_enabled

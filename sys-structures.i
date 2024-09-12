@@ -1,7 +1,7 @@
 ; Datum:	08.09.2023
 ; Version:	2.0
 
-  IFND SYS_TAKEN_OVER
+	IFND SYS_TAKEN_OVER
 		IFEQ requires_multiscan_monitor
 			CNOP 0,4
 monitor_request
@@ -22,11 +22,6 @@ timer_io
 	
 
 		CNOP 0,4
-video_control_tags
-		DS.B video_control_tag_list_size
-	
-
-		CNOP 0,4
 degrade_screen_colors
 		DS.B screen_02_colors_size
 
@@ -34,6 +29,16 @@ degrade_screen_colors
 degrade_screen_tags
 		DS.B screen_tag_list_size
 
+
+		CNOP 0,4
+invisible_window_tags
+		DS.B window_tag_list_size
+
+
+		CNOP 0,4
+video_control_tags
+		DS.B video_control_tag_list_size
+	
 
 		CNOP 0,4
 custom_error_table

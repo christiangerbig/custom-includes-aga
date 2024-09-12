@@ -29,7 +29,13 @@
 	IFND SYS_TAKEN_OVER
 		INCLUDE "screen-taglist-offsets.i"
 		INCLUDE "screen-colors.i"
+	
+		INCLUDE "window-taglist-offsets.i"
+
+		INCLUDE "sprite-pointer-data.i"
+	
 		INCLUDE "videocontrol-taglist-offsets.i"
+	
 		INCLUDE "custom-error-entry.i"
 	ENDC
 	IFD PASS_GLOBAL_REFERENCES
@@ -275,6 +281,9 @@ wm
 		bsr	alloc_vectors_base_memory
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_all_memory
+		bsr	alloc_cleared_sprite_data
+		move.l	d0,dos_return_code(a3)
+		bne	cleanup_all_memory
 		IFEQ screen_fader_enabled
 			bsr	sf_alloc_screen_color_table
 			move.l	d0,dos_return_code(a3)
@@ -283,6 +292,9 @@ wm
 			move.l	d0,dos_return_code(a3)
 			bne	cleanup_all_memory
 		ENDC
+			bsr	alloc_cleared_sprite_data
+			move.l	d0,dos_return_code(a3)
+			bne	cleanup_all_memory
 		IFD PASS_GLOBAL_REFERENCES
 			bsr	init_global_references_table
 		ENDC
@@ -313,6 +325,10 @@ wm
 		bsr	check_degrade_screen_mode
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_all_memory
+		bsr	open_invisible_window
+		move.l	d0,dos_return_code(a3)
+		bne	cleanup_degrade_screen
+		bsr	clear_mousepointer
 		bsr	blank_display
 		bsr	wait_monitor_switch
 
@@ -417,7 +433,9 @@ wm
 
 		bsr	restore_sprite_resolution
 		bsr	wait_monitor_switch
-
+cleanup_invisible_window
+		bsr	close_invisible_window
+cleanup_degrade_screen
 		bsr	close_degrade_screen
         	
 		IFEQ screen_fader_enabled
@@ -425,8 +443,6 @@ wm
 		ENDC
 
 		bsr	check_active_screen_priority
-
-
 
 		IFEQ text_output_enabled
 			bsr	print_formatted_text
@@ -514,6 +530,8 @@ cleanup_all_memory
 			bsr	sf_free_screen_color_cache
 			bsr	sf_free_screen_color_table
 		ENDC
+
+	bsr	free_cleared_sprite_data
 
 cleanup_timer_device
 		bsr	close_timer_device
@@ -707,6 +725,8 @@ init_custom_error_table
 
 		INIT_CUSTOM_ERROR_ENTRY EXCEPTION_VECTORS_NO_MEMORY,error_text_exception_vectors,error_text_exception_vectors_end-error_text_exception_vectors
 
+		INIT_CUSTOM_ERROR_ENTRY CLEARED_SPRITE_NO_MEMORY,error_text_cleared_sprite,error_text_cleared_sprite_end-error_text_cleared_sprite
+
 		INIT_CUSTOM_ERROR_ENTRY VIEWPORT_MONITOR_ID_NOT_FOUND,error_text_viewport,error_text_viewport_end-error_text_viewport
 
 		INIT_CUSTOM_ERROR_ENTRY SCREEN_COULD_NOT_OPEN,error_text_screen,error_text_screen_end-error_text_screen
@@ -818,19 +838,9 @@ init_timer_io
 ; d0.l	... Kein Rückgabewert	
 		CNOP 0,4
 init_tag_lists
-		bsr.s	init_video_control_tags
-		bra.s	init_degrade_screen_tags
-
-
-; Input
-; Result
-; d0.l	... Kein Rückgabewert
-		CNOP 0,4
-init_video_control_tags
-		lea	video_control_tags+(ti_SIZEOF*1)(pc),a0
-		moveq	#TAG_DONE,d2
-		move.l	d2,(a0)
-		rts
+		bsr.s	init_degrade_screen_tags
+		bsr	init_invisible_window_tags
+		bra	init_video_control_tags
 
 
 ; Input
@@ -892,7 +902,72 @@ init_degrade_screen_tags
 		moveq	#TAG_DONE,d2
 		move.l	d2,(a0)
 		rts
+
+
+; Input
+; Result
+; d0.l	... Kein Rückgabewert
+	CNOP 0,4
+init_invisible_window_tags
+		lea	invisible_window_tags(pc),a0
+		move.l	#WA_Left,(a0)+
+		moveq	#invisible_window_left,d2
+		move.l	d2,(a0)+
+		move.l	#WA_Top,(a0)+
+		moveq	#invisible_window_top,d2
+		move.l	d2,(a0)+
+		move.l	#WA_Width,(a0)+
+		moveq	#invisible_window_x_size,d2
+		move.l	d2,(a0)+
+		move.l	#WA_Height,(a0)+
+		moveq	#invisible_window_y_size,d2
+		move.l	d2,(a0)+
+		move.l	#WA_DetailPen,(a0)+
+		moveq	#0,d0
+		move.l	d0,(a0)+
+		move.l	#WA_BlockPen,(a0)+
+		move.l	d0,(a0)+
+		move.l	#WA_IDCMP,(a0)+
+		move.l	d0,(a0)+
+		move.l	#WA_Title,(a0)+
+		lea	invisible_window_name(pc),a1
+		move.l	a1,(a0)+
+		move.l	#WA_CustomScreen,(a0)+
+		move.l	d0,(a0)+		; Zeiger wird später initialisiert
+		move.l	#WA_MinWidth,(a0)+
+		moveq	#invisible_window_x_size,d2
+		move.l	d2,(a0)+
+		move.l	#WA_MinHeight,(a0)+
+		moveq	#invisible_window_y_size,d2
+		move.l	d2,(a0)+
+		move.l	#WA_MaxWidth,(a0)+
+		moveq	#invisible_window_x_size,d2
+		move.l	d2,(a0)+
+		move.l	#WA_MaxHeight,(a0)+
+		moveq	#invisible_window_y_size,d2
+		move.l	d2,(a0)+
+		move.l	#WA_AutoAdjust,(a0)+
+		moveq	#FALSE,d2
+		move.l	d2,(a0)+
+		move.l	#WA_Flags,(a0)+
+		move.l	#WFLG_BACKDROP|WFLG_BORDERLESS|WFLG_ACTIVATE,(a0)+
+		moveq	#TAG_DONE,d2
+		move.l	d2,(a0)
+		rts
+
+
+; Input
+; Result
+; d0.l	... Kein Rückgabewert
+		CNOP 0,4
+init_video_control_tags
+		lea	video_control_tags+(ti_SIZEOF*1)(pc),a0
+		moveq	#TAG_DONE,d2
+		move.l	d2,(a0)
+		rts
+
 	ENDC
+
 
 	IFNE pf_extra_number
 ; Input
@@ -2122,6 +2197,25 @@ alloc_vectors_base_memory_ok
 		rts
 
 
+; Input
+; Result
+; d0.l	... Rückgabewert: Return-Code/Error-Code
+		CNOP 0,4
+alloc_cleared_sprite_data
+	moveq	#sprite_pointer_data_size,d0
+	MOVEF.L	MEMF_CLEAR|MEMF_CHIP|MEMF_PUBLIC|MEMF_REVERSE,d1
+	CALLEXEC AllocMem
+	move.l	d0,cleared_sprite_pointer_data(a3)
+	bne.s	alloc_cleared_sprite_data_ok
+	move.w	#CLEARED_SPRITE_NO_MEMORY,custom_error_code(a3)
+	moveq	#ERROR_NO_FREE_STORE,d0
+	rts
+	CNOP 0,4
+alloc_cleared_sprite_data_ok
+	moveq	#RETURN_OK,d0
+	rts
+
+
 		IFEQ screen_fader_enabled
 ; Input
 ; Result
@@ -2205,10 +2299,8 @@ get_active_screen
 		moveq	#0,d0		; Alle Locks
 		CALLINT LockIBase
 		move.l	d0,a0
-		move.l	ib_ActiveScreen(a6),a2
-		CALLLIBS UnlockIBase
-		move.l	a2,active_screen(a3)
-		rts
+		move.l	ib_ActiveScreen(a6),active_screen(a3)
+		CALLLIBQ UnlockIBase
 
 
 ; Input
@@ -2466,6 +2558,39 @@ check_degrade_screen_mode
 check_degrade_screen_mode_ok
 		moveq	#RETURN_OK,d0
 		rts
+
+; Input
+; Result
+; d0.l	... Rückgabewert: Return-Code
+	CNOP 0,4
+open_invisible_window
+	sub.l	a0,a0			; Keine NewWindow-Struktur
+	lea	invisible_window_tags(pc),a1
+	move.l	degrade_screen(a3),wtl_WA_CustomScreen+ti_data(a1)
+	CALLINT OpenWindowTagList
+	move.l	d0,invisible_window(a3)
+	bne.s	open_invisible_window_ok
+	move.w	#WINDOW_COULD_NOT_OPEN,custom_error_code(a3)
+	moveq	#RETURN_FAIL,d0
+	rts
+	CNOP 0,4
+open_invisible_window_ok
+	moveq	#RETURN_OK,d0
+	rts
+
+
+; Input
+; Result
+; d0.l	... Kein Rückgabewert
+	CNOP 0,4
+clear_mousepointer
+	move.l	invisible_window(a3),a0
+	move.l	cleared_sprite_pointer_data(a3),a1
+	moveq	#cleared_sprite_y_size,d0
+	moveq	#cleared_sprite_x_size,d1
+	moveq	#cleared_sprite_x_offset,d2
+	moveq	#cleared_sprite_y_offset,d3
+	CALLINTQ SetPointer
 
 
 ; Input
@@ -3314,6 +3439,14 @@ active_screen_to_front
 	CALLLIBQ ScreenToFront
 
 
+; Input
+; Result
+; d0.l	... Kein Rückgabewert
+	CNOP 0,4
+close_invisible_window
+	move.l	invisible_window(a3),a0
+	CALLINTQ CloseWindow
+
 
 ; Input
 ; Result
@@ -3708,6 +3841,16 @@ sf_free_screen_color_table_skip
 			MOVEF.L	sf_colors_number*3*LONGWORD_SIZE,d0
 			CALLEXECQ FreeMem
 		ENDC
+
+; Input
+; Result
+; d0.l	... Kein Rückgabewert
+	CNOP 0,4
+free_cleared_sprite_data
+	move.l	cleared_sprite_pointer_data(a3),a1
+	moveq	#sprite_pointer_data_size,d0
+	CALLEXECQ FreeMem
+
 
 ; Input
 ; Result
