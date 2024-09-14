@@ -269,7 +269,6 @@ wm
 		move.l	d0,dos_return_code(a3)
 		bne.s	cleanup_all_memory
 	ENDC
-
 	
 	IFD SYS_TAKEN_OVER
 		IFD CUSTOM_MEMORY_USED
@@ -281,9 +280,11 @@ wm
 		bsr	alloc_vectors_base_memory
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_all_memory
+
 		bsr	alloc_cleared_sprite_data
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_all_memory
+	
 		IFEQ screen_fader_enabled
 			bsr	sf_alloc_screen_color_table
 			move.l	d0,dos_return_code(a3)
@@ -292,9 +293,7 @@ wm
 			move.l	d0,dos_return_code(a3)
 			bne	cleanup_all_memory
 		ENDC
-			bsr	alloc_cleared_sprite_data
-			move.l	d0,dos_return_code(a3)
-			bne	cleanup_all_memory
+
 		IFD PASS_GLOBAL_REFERENCES
 			bsr	init_global_references_table
 		ENDC
@@ -311,7 +310,6 @@ wm
 		bsr	get_active_screen_mode
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_all_memory
-		bsr	get_sprite_resolution
 		IFEQ screen_fader_enabled
 			bsr	sf_get_active_screen_colors
 			bsr	sf_copy_screen_color_table
@@ -325,6 +323,7 @@ wm
 		bsr	check_degrade_screen_mode
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_all_memory
+		bsr	get_sprite_resolution
 		bsr	open_invisible_window
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_degrade_screen
@@ -431,18 +430,18 @@ wm
 
 		bsr	disable_exclusive_blitter
 
-		bsr	restore_sprite_resolution
-		bsr	wait_monitor_switch
 cleanup_invisible_window
 		bsr	close_invisible_window
+cleanup_display
+		bsr	restore_sprite_resolution
+		bsr	wait_monitor_switch
 cleanup_degrade_screen
 		bsr	close_degrade_screen
-        	
+cleanup_active_screen_colors
+		bsr	check_active_screen_priority
 		IFEQ screen_fader_enabled
 			bsr	sf_fade_in_screen
 		ENDC
-
-		bsr	check_active_screen_priority
 
 		IFEQ text_output_enabled
 			bsr	print_formatted_text
@@ -455,7 +454,14 @@ cleanup_all_memory
 			bsr	free_custom_memory ; Wird von außen aufgerufen
 		ENDC
 	ELSE
-		bsr	free_vectors_memory
+		IFEQ screen_fader_enabled
+			bsr	sf_free_screen_color_cache
+			bsr	sf_free_screen_color_table
+		ENDC
+
+		bsr	free_cleared_sprite_data
+
+		bsr	free_vectors_base_memory
 	ENDC
 
 	IFNE chip_memory_size
@@ -526,13 +532,6 @@ cleanup_all_memory
 	ENDC
 
 	IFND SYS_TAKEN_OVER
-		IFEQ screen_fader_enabled
-			bsr	sf_free_screen_color_cache
-			bsr	sf_free_screen_color_table
-		ENDC
-
-	bsr	free_cleared_sprite_data
-
 cleanup_timer_device
 		bsr	close_timer_device
 
@@ -2684,7 +2683,7 @@ disable_store_buffer
 save_exception_vectors
 		move.l	old_vbr(a3),a0	; Quelle = Reset (Initial SSP)
 		lea	exception_vecs_save(pc),a1 ; Ziel
-		MOVEF.W	(exception_vectors_size/4)-1,d7 ; Anzahl der Vektoren
+		MOVEF.W	(exception_vectors_size/LONGWORD_SIZE)-1,d7 ; Anzahl der Vektoren
 copy_exception_vectors_loop
 		move.l	(a0)+,(a1)+	; Vektor kopieren
 		dbf	d7,copy_exception_vectors_loop
@@ -2763,7 +2762,7 @@ move_exception_vectors
 		beq.s	move_exception_vectors_quit
 		move.l	d0,a1		; Ziel = Fast-Memory
 		move.l	old_vbr(a3),a0	; Quelle = Reset (Initial SSP)
-		MOVEF.W	(exception_vectors_size/4)-1,d7 ; Anzahl der Vektoren
+		MOVEF.W	(exception_vectors_size/LONGWORD_SIZE)-1,d7 ; Anzahl der Vektoren
 move_exception_vectors_loop
 		move.l	(a0)+,(a1)+	; Vektoren kopieren
 		dbf	d7,move_exception_vectors_loop
@@ -3491,12 +3490,12 @@ put_ch_process
 ; Result
 ; d0.l	... Kein Rückgabewert
 		CNOP 0,4
-free_vectors_memory
+free_vectors_base_memory
 		move.l	exception_vectors_base(a3),d0
-		bne.s   free_vectors_memory_skip
+		bne.s   free_vectors_base_memory_skip
 		rts
 		CNOP 0,4
-free_vectors_memory_skip
+free_vectors_base_memory_skip
 		move.l	d0,a1
 		move.l	#exception_vectors_size,d0
 		CALLEXECQ FreeMem
@@ -3842,12 +3841,18 @@ sf_free_screen_color_table_skip
 			CALLEXECQ FreeMem
 		ENDC
 
+
 ; Input
 ; Result
 ; d0.l	... Kein Rückgabewert
 	CNOP 0,4
 free_cleared_sprite_data
-	move.l	cleared_sprite_pointer_data(a3),a1
+	move.l	cleared_sprite_pointer_data(a3),d0
+	bne.s	free_cleared_sprite_data_skip
+	rts
+	CNOP 0,4
+free_cleared_sprite_data_skip
+	move.l	d0,a1
 	moveq	#sprite_pointer_data_size,d0
 	CALLEXECQ FreeMem
 
