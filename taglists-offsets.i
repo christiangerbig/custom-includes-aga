@@ -5,6 +5,4 @@
 
 	INCLUDE "window-taglist-offsets.i"
 
-	INCLUDE "pointer-taglist-offsets.i"
-
 	INCLUDE "videocontrol-taglist-offsets.i"

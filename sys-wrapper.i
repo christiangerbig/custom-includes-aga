@@ -27,17 +27,15 @@
 
 
 	IFND SYS_TAKEN_OVER
-		INCLUDE "screen-taglist-offsets.i"
 		INCLUDE "screen-colors.i"
 	
-		INCLUDE "window-taglist-offsets.i"
-
 		INCLUDE "sprite-pointer-data.i"
-	
-		INCLUDE "videocontrol-taglist-offsets.i"
-	
+
 		INCLUDE "custom-error-entry.i"
+
+		INCLUDE "taglists-offsets.i"
 	ENDC
+
 	IFD PASS_GLOBAL_REFERENCES
 		INCLUDE "global-references-offsets.i"
 	ENDC
