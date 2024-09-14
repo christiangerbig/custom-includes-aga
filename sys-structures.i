@@ -22,10 +22,6 @@ timer_io
 	
 
 		CNOP 0,4
-degrade_screen_colors
-		DS.B screen_02_colors_size
-
-		CNOP 0,4
 degrade_screen_tags
 		DS.B screen_tag_list_size
 

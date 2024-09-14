@@ -211,16 +211,16 @@ error_text_spr_display_2
 error_text_spr_display_2_end
 		EVEN
 
-error_text_audio_memory
+error_text_audio
 		DC.B "Couldn't allocate memory for audio-buffer !",ASCII_LINE_FEED ,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
-error_text_audio_memory_end
+error_text_audio_end
 		EVEN
 
-error_text_disk_memory
+error_text_disk
 		DC.B "Couldn't allocate memory for disk-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
-error_text_disk_memory_end
+error_text_disk_end
 		EVEN
 
 error_text_extra_memory
@@ -264,32 +264,35 @@ error_text_viewport
 error_text_viewport_end
 		EVEN
 
-error_text_screen_color_table
-		DC.B "Couldn't allocate memory for downgrade screen color table !",ASCII_LINE_FEED,ASCII_LINE_FEED
-		DC.B "Press any key.",ASCII_LINE_FEED
-error_text_screen_color_table_end
-		EVEN
-error_text_screen
-		DC.B "Couldn't open downgrade screen !",ASCII_LINE_FEED,ASCII_LINE_FEED
-		DC.B "Press any key.",ASCII_LINE_FEED
-error_text_screen_end
-		EVEN
-error_text_screen_display_mode
-		DC.B "Requested display mode for downgrade screen not available !",ASCII_LINE_FEED,ASCII_LINE_FEED
-		DC.B "Press any key.",ASCII_LINE_FEED
-error_text_screen_display_mode_end
-		EVEN
-error_text_window
-		DC.B "Couldn't open invisible window !",ASCII_LINE_FEED,ASCII_LINE_FEED
-		DC.B "Press any key.",ASCII_LINE_FEED
-error_text_window_end
-		EVEN
-
 		IFEQ screen_fader_enabled
 error_text_screen_fader
 		 	DC.B "Couldn't allocate memory for colors-buffers !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		 	DC.B "Press any key.",ASCII_LINE_FEED
 error_text_screen_fader_end
 	 		EVEN
+
+		ELSE
+
+error_text_screen1
+			DC.B "Couldn't allocate memory for degrade screen color table !",ASCII_LINE_FEED,ASCII_LINE_FEED
+			DC.B "Press any key.",ASCII_LINE_FEED
+error_text_screen1_end
+			EVEN
 		ENDC
+error_text_screen2
+		DC.B "Couldn't open downgrade screen !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Press any key.",ASCII_LINE_FEED
+error_text_screen2_end
+		EVEN
+error_text_screen3
+		DC.B "Requested display mode for downgrade screen not available !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Press any key.",ASCII_LINE_FEED
+error_text_screen3_end
+		EVEN
+
+error_text_window
+		DC.B "Couldn't open invisible window !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Press any key.",ASCII_LINE_FEED
+error_text_window_end
+		EVEN
 	ENDC

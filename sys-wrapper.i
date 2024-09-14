@@ -29,7 +29,7 @@
 	IFND SYS_TAKEN_OVER
 		INCLUDE "screen-colors.i"
 	
-		INCLUDE "sprite-pointer-data.i"
+		INCLUDE "cleared-pointer-data.i"
 
 		INCLUDE "custom-error-entry.i"
 
@@ -279,7 +279,7 @@ wm
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_all_memory
 
-		bsr	alloc_cleared_sprite_data
+		bsr	alloc_mouse_pointer_data
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_all_memory
 	
@@ -290,6 +290,10 @@ wm
 			bsr	sf_alloc_screen_color_cache
 			move.l	d0,dos_return_code(a3)
 			bne	cleanup_all_memory
+		ELSE
+			bsr	alloc_degrade_screen_colors
+			move.l	d0,dos_return_code(a3)
+			bne     cleanup_all_memory
 		ENDC
 
 		IFD PASS_GLOBAL_REFERENCES
@@ -313,6 +317,8 @@ wm
 			bsr	sf_copy_screen_color_table
 
 			bsr	sf_fade_out_active_screen
+		ELSE
+			bsr	init_degrade_screen_colors
 		ENDC
 
 		bsr	open_degrade_screen
@@ -457,7 +463,7 @@ cleanup_all_memory
 			bsr	sf_free_screen_color_table
 		ENDC
 
-		bsr	free_cleared_sprite_data
+		bsr	free_mouse_pointer_data
 
 		bsr	free_vectors_base_memory
 	ENDC
@@ -633,7 +639,6 @@ init_variables
 init_structures
 	IFND SYS_TAKEN_OVER
 		bsr	init_easy_request
-		bsr	init_degrade_screen_colors
 		bsr	init_timer_io
 	ENDC
 	IFNE pf_extra_number
@@ -710,9 +715,9 @@ init_custom_error_table
 		INIT_CUSTOM_ERROR_ENTRY SPR_DISPLAY_NO_MEMORY,error_text_spr_display_1,error_text_spr_display_1_end-error_text_spr_display_1
 		INIT_CUSTOM_ERROR_ENTRY SPR_DISPLAY_NOT_INTERLEAVED,error_text_spr_display_2,error_text_spr_display_2_end-error_text_spr_display_2
 
-		INIT_CUSTOM_ERROR_ENTRY AUDIO_NO_MEMORY,error_text_audio_memory,error_text_audio_memory_end-error_text_audio_memory
+		INIT_CUSTOM_ERROR_ENTRY AUDIO_NO_MEMORY,error_text_audio,error_text_audio_end-error_text_audio
 
-		INIT_CUSTOM_ERROR_ENTRY DISK_NO_MEMORY,error_text_disk_memory,error_text_disk_memory_end-error_text_disk_memory
+		INIT_CUSTOM_ERROR_ENTRY DISK_NO_MEMORY,error_text_disk,error_text_disk_end-error_text_disk
 
 		INIT_CUSTOM_ERROR_ENTRY EXTRA_MEMORY_NO_MEMORY,error_text_extra_memory,error_text_extra_memory_end-error_text_extra_memory
 
@@ -726,13 +731,15 @@ init_custom_error_table
 
 		INIT_CUSTOM_ERROR_ENTRY VIEWPORT_MONITOR_ID_NOT_FOUND,error_text_viewport,error_text_viewport_end-error_text_viewport
 
-		INIT_CUSTOM_ERROR_ENTRY SCREEN_COULD_NOT_OPEN,error_text_screen,error_text_screen_end-error_text_screen
-
-		INIT_CUSTOM_ERROR_ENTRY SCREEN_MODE_NOT_AVAILABLE,error_text_screen_display_mode,error_text_screen_display_mode_end-error_text_screen_display_mode
-
 		IFEQ screen_fader_enabled
 			INIT_CUSTOM_ERROR_ENTRY SCREEN_FADER_NO_MEMORY,error_text_screen_fader,error_text_screen_fader_end-error_text_screen_fader
+        	ELSE
+			INIT_CUSTOM_ERROR_ENTRY SCREEN_NO_MEMORY,error_text_screen1,error_text_screen1_end-error_text_screen1
 		ENDC
+
+		INIT_CUSTOM_ERROR_ENTRY SCREEN_COULD_NOT_OPEN,error_text_screen2,error_text_screen2_end-error_text_screen2
+
+		INIT_CUSTOM_ERROR_ENTRY SCREEN_MODE_NOT_AVAILABLE,error_text_screen3,error_text_screen3_end-error_text_screen3
 		rts
 
 ; Input
@@ -766,53 +773,6 @@ init_easy_request
 			lea	tcp_request_gadgets_text(pc),a1
 			move.l	a1,(a0)	; Zeiger auf Gadgettexte
 		ENDC
-		rts
-
-
-; Input
-; Result
-; d0.l	... Kein Rückgabewert
-		CNOP 0,4
-init_degrade_screen_colors
-		lea	degrade_screen_colors(pc),a0
-		move.w	#degrade_screen_colors_number,(a0)+
-		moveq	#0,d0
-		move.w	d0,(a0)+	; Erste Farbe COLOR00
-		lea     pf1_color_table(pc),a1
-		moveq	#0,d1
-		move.b	1(a1),d1	; 4x COLOR00 8-Bit Rotwert
-		lsl.w	#8,d1
-		move.b	1(a1),d1
-		swap	d1
-		move.b	1(a1),d1
-		lsl.w	#8,d1
-		move.b	1(a1),d1
-
-		moveq	#0,d2
-		move.b	2(a1),d2	; 4x COLOR00 8-Bit Grünwert
-		lsl.w	#8,d2
-		move.b	2(a1),d2
-		swap	d2
-		move.b	2(a1),d2
-		lsl.w	#8,d2
-		move.b	2(a1),d2
-
-		moveq	#0,d3
-		move.b	3(a1),d3	; 4x COLOR00 8-Bit Blauwert
-		lsl.w	#8,d3
-		move.b	3(a1),d3
-		swap	d3
-		move.b	3(a1),d3
-		lsl.w	#8,d3
-		move.b	3(a1),d3
-
-		move.l	d1,(a0)+	; COLOR00 32-Bit Rotwert
-		move.l	d2,(a0)+	; COLOR00 32-Bit Grünwert
-		move.l	d3,(a0)+	; COLOR00 32-Bit Blauwert
-		move.l	d1,(a0)+	; COLOR01 32-Bit Rotwert
-		move.l	d2,(a0)+	; COLOR01 32-Bit Grünwert
-		move.l	d3,(a0)+	; COLOR01 32-Bit Blauwert
-		move.l	d0,(a0)		; Ende der Tabelle
 		rts
 
 
@@ -876,8 +836,7 @@ init_degrade_screen_tags
 		lea	degrade_screen_name(pc),a1
 		move.l	a1,(a0)+
 		move.l	#SA_Colors32,(a0)+
-		lea	degrade_screen_colors(pc),a1
-		move.l	a1,(a0)+
+		move.l	d0,(a0)+	; Wird später initialisiert
 		move.l	#SA_Font,(a0)+
 		move.l	d0,(a0)+
 		move.l	#SA_SysFont,(a0)+
@@ -2198,17 +2157,17 @@ alloc_vectors_base_memory_ok
 ; Result
 ; d0.l	... Rückgabewert: Return-Code/Error-Code
 		CNOP 0,4
-alloc_cleared_sprite_data
-	moveq	#sprite_pointer_data_size,d0
+alloc_mouse_pointer_data
+	moveq	#cleared_pointer_data_size,d0
 	MOVEF.L	MEMF_CLEAR|MEMF_CHIP|MEMF_PUBLIC|MEMF_REVERSE,d1
 	CALLEXEC AllocMem
-	move.l	d0,cleared_sprite_pointer_data(a3)
-	bne.s	alloc_cleared_sprite_data_ok
+	move.l	d0,mouse_pointer_data(a3)
+	bne.s	alloc_mouse_pointer_data_ok
 	move.w	#CLEARED_SPRITE_NO_MEMORY,custom_error_code(a3)
 	moveq	#ERROR_NO_FREE_STORE,d0
 	rts
 	CNOP 0,4
-alloc_cleared_sprite_data_ok
+alloc_mouse_pointer_data_ok
 	moveq	#RETURN_OK,d0
 	rts
 
@@ -2240,12 +2199,31 @@ sf_alloc_screen_color_cache
 			MOVEF.L	(1+(sf_colors_number*3)+1)*LONGWORD_SIZE,d0
 			bsr	do_alloc_memory
 			move.l	d0,sf_screen_color_cache(a3)
-			bne.s	sf_alloc_screen_color_cache_ok			lea	error_text8(pc),a0
+			bne.s	sf_alloc_screen_color_cache_ok
 			move.w	#SCREEN_FADER_NO_MEMORY,custom_error_code(a3)
 			moveq	#ERROR_NO_FREE_STORE,d0
 			rts
 			CNOP 0,4
 sf_alloc_screen_color_cache_ok
+			moveq	#RETURN_OK,d0
+			rts
+		ELSE
+
+
+; Input
+; Result
+; d0.l	... Rückgabewert: Return-Code/Error-Code
+	CNOP 0,4
+alloc_degrade_screen_colors
+			MOVEF.L	(1+(degrade_screen_colors_number*3)+1)*LONGWORD_SIZE,d0
+			bsr	do_alloc_memory
+			move.l	d0,degrade_screen_colors(a3)
+			bne.s	alloc_degrade_screen_colors_ok
+			move.w	#SCREEN_NO_MEMORY,custom_error_code(a3)
+			moveq	#ERROR_NO_FREE_STORE,d0
+			rts
+			CNOP 0,4
+alloc_degrade_screen_colors_ok
 			moveq	#RETURN_OK,d0
 			rts
 		ENDC
@@ -2511,6 +2489,51 @@ sf_set_new_colors_skip
 			ADDF.W	sc_ViewPort,a0
 			move.l	sf_screen_color_cache(a3),a1
 			CALLGRAFQ LoadRGB32
+
+
+		ELSE
+; Input
+; Result
+; d0.l	... Kein Rückgabewert
+		CNOP 0,4
+init_degrade_screen_colors
+			move.l	degrade_screen_colors(a3),a0
+			move.w	#degrade_screen_colors_number,(a0)+
+			moveq	#0,d0
+			move.w	d0,(a0)+	; Erste Farbe COLOR00
+			lea     pf1_color_table(pc),a1
+			moveq	#0,d1
+			move.b	1(a1),d1	; 4x COLOR00 8-Bit Rotwert
+			lsl.w	#8,d1
+			move.b	1(a1),d1
+			swap	d1
+			move.b	1(a1),d1
+			lsl.w	#8,d1
+			move.b	1(a1),d1
+			moveq	#0,d2
+			move.b	2(a1),d2	; 4x COLOR00 8-Bit Grünwert
+			lsl.w	#8,d2
+			move.b	2(a1),d2
+			swap	d2
+			move.b	2(a1),d2
+			lsl.w	#8,d2
+			move.b	2(a1),d2
+			moveq	#0,d3
+			move.b	3(a1),d3	; 4x COLOR00 8-Bit Blauwert
+			lsl.w	#8,d3
+			move.b	3(a1),d3
+			swap	d3
+			move.b	3(a1),d3
+			lsl.w	#8,d3
+			move.b	3(a1),d3
+			MOVEF.W	degrade_screen_colors_number-1,d7
+init_degrade_screen_colors_loop
+			move.l	d1,(a0)+ ; COLORxx 32-Bit Rotwert
+			move.l	d2,(a0)+ ; COLORxx 32-Bit Grünwert
+			move.l	d3,(a0)+ ; COLORxx 32-Bit Blauwert
+                	dbf	d7,init_degrade_screen_colors_loop
+			move.l	d0,(a0)	; Ende der Tabelle
+			rts
 		ENDC
 	
 
@@ -2520,6 +2543,12 @@ sf_set_new_colors_skip
 	CNOP 0,4
 open_degrade_screen
 		lea	degrade_screen_tags(pc),a1
+		IFEQ screen_fader_enabled
+                	move.l	sf_screen_color_cache(a3),sctl_SA_Colors32+ti_data(a1)
+		ELSE
+			move.l	degrade_screen_colors(a3),sctl_SA_Colors32+ti_data(a1)
+ 		ENDC
+
 		sub.l	a0,a0		; Keine NewScreen-Struktur
 		CALLINT OpenScreenTagList
 		move.l	d0,degrade_screen(a3)
@@ -2582,7 +2611,7 @@ open_invisible_window_ok
 	CNOP 0,4
 clear_mousepointer
 	move.l	invisible_window(a3),a0
-	move.l	cleared_sprite_pointer_data(a3),a1
+	move.l	mouse_pointer_data(a3),a1
 	moveq	#cleared_sprite_y_size,d0
 	moveq	#cleared_sprite_x_size,d1
 	moveq	#cleared_sprite_x_offset,d2
@@ -3837,6 +3866,17 @@ sf_free_screen_color_table_skip
 			move.l	d0,a1
 			MOVEF.L	sf_colors_number*3*LONGWORD_SIZE,d0
 			CALLEXECQ FreeMem
+		ELSE
+
+free_degrade_screen_colors
+			move.l	degrade_screen_colors(a3),d0
+			bne.s	free_degrade_screen_colors_skip
+			rts
+			CNOP 0,4
+free_degrade_screen_colors_skip
+			move.l	d0,a1
+			MOVEF.L	(1+(degrade_screen_colors_number*3)+1)*LONGWORD_SIZE,d0
+			CALLEXECQ FreeMem
 		ENDC
 
 
@@ -3844,14 +3884,14 @@ sf_free_screen_color_table_skip
 ; Result
 ; d0.l	... Kein Rückgabewert
 	CNOP 0,4
-free_cleared_sprite_data
-	move.l	cleared_sprite_pointer_data(a3),d0
-	bne.s	free_cleared_sprite_data_skip
+free_mouse_pointer_data
+	move.l	mouse_pointer_data(a3),d0
+	bne.s	free_mouse_pointer_data_skip
 	rts
 	CNOP 0,4
-free_cleared_sprite_data_skip
+free_mouse_pointer_data_skip
 	move.l	d0,a1
-	moveq	#sprite_pointer_data_size,d0
+	moveq	#cleared_pointer_data_size,d0
 	CALLEXECQ FreeMem
 
 

@@ -57,7 +57,7 @@ degrade_screen_left		EQU 0
 degrade_screen_x_size		EQU 2
 degrade_screen_y_size		EQU 2
 degrade_screen_depth		EQU 1
-degrade_screen_colors_number	EQU 2
+degrade_screen_colors_number	EQU 256
 
 invisible_window_left		EQU 0
 invisible_window_top		EQU 0
@@ -86,8 +86,6 @@ exec_base			EQU $0004
 ANY_LIBRARY_VERSION		EQU 0
 
 ; **** Custom_Errors ****
-custom_errors_number		EQU 47
-
 NO_CUSTOM_ERROR			EQU 0
 
 GFX_LIBRARY_COULD_NOT_OPEN	EQU 1
@@ -158,9 +156,13 @@ VIEWPORT_MONITOR_ID_NOT_FOUND	EQU 43
 
 SCREEN_FADER_NO_MEMORY		EQU 44
 
-SCREEN_COULD_NOT_OPEN		EQU 45
-SCREEN_MODE_NOT_AVAILABLE	EQU 46
-WINDOW_COULD_NOT_OPEN		EQU 47
+SCREEN_NO_MEMORY		EQU 45
+SCREEN_COULD_NOT_OPEN		EQU 46
+SCREEN_MODE_NOT_AVAILABLE	EQU 47
+
+WINDOW_COULD_NOT_OPEN		EQU 48
+
+custom_errors_number		EQU 48
 
 ; **** Chipset ****
 _CUSTOM				EQU $dff000

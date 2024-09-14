@@ -34,8 +34,9 @@ dos_return_code			RS.L 1
 active_screen			RS.L 1
 active_screen_mode		RS.L 1
 degrade_screen			RS.L 1
+degrade_screen_colors		RS.L 1
 invisible_window		RS.L 1
-cleared_sprite_pointer_data	RS.L 1
+mouse_pointer_data		RS.L 1
 old_sprite_resolution		RS.L 1
 
 		IFEQ screen_fader_enabled
