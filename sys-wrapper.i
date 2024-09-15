@@ -77,61 +77,64 @@ wm
 		bsr	open_dos_library
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_workbench_message
-		bsr	get_output
-		move.l	d0,dos_return_code(a3)
-		bne	cleanup_dos_library
+		IFEQ text_output_enabled
+			bsr	get_output
+			move.l	d0,dos_return_code(a3)
+			bne	cleanup_dos_library
+     		ENDC
 		bsr	open_graphics_library
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_dos_library
-		bsr	check_system_properties
-		move.l	d0,dos_return_code(a3)
-		bne	cleanup_graphics_library
 		bsr	open_intuition_library
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_graphics_library
 
+		bsr	check_system_properties
+		move.l	d0,dos_return_code(a3)
+		bne	cleanup_error_message
+
 		IFEQ requires_030_cpu
 			bsr	check_cpu_requirements
 			move.l	d0,dos_return_code(a3)
-			bne	cleanup_intuition_library
+			bne	cleanup_error_message
 		ENDC
 		IFEQ requires_040_cpu
 			bsr	check_cpu_requirements
 			move.l	d0,dos_return_code(a3)
-			bne	cleanup_intuition_library
+			bne	cleanup_error_message
 		ENDC
 		IFEQ requires_060_cpu
 			bsr	check_cpu_requirements
 			move.l	d0,dos_return_code(a3)
-			bne	cleanup_intuition_library
+			bne	cleanup_error_message
 		ENDC
 		IFEQ requires_fast_memory
 			bsr	check_memory_requirements
 			move.l	d0,dos_return_code(a3)
-			bne	cleanup_intuition_library
+			bne	cleanup_error_message
 		ENDC
 		IFEQ requires_multiscan_monitor
 			bsr	do_monitor_request
 			move.l	d0,dos_return_code(a3)
-			bne	cleanup_intuition_library
+			bne	cleanup_error_message
 		ENDC
 
 		IFNE intena_bits&INTF_PORTS
 			bsr	check_tcp_stack
 			move.l	d0,dos_return_code(a3)
-			bne	cleanup_intuition_library
+			bne	cleanup_error_message
 		ENDC
 
 		bsr	open_ciaa_resource
 		move.l	d0,dos_return_code(a3)
-		bne	cleanup_intuition_library
+		bne	cleanup_error_message
 		bsr	open_ciab_resource
 		move.l	d0,dos_return_code(a3)
-		bne	cleanup_intuition_library
+		bne	cleanup_error_message
 
 		bsr	open_timer_device
 		move.l	d0,dos_return_code(a3)
-		bne	cleanup_intuition_library
+		bne	cleanup_error_message
 	ENDC
 
 	IFNE cl1_size1
@@ -305,9 +308,11 @@ wm
 
 	IFND SYS_TAKEN_OVER
 		bsr	wait_drives_motor
+
 		IFD SAVE_BEAMCON0
 			bsr	save_beamcon0_register
 		ENDC
+
 		bsr	get_active_screen
 		bsr	get_active_screen_mode
 		move.l	d0,dos_return_code(a3)
@@ -537,6 +542,10 @@ cleanup_all_memory
 cleanup_timer_device
 		bsr	close_timer_device
 
+cleanup_error_message
+		bsr	print_error_message
+		move.l	d0,dos_return_code(a3)
+
 cleanup_intuition_library
 		bsr	close_intuition_library
 
@@ -544,8 +553,6 @@ cleanup_graphics_library
 		bsr	close_graphics_library
 
 cleanup_dos_library
-		bsr	print_error_message
-		move.l	d0,dos_return_code(a3)
 		bsr	close_dos_library
 
 cleanup_workbench_message
@@ -655,10 +662,9 @@ init_structures
 		CNOP 0,4
 init_custom_error_table
 		lea	custom_error_table(pc),a0
-		INIT_CUSTOM_ERROR_ENTRY GFX_LIBRARY_COULD_NOT_OPEN,error_text_gfx_library,error_text_gfx_library_end-error_text_gfx_library
-
 		INIT_CUSTOM_ERROR_ENTRY KICKSTART_VERSION_NOT_FOUND,error_text_kickstart,error_text_kickstart_end-error_text_kickstart
 		INIT_CUSTOM_ERROR_ENTRY CPU_020_NOT_FOUND,error_text_cpu_1,error_text_cpu_1_end-error_text_cpu_1
+		INIT_CUSTOM_ERROR_ENTRY CHIP_MEMORY_WRONG_SIZE,error_text_chip_memory1,error_text_chip_memory1_end-error_text_chip_memory1
 		INIT_CUSTOM_ERROR_ENTRY AGA_CHIPSET_NOT_FOUND,error_text_aga_chipset,error_text_aga_chipset_end-error_text_aga_chipset
 		INIT_CUSTOM_ERROR_ENTRY CONFIG_NO_PAL,error_text_config,error_text_config_end-error_text_config
 
@@ -675,8 +681,6 @@ init_custom_error_table
 		IFEQ requires_fast_memory
 			INIT_CUSTOM_ERROR_ENTRY FAST_MEMORY_REQUIRED,error_text_fast_memory,error_text_fast_memory_end-error_text_fast_memory
 		ENDC
-
-		INIT_CUSTOM_ERROR_ENTRY INTUI_LIBRARY_COULD_NOT_OPEN,error_text_intui_library,error_text_intui_library_end-error_text_intui_library
 
 		INIT_CUSTOM_ERROR_ENTRY CIAA_RESOURCE_COULD_NOT_OPEN,error_text_ciaa_resource,error_text_ciaa_resource_end-error_text_ciaa_resource
 		INIT_CUSTOM_ERROR_ENTRY CIAB_RESOURCE_COULD_NOT_OPEN,error_text_ciab_resource,error_text_ciab_resource_end-error_text_ciaa_resource
@@ -719,7 +723,7 @@ init_custom_error_table
 
 		INIT_CUSTOM_ERROR_ENTRY EXTRA_MEMORY_NO_MEMORY,error_text_extra_memory,error_text_extra_memory_end-error_text_extra_memory
 
-		INIT_CUSTOM_ERROR_ENTRY CHIP_MEMORY_NO_MEMORY,error_text_chip_memory,error_text_chip_memory_end-error_text_chip_memory
+		INIT_CUSTOM_ERROR_ENTRY CHIP_MEMORY_NO_MEMORY,error_text_chip_memory2,error_text_chip_memory2_end-error_text_chip_memory2
 
 		INIT_CUSTOM_ERROR_ENTRY CUSTOM_MEMORY_NO_MEMORY,error_text_custom_memory,error_text_custom_memory_end-error_text_custom_memory
 
@@ -1159,19 +1163,21 @@ open_dos_library_ok
 		rts
 
 
+		IFEQ text_output_enabled
 ; Input
 ; Result
 ; d0.l	... Rückgabewert: Return-Code/Error-Code
 		CNOP 0,4
 get_output
-		CALLDOS Output
-		move.l	d0,output_handle(a3)
-		bne.s   get_output_ok
-		CALLLIBQ IoErr
-		CNOP 0,4
+			CALLDOS Output
+			move.l	d0,output_handle(a3)
+			bne.s   get_output_ok
+			CALLLIBQ IoErr
+			CNOP 0,4
 get_output_ok
-		moveq	#RETURN_OK,d0
-		rts
+			moveq	#RETURN_OK,d0
+			rts
+		ENDC
 
 
 ; Input
@@ -1185,11 +1191,29 @@ open_graphics_library
 		lea	_GfxBase(pc),a0
 		move.l	d0,(a0)
 		bne.s	open_graphics_library_ok
-		move.w	#GFX_LIBRARY_COULD_NOT_OPEN,custom_error_code(a3)
 		moveq	#RETURN_FAIL,d0
 		rts
 		CNOP 0,4
 open_graphics_library_ok
+		moveq	#RETURN_OK,d0
+		rts
+
+
+; Input
+; Result
+; d0.l	... Rückgabewert: Return-Code	
+		CNOP 0,4
+open_intuition_library
+		lea	intuition_name(pc),a1
+		moveq	#ANY_LIBRARY_VERSION,d0
+		CALLEXEC OpenLibrary
+		lea	_IntuitionBase(pc),a0
+		move.l	d0,(a0)
+		bne.s	open_intuition_library_ok
+		moveq	#RETURN_FAIL,d0
+		rts
+		CNOP 0,4
+open_intuition_library_ok
 		moveq	#RETURN_OK,d0
 		rts
 
@@ -1210,8 +1234,16 @@ check_cpu_type
 		move.w	AttnFlags(a6),d0
 		move.w	d0,cpu_flags(a3)
 		and.b	#AFF_68020,d0
-		bne.s	check_chipset_type
+		bne.s	check_chip_memory_size
 		move.w	#CPU_020_NOT_FOUND,custom_error_code(a3)
+		moveq	#RETURN_FAIL,d0
+		rts
+		CNOP 0,4
+check_chip_memory_size
+		move.l	MaxLocMem(a6),d0
+		cmp.l	#CHIP_MEMORY_MIN,d0
+		bge.s	check_chipset_type
+		move.w	#CHIP_MEMORY_WRONG_SIZE,custom_error_code(a3)
 		moveq	#RETURN_FAIL,d0
 		rts
 		CNOP 0,4
@@ -1274,26 +1306,6 @@ check_fast_memory
 		beq.s	check_system_properties_ok
 		clr.w	fast_memory_available_enabled(a3)
 check_system_properties_ok
-		moveq	#RETURN_OK,d0
-		rts
-
-
-; Input
-; Result
-; d0.l	... Rückgabewert: Return-Code	
-		CNOP 0,4
-open_intuition_library
-		lea	intuition_name(pc),a1
-		moveq	#OS_VERSION_AGA,d0
-		CALLEXEC OpenLibrary
-		lea	_IntuitionBase(pc),a0
-		move.l	d0,(a0)
-		bne.s	open_intuition_library_ok
-		move.w	#INTUI_LIBRARY_COULD_NOT_OPEN,custom_error_code(a3)
-		moveq	#RETURN_FAIL,d0
-		rts
-		CNOP 0,4
-open_intuition_library_ok
 		moveq	#RETURN_OK,d0
 		rts
 
@@ -3926,11 +3938,16 @@ close_graphics_library
 		CNOP 0,4
 print_error_message
 		move.w	custom_error_code(a3),d4
-		beq.s	print_error_message_quit
-		CALLINT WBenchToFront
+		beq.s	print_error_message_ok
+		moveq	#0,d0		; Alle Locks
+		CALLINT LockIBase
+		move.l	d0,a0
+		move.l	ib_ActiveScreen(a6),active_screen(a3)
+		CALLLIBS UnlockIBase
+		CALLLIBS WBenchToFront
 		lea	raw_name(pc),a0
 		move.l	a0,d1
-		move.l	#MODE_OLDFILE,d2 ; Modus: Alt (Muß sein!)
+		move.l	#MODE_OLDFILE,d2
 		CALLDOS Open
 		move.l	d0,raw_handle(a3)
 		bne.s	print_error_message_skip
@@ -3938,7 +3955,7 @@ print_error_message
 		rts
 		CNOP 0,4
 print_error_message_skip
-		subq.w	#1,d4		; Start-Offset 0
+		subq.w	#1,d4		; Zählung beginnt mit 0
 		lea	custom_error_table(pc),a0
 		move.l	(a0,d4.w*8),d2	; Zeiger auf Fehlertext
 		move.l	4(a0,d4.w*8),d3	; Länge des Fehlertextes
@@ -3951,7 +3968,11 @@ print_error_message_skip
 		CALLLIBS Read
 		move.l	raw_handle(a3),d1
 		CALLLIBS Close
-print_error_message_quit
+		move.l	active_screen(a3),d0
+		beq.s	print_error_message_ok
+		move.l	d0,a0
+		CALLINT ScreenToFront
+print_error_message_ok
 		moveq	#RETURN_OK,d0
 		rts
 

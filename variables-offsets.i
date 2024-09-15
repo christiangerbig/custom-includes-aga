@@ -11,7 +11,9 @@ shell_parameters_pointer	RS.L 1
 workbench_message		RS.L 1
 		ENDC
 
+		IFEQ text_output_enabled
 output_handle			RS.L 1
+		ENDC
 
 raw_handle			RS.L 1
 raw_buffer			RS.B 1
@@ -53,7 +55,7 @@ old_cop1lc			RS.L 1
 old_cop2lc			RS.L 1
 		ENDC
 
-		IFD _SAVE_BEAMCON0
+		IFD SAVE_BEAMCON0
 old_beamcon0			RS.L 1
 		ENDC
 

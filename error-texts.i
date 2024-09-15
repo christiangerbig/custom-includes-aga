@@ -2,14 +2,8 @@
 ; Version:	2.7
 
 	IFND SYS_TAKEN_OVER
-error_text_gfx_library
-		DC.B "Couldn't open graphics.library !",ASCII_LINE_FEED,ASCII_LINE_FEED
-		DC.B "Press any key.",ASCII_LINE_FEED
-error_text_gfx_library_end
-		EVEN
-
 error_text_kickstart
-		DC.B "This programm needs kickstart 3.0 or better !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "This programm needs at least kickstart 3.0 !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_kickstart_end
 		EVEN
@@ -18,6 +12,12 @@ error_text_cpu_1
 		DC.B "This programm needs a 68020 cpu or better !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_cpu_1_end
+		EVEN
+
+error_text_chip_memory1
+		DC.B "This program needs at least 2 MB chip memory !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Press any key.",ASCII_LINE_FEED
+error_text_chip_memory1_end
 		EVEN
 
 error_text_aga_chipset
@@ -61,12 +61,6 @@ error_text_fast_memory
 error_text_fast_memory_end
 	 		EVEN
 		ENDC
-
-error_text_intui_library
-		DC.B "Couldn't open intuition.library !",ASCII_LINE_FEED,ASCII_LINE_FEED
-		DC.B "Press any key.",ASCII_LINE_FEED
-error_text_intui_library_end
-		EVEN
 
 error_text_ciaa_resource
 		DC.B "Couldn't open ciaa.resource !",ASCII_LINE_FEED,ASCII_LINE_FEED
@@ -229,10 +223,10 @@ error_text_extra_memory
 error_text_extra_memory_end
 		EVEN
 
-error_text_chip_memory
+error_text_chip_memory2
 		DC.B "Couldn't allocate chip memory !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
-error_text_chip_memory_end
+error_text_chip_memory2_end
 		EVEN
 
 error_text_custom_memory
