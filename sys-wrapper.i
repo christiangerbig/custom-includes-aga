@@ -61,8 +61,8 @@ wm
 
 	IFD SYS_TAKEN_OVER
 		IFD CUSTOM_MEMORY_USED
-			bsr	init_custom_memory_table ; Wird von außen aufgerufen
-			bsr	extend_global_references_table ; Wird von außen aufgerufen
+			bsr	init_custom_memory_table ; Externe Routine
+			bsr	extend_global_references_table ; Externe Routine
 		ENDC
 	ELSE
 		bsr	init_custom_error_table
@@ -270,7 +270,7 @@ wm
 	
 	IFD SYS_TAKEN_OVER
 		IFD CUSTOM_MEMORY_USED
-			bsr	alloc_custom_memory ; Wird von außen aufgerufen
+			bsr	alloc_custom_memory ; Externe Routine
 			move.l	d0,dos_return_code(a3)
 			bne.s	cleanup_all_memory
 		ENDC
@@ -301,7 +301,7 @@ wm
 		ENDC
 	ENDC
 
-	bsr	init_own_variables	; wird von außen aufgerufen
+	bsr	init_own_variables	; Externe Routine
 
 	IFND SYS_TAKEN_OVER
 		bsr	wait_drives_motor
@@ -323,10 +323,10 @@ wm
 
 		bsr	open_degrade_screen
 		move.l	d0,dos_return_code(a3)
-		bne	cleanup_all_memory
+		bne	cleanup_active_screen
 		bsr	check_degrade_screen_mode
 		move.l	d0,dos_return_code(a3)
-		bne	cleanup_all_memory
+		bne	cleanup_active_screen
 		bsr	get_sprite_resolution
 		bsr	open_invisible_window
 		move.l	d0,dos_return_code(a3)
@@ -369,7 +369,7 @@ wm
 	ENDC
 
 	move.w	#dma_bits&(~(DMAF_SPRITE|DMAF_COPPER|DMAF_RASTER)),DMACON-DMACONR(a6) ; DMA ausser Sprite/Copper/Bitplane-DMA an
-	bsr	init_all		; wird von außen aufgerufen
+	bsr	init_all		; Externe Routine
 	bsr	start_own_display
 	IFNE (intena_bits-INTF_SETCLR)|(ciaa_icr_bits-CIAICRF_SETCLR)|(ciab_icr_bits-CIAICRF_SETCLR)
 		bsr	start_own_interrupts
@@ -396,7 +396,7 @@ wm
 		ENDC
 	ENDC
 
-	bsr	main_routine		; wird von außen aufgerufen
+	bsr	main_routine		; Externe Routine
 
 	IFD PASS_RETURN_CODE
 		move.l	d0,dos_return_code(a3)
@@ -434,14 +434,12 @@ wm
 
 		bsr	disable_exclusive_blitter
 
-cleanup_invisible_window
-		bsr	close_invisible_window
-cleanup_display
 		bsr	restore_sprite_resolution
 		bsr	wait_monitor_switch
+		bsr	close_invisible_window
 cleanup_degrade_screen
 		bsr	close_degrade_screen
-cleanup_active_screen_colors
+cleanup_active_screen
 		bsr	check_active_screen_priority
 		IFEQ screen_fader_enabled
 			bsr	sf_fade_in_screen
@@ -455,7 +453,7 @@ cleanup_active_screen_colors
 cleanup_all_memory
 	IFD SYS_TAKEN_OVER
 		IFD CUSTOM_MEMORY_USED
-			bsr	free_custom_memory ; Wird von außen aufgerufen
+			bsr	free_custom_memory ; Externe Routine
 		ENDC
 	ELSE
 		IFEQ screen_fader_enabled
@@ -3053,7 +3051,7 @@ stop_own_display
 		moveq	#0,d0
 		move.w	d0,COPCON-DMACONR(a6) ; Copper kann nicht auf Blitterregister zugreifen
 	ENDC
-	bsr	wait_beam_position	; wird von außen aufgerufen
+	bsr	wait_beam_position	; Externe Routine
 	IFNE dma_bits&DMAF_BLITTER
 		WAITBLIT
 	ENDC
@@ -3317,6 +3315,48 @@ restore_sprite_resolution
 		CALLLIBQ RethinkDisplay
 
 
+; Input
+; Result
+; d0.l	... Kein Rückgabewert
+	CNOP 0,4
+close_invisible_window
+		move.l	invisible_window(a3),a0
+		CALLINTQ CloseWindow
+
+
+; Input
+; Result
+; d0.l	... Kein Rückgabewert
+		CNOP 0,4
+close_degrade_screen
+		move.l	degrade_screen(a3),a0
+		CALLINTQ CloseScreen
+
+
+; Input
+; Result
+; d0.l	... Kein Rückgabewert
+	CNOP 0,4
+check_active_screen_priority
+		tst.l	active_screen(a3)
+		bne.s	get_first_screen
+		rts
+		CNOP 0,4
+get_first_screen
+		moveq	#0,d0		; alle Locks
+		CALLINT LockIBase
+		move.l	d0,a0
+		move.l	ib_FirstScreen(a6),a2
+		CALLLIBS UnLockIBase
+		cmp.l	active_screen(a3),a2
+		bne.s	active_screen_to_front
+		rts
+		CNOP 0,4
+active_screen_to_front
+		move.l	active_screen(a3),a0
+		CALLLIBQ ScreenToFront
+
+
 		IFEQ screen_fader_enabled
 ; Input
 ; Result
@@ -3441,48 +3481,6 @@ sfi_increase_blue
 		ENDC
 
 
-; Input
-; Result
-; d0.l	... Kein Rückgabewert
-	CNOP 0,4
-check_active_screen_priority
-	tst.l	active_screen(a3)
-	bne.s	get_first_screen
-	rts
-	CNOP 0,4
-get_first_screen
-	moveq	#0,d0			; alle Locks
-	CALLINT LockIBase
-	move.l	d0,a0
-	move.l	ib_FirstScreen(a6),a2
-	CALLLIBS UnLockIBase
-	cmp.l	active_screen(a3),a2
-	bne.s	active_screen_to_front
-	rts
-	CNOP 0,4
-active_screen_to_front
-	move.l	active_screen(a3),a0
-	CALLLIBQ ScreenToFront
-
-
-; Input
-; Result
-; d0.l	... Kein Rückgabewert
-	CNOP 0,4
-close_invisible_window
-	move.l	invisible_window(a3),a0
-	CALLINTQ CloseWindow
-
-
-; Input
-; Result
-; d0.l	... Kein Rückgabewert
-		CNOP 0,4
-close_degrade_screen
-		move.l	degrade_screen(a3),a0
-		CALLINTQ CloseScreen
-
-	
 		IFEQ text_output_enabled
 ; ** formatierten Text ausgeben **
 ; Input
