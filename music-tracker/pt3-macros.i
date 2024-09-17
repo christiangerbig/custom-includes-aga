@@ -28,7 +28,7 @@ PT3_INIT_VARIABLES		MACRO
 	ENDC
 	moveq	#FALSE,d1
 	IFEQ pt_music_fader_enabled
-		move.w	d1,pt_fade_out_music_active(a3) ; Deactivate volume fader
+		move.w	d1,pt_music_fader_active(a3) ; Deactivate volume fader
 		moveq	#pt_fade_out_delay,d2
 		move.w	d2,pt_fade_out_delay_counter(a3) ; Set volume fader delay in ticks
 		moveq	#pt_maxvol,d2

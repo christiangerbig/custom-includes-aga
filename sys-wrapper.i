@@ -445,7 +445,8 @@ wm
 cleanup_degrade_screen
 		bsr	close_degrade_screen
 cleanup_active_screen
-		bsr	check_active_screen_priority
+		bsr	active_screen_to_front
+
 		IFEQ screen_fader_enabled
 			bsr	sf_fade_in_screen
 		ENDC
@@ -557,7 +558,7 @@ cleanup_dos_library
 
 cleanup_workbench_message
 		IFEQ workbench_start_enabled
-			bsr		 reply_workbench_message
+			bsr	reply_workbench_message
 		ENDC
 	ENDC
 
@@ -2558,7 +2559,6 @@ open_degrade_screen
 		ELSE
 			move.l	degrade_screen_colors(a3),sctl_SA_Colors32+ti_data(a1)
  		ENDC
-
 		sub.l	a0,a0		; Keine NewScreen-Struktur
 		CALLINT OpenScreenTagList
 		move.l	d0,degrade_screen(a3)
@@ -3349,24 +3349,20 @@ close_degrade_screen
 ; Result
 ; d0.l	... Kein Rückgabewert
 	CNOP 0,4
-check_active_screen_priority
-		tst.l	active_screen(a3)
-		bne.s	get_first_screen
-		rts
-		CNOP 0,4
-get_first_screen
-		moveq	#0,d0		; alle Locks
-		CALLINT LockIBase
-		move.l	d0,a0
-		move.l	ib_FirstScreen(a6),a2
-		CALLLIBS UnLockIBase
-		cmp.l	active_screen(a3),a2
-		bne.s	active_screen_to_front
-		rts
-		CNOP 0,4
 active_screen_to_front
-		move.l	active_screen(a3),a0
-		CALLLIBQ ScreenToFront
+	tst.l	active_screen(a3)
+	beq.s	active_screen_to_front_ok
+	moveq	#0,d0			; alle Locks
+	CALLINT LockIBase
+	move.l	d0,a0
+	move.l	ib_FirstScreen(a6),a2
+	CALLLIBS UnLockIBase
+	cmp.l	active_screen(a3),a2
+	beq.s	active_screen_to_front_ok
+	move.l	active_screen(a3),a0
+	CALLLIBS ScreenToFront
+active_screen_to_front_ok
+	rts
 
 
 		IFEQ screen_fader_enabled
@@ -3939,12 +3935,8 @@ close_graphics_library
 print_error_message
 		move.w	custom_error_code(a3),d4
 		beq.s	print_error_message_ok
-		moveq	#0,d0		; Alle Locks
-		CALLINT LockIBase
-		move.l	d0,a0
-		move.l	ib_ActiveScreen(a6),active_screen(a3)
-		CALLLIBS UnlockIBase
-		CALLLIBS WBenchToFront
+		bsr	get_active_screen
+		CALLINT WBenchToFront
 		lea	raw_name(pc),a0
 		move.l	a0,d1
 		move.l	#MODE_OLDFILE,d2
@@ -3968,10 +3960,7 @@ print_error_message_skip
 		CALLLIBS Read
 		move.l	raw_handle(a3),d1
 		CALLLIBS Close
-		move.l	active_screen(a3),d0
-		beq.s	print_error_message_ok
-		move.l	d0,a0
-		CALLINT ScreenToFront
+		bsr	active_screen_to_front
 print_error_message_ok
 		moveq	#RETURN_OK,d0
 		rts

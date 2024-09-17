@@ -5,9 +5,9 @@
 PT_FADE_OUT_VOLUME		MACRO
 ; \1 STRING: Variablen-Offset für Variable, die auf TRUE gesetzt wird, wenn Ausblenden beendet
 	CNOP 0,4
-pt_fade_out_music
-	tst.w	pt_fade_out_music_active(a3)
-	bne.s	pt_fade_out_music_quit
+pt_music_fader
+	tst.w	pt_music_fader_active(a3)
+	bne.s	pt_music_fader_quit
 	lea	pt_audchan1temp(pc),a0	; Temporäre Audio-Daten
 	lea	AUD0VOL-DMACONR(a6),a1
 	bsr.s	pt_fade_out_channel_volume
@@ -19,24 +19,23 @@ pt_fade_out_music
 	bsr.s	pt_fade_out_channel_volume
 	move.w	pt_fade_out_delay_counter(a3),d0
 	subq.w	#1,d0
-	bne.s	pt_fade_out_music_skip
+	bne.s	pt_music_fader_skip
 	move.w	pt_master_volume(a3),d1
-	beq.s	pt_fade_out_music_end
+	beq.s	pt_music_fader_end
 	subq.w	#1,d1
 	move.w	d1,pt_master_volume(a3)
-	moveq	#pt_fade_out_delay,d0	; Neustart des Verzögerungszählers
-pt_fade_out_music_skip
+	moveq	#pt_fade_out_delay,d0
+pt_music_fader_skip
 	move.w	d0,pt_fade_out_delay_counter(a3)
-pt_fade_out_music_quit
+pt_music_fader_quit
 	rts
 	CNOP 0,4
-pt_fade_out_music_end
-	move.w	#FALSE,pt_fade_out_music_active(a3) ; Fader aus
+pt_music_fader_end
+	move.w	#FALSE,pt_music_fader_active(a3) ; Fader aus
 	IFNC "","\1"
-		moveq	#0,d0
-		move.w	d0,\1(a3)	; Ggf. zusätzliche Variable setzen
+		clr.w	\1(a3)		; Zusätzliche Variable setzen
 	ENDC
-	rts
+	bra.s	pt_music_fader_quit
 
 ; Input
 ; a0	... Zeiger auf temporäre Audio-Daten
