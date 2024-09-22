@@ -4,8 +4,9 @@
 	RSRESET
 
 	IFND SYS_TAKEN_OVER
+shell_parameters		RS.L 1
 shell_parameters_length		RS.L 1
-shell_parameters_pointer	RS.L 1
+
 
 		IFEQ workbench_start_enabled
 workbench_message		RS.L 1

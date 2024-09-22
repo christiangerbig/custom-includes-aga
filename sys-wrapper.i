@@ -607,8 +607,8 @@ init_variables
 			ENDC
 		ENDC
 	ELSE
-		move.l	d0,(a3)		; Shell: Länge des Eingabestrings
-		move.l	a0,shell_parameters_pointer(a3) ; Shell: Zeiger auf Eingabestring
+		move.l	a0,shell_parameters(a3)
+		move.l	d0,shell_parameters_length(a3)
 
 		moveq	#TRUE,d0
 		IFEQ workbench_start_enabled
