@@ -304,7 +304,7 @@ wm
 		ENDC
 	ENDC
 
-	bsr	init_own_variables	; Externe Routine
+	bsr	init_main_variables	; Externe Routine
 
 	IFND SYS_TAKEN_OVER
 		bsr	wait_drives_motor
@@ -374,7 +374,7 @@ wm
 	ENDC
 
 	move.w	#dma_bits&(~(DMAF_SPRITE|DMAF_COPPER|DMAF_RASTER)),DMACON-DMACONR(a6) ; DMA ausser Sprite/Copper/Bitplane-DMA an
-	bsr	init_all		; Externe Routine
+	bsr	init_main		; Externe Routine
 	bsr	start_own_display
 	IFNE (intena_bits-INTF_SETCLR)|(ciaa_icr_bits-CIAICRF_SETCLR)|(ciab_icr_bits-CIAICRF_SETCLR)
 		bsr	start_own_interrupts
@@ -401,7 +401,7 @@ wm
 		ENDC
 	ENDC
 
-	bsr	main_routine		; Externe Routine
+	bsr	main		; Externe Routine
 
 	IFD PASS_RETURN_CODE
 		move.l	d0,dos_return_code(a3)

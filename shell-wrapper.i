@@ -1,6 +1,7 @@
 ; Datum:	18.09.2024
 ; Version:	1.0
 
+
 	movem.l	d2-d7/a2-a6,-(a7)
 	lea	variables(pc),a3
 	bsr	init_variables
@@ -24,18 +25,22 @@
 		move.l	d0,dos_return_code(a3)
 		bne.s	cleanup_all
 	ENDC
-	IFD CUSTOM_MEMOEY_USED
+	IFD CUSTOM_MEMORY_USED
 		bsr	alloc_custom_memory ; Externe Routine
 		move.l	d0,dos_return_code(a3)
 		bne.s	cleanup_all
 	ENDC
 
-	bsr     init_own_variables	; Externe Routine
-	bsr	init_all		; Externe Routine
+	bsr     init_main_variables	; Externe Routine
+	bsr	init_main		; Externe Routine
+	tst.l	d0
+	bne.s	cleanup_all
 
 	bsr	main			; Externe Routine
 
 cleanup_all
+	bsr	cleanup_main		; Externe Routine
+
 	IFNE memory_size
 		bsr	free_memory
 	ENDC
