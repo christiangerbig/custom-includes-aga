@@ -2,6 +2,8 @@
 ; Version:	1.0
 
 RS_ALIGN_LONGWORD		MACRO
+; Input
+; Result
 	IFNE __RS%4
 		RS.W 1
 	ENDC
@@ -9,13 +11,17 @@ RS_ALIGN_LONGWORD		MACRO
 
 
 WAIT_LEFT_MOUSE_BUTTON		MACRO
+; Input
+; Result
 wait_left_button_loop\@
 	btst	#CIAB_GAMEPORT0,CIAPRA(a4)
 	bne.s	wait_left_button_loop\@
 	ENDM
 
 
-wait_right_mouse_button		MACRO
+WAIT_RIGHT_MOUSE_BUTTON		MACRO
+; Input
+; Result
 wait_right_button_loop\@
 	btst	#POTINPB_DATLY-8,POTINP-DMACONR(a6)
 	bne.s	wait_right_button_loop\@
@@ -23,7 +29,9 @@ wait_right_button_loop\@
 
 
 RASTER_TIME			MACRO
-; \1 HEXNUMBER: RGB4-Wert (optional)
+; Input
+; \1 HEXNUMBER:	RGB4-Wert (optional)
+; Result
 	move.l	d0,-(a7)
 	move.w	VPOSR-DMACONR(a6),d0
 	swap	d0
@@ -42,7 +50,9 @@ rt_no_update_y_pos_max\@
 
 
 SHOW_BEAM_POSITION		MACRO
-; \1 ... Farbwert
+; Input
+; \1 WORD:	Farbwert
+; Result
 	MOVEF.W	bplcon3_bits1,d0
 	move.w	d0,BPLCON3-DMACONR(a6)
 	move.w	#\1,COLOR00-DMACONR(a6)
@@ -50,6 +60,8 @@ SHOW_BEAM_POSITION		MACRO
 
 
 AUDIO_TEST			MACRO
+; Input
+; Result
 	lea	$20000,a0		; Zeiger auf Chip-Memory
 	move.l	a0,AUD0LCH-DMACONR(a6)	; Zeiger auf Audio-Daten
 	move.l	a0,AUD1LCH-DMACONR(a6)
@@ -70,9 +82,11 @@ AUDIO_TEST			MACRO
 
 
 MOVEF				MACRO
-; \0 STRING: Größe B/W/L
-; \1 NUMBER: Quellwert
-; \2 STRING: Ziel
+; Input
+; \0 STRING:	Größenangabe B/W/L
+; \1 NUMBER:	Quellwert
+; \2 STRING:	Ziel
+; Result
 	IFC "","\0"
 	 FAIL Makro MOVEF: Größenangabe B/W/L fehlt
 	ENDC
@@ -129,9 +143,11 @@ MOVEF				MACRO
 
 
 ADDF				MACRO
-; \0 STRING: Größe B/W/L
-; \1 NUMBER: 8/16-Bit Quellwert
-; \2 STRING: Ziel
+; Input
+; \0 STRING:	Größenangabe B/W/L
+; \1 NUMBER:	8/16-Bit Quellwert
+; \2 STRING:	Ziel
+; Result
 	IFC "","\0"
 	 FAIL Makro ADDF: Größenangabe B/W/L fehlt
 	ENDC
@@ -199,9 +215,11 @@ ADDF				MACRO
 
 
 SUBF				MACRO
-; \0 STRING: Größe B/W/L
-; \1 NUMBER: 8/16-Bit Quellwert
-; \2 STRING: Ziel
+; Input
+; \0 STRING:	Größenangabe B/W/L
+; \1 NUMBER:	8/16-Bit Quellwert
+; \2 STRING:	Ziel
+; Result
 	IFC "","\0"
 		FAIL Makro SUBF: Größenangabe B/W/L fehlt
 	ENDC
@@ -254,10 +272,12 @@ SUBF				MACRO
 
 
 MULUF				MACRO
-; \0 STRING: Größe B/W/L
-; \1 NUMBER: 16/32-Bit Faktor
-; \2 NUMBER: Produkt
-; \3 STRING: Scratch-Register
+; Input
+; \0 STRING:	Größenangabe B/W/L
+; \1 NUMBER:	16/32-Bit Faktor
+; \2 NUMBER:	Produkt
+; \3 STRING:	Scratch-Register
+; Result
 	IFC "","\0"
 		FAIL Makro MULUF: Größenangabe B/W/L fehlt
 	ENDC
@@ -363,10 +383,7 @@ MULUF				MACRO
 		move.\0	\2,\3
 		lsl.\0	#4,\2
 		add.\0	\3,\3
-		sub.\0	\3,\2
-;		lsl.\0	#3,\2
-;		add.\0	\3,\2
-;		add.\0	\2,\2
+		add.\0	\3,\2
 	ENDC
 	IFEQ (\1)-19			; *19
 		move.\0	\2,\3
@@ -1153,9 +1170,11 @@ MULUF				MACRO
 
 
 MULSF				MACRO
-; \1 NUMBER: 16-Bit vorzeichenbehafteter Faktor
-; \2 NUMBER: Produkt
-; \3 STRING: Scratch-Register
+; Input
+; \1 NUMBER:	16-Bit vorzeichenbehafteter Faktor
+; \2 NUMBER:	Produkt
+; \3 STRING:	Scratch-Register
+; Result
 	IFC "","\1"
 		FAIL Makro MULSF: 16-Bit vorzeichenbehafteter Faktor fehlt
 	ENDC
@@ -1171,10 +1190,12 @@ MULSF				MACRO
 
 
 DIVUF				MACRO
-; \0 STRING: Größe W
-; \1 NUMBER: Divisor
-; \2 NUMBER: Divident
-; \3 STRING: Scratch-Register, Ergebnis
+; Input
+; \0 STRING:	Größenangabe W
+; \1 NUMBER:	Divisor
+; \2 NUMBER:	Divident
+; \3 STRING:	Scratch-Register, Ergebnis
+; Result
 	IFC "","\0"
 		FAIL Makro DIVUF: Größenangabe W fehlt
 	ENDC
@@ -1193,9 +1214,11 @@ divison_loop\@
 
 
 CMPF MACRO
-; \0 STRING: Größe B/W/L
-; \1 NUMBER: Quelle 8/16/32-Bit
-; \2 STRING: Ziel
+; Input
+; \0 STRING:	Größenangabe B/W/L
+; \1 NUMBER:	Quelle 8/16/32-Bit
+; \2 STRING:	Ziel
+; Result
 	IFC "","\0"
 		FAIL Makro CMPF: Größenangabe B/W/L fehlt
 	ENDC
@@ -1214,9 +1237,11 @@ CMPF MACRO
 
 
 CPU_INIT_COLOR_HIGH		MACRO
-; \1 WORD: Erstes Farbregister-Offset
-; \2 BYTE_SIGNED: Anzahl der Farbwerte
-; \3 POINTER: Farbtabelle (optional)
+; Input
+; \1 WORD:		Erstes Farbregister-Offset
+; \2 BYTE_SIGNED:	Anzahl der Farbwerte
+; \3 POINTER:		Farbtabelle (optional)
+; Result
 	IFC "","\1"
 		FAIL Makro CPU_INIT_COLOR_HIGH: Erstes Farbregister-Offset fehlt
 	ENDC
@@ -1233,9 +1258,11 @@ CPU_INIT_COLOR_HIGH		MACRO
 
 
 CPU_INIT_COLOR_LOW		MACRO
-; \1 WORD: Erstes Farbregister-Offset
-; \2 BYTE_SIGNED: Anzahl der Farbwerte
-; \3 POINTER: Farbtabelle (optional)
+; Input
+; \1 WORD:		Erstes Farbregister-Offset
+; \2 BYTE_SIGNED:	Anzahl der Farbwerte
+; \3 POINTER:		Farbtabelle (optional)
+; Result
 	IFC "","\1"
 		FAIL Makro CPU_INIT_COLOR_LOW: Erstes Farbregister-Offset fehlt
 	ENDC
@@ -1252,10 +1279,12 @@ CPU_INIT_COLOR_LOW		MACRO
 
 
 RGB8_TO_RGB4_HIGH		MACRO
-; \1 LONGWORD: 24-Bit Farbwert
-; \2 Scratch-Register
-; \3 STRING: Maske für High-Bits
-; Rückgabewert: [\1 WORD] 12-Bit High-Farbwert
+; Input
+; \1 LONGWORD:	24-Bit Farbwert
+; \2 LONGWORD:	Scratch-Register
+; \3 STRING:	Maske für High-Bits
+; Result
+; \1 WORD:	Rückgabewert: 2-Bit High-Farbwert
 	IFC "","\1"
 		FAIL Makro RGB8_TO_RGB4_HIGH: 24-Bit Farbwert fehlt
 	ENDC
@@ -1274,22 +1303,14 @@ RGB8_TO_RGB4_HIGH		MACRO
 	move.b	\2,\1			; $0RGB
 	ENDM
 
-;	68000er-Version
-;	lsr.w	#4,\1			; $0GgB
-;	and.w	\3,\1			; $0G0B
-;	move.b	\1,\2			; $0B
-;	lsr.w	#4,\1			; $00G0
-;	or.b	\1,\2			; $GB
-;	swap	\1			; $00Rr
-;	lsl.w	#4,\1			; $0Rr0
-;	move.b	\2,\1			; $0RGB
-
 
 RGB8_TO_RGB4_LOW		MACRO
-; \1 LONGWORD: 24-Bit Farbwert
-; \2 STRING: Scratch-Register
-; \3 STRING: Maske für Low-Bits
-; Rückgabewert: [\1 WORD] 12-Bit Low-Farbwert
+; Input
+; \1 LONGWORD:	24-Bit Farbwert
+; \2 BYTE:	Scratch-Register
+; \3 STRING:	Maske für Low-Bits
+; Result
+; \1 WORD:	Rückgabewert: 12-Bit Low-Farbwert
 	IFC "","\1"
 		FAIL Makro RGB8_TO_RGB4_LOW: 24-Bit Farbwert fehlt
 	ENDC
@@ -1307,18 +1328,12 @@ RGB8_TO_RGB4_LOW		MACRO
 	move.b	\2,\1			; $0rgb
 	ENDM
 
-;	68000er-Version
-;	and.w	\3,\1			; $0g0b
-;	move.b	\1,\2			; $0b
-;	lsr.l	#4,\1			; $0000Rr0g0
-;	or.b	\1,\2			; $gb
-;	lsr.w	#4,\1			; $0r0g
-;	move.b	\2,\1			; $0rgb
-
 
 RGB8_TO_RGB8_HIGH_LOW		MACRO
-; \1 STRING: Labels-Prefix der Routine
-; \2 NUMBER: Anzahl der Einträge
+; Input
+; \1 STRING:	Labels-Prefix der Routine
+; \2 NUMBER:	Anzahl der Einträge
+; Result
 	IFC "","\1"
 		FAIL Makro RGB8_TO_RGB8_HIGH_LOW: Labels-Prefix fehlt
 	ENDC
@@ -1327,7 +1342,7 @@ RGB8_TO_RGB8_HIGH_LOW		MACRO
 	ENDC
 	CNOP 0,4
 \1_convert_color_table
-	move.w	#$0f0f,d3
+	move.w	#GB_NIBBLES_MASK,d3
 	lea	\1_color_table(pc),a0 ;Zeiger auf Farbtabelle
 	move.w	#\2-1,d7		; Anzahl der Einträge
 \1_convert_color_table_loop
@@ -1343,8 +1358,10 @@ RGB8_TO_RGB8_HIGH_LOW		MACRO
 
 
 INIT_CHARACTERS_OFFSETS MACRO
-; \0 STRING: W für Wort, L für Langwort
-; \1 STRING: Labels-Prefix der Routine
+; Input
+; \0 STRING:	Größenangabe W/L
+; \1 STRING:	Labels-Prefix der Routine
+; Result
 	CNOP 0,4
 \1_init_characters_offsets
 	IFC "","\0"
@@ -1397,10 +1414,12 @@ INIT_CHARACTERS_OFFSETS MACRO
 
 
 INIT_CHARACTERS_X_POSITIONS	MACRO
-; \1 STRING: Labels-Prefix der Routine
-; \2 STRING: Pixel-Auflösung "LORES", "HIRES", "SHIRES"
-; \3 STRING: Tabellenzugriff "BACKWARDS" (optional)
-; \4 NUMBER: Anzahl der Buchstaben (optional)
+; Input
+; \1 STRING:	Labels-Prefix der Routine
+; \2 STRING:	Pixel-Auflösung "LORES", "HIRES", "SHIRES"
+; \3 STRING:	Tabellenzugriff "BACKWARDS" (optional)
+; \4 NUMBER:	Anzahl der Buchstaben (optional)
+; Result
 	CNOP 0,4
 \1_init_characters_x_positions
 	IFC "","\1"
@@ -1423,9 +1442,9 @@ INIT_CHARACTERS_X_POSITIONS	MACRO
 		lea	\1_characters_x_positions(pc),a0 ; Zeiger auf Tabelle mit X-Koords.
 	ELSE
 		IFC "","\4"
-		lea	\1_characters_x_positions+(\1_text_characters_number*WORD_SIZE)(pc),a0 ; Tabelle mit X-Koords.-Ende
+			lea	\1_characters_x_positions+(\1_text_characters_number*WORD_SIZE)(pc),a0 ; Tabelle mit X-Koords.-Ende
 		ELSE
-		lea	\1_characters_x_positions+((\1_\4)*WORD_SIZE)(pc),a0 ; Tabelle mit X-Koords.-Ende
+			lea	\1_characters_x_positions+((\1_\4)*WORD_SIZE)(pc),a0 ; Tabelle mit X-Koords.-Ende
 		ENDC
 	ENDC
 	IFC "","\4"
@@ -1446,8 +1465,10 @@ INIT_CHARACTERS_X_POSITIONS	MACRO
 
 
 INIT_CHARACTERS_Y_POSITIONS		MACRO
-; \1 STRING: Labels-Prefix der Routine
-; \2 NUMBER: Anzahl der Buchstaben (optional)
+; Input
+; \1 STRING:	Labels-Prefix der Routine
+; \2 NUMBER:	Anzahl der Buchstaben (optional)
+; Result
 	CNOP 0,4
 \1_init_characters_y_positions
 	IFC "","\1"
@@ -1470,13 +1491,15 @@ INIT_CHARACTERS_Y_POSITIONS		MACRO
 
 
 INIT_CHARACTERS_IMAGES		MACRO
-; \1 STRING: Labels-Prefix der Routine
+; Input
+; \1 STRING:	Labels-Prefix der Routine
+; Result
 	CNOP 0,4
 \1_init_characters_images
 	IFC "","\1"
 		FAIL Makro INIT_CHARACTERS_IMAGES: Labels-Prefix fehlt
 	ENDC
-	lea	\1_characters_image_pointers(pc),a2 ;Z eiger auf Tabelle mit Chars-Adressen
+	lea	\1_characters_image_ptrs(pc),a2 ;Z eiger auf Tabelle mit Chars-Adressen
 	MOVEF.W	(\1_text_characters_number)-1,d7 ; Anzahl der Buchstaben
 \1_init_characters_images_loop
 	bsr	\1_get_new_character_image
@@ -1487,12 +1510,14 @@ INIT_CHARACTERS_IMAGES		MACRO
 
 
 GET_NEW_CHARACTER_IMAGE		MACRO
-; \0 STRING: Größenangabe W/L
-; \1 STRING: Labels-Prefix der Routine
+; Input
+; \0 STRING:	Größenangabe W/L
+; \1 STRING:	Labels-Prefix der Routine
 ; \2 LABEL:	Sub-Routine zusätzliche Checks für Steuerungs-Codes (optional)
-; \3 STRING: "NORESTART" für Schriften, die nicht endlos sind (optional)
-; \4 STRING: "BACKWARDS" (optional)
-; Rückgabewert: [d0: POINTER] Zeiger auf Zeichen-Playfield
+; \3 STRING:	"NORESTART" für Schriften, die nicht endlos sind (optional)
+; \4 STRING:	"BACKWARDS" (optional)
+; Result
+; d0.l		Rückgabewert: Zeiger auf Zeichen-Playfield
 	IFC "","\0"
 		FAIL Makro GET_NEW_CHARACTER_IMAGE: Größenangabe W/L fehlt
 	ENDC
@@ -1574,7 +1599,7 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 				move.l	d3,d4
 				MULUF.W	2,d4 ; Wort-Offset des Images
 				addq.w	#1,d3 ; Nächstes Wort in Image
-				add.l	d4,d0 ;+ Offset in Char-Image
+				add.l	d4,d0 ; + Offset in Char-Image
 				cmp.w	#\1_origin_character_x_size/16,d3 ; Neues Image für Char ?
 				bne.s	\1_keep_character_image ; Nein -> verzweige
 \1_next_character
@@ -1596,16 +1621,18 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 		IFNC "NORESTART","\3"
 			CNOP 0,4
 \1_restart_text
-		moveq	#TRUE,d1
-		bra.s	\1_read_character
+			moveq	#TRUE,d1
+			bra.s	\1_read_character
 		ENDC
 	ENDC
 	ENDM
 
 
 CPU_SELECT_COLOR_HIGH_BANK	MACRO
-; \1 NUMBER: Color-Bank 0..7
-; \2 WORD: zusätzliche BPLCON3-bits (optional)
+; Input
+; \1 NUMBER:	Color-Bank 0..7
+; \2 WORD:	zusätzliche BPLCON3-bits (optional)
+; Result
 	IFC "","\1"
 		FAIL Makro CPU_SELECT_COLOR_HIGH_BANK: Color-Bank-Nummer fehlt
 	ENDC
@@ -1625,8 +1652,10 @@ CPU_SELECT_COLOR_HIGH_BANK	MACRO
 
 
 CPU_SELECT_COLOR_LOW_BANK	MACRO
+; Input
 ; \1 NUMBER: Color-Bank 0..7
 ; \2 WORD: zusätzliche BPLCON3-bits (optional)
+; Result
 	IFC "","\1"
 		FAIL Makro CPU_SELECT_COLOR_LOW_BANK: Color-Bank-Nummer fehlt
 	ENDC
@@ -1641,8 +1670,10 @@ CPU_SELECT_COLOR_LOW_BANK	MACRO
 
 
 DISABLE_060_STORE_BUFFER	MACRO
+; Input
+; Result
 	move.l	_SysBase(pc),a6
-	tst.b	AttnFlags+1(a6)		; CPU 68060 ?
+	tst.b	AttnFlags+BYTESZE(a6)	; CPU 68060 ?
 	bpl.s	dsb_no_CPU060		; Nein -> verzweige
 	lea	dsb_CPU060_store_buffer_off(pc),a5 ; Zeiger auf Supervisor-Routine
 	CALLLIBS Supervisor
@@ -1668,8 +1699,10 @@ dsb_CPU060_store_buffer_off
 
 
 ENABLE_060_STORE_BUFFER		MACRO
+; Input
+; Result
 	move.l	_SysBase(pc),a6
-	tst.b	AttnFlags+1(a6)		; CPU 68060 ?
+	tst.b	AttnFlags+BYTE_SIZE(a6)	; CPU 68060 ?
 	bpl.s	esb_no_CPU060		; Nein -> verzweige
 	lea	esb_CPU060_store_buffer_on(pc),a5 ; Zeiger auf Supervisor-Routine
 	move.l	os_cacr(a3),d1		 ;Alter Inhalt von CACR
@@ -1691,16 +1724,18 @@ esb_CPU060_store_buffer_on
 
 
 INIT_MIRROR_SWITCH_TABLE	MACRO
-; \0 STRING: Größenangabe B/W
-; \1 STRING: Labels-Prefix der Routine
-; \2 NUMBER: Erster Switchwert (optional)
-; \3 NUMBER: Additionswert für Switchwert (optional)
-; \4 BYTE SIGNED: Anzahl der Farbverläufe
-; \5 BYTE SINGED: Anzahl der Abschnitte pro Farbverlauf
-; \6 POINTER: Tabelle mit Switchwerten
-; \7 STRING: Pointer-Base [pc, a3]
-; \8 WORD: OFFSET Tabellenanfang (optional)
-; \9 NUMBER: Erster Switchwert für Spiegelung (optional)
+; Input
+; \0 STRING:		Größenangabe B/W
+; \1 STRING:		Labels-Prefix der Routine
+; \2 NUMBER:		Erster Switchwert (optional)
+; \3 NUMBER:		Additionswert für Switchwert (optional)
+; \4 BYTE SIGNED:	Anzahl der Farbverläufe
+; \5 BYTE SINGED:	Anzahl der Abschnitte pro Farbverlauf
+; \6 POINTER:		Tabelle mit Switchwerten
+; \7 STRING:		Pointer-Base [pc, a3]
+; \8 WORD:		Offset Tabellenanfang (optional)
+; \9 NUMBER:		Erster Switchwert für Spiegelung (optional)
+; Result
 	CNOP 0,4
 \1_init_mirror_switch_table
 	IFC "","\0"
@@ -1758,7 +1793,7 @@ INIT_MIRROR_SWITCH_TABLE	MACRO
 	ENDC
 	IFC "W","\0"
 		IFNC "","\2"
-			move.l	#(\2<<8)+bplcon4_bits,d0 ; Erster Switchwert
+			move.l	#(\2<<8)|bplcon4_bits,d0 ; Erster Switchwert
 		ENDC
 		IFNC "","\3"
 			move.l	#\3<<8,d2 ; Additionswert für Switchwert
@@ -1787,16 +1822,18 @@ INIT_MIRROR_SWITCH_TABLE	MACRO
 
 
 INIT_NESTED_MIRROR_SWITCH_TABLE	MACRO
-; \0 STRING: Größenangabe B/W
-; \1 STRING: Labels-Prefix der Routine
-; \2 NUMBER: Erster Switchwert
-; \3 NUMBER: Additionswert für Switchwert
-; \4 BYTE SIGNED: Anzahl der Farbverläufe
-; \5 BYTE SINGED: Anzahl der Abschnitte pro Farbverlauf
-; \6 POINTER: Tabelle mit Switchwerten
-; \7 STRING: Pointer-Base [pc, a3]
-; \8 WORD: OFFSET Tabellenanfang (optional)
-; \9 NUMBER: Erster Switchwert für Spiegelung (optional)
+; Input
+; \0 STRING:		Größenangabe B/W
+; \1 STRING:		Labels-Prefix der Routine
+; \2 NUMBER:		Erster Switchwert
+; \3 NUMBER:		Additionswert für Switchwert
+; \4 BYTE SIGNED:	Anzahl der Farbverläufe
+; \5 BYTE SINGED:	Anzahl der Abschnitte pro Farbverlauf
+; \6 POINTER:		Tabelle mit Switchwerten
+; \7 STRING:		Pointer-Base [pc, a3]
+; \8 WORD:		Offset Tabellenanfang (optional)
+; \9 NUMBER:		Erster Switchwert für Spiegelung (optional)
+; Result
 	CNOP 0,4
 \1_init_nested_mirror_switch_table
 	IFC "","\0"
@@ -1859,7 +1896,7 @@ INIT_NESTED_MIRROR_SWITCH_TABLE	MACRO
 		dbf	d7,\1_init_nested_mirror_switch_table_loop1
 	ENDC
 	IFC "W","\0"
-		move.l	#(\2<<8)+bplcon4_bits,d0 ; Erster Switchwert
+		move.l	#(\2<<8)|bplcon4_bits,d0 ; Erster Switchwert
 		move.l	#\3<<8,d2	; Additionswert für Switchwert
 		moveq	#\4-1,d7	; Anzahl der Farbverläufe
 \1_init_nested_mirror_switch_table_loop1
@@ -1889,16 +1926,18 @@ INIT_NESTED_MIRROR_SWITCH_TABLE	MACRO
 
 
 INIT_SWITCH_TABLE		MACRO
-; \0 STRING: Größenangabe B/W
-; \1 STRING: Labels-Prefix der Routine
-; \2 NUMBER: Erster Switchwert
-; \3 NUMBER: Additionswert für Switchwert
-; \4 BYTE SIGNED: Anzahl der Farb/Switchwerte pro Farbverlauf
-; \5 POINTER: Tabelle mit Switchwerten (optional)
-; \6 STRING: Pointer-Base [pc, a3] (optoinal)
-; \7 WORD: OFFSET Tabellenanfang (optional)
-; \8 LONGWORD: Offset zum nächsten Wert in Switchtabelle (optional)
-; Rückgabewert: [D0 WORD] Letzter Switchwert
+; Input
+; \0 STRING:		Größenangabe B/W
+; \1 STRING:		Labels-Prefix der Routine
+; \2 NUMBER:		Erster Switchwert
+; \3 NUMBER:		Additionswert für Switchwert
+; \4 BYTE SIGNED:	Anzahl der Farb/Switchwerte pro Farbverlauf
+; \5 POINTER:		Tabelle mit Switchwerten (optional)
+; \6 STRING:		Pointer-Base [pc, a3] (optoinal)
+; \7 WORD:		Offset Tabellenanfang (optional)
+; \8 LONGWORD:		Offset zum nächsten Wert in Switchtabelle (optional)
+; Result
+; d0.w			Rückgabewert: Letzter Switchwert
 	CNOP 0,4
 \1_init_switch_table
 	IFC "","\0"
@@ -1981,14 +2020,16 @@ INIT_SWITCH_TABLE		MACRO
 
 
 INIT_COLOR_GRADIENT_RGB8	MACRO
-; \1 HEXNUMBER: RGB8 Startwert/Istwert
-; \2 HEXNUMBER: RGB8 Endwert/Sollwert
-; \3 BYTE SIGNED: Anzahl der Farbwerte
-; \4 NUMBER: Color-Step-Wert für RGB (optional)
-; \5 POINTER: Zeiger auf Farbtabelle(optional)
-; \6 STRING: Pointer-Base [pc, a3] (optional)
-; \7 LONGWORD: Offset Anfang Farbtabelle (optional)
-; \8 LONGWORD: Offset zum nächsten Wert in Farbtabelle (optional)
+; Input
+; \1 HEXNUMBER:		RGB8 Startwert/Istwert
+; \2 HEXNUMBER:		RGB8 Endwert/Sollwert
+; \3 BYTE SIGNED:	Anzahl der Farbwerte
+; \4 NUMBER:		Color-Step-Wert für RGB (optional)
+; \5 POINTER:		Zeiger auf Farbtabelle(optional)
+; \6 STRING:		Pointer-Base [pc, a3] (optional)
+; \7 LONGWORD:		Offset Anfang Farbtabelle (optional)
+; \8 LONGWORD:		Offset zum nächsten Wert in Farbtabelle (optional)
+; Result
 	IFC "","\1"
 		FAIL Makro COLOR_GRADIENT_RGB8: RGB8 Startwert/Istwert fehlt
 	ENDC
@@ -2025,14 +2066,16 @@ INIT_COLOR_GRADIENT_RGB8	MACRO
 
 
 INIT_COLOR_GRADIENT_GROUP_RGB8	MACRO
-; \1 WORD: Anzahl der Farbwerte
-; \2 BYTE SIGNED: Anzahl der Zeilen
-; \3 BYTE SIGNED: Anzahl der Segmente
-; \4 NUMBER: Colorstep-Wert für RGB (optional)
-; \5 POINTER: Zeiger auf Farbtabelle (optional)
-; \6 STRING: Pointer-Base [pc, a3] (optional)
-; \7 LONGWORD: Offset Anfang Farbtabelle (optional)
-; \8 LONGWORD: Offset zum nächsten Wert in Farbtabelle (optional)
+; Input
+; \1 WORD:		Anzahl der Farbwerte
+; \2 BYTE SIGNED:	Anzahl der Zeilen
+; \3 BYTE SIGNED:	Anzahl der Segmente
+; \4 NUMBER:		Colorstep-Wert für RGB (optional)
+; \5 POINTER:		Zeiger auf Farbtabelle (optional)
+; \6 STRING:		Pointer-Base [pc, a3] (optional)
+; \7 LONGWORD:		Offset Anfang Farbtabelle (optional)
+; \8 LONGWORD:		Offset zum nächsten Wert in Farbtabelle (optional)
+; Result
 	IFC "","\1"
 		FAIL Makro COLOR_GRADIENT_GROUP_RGB8: Anzahl der Farbwerte fehlt
 	ENDC
@@ -2079,15 +2122,17 @@ no_last_segment\@
 
 
 COPY_IMAGE_TO_BITPLANE		MACRO
-; \1 STRING: Labels-Prefix der Routine
-; \2 WORD: X-Offset in Pixeln optional (optional)
-; \3 WORD: Y-Offset in Zeilen optional (optional)
-; \4 POINTER: Zielbild (optional)
+; Input
+; \1 STRING:	Labels-Prefix der Routine
+; \2 WORD:	X-Offset in Pixeln optional (optional)
+; \3 WORD:	Y-Offset in Zeilen optional (optional)
+; \4 POINTER:	Zielbild (optional)
+; Result
 	IFC "","\1"
 		FAIL Makro COPY_IMAGE_TO_BITPLANE: Labels-Prefix fehlt
 	ENDC
 	CNOP 0,4
-\1_copy_image_to_bitplane
+\1_copy_image_to_plane
 	movem.l a4-a6,-(a7)
 	IFNC "","\2"
 		IFC "","\4"
@@ -2113,10 +2158,10 @@ COPY_IMAGE_TO_BITPLANE		MACRO
 	ELSE
 		moveq	#\4_depth-1,d7
 	ENDC
-\1_copy_image_to_bitplane_loop1
+\1_copy_image_to_plane_loop1
 	bsr.s	\1_copy_image_data
 	add.l	#\1_image_plane_width,a1 ; nächte Bitplane
-	dbf	d7,\1_copy_image_to_bitplane_loop1
+	dbf	d7,\1_copy_image_to_plane_loop1
 	movem.l (a7)+,a4-a6
 	rts
 	CNOP 0,4
@@ -2140,8 +2185,10 @@ COPY_IMAGE_TO_BITPLANE		MACRO
 
 
 INIT_DISPLAY_PATTERN		MACRO
+; Input
 ; \1 STRING: Labels-Prefix der Routine
 ; \2 NUMBER: Breite einer Spalte
+; Result
 	IFC "","\1"
 		FAIL Makro INIT_DISPLAY_PATTERN: Labels-Prefix fehlt
 	ENDC
@@ -2164,33 +2211,33 @@ INIT_DISPLAY_PATTERN		MACRO
 	lsr.w	#3,d1			; /8 = X-Offset
 	not.b	d2			; Bitnr.
 	btst	#0,d3			; Bit0 gesetzt?
-	beq.s	\1_no_set_pixel_bitplane0 ; Nein -> verzweige
+	beq.s	\1_no_set_pixel_plane0 ; Nein -> verzweige
 	bset	d2,(a0,d1.l)		; Bit in Bitplane0 setzen
-\1_no_set_pixel_bitplane0
+\1_no_set_pixel_plane0
 	btst	#1,d3			; Bit1 gesetzt?
-	beq.s	\1_no_set_pixel_bitplane1 ; Nein -> verzweige
+	beq.s	\1_no_set_pixel_plane1 ; Nein -> verzweige
 	bset	d2,pf1_plane_width*1(a0,d1.l) ; Bit in Bitplane1 setzen
-\1_no_set_pixel_bitplane1
+\1_no_set_pixel_plane1
 	btst	#2,d3			; Bit2 gesetzt?
-	beq.s	\1_no_set_pixel_bitplane2 ; Nein -> verzweige
+	beq.s	\1_no_set_pixel_plane2 ; Nein -> verzweige
 	bset	d2,pf1_plane_width*2(a0,d1.l) ; Bit in Bitplane2 setzen
-\1_no_set_pixel_bitplane2
+\1_no_set_pixel_plane2
 	btst	#3,d3			; Bit3 gesetzt?
-	beq.s	\1_no_set_pixel_bitplane3 ; Nein -> verzweige
+	beq.s	\1_no_set_pixel_plane3 ; Nein -> verzweige
 	bset	d2,pf1_plane_width*3(a0,d1.l) ; Bit in Bitplane3 setzen
-\1_no_set_pixel_bitplane3
+\1_no_set_pixel_plane3
 	btst	#4,d3			; Bit4 gesetzt?
-	beq.s	\1_no_set_pixel_bitplane4 ; Nein -> verzweige
+	beq.s	\1_no_set_pixel_plane4 ; Nein -> verzweige
 	bset	d2,(pf1_plane_width*4,a0,d1.l) ; Bit in Bitplane4 setzen
-\1_no_set_pixel_bitplane4
+\1_no_set_pixel_plane4
 	btst	#5,d3			; Bit5 gesetzt?
-	beq.s	\1_no_set_pixel_bitplane5 ; Nein -> verzweige
+	beq.s	\1_no_set_pixel_plane5 ; Nein -> verzweige
 	bset	d2,(pf1_plane_width*5,a0,d1.l) ; Bit in Bitplane5 setzen
-\1_no_set_pixel_bitplane5
+\1_no_set_pixel_plane5
 	btst	#6,d3			; Bit6 gesetzt?
-	beq.s	\1_no_set_pixel_bitplane6 ; Nein -> verzweige
+	beq.s	\1_no_set_pixel_plane6 ; Nein -> verzweige
 	bset	d2,(pf1_plane_width*6,a0,d1.l) ; Bit in Bitplane6 setzen
-\1_no_set_pixel_bitplane6
+\1_no_set_pixel_plane6
 	addq.w	#1,d0			; Spaltenzähler erhöhen
 	dbf	d6,\1_init_display_pattern_loop2
 	addq.w	#1,d3			; Farbnummer erhöhen
@@ -2200,9 +2247,11 @@ INIT_DISPLAY_PATTERN		MACRO
 
 
 GET_SINE_BARS_YZ_COORDINATES MACRO
-; \1 STRING: Labels-Prefix der Routine
-; \2 NUMBER: Länge der Sinustabelle [256, 360, 512]
-; \3 WORD: Multiplikator Y-Offset in CL
+; Input
+; \1 STRING:	Labels-Prefix der Routine
+; \2 NUMBER:	Länge der Sinustabelle [256, 360, 512]
+; \3 WORD:	Multiplikator Y-Offset in CL
+; Result
 	IFC "","\1"
 		FAIL Makro GET_SINE_BARS_YZ_COORDINATES: Labels-Prefix fehlt
 	ENDC
@@ -2213,7 +2262,7 @@ GET_SINE_BARS_YZ_COORDINATES MACRO
 		FAIL Makro GET_SINE_BARS_YZ_COORDINATES: Multiplikator Y-Offset in CL fehlt
 	ENDC
 	CNOP 0,4
-\1_get_yz_coordinates
+\1_get_yz_coords
 	IFC "","\1"
 		FAIL Makro GET_TWISTED_BARS_YZ_COORDINATES: Labels-Prefix fehlt
 	ENDC
@@ -2230,10 +2279,10 @@ GET_SINE_BARS_YZ_COORDINATES MACRO
 		move.w	d0,\1_y_angle(a3) 
 		MOVEF.W \1_y_distance,d3
 		lea	sine_table(pc),a0
-		lea	\1_yz_coordinates(pc),a1 ; Zeiger auf Y+Z-Koords-Tabelle
+		lea	\1_yz_coords(pc),a1 ; Zeiger auf Y+Z-Koords-Tabelle
 		move.w	#\1_y_center,a2
 		moveq	#\1_bars_number-1,d7 ; Anzahl der Stangen
-\1_get_yz_coordinates_loop
+\1_get_yz_coords_loop
 		moveq	#-(sine_table_length/4),d1 ; - 90 Grad
 		move.l	(a0,d2.w*4),d0	; sin(w)
 		add.w	d2,d1		; Y-Winkel - 90 Grad
@@ -2245,7 +2294,7 @@ GET_SINE_BARS_YZ_COORDINATES MACRO
 		MULUF.W (\3)/4,d0,d1	; Y-Offset in CL
 		move.w	d0,(a1)+	; Y retten
 		add.b	d3,d2		; Y-Abstand zur nächsten Bar
-		dbf	d7,\1_get_yz_coordinates_loop
+		dbf	d7,\1_get_yz_coords_loop
 		rts
 	ENDC
 	IFEQ \2-360
@@ -2261,10 +2310,10 @@ GET_SINE_BARS_YZ_COORDINATES MACRO
 		MOVEF.W sine_table_length/2,d4 ; 180 Grad
 		MOVEF.W \1_y_distance,d5
 		lea	sine_table(pc),a0
-		lea	\1_yz_coordinates(pc),a1 ; Zeiger auf Y+Z-Koords-Tabelle
+		lea	\1_yz_coords(pc),a1 ; Zeiger auf Y+Z-Koords-Tabelle
 		move.w	#\1_y_center,a2
 		moveq	#\1_bars_number-1,d7 ; Anzahl der Stangen
-\1_get_yz_coordinates_loop
+\1_get_yz_coords_loop
 		moveq	#-(sine_table_length/4),d1 ; - 90 Grad
 		move.l	(a0,d2.w*4),d0 ; sin(w)
 		add.w	d2,d1		; - 90 Grad + Y-Winkel
@@ -2283,7 +2332,7 @@ GET_SINE_BARS_YZ_COORDINATES MACRO
 		blt.s	\1_no_restart_y_angle2 ; Ja -> verzweige
 		sub.w	d3,d2		; Y-Winkel zurücksetzen
 \1_no_restart_y_angle2
-		dbf	d7,\1_get_yz_coordinates_loop
+		dbf	d7,\1_get_yz_coords_loop
 		rts
 	ENDC
 	IFEQ \2-512
@@ -2296,10 +2345,10 @@ GET_SINE_BARS_YZ_COORDINATES MACRO
 		MOVEF.W \1_y_distance,d3
 		MOVEF.W sine_table_length/2,d4 ; 180 Grad
 		lea	sine_table(pc),a0
-		lea	\1_yz_coordinates(pc),a1 ; Zeiger auf Y+Z-Koords-Tabelle
+		lea	\1_yz_coords(pc),a1 ; Zeiger auf Y+Z-Koords-Tabelle
 		move.w	#\1_y_center,a2
 		moveq	#\1_bars_number-1,d7 ; Anzahl der Stangen
-\1_get_yz_coordinates_loop
+\1_get_yz_coords_loop
 		moveq	#-(sine_table_length/4),d1 ; - 90 Grad
 		move.l	(a0,d2.w*4),d0 ; sin(w)
 		add.w	d2,d1		; - 90 Grad + Y-Winkel
@@ -2315,16 +2364,18 @@ GET_SINE_BARS_YZ_COORDINATES MACRO
 		move.w	d0,(a1)+	; Y retten
 		add.w	d3,d2		; Y-Abstand zur nächsten Bar
 		and.w	d5,d2		; Überlauf entfernen
-		dbf	d7,\1_get_yz_coordinates_loop
+		dbf	d7,\1_get_yz_coords_loop
 		rts
 	ENDC
 	ENDM
 
 
 GET_TWISTED_BARS_YZ_COORDINATES MACRO
-; \1 STRING: Labels-Prefix der Routine
-; \2 NUMBER: Länge der Sinustabelle [256, 360, 512]
-; \3 WORD: Multiplikator Y-Offset in CL
+; Input
+; \1 STRING:	Labels-Prefix der Routine
+; \2 NUMBER:	Länge der Sinustabelle [256, 360, 512]
+; \3 WORD:	Multiplikator Y-Offset in CL
+; Result
 	IFC "","\1"
 		FAIL Makro GET_TWISTED_BARS_YZ_COORDINATES: Labels-Prefix fehlt
 	ENDC
@@ -2335,7 +2386,7 @@ GET_TWISTED_BARS_YZ_COORDINATES MACRO
 		FAIL Makro GET_TWISTED_BARS_YZ_COORDINATES: Multiplikator Y-Offset in CL fehlt
 	ENDC
 	CNOP 0,4
-\1_get_yz_coordinates
+\1_get_yz_coords
 	IFC "","\1"
 		FAIL Makro GET_TWISTED_BARS_YZ_COORDINATES: Labels-Prefix fehlt
 	ENDC
@@ -2352,12 +2403,12 @@ GET_TWISTED_BARS_YZ_COORDINATES MACRO
 		move.w	d0,\1_y_angle(a3) 
 		MOVEF.W \1_y_distance,d3
 		lea	sine_table(pc),a0
-		lea	\1_yz_coordinates(pc),a1 ; Zeiger auf Y+Z-Koords-Tabelle
+		lea	\1_yz_coords(pc),a1 ; Zeiger auf Y+Z-Koords-Tabelle
 		move.w	#\1_y_center,a2
 		moveq	#\*LEFT(\3,3)_display_width-1,d7 ; Anzahl der Spalten
-\1_get_yz_coordinates_loop1
+\1_get_yz_coords_loop1
 		moveq	#\1_bars_number-1,d6 ; Anzahl der Stangen
-\1_get_yz_coordinates_loop2
+\1_get_yz_coords_loop2
 		moveq	#-(sine_table_length/4),d1 ; - 90 Grad
 		move.l	(a0,d2.w*4),d0	; sin(w)
 		add.w	d2,d1		; Y-Winkel - 90 Grad
@@ -2369,13 +2420,13 @@ GET_TWISTED_BARS_YZ_COORDINATES MACRO
 		MULUF.W	(\3)/4,d0,d1	; Y-Offset in CL
 		move.w	d0,(a1)+	; Y retten
 		add.b	d3,d2		; Y-Abstand zur nächsten Bar
-		dbf	d6,\1_get_yz_coordinates_loop2
+		dbf	d6,\1_get_yz_coords_loop2
 		IFGE \1_y_angle_step
 			addq.b	#\1_y_angle_step,d2 ; nächster Y-Winkel
 		ELSE
 			subq.b	#-\1_y_angle_step,d2 ; nächster Y-Winkel
 		ENDC
-		dbf	d7,\1_get_yz_coordinates_loop1
+		dbf	d7,\1_get_yz_coords_loop1
 		rts
 	ENDC
 	IFEQ \2-360
@@ -2391,12 +2442,12 @@ GET_TWISTED_BARS_YZ_COORDINATES MACRO
 		MOVEF.W sine_table_length/2,d4 ; 180 Grad
 		MOVEF.W \1_y_distance,d5
 		lea	sine_table(pc),a0
-		lea	\1_yz_coordinates(pc),a1 ; Zeiger auf Y+Z-Koords-Tabelle
+		lea	\1_yz_coords(pc),a1 ; Zeiger auf Y+Z-Koords-Tabelle
 		move.w	#\1_y_center,a2
 		moveq	#\*LEFT(\3,3)_display_width-1,d7 ; Anzahl der Spalten
-\1_get_yz_coordinates_loop1
+\1_get_yz_coords_loop1
 		moveq	#\1_bars_number-1,d6 ; Anzahl der Stangen
-\1_get_yz_coordinates_loop2
+\1_get_yz_coords_loop2
 		moveq	#-(sine_table_length/4),d1 ; - 90 Grad
 		move.l	(a0,d2.w*4),d0	; sin(w)
 		add.w	d2,d1		; - 90 Grad + Y-Winkel
@@ -2415,25 +2466,25 @@ GET_TWISTED_BARS_YZ_COORDINATES MACRO
 		blt.s	\1_no_restart_y_angle2 ; Ja -> verzweige
 		sub.w	d3,d2		; Y-Winkel zurücksetzen
 \1_no_restart_y_angle2
-		dbf	d6,\1_get_yz_coordinates_loop2
+		dbf	d6,\1_get_yz_coords_loop2
 		addq.w	#\1_y_angle_step,d2
 		cmp.w	d3,d2		; Y-Winkel < 360 Grad ?
 		blt.s	\1_no_restart_y_angle3 ; Ja -> verzweige
 		sub.w	d3,d2		; Y-Winkel zurücksetzen
 \1_no_restart_y_angle3
-		dbf	d7,\1_get_yz_coordinates_loop1
+		dbf	d7,\1_get_yz_coords_loop1
 		rts
 	ENDC
 	ENDM
 
 
-COLOR_FADER			MACRO
+RGB8_COLOR_FADER			MACRO
 ; \1 STRING: Labels-Prefix der Routine
 	IFC "","\1"
-		FAIL Makro COLOR_FADER: Labels-Prefix fehlt
+		FAIL Makro RGB8_COLOR_FADER: Labels-Prefix fehlt
 	ENDC
 	CNOP 0,4
-\1_fader_loop
+\1_rgb8_fader_loop
 	move.l	(a0),d0			; RGB8-Istwert
 	moveq	#0,d1
 	move.w	d0,d1			; $00GgBb
@@ -2450,80 +2501,80 @@ COLOR_FADER			MACRO
 	clr.b	d4			; $00Gg00
 
 ; ** Rotwert **
-\1_check_red_nibble
+\1_rgb8_check_red
 	cmp.l	d3,d0
-	bgt.s	\1_decrease_red
-	blt.s	\1_increase_red
-\1_matched_red
+	bgt.s	\1_rgb8_decrease_red
+	blt.s	\1_rgb8_increase_red
+\1_rgb8_matched_red
 	subq.w	#1,d6			; Zähler verringern
 
 ; ** Grünwert **
-\1_check_green_nibble
+\1_rgb8_check_green
 	cmp.l	d4,d1
-	bgt.s	\1_decrease_green
-	blt.s	\1_increase_green
-\1_matched_green
+	bgt.s	\1_rgb8_decrease_green
+	blt.s	\1_rgb8_increase_green
+\1_rgb8_matched_green
 	subq.w	#1,d6			; Zähler verringern
 
 ; ** Blauwert **
-\1_check_blue_nibble
+\1_rgb8_check_blue
 	cmp.w	d5,d2
-	bgt.s	\1_decrease_blue
-	blt.s	\1_increase_blue
-\1_matched_blue
+	bgt.s	\1_rgb8_decrease_blue
+	blt.s	\1_rgb8_increase_blue
+\1_rgb8_matched_blue
 	subq.w	#1,d6			; Zähler verringern
 
-\1_merge_rgb_nibbles
+\1_merge_rgb8
 	move.l	d0,d3			; neuer Rotwert	$Rr0000
 	move.w	d1,d3			; neuer Grünwert $RrGg00
 	move.b	d2,d3			; neuer Blauwert $RrGgBb
 
 ; ** Farbwerte in Copperliste eintragen **
 	move.l	d3,(a0)+		; neuen RGB-Wert in Cache schreiben
-	dbf	d7,\1_fader_loop
+	dbf	d7,\1_rgb8_fader_loop
 	rts
 	CNOP 0,4
-\1_decrease_red
+\1_rgb8_decrease_red
 	sub.l	a2,d0			; Rotanteil verringern
 	cmp.l	d3,d0			; Ist-Rotwert > Soll-Rotwert ?
-	bgt.s	\1_check_green_nibble	; Ja -> verzweige
+	bgt.s	\1_rgb8_check_green	; Ja -> verzweige
 	move.l	d3,d0			; Rotanteil Zielwert
-	bra.s	\1_matched_red
+	bra.s	\1_rgb8_matched_red
 	CNOP 0,4
-\1_increase_red
+\1_rgb8_increase_red
 	add.l	a2,d0			; Rotanteil erhöhen
 	cmp.l	d3,d0
-	blt.s	\1_check_green_nibble
+	blt.s	\1_rgb8_check_green
 	move.l	d3,d0			; Rotanteil Zielwert
-	bra.s	\1_matched_red
+	bra.s	\1_rgb8_matched_red
 	CNOP 0,4
-\1_decrease_green
+\1_rgb8_decrease_green
 	sub.l	a4,d1			; Grünanteil verringern
 	cmp.l	d4,d1
-	bgt.s	\1_check_blue_nibble
+	bgt.s	\1_rgb8_check_blue
 	move.l	d4,d1			; Grünanteil Zielwert
-	bra.s	\1_matched_green
+	bra.s	\1_rgb8_matched_green
 	CNOP 0,4
-\1_increase_green
+\1_rgb8_increase_green
 	add.l	a4,d1			; Grünanteil erhöhen
 	cmp.l	d4,d1
-	blt.s	\1_check_blue_nibble
+	blt.s	\1_rgb8_check_blue
 	move.l	d4,d1			; Grünanteil Zielwert
-	bra.s	\1_matched_green
+	bra.s	\1_rgb8_matched_green
 	CNOP 0,4
-\1_decrease_blue
+\1_rgb8_decrease_blue
 	sub.w	a5,d2			; Blauanteil verringern
 	cmp.w	d5,d2
-	bgt.s	\1_merge_rgb_nibbles
+	bgt.s	\1_merge_rgb8
 	move.w	d5,d2			; Blauanteil Zielwert
-	bra.s	\1_matched_blue
+	bra.s	\1_rgb8_matched_blue
 	CNOP 0,4
-\1_increase_blue
+\1_rgb8_increase_blue
 	add.w	a5,d2			; Blauanteil erhöhen
 	cmp.w	d5,d2
-	blt.s	\1_merge_rgb_nibbles
+	blt.s	\1_merge_rgb8
 	move.w	d5,d2			; Blauanteil Zielwert
-	bra.s	\1_matched_blue
+	bra.s	\1_rgb8_matched_blue
 	ENDM
 
 
@@ -2581,64 +2632,66 @@ ROTATE_Z_AXIS			MACRO
 	ENDM
 
 
-COPY_COLOR_TABLE_TO_COPPERLIST	MACRO
-; \1 STRING: Labels-Prefix der Routine
-; \2 STRING: Color-Table-Prefix
-; \3 STRUNG: Copperlist-Prefix
-; \4 STRING: Offset in Copperliste High-Werte
-; \5 STRING: Offset in Copperliste Low-Werte
-; \6 LONGWORD: Offset-Base (optional)
+COPY_RGB8_COLORS_TO_COPPERLIST	MACRO
+; Input
+; \1 STRING:	Labels-Prefix der Routine
+; \2 STRING:	Color-Table-Prefix
+; \3 STRUNG:	Copperlist-Prefix
+; \4 STRING:	Offset in Copperliste High-Werte
+; \5 STRING:	Offset in Copperliste Low-Werte
+; \6 LONGWORD:	Offset-Base (optional)
+; Result
 	IFC "","\1"
-		FAIL Makro COPY_COLOR_TABLE_TO_COPPERLIST: Labels-Prefix fehlt
+		FAIL Makro COPY_RGB8_COLORS_TO_COPPERLIST: Labels-Prefix fehlt
 	ENDC
 	IFC "","\2"
-		FAIL Makro COPY_COLOR_TABLE_TO_COPPERLIST: Color-Table-Prefix fehlt
+		FAIL Makro COPY_RGB8_COLORS_TO_COPPERLIST: Color-Table-Prefix fehlt
 	ENDC
 	IFC "","\3"
-		FAIL Makro COPY_COLOR_TABLE_TO_COPPERLIST: Copperlist-Prefix fehlt
+		FAIL Makro COPY_RGB8_COLORS_TO_COPPERLIST: Copperlist-Prefix fehlt
 	ENDC
 	IFC "","\4"
-		FAIL Makro COPY_COLOR_TABLE_TO_COPPERLIST: Offset in Copperliste High-Werte fehlt
+		FAIL Makro COPY_RGB8_COLORS_TO_COPPERLIST: Offset in Copperliste High-Werte fehlt
 	ENDC
 	IFC "","\5"
-		FAIL Makro COPY_COLOR_TABLE_TO_COPPERLIST: Offset in Copperliste Low-Werte fehlt
+		FAIL Makro COPY_RGB8_COLORS_TO_COPPERLIST: Offset in Copperliste Low-Werte fehlt
 	ENDC
 	CNOP 0,4
-\1_copy_color_table
+\1_rgb8_copy_color_table
 	IFNE \3_size2
 		move.l	a4,-(a7)
 	ENDC
-	tst.w	\1_copy_colors_active(a3) ; Kopieren der Farbwerte beendet ?
-	bne.s	\1_no_copy_color_table	; Ja -> verzweige
-	move.w	#$0f0f,d3		; Maske RGB-Nibbles
-	IFGT \1_colors_number-32
-		MOVEF.W \1_start_color*8,d4 ; Color-Bank Farbregisterzähler
+	tst.w	\1_rgb8_copy_colors_active(a3)
+	bne.s	\1_rgb8_copy_color_table_skip2
+	move.w	#GB_NIBBLES_MASK,d3
+	IFGT \1_rgb8_colors_number-32
+		MOVEF.W \1_rgb8_start_color*8,d4 ; Color-Bank Farbregisterzähler
 	ENDC
-	lea	\2_color_table+(\1_color_table_offset*LONGWORD_SIZE)(pc),a0 ; Puffer für Farbwerte
+	lea	\2_rgb8_color_table+(\1_rgb8_color_table_offset*LONGWORD_SIZE)(pc),a0 ; Puffer für Farbwerte
 	move.l	\3_display(a3),a1
 	IFC "","\6"
-		ADDF.W	\4+2,a1
+		ADDF.W	\4+WORD_SIZE,a1
 	ELSE
-		ADDF.W	\6+\4+2,a1
+		ADDF.W	\6+\4+WORD_SIZE,a1
 	ENDC
 	IFNE \3_size1
 		move.l	\3_construction1(a3),a2
 		IFC "","\6"
-			ADDF.W	\4+2,a2
+			ADDF.W	\4+WORD_SIZE,a2
 		ELSE
-			ADDF.W	\6+\4+2,a2
+			ADDF.W	\6+\4+WORD_SIZE,a2
 		ENDC
 	ENDC
 	IFNE \3_size2
 		move.l	\3_construction2(a3),a4
 		IFC "","\6"
-			ADDF.W	\4+2,a4
+			ADDF.W	\4+WORD_SIZE,a4
 		ELSE
-			ADDF.W	\6+\4+2,a4
+			ADDF.W	\6+\4+WORD_SIZE,a4
 		ENDC
 	ENDC
-	MOVEF.W	\1_colors_number-1,d7	; Anzahl der Farben
-\1_copy_color_table_loop
+	MOVEF.W	\1_rgb8_colors_number-1,d7
+\1_rgb8_copy_color_table_loop
 	move.l	(a0)+,d0		; RGB8-Farbwert
 	move.l	d0,d2					
 	RGB8_TO_RGB4_HIGH d0,d1,d3
@@ -2651,32 +2704,32 @@ COPY_COLOR_TABLE_TO_COPPERLIST	MACRO
 	ENDC
 	RGB8_TO_RGB4_LOW d2,d1,d3
 	move.w	d2,\5-\4(a1)		; Low-Bits COLORxx
-	addq.w	#4,a1			; nächstes Farbregister
+	addq.w	#LONGWORD_SIZE,a1	; nächstes Farbregister
 	IFNE \3_size1
 		move.w	d2,\5-\4(a2)	; Low-Bits COLORxx
-		addq.w	#4,a2		; nächstes Farbregister
+		addq.w	#LONGWORD_SIZE,a2 ; nächstes Farbregister
 	ENDC
 	IFNE \3_size2
 		move.w	d2,\5-\4(a4)	; Low-Bits COLORxx
-		addq.w	#4,a4		; nächstes Farbregister
+		addq.w	#LONGWORD_SIZE,a4 ; nächstes Farbregister
 	ENDC
-	IFGT \1_colors_number-32
-		addq.b	#1*8,d4		; Farbregister-Zähler erhöhen
-		bne.s	\1_no_restart_color_bank ; Nein -> verzweige
-		addq.w	#4,a1		; CMOVE überspringen
+	IFGT \1_rgb8_colors_number-32
+		addq.b	#1<<3,d4	; Farbregister-Zähler erhöhen
+		bne.s	\1_rgb8_copy_color_table_skip1
+		addq.w	#LONGWORD_SIZE,a1 ; CMOVE überspringen
 		IFNE \3_size1
-			addq.w	#4,a2	; CMOVE überspringen
+			addq.w	#LONGWORD_SIZE,a2 ; CMOVE überspringen
 		ENDC
 		IFNE \3_size2
-			addq.w	#4,a4	; CMOVE überspringen
+			addq.w	#LONGWORD_SIZE,a4 ; CMOVE überspringen
 		ENDC
-\1_no_restart_color_bank
+\1_rgb8_copy_color_table_skip1
 	ENDC
-	dbf	d7,\1_copy_color_table_loop
-	tst.w	\1_colors_counter(a3)	; Fading beendet ?
-	bne.s	\1_no_copy_color_table	; Nein -> verzweige
-	move.w	#FALSE,\1_copy_colors_active(a3) ; Kopieren beendet
-\1_no_copy_color_table
+	dbf	d7,\1_rgb8_copy_color_table_loop
+	tst.w	\1_rgb8_colors_counter(a3)
+	bne.s	\1_rgb8_copy_color_table_skip2
+	move.w	#FALSE,\1_rgb8_copy_colors_active(a3)
+\1_rgb8_copy_color_table_skip2
 	IFNE \3_size2
 		move.l	(a7)+,a4
 	ENDC
@@ -2685,9 +2738,21 @@ COPY_COLOR_TABLE_TO_COPPERLIST	MACRO
 
 
 INIT_CUSTOM_ERROR_ENTRY		MACRO
-; \1 BYTE_SIGNED: Fehlernummer
-; \2 POINTER: Zeiger auf Fehlertext
-; \3 BYTE_SIGNED: Länge des Fehrlertexts
+; Input
+; \1 BYTE_SIGNED:	Fehlernummer
+; \2 POINTER:		Zeiger auf Fehlertext
+; \3 BYTE_SIGNED:	Länge des Fehrlertexts
+; Result
+	IFC "","\1"
+		FAIL Makro INIT_CUSTOM_ERROR_ENTRY: Fehlernummer fehlt
+	ENDC
+	IFC "","\2"
+		FAIL Makro INIT_CUSTOM_ERROR_ENTRY: Zeiger auf Fehlertext fehlt
+	ENDC
+	IFC "","\3"
+		FAIL Makro INIT_CUSTOM_ERROR_ENTRY: Länge des Fehlertextes fehlt
+	ENDC
+
 	moveq	#\1-1,d0
 	lea	\2(pc),a1
 	move.l	a1,(a0,d0.w*8)

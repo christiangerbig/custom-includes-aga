@@ -92,7 +92,7 @@ COP_INIT_PLAYFIELD_REGISTERS	MACRO
 	ENDC
 	CNOP 0,4
 	IFC "","\3"
-\1_init_playfield_registers
+\1_init_playfield_props
 		IFC "","\2"
 			COP_MOVEQ diwstrt_bits,DIWSTRT
 			COP_MOVEQ diwstop_bits,DIWSTOP
@@ -148,7 +148,7 @@ COP_INIT_PLAYFIELD_REGISTERS	MACRO
 			ENDC
 		ENDC
 	ELSE
-\1_\3_init_playfield_registers
+\1_\3_init_playfield_props
 		COP_MOVEQ \3_ddfstrt_bits,DDFSTRT
 		COP_MOVEQ \3_ddfstop_bits,DDFSTOP
 		IFC "TRIGGERBITPLANES","\4"
@@ -176,14 +176,14 @@ COP_INIT_BITPLANE_POINTERS	MACRO
 		FAIL Makro COP_INIT_BITPLANE_POINTERS: Labels-Prefix fehlt
 	ENDC
 	CNOP 0,4
-\1_init_bitplane_pointers
+\1_init_plane_ptrs
 	MOVEF.W	BPL1PTH,d0
 	moveq	#(pf_depth*2)-1,d7	; Anzahl der Bitplanes
-\1_init_bitplane_pointers_loop
+\1_init_plane_ptrs_loop
 	move.w	d0,(a0)			; BPLxPTH/L
 	addq.w	#2,d0			; nächstes Register
 	addq.w	#4,a0			; nächster Eintrag in CL
-	dbf	d7,\1_init_bitplane_pointers_loop
+	dbf	d7,\1_init_plane_ptrs_loop
 	rts
 	ENDM
 
@@ -205,32 +205,32 @@ COP_SET_BITPLANE_POINTERS	MACRO
 		FAIL Makro COP_SET_BITPLANE_POINTERS: Anzahl der Bitplanes Playfield1 fehlt
 	ENDC
 	CNOP 0,4
-\1_set_bitplane_pointers
+\1_set_plane_ptrs
 	IFC "","\4"
 		IFC "","\5"
 			move.l	\1_\2(a3),a0
 			ADDF.W	\1_BPL1PTH+2,a0
 			move.l	pf1_display(a3),a1 ; Zeiger auf erste Plane
 			moveq	#\3-1,d7 ; Anzahl der Bitplanes
-\1_set_bitplane_pointers_loop
+\1_set_plane_ptrs_loop
 			move.w	(a1)+,(a0) ; High-Wert
 			addq.w	#8,a0	; nächter Playfieldzeiger
 			move.w	(a1)+,4-8(a0) ; Low-Wert
-			dbf	d7,\1_set_bitplane_pointers_loop
+			dbf	d7,\1_set_plane_ptrs_loop
 		ELSE
 			move.l	\1_\2(a3),a0
 			ADDF.W	\1_BPL1PTH+2,a0
 			move.l	pf1_display(a3),a1 ; Zeiger auf erste Plane
 			MOVEF.L	(\5/8)+(\6*pf1_plane_width*pf1_depth3),d1
 			moveq	#\3-1,d7 ; Anzahl der Bitplanes
-\1_set_bitplane_pointers_loop
+\1_set_plane_ptrs_loop
 			move.l	(a1)+,d0
 			add.l	d1,d0
 			move.w	d0,4(a0) ; BPLxPTL
 			swap	d0	; High
 			move.w	d0,(a0)	; BPLxPTH
 			addq.w	#8,a0
-			dbf	d7,\1_set_bitplane_pointers_loop
+			dbf	d7,\1_set_plane_ptrs_loop
 		ENDC
 	ELSE
 		move.l	\1_\2(a3),a0
@@ -240,20 +240,20 @@ COP_SET_BITPLANE_POINTERS	MACRO
 
 ; ** Zeiger auf Playfield 1 eintragen **
 		moveq	#\3-1,d7	; Anzahl der Bitplanes
-\1_set_bitplane_pointers_loop1
+\1_set_plane_ptrs_loop1
 		move.w	(a2)+,(a0)	; BPLxPTH
 		ADDF.W	16,a0		; übernächter Playfieldzeiger
 		move.w	(a2)+,4-16(a0)	; BPLxPTL
-		dbf	d7,\1_set_bitplane_pointers_loop1
+		dbf	d7,\1_set_plane_ptrs_loop1
 
 ; ** Zeiger auf Playfield 2 eintragen **
 		move.l	pf2_display(a3),a2 ; Zeiger auf erste Plane
 		moveq	#\4-1,d7	; Anzahl der Bitplanes
-\1_set_bitplane_pointers_loop2
+\1_set_plane_ptrs_loop2
 		move.w	(a2)+,(a1)	; BPLxPTH
 		ADDF.W	16,a1		; übernächter Playfieldzeiger
 		move.w	(a2)+,4-16(a1)	; BPLxPTL
-		dbf	d7,\1_set_bitplane_pointers_loop2
+		dbf	d7,\1_set_plane_ptrs_loop2
 	ENDC
 	rts
 	ENDM
@@ -265,14 +265,14 @@ COP_INIT_SPRITE_POINTERS	MACRO
 		FAIL Makro COP_INIT_SPRITE_POINTERS: Labels-Prefix fehlt
 	ENDC
 	CNOP 0,4
-\1_init_sprite_pointers
+\1_init_sprite_ptrs
 	move.w	#SPR0PTH,d0
 	moveq	#(spr_number*2)-1,d7	; Anzahl der Sprites
-\1_init_sprite_pointers_loop
+\1_init_sprite_ptrs_loop
 	move.w	d0,(a0)			; SPRxPTH/L
 	addq.w	#2,d0			; nächstes Register
 	addq.w	#4,a0			; nächster Eintrag in CL
-	dbf	d7,\1_init_sprite_pointers_loop
+	dbf	d7,\1_init_sprite_ptrs_loop
 	rts
 	ENDM
 
@@ -292,21 +292,21 @@ COP_SET_SPRITE_POINTERS		MACRO
 		FAIL Makro COP_SET_SPRITE_POINTERS: Anzahl der Sprites fehlt
 	ENDC
 	CNOP 0,4
-\1_set_sprite_pointers
+\1_set_sprite_ptrs
 	move.l	\1_\2(a3),a0
 	IFC "","\4"
-		lea	spr_pointers_display(pc),a1 ; Zeiger auf Sprites
+		lea	spr_ptrs_display(pc),a1 ; Zeiger auf Sprites
 		ADDF.W	\1_SPR0PTH+2,a0
 	ELSE
-		lea	spr_pointers_display+(\4*4)(pc),a1 ; Zeiger auf Sprites + Index
+		lea	spr_ptrs_display+(\4*4)(pc),a1 ; Zeiger auf Sprites + Index
 		ADDF.W	\1_SPR\3PTH+2,a0
 	ENDC
 	moveq	#\3-1,d7		; Anzahl der Sprites
-\1_set_sprite_pointers_loop
+\1_set_sprite_ptrs_loop
 	move.w	(a1)+,(a0)		; SPRxPTH
 	addq.w	#8,a0			; nächter Spritezeiger
 	move.w	(a1)+,4-8(a0)		; SPRxPTL
-	dbf	d7,\1_set_sprite_pointers_loop
+	dbf	d7,\1_set_sprite_ptrs_loop
 	rts
 	ENDM
 
@@ -382,19 +382,19 @@ COP_INIT_COLOR00_REGISTERS	MACRO
 		FAIL Makro COP_INIT_COLOR00_REGISTERS: Labels-Prefix fehlt
 	ENDC
 	CNOP 0,4
-\1_init_color00_registers
+\1_init_color00
 	move.l	#(((\1_vstart1<<24)|(((\1_hstart1/4)*2)<<16))|$10000)|$fffe,d0 ; WAIT-Befehl
-	move.l	#(BPLCON3<<16)+bplcon3_bits1,d1 ; High-Werte
-	move.l	#(COLOR00<<16)+color00_high_bits,d2
-	move.l	#(BPLCON3<<16)+bplcon3_bits2,d3 ; Low-RGB-Werte
-	move.l	#(COLOR00<<16)+color00_low_bits,d4
+	move.l	#(BPLCON3<<16)|bplcon3_bits1,d1 ; High-Werte
+	move.l	#(COLOR00<<16)|color00_high_bits,d2
+	move.l	#(BPLCON3<<16)|bplcon3_bits2,d3 ; Low-RGB-Werte
+	move.l	#(COLOR00<<16)|color00_low_bits,d4
 	IFC "YWRAP","\2"
 		move.l	#(((CL_Y_WRAP<<24)|(((\1_hstart1/4)*2)<<16))|$10000)|$fffe,d5 ; WAIT-Befehl
 	ENDC
 	moveq	#1,d6
 	ror.l	#8,d6			; $01000000 Additionswert
 	MOVEF.W	\1_display_y_size-1,d7	; Anzahl der Zeilen
-\1_init_color00_registers_loop
+\1_init_color00_loop
 	move.l	d0,(a0)+		; WAIT x,y
 	move.l	d1,(a0)+		; High-Werte
 	move.l	d2,(a0)+		; COLOR00
@@ -405,14 +405,14 @@ COP_INIT_COLOR00_REGISTERS	MACRO
 		bne.s	no_patch_copperlist2 ; Nein -> verzweige
 patch_copperlist2
 		COP_WAIT CL_X_WRAP,CL_Y_WRAP ; Copperliste patchen
-		bra.s	 \1_init_color00_registers_skip
+		bra.s	 \1_init_color00_skip
 		CNOP 0,4
 no_patch_copperlist2
 		COP_MOVEQ TRUE,NOOP
-\1_init_color00_registers_skip
+\1_init_color00_skip
 	ENDC
 	add.l	d6,d0			; nächste Zeile
-	dbf	d7,\1_init_color00_registers_loop
+	dbf	d7,\1_init_color00_loop
 	rts
 	ENDM
 
@@ -476,7 +476,7 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN	MACRO
 		FAIL Makro COP_INIT_BPLCON4_CHUNKY_SCREEN: Boolean zu Hintergrundeffekt fehlt
 	ENDC
 	CNOP 0,4
-\1_init_bplcon4_registers
+\1_init_bplcon4
 	IFNE \8
 		move.l	#(((\3<<24)|(((\2/4)*2)<<16))|$10000)|$fffe,d0 ; WAIT-Befehl
 		move.l	#(BPLCON4<<16)|(bplcon4_bits&$00ff),d1
@@ -494,7 +494,7 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN	MACRO
 		moveq	#1,d3
 		ror.l	#8,d3		; Y-Additionswert $01000000
 		MOVEF.W \5-1,d7		; Anzahl der Zeilen
-\1_init_bplcon4_registers_loop1
+\1_init_bplcon4_loop1
 		move.l	d0,(a0)+	; WAIT x,y
 		IFEQ \6
 			IFC "OVERSCAN","\9"
@@ -507,34 +507,34 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN	MACRO
 			ENDC
 		ENDC
 		moveq	#(\4/8)-1,d6	; Anzahl der Spalten
-\1_init_bplcon4_registers_loop2
+\1_init_bplcon4_loop2
 		move.l	d1,(a0)+	; BPLCON4
-		dbf	d6,\1_init_bplcon4_registers_loop2
+		dbf	d6,\1_init_bplcon4_loop2
 		add.l	d3,d0		; nächste Zeile
-		dbf	d7,\1_init_bplcon4_registers_loop1
+		dbf	d7,\1_init_bplcon4_loop1
 		rts
 	ELSE
 		move.l	a4,-(a7)
 		move.l	#(((\3<<24)|(((\2/4)*2)<<16))|$10000)|$fffe,d0 ; WAIT-Befehl
 		IFEQ \7
-			move.l	#(BPLCON3<<16)+bplcon3_bits3,d1 ; High-RGB-Werte
+			move.l	#(BPLCON3<<16)|bplcon3_bits3,d1 ; High-RGB-Werte
 		ELSE
-			move.l	#(BPLCON3<<16)+bplcon3_bits1,d1 ; High-RGB-Werte
+			move.l	#(BPLCON3<<16)|bplcon3_bits1,d1 ; High-RGB-Werte
 		ENDC
 		IFEQ \7
-			move.l	#(COLOR31<<16)+color00_high_bits,a2
+			move.l	#(COLOR31<<16)|color00_high_bits,a2
 		ELSE
-			move.l	#(COLOR00<<16)+color00_high_bits,a2
+			move.l	#(COLOR00<<16)|color00_high_bits,a2
 		ENDC
 		IFEQ \7
-			move.l	#(COLOR31<<16)+color00_low_bits,a4
+			move.l	#(COLOR31<<16)|color00_low_bits,a4
 		ELSE
-			move.l	#(COLOR00<<16)+color00_low_bits,a4
+			move.l	#(COLOR00<<16)|color00_low_bits,a4
 		ENDC
 		IFEQ \7
-			move.l	#(BPLCON3<<16)+bplcon3_bits4,d3 ; Low-RGB-Werte
+			move.l	#(BPLCON3<<16)|bplcon3_bits4,d3 ; Low-RGB-Werte
 		ELSE
-			move.l	#(BPLCON3<<16)+bplcon3_bits2,d3 ; Low-RGB-Werte
+			move.l	#(BPLCON3<<16)|bplcon3_bits2,d3 ; Low-RGB-Werte
 		ENDC
 		move.l	#(BPLCON4<<16)|(bplcon4_bits&$00ff),d4
 		IFEQ \6
@@ -551,7 +551,7 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN	MACRO
 		moveq	#1,d5
 		ror.l	#8,d5		; Y-Additionswert $01000000
 		MOVEF.W	\5-1,d7		; Anzahl der Zeilen
-\1_init_bplcon4_registers_loop1
+\1_init_bplcon4_loop1
 		move.l	d0,(a0)+	; WAIT x,y
 		move.l	d1,(a0)+	; High-Werte
 		move.l	a2,(a0)+	; COLOR31/00
@@ -568,11 +568,11 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN	MACRO
 			ENDC
 		ENDC
 		moveq	#(\4/8)-1,d6	; Anzahl der Spalten
-\1_init_bplcon4_registers_loop2
+\1_init_bplcon4_loop2
 		move.l	d4,(a0)+	; BPLCON4
-		dbf	d6,\1_init_bplcon4_registers_loop2
+		dbf	d6,\1_init_bplcon4_loop2
 		add.l	d5,d0		; nächste Zeile
-		dbf	d7,\1_init_bplcon4_registers_loop1
+		dbf	d7,\1_init_bplcon4_loop1
 		move.l	(a7)+,a4
 		rts
 	ENDC
@@ -602,24 +602,24 @@ COP_INIT_BPLCON1_CHUNKY_SCREEN	MACRO
 		FAIL Makro COP_INIT_BPLCON1_CHUNKY_SCREEN: Höhe in Zeilen fehlt
 	ENDC
 	CNOP 0,4
-\1_init_bplcon1_registers
+\1_init_bplcon1s
 	move.l	#(((\3<<24)|(((\2/4)*2)<<16))|$10000)|$fffe,d0 ;WAIT-Befehl
 	IFC "","\6"
-		move.l	#(BPLCON1<<16)+bplcon1_bits,d1
+		move.l	#(BPLCON1<<16)|bplcon1_bits,d1
 	ELSE
 		move.l	#(BPLCON1<<16)|\6,d1
 	ENDC
 	moveq	 #1,d3
 	ror.l	 #8,d3							;Y-Additionswert $01000000
 	MOVEF.W \5-1,d7						;Anzahl der Zeilen
-\1_init_bplcon1_registers_loop1
+\1_init_bplcon1s_loop1
 	move.l	d0,(a0)+					 ;WAIT x,y
 	moveq	 #(\4/8)-1,d6			 ;Anzahl der Spalten
-\1_init_bplcon1_registers_loop2
+\1_init_bplcon1s_loop2
 	move.l	d1,(a0)+					 ;BPLCON1
-	dbf		 d6,\1_init_bplcon1_registers_loop2
+	dbf		 d6,\1_init_bplcon1s_loop2
 	add.l	 d3,d0							;nächste Zeile
-	dbf		 d7,\1_init_bplcon1_registers_loop1
+	dbf		 d7,\1_init_bplcon1s_loop1
 	rts
 	ENDM
 
@@ -746,33 +746,33 @@ CONVERT_IMAGE_TO_RGB4_CHUNKY	MACRO
 	moveq	#0,d0			; Farbnummer
 	IFGE \1_image_depth-1
 		btst	d5,(a0)		; Bit n in Bitplane0 gesetzt ?
-		beq.s	\1_no_bitplane0	; Nein -> verzweige
+		beq.s	\1_no_plane0	; Nein -> verzweige
 		addq.w	#1,d0		; COLOR01
-\1_no_bitplane0
+\1_no_plane0
 	ENDC
 	IFGE \1_image_depth-2
 		btst	d5,\1_image_plane_width*1(a0) ; Bit n in Bitplane1 gesetzt ?
-		beq.s	\1_no_bitplane1	; Nein -> verzweige
+		beq.s	\1_no_plane1	; Nein -> verzweige
 		addq.w	#2,d0		; COLOR02
-\1_no_bitplane1
+\1_no_plane1
 	ENDC
 	IFGE \1_image_depth-3
 		btst	d5,\1_image_plane_width*2(a0) ; Bit n in Bitplane2 gesetzt ?
-		beq.s	\1_no_bitplane2	; Nein -> verzweige
+		beq.s	\1_no_plane2	; Nein -> verzweige
 		addq.w	#4,d0		; COLOR04
-\1_no_bitplane2
+\1_no_plane2
 	ENDC
 	IFGE \1_image_depth-4
 		btst	d5,\1_image_plane_width*3(a0) ; Bit n in Bitplane3 gesetzt ?
-		beq.s	\1_no_bitplane3	; Nein -> verzweige
+		beq.s	\1_no_plane3	; Nein -> verzweige
 		addq.w	#8,d0		; COLOR08
-\1_no_bitplane3
+\1_no_plane3
 	ENDC
 	IFEQ \1_image_depth-5
 		btst	d5,\1_image_plane_width*4(a0) ;	Bit n in Bitplane4 gesetzt ?
-		beq.s	\1_no_bitplane4	; Nein -> verzweige
+		beq.s	\1_no_plane4	; Nein -> verzweige
 		add.w	d1,d0		; COLOR16
-\1_no_bitplane4
+\1_no_plane4
 	ENDC
 	move.w	(a1,d0.l*2),(a2)+	; RGB4-Farbwert aufgrund der ermittelten Farbnummer kopieren
 	dbf	d5,\1_convert_image_data_loop3
@@ -822,29 +822,29 @@ CONVERT_IMAGE_TO_HAM6_CHUNKY	MACRO
 \1_convert_image_data_loop3
 	moveq	#0,d0			; Farbnummer
 	btst	d5,(a0)			; Bit n in Bitplane0 gesetzt ?
-	beq.s	\1_no_bitplane0		; Nein -> verzweige
+	beq.s	\1_no_plane0		; Nein -> verzweige
 	addq.w	#1,d0			; Farbnummer erhöhen
-\1_no_bitplane0
+\1_no_plane0
 	btst	d5,\1_image_plane_width*1(a0) ; Bit n in Bitplane1 gesetzt ?
-	beq.s	\1_no_bitplane1		; Nein -> verzweige
+	beq.s	\1_no_plane1		; Nein -> verzweige
 	addq.w	#2,d0			; Farbnummer erhöhen
-\1_no_bitplane1
+\1_no_plane1
 	btst	d5,\1_image_plane_width*2(a0) ; Bit n in Bitplane2 gesetzt ?
-	beq.s	\1_no_bitplane2		; Nein -> verzweige
+	beq.s	\1_no_plane2		; Nein -> verzweige
 	addq.w	#4,d0			; Farbnummer erhöhen
-\1_no_bitplane2
+\1_no_plane2
 	btst	d5,\1_image_plane_width*3(a0) ;Bit n in Bitplane3 gesetzt ?
-	beq.s	\1_no_bitplane3		; Nein -> verzweige
+	beq.s	\1_no_plane3		; Nein -> verzweige
 	addq.w	#8,d0			; Farbnummer erhöhen
-\1_no_bitplane3
+\1_no_plane3
 	btst	d5,\1_image_plane_width*4(a0) ;Bit n in Bitplane4 gesetzt ?
-	beq.s	\1_no_bitplane4		; Nein -> verzweige
+	beq.s	\1_no_plane4		; Nein -> verzweige
 	add.w	a4,d0			; Farbnummer erhöhen
-\1_no_bitplane4
+\1_no_plane4
 	btst	d5,\1_image_plane_width*5(a0) ;Bit n in Bitplane5 gesetzt ?
-	beq.s	\1_no_bitplane5		; Nein -> verzweige
+	beq.s	\1_no_plane5		; Nein -> verzweige
 	add.w	a5,d0			; Farbnummer erhöhen
-\1_no_bitplane5
+\1_no_plane5
 	move.l	d0,d1			; Farbnummer retten
 	and.b	d3,d1			; Bit 4 oder 5 gesetzt ?
 	bne.s	\1_check_blue_nibble	; Ja -> verzweige
@@ -905,7 +905,7 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY	MACRO
 \1_convert_image_data
 	movem.l a4-a6,-(a7)
 	moveq	 #16,d3						 ;COLOR16
-	move.w	#$0f0f,d4					;Maske RGB-Nibbles
+	move.w	#GB_NIBBLES_MASK,d4					;Maske RGB-Nibbles
 	lea		 \1_image_data,a0	 ;Quellbild
 	lea		 \1_image_color_table(pc),a1 ;Farbwerte des Playfieldes
 	IFC "","\2"
@@ -925,62 +925,62 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY	MACRO
 	moveq	 #0,d0							;Farbnummer
 	IFGE \1_image_depth-1
 		btst		d5,(a0)					;Bit n in Bitplane0 gesetzt ?
-		beq.s	 \1_no_bitplane0	;Nein -> verzweige
+		beq.s	 \1_no_plane0	;Nein -> verzweige
 		addq.w	#1,d0						;Farbnummer erhöhen
-\1_no_bitplane0
+\1_no_plane0
 	ENDC
 	IFGE \1_image_depth-2
 		btst		d5,\1_image_plane_width*1(a0) ;Bit n in Bitplane1 gesetzt ?
-		beq.s	 \1_no_bitplane1	;Nein -> verzweige
+		beq.s	 \1_no_plane1	;Nein -> verzweige
 		addq.w	#2,d0						;Farbnummer erhöhen
-\1_no_bitplane1
+\1_no_plane1
 	ENDC
 	IFGE \1_image_depth-3
 		btst		d5,\1_image_plane_width*2(a0) ;Bit n in Bitplane2 gesetzt ?
-		beq.s	 \1_no_bitplane2	;Nein -> verzweige
+		beq.s	 \1_no_plane2	;Nein -> verzweige
 		addq.w	#4,d0						;Farbnummer erhöhen
-\1_no_bitplane2
+\1_no_plane2
 	ENDC
 	IFGE \1_image_depth-4
 		btst		d5,\1_image_plane_width*3(a0) ;Bit n in Bitplane3 gesetzt ?
-		beq.s	 \1_no_bitplane3	;Nein -> verzweige
+		beq.s	 \1_no_plane3	;Nein -> verzweige
 		addq.w	#8,d0						;Farbnummer erhöhen
-\1_no_bitplane3
+\1_no_plane3
 	ENDC
 	IFGE \1_image_depth-5
 		btst		d5,\1_image_plane_width*4(a0) ;Bit n in Bitplane4 gesetzt ?
-		beq.s	 \1_no_bitplane4	;Nein -> verzweige
+		beq.s	 \1_no_plane4	;Nein -> verzweige
 		add.w	 d3,d0						;Farbnummer erhöhen
-\1_no_bitplane4
+\1_no_plane4
 	ENDC
 	IFGE \1_image_depth-6
 		btst		d5,\1_image_plane_width*5(a0) ;Bit n in Bitplane5 gesetzt ?
-		beq.s	 \1_no_bitplane5	;Nein -> verzweige
+		beq.s	 \1_no_plane5	;Nein -> verzweige
 		add.w	 a4,d0						;Farbnummer erhöhen
-\1_no_bitplane5
+\1_no_plane5
 	ENDC
 	IFGE \1_image_depth-7
 		btst		d5,\1_image_plane_width*6(a0) ;Bit n in Bitplane6 gesetzt ?
-		beq.s	 \1_no_bitplane6	;Nein -> verzweige
+		beq.s	 \1_no_plane6	;Nein -> verzweige
 		add.w	 a5,d0						;Farbnummer erhöhen
-\1_no_bitplane6
+\1_no_plane6
 	ENDC
 	IFEQ \1_image_depth-8
-		btst		d5,\1_image_plane_width*7(a0) ;Bit n in Bitplane7 gesetzt ?
-		beq.s	 \1_no_bitplane7	;Nein -> verzweige
-		add.w	 a6,d0						Farbnummer erhöhen
-\1_no_bitplane7
+		btst		d5,\1_image_plane_width*7(a0) ; Bit n in Bitplane7 gesetzt ?
+		beq.s	 \1_no_plane7 ; Nein -> verzweige
+		add.w	 a6,d0		; Farbnummer erhöhen
+\1_no_plane7
 	ENDC
-	move.l	(a1,d0.l*4),d0		 ;RGB8-Farbwert lesen
+	move.l	(a1,d0.l*4),d0		; RGB8-Farbwert lesen
 	move.l	d0,d2							
 	RGB8_TO_RGB4_HIGH d0,d1,d4
-	move.w	d0,(a2)+					 ;High-Nibble
+	move.w	d0,(a2)+		; High-Nibble
 	RGB8_TO_RGB4_LOW d2,d1,d4
-	move.w	d2,(a2)+					 ;Low-Nibble
+	move.w	d2,(a2)+		; Low-Nibble
 	dbf		 d5,\1_convert_image_loop3
-	addq.w	#1,a0							;Nächstes Byte in Quellbild
+	addq.w	#1,a0			; Nächstes Byte in Quellbild
 	dbf		 d6,\1_convert_image_loop2
-	add.l	 #\1_image_plane_width*(\1_image_depth-1),a0 ;restliche Bitplanes überspringen
+	add.l	 #\1_image_plane_width*(\1_image_depth-1),a0 ; restliche Bitplanes überspringen
 	dbf		 d7,\1_convert_image_loop1
 	movem.l (a7)+,a4-a6
 	rts
@@ -1004,7 +1004,7 @@ CONVERT_IMAGE_TO_HAM8_CHUNKY	MACRO
 \1_convert_image_data
 	movem.l	a3-a6,-(a7)
 	MOVEF.W	$c0,d3			; Maske für HAM-Bits
-	move.w	#$0f0f,d4		; RGB4-Nibble-Maske
+	move.w	#GB_NIBBLES_MASK,d4		; RGB4-Nibble-Maske
 	lea	\1_image_data,a0	; Quellbild
 	lea	\1_image_color_table(pc),a1 ; Farbwerte des Playfieldes
 	move.l	a7,save_a7(a3)
@@ -1027,37 +1027,37 @@ CONVERT_IMAGE_TO_HAM8_CHUNKY	MACRO
 \1_translate_image_data_loop3
 	moveq	#0,d0			; Farbnummer
 	btst	d5,(a0)			; Bit n in Bitplane0 gesetzt ?
-	beq.s	\1_no_bitplane0		; Nein -> verzweige
+	beq.s	\1_no_plane0		; Nein -> verzweige
 	addq.w	#1,d0			; Farbnummer erhöhen
-\1_no_bitplane0
+\1_no_plane0
 	btst	d5,\1_image_plane_width*1(a0) ; Bit n in Bitplane1 gesetzt ?
-	beq.s	\1_no_bitplane1		; Nein -> verzweige
+	beq.s	\1_no_plane1		; Nein -> verzweige
 	addq.w	#2,d0			; Farbnummer erhöhen
-\1_no_bitplane1
+\1_no_plane1
 	btst	d5,\1_image_plane_width*2(a0) ; Bit n in Bitplane2 gesetzt ?
-	beq.s	\1_no_bitplane2		; Nein -> verzweige
+	beq.s	\1_no_plane2		; Nein -> verzweige
 	addq.w	#4,d0			; Farbnummer erhöhen
-\1_no_bitplane2
+\1_no_plane2
 	btst	d5,\1_image_plane_width*3(a0) ; Bit n in Bitplane3 gesetzt ?
-	beq.s	\1_no_bitplane3		; Nein -> verzweige
+	beq.s	\1_no_plane3		; Nein -> verzweige
 	addq.w	#8,d0			; Farbnummer erhöhen
-\1_no_bitplane3
+\1_no_plane3
 	btst	d5,\1_image_plane_width*4(a0) ;Bit n in Bitplane4 gesetzt ?
-	beq.s	\1_no_bitplane4		; Nein -> verzweige
+	beq.s	\1_no_plane4		; Nein -> verzweige
 	add.w	a3,d0			; Farbnummer erhöhen
-\1_no_bitplane4
+\1_no_plane4
 	btst	d5,\1_image_plane_width*5(a0) ; Bit n in Bitplane5 gesetzt ?
-	beq.s	\1_no_bitplane5		; Nein -> verzweige
+	beq.s	\1_no_plane5		; Nein -> verzweige
 	add.w	a4,d0			; Farbnummer erhöhen
-\1_no_bitplane5
+\1_no_plane5
 	btst	d5,\1_image_plane_width*6(a0) ; Bit n in Bitplane6 gesetzt ?
-	beq.s	\1_no_bitplane6		; Nein -> verzweige
+	beq.s	\1_no_plane6		; Nein -> verzweige
 	add.w	a5,d0			; Farbnummer erhöhen
-\1_no_bitplane6
+\1_no_plane6
 	btst	d5,\1_image_plane_width*7(a0) ; Bit n in Bitplane7 gesetzt ?
-	beq.s	\1_no_bitplane7		; Nein -> verzweige
+	beq.s	\1_no_plane7		; Nein -> verzweige
 	add.w	a6,d0			; Farbnummer erhöhen
-\1_no_bitplane7
+\1_no_plane7
 	move.l	d0,d1			; Farbnummer retten
 	and.b	d3,d1			; Bit 6 oder 7 gesetzt ?
 	bne.s	\1_check_blue_nibble	; Ja -> verzweige
@@ -1157,51 +1157,51 @@ CONVERT_IMAGE_TO_BPLCON4_CHUNKY	MACRO
 	ENDC
 	IFGE \1_image_depth-1
 		btst	d5,(a0)		; Bit n in Bitplane0 gesetzt ?
-		beq.s	\1_no_bitplane0	; Nein -> verzweige
+		beq.s	\1_no_plane0	; Nein -> verzweige
 		addq.w	#1,d0		; Switchwert erhöhen
-\1_no_bitplane0
+\1_no_plane0
 	ENDC
 	IFGE \1_image_depth-2
 		btst	d5,\1_image_plane_width*1(a0) ; Bit n in Bitplane1 gesetzt ?
-		beq.s	\1_no_bitplane1	; Nein -> verzweige
+		beq.s	\1_no_plane1	; Nein -> verzweige
 		addq.w	#2,d0		; Switchwert erhöhen
-\1_no_bitplane1
+\1_no_plane1
 	ENDC
 	IFGE \1_image_depth-3
 		btst	d5,\1_image_plane_width*2(a0) ; Bit n in Bitplane2 gesetzt ?
-		beq.s	\1_no_bitplane2	; Nein -> verzweige
+		beq.s	\1_no_plane2	; Nein -> verzweige
 		addq.w	#4,d0		; Switchwert erhöhen
-\1_no_bitplane2
+\1_no_plane2
 	ENDC
 	IFGE \1_image_depth-4
 		btst	d5,\1_image_plane_width*3(a0) ; Bit n in Bitplane3 gesetzt ?
-		beq.s	\1_no_bitplane3	; Nein -> verzweige
+		beq.s	\1_no_plane3	; Nein -> verzweige
 		addq.w	#8,d0		; Switchwert erhöhen
-\1_no_bitplane3
+\1_no_plane3
 	ENDC
 	IFGE \1_image_depth-5
 		btst	d5,\1_image_plane_width*4(a0) ; Bit n in Bitplane4 gesetzt ?
-		beq.s	\1_no_bitplane4	; Nein -> verzweige
+		beq.s	\1_no_plane4	; Nein -> verzweige
 		add.w	d1,d0		; Switchwert erhöhen
-\1_no_bitplane4
+\1_no_plane4
 	ENDC
 	IFGE \1_image_depth-6
 		btst	d5,\1_image_plane_width*5(a0) ; Bit n in Bitplane5 gesetzt ?
-		beq.s	\1_no_bitplane5	; Nein -> verzweige
+		beq.s	\1_no_plane5	; Nein -> verzweige
 		add.w	d2,d0		; Switchwert erhöhen
-\1_no_bitplane5
+\1_no_plane5
 	ENDC
 	IFGE \1_image_depth-7
 		btst	d5,\1_image_plane_width*6(a0) ; Bit n in Bitplane6 gesetzt ?
-		beq.s	\1_no_bitplane6	; Nein -> verzweige
+		beq.s	\1_no_plane6	; Nein -> verzweige
 		add.w	d3,d0		; Switchwert erhöhen
-\1_no_bitplane6
+\1_no_plane6
 	ENDC
 	IFEQ \1_image_depth-8
 		btst	d5,\1_image_plane_width*7(a0) ; Bit n in Bitplane7 gesetzt ?
-		beq.s	\1_no_bitplane7	; Nein -> verzweige
+		beq.s	\1_no_plane7	; Nein -> verzweige
 		add.w	d4,d0		; Switchwert erhöhen
-\1_no_bitplane7
+\1_no_plane7
 	ENDC
 	IFC "B","\0"
 		move.b	d0,(a1)+	; Switchwert eintragen
@@ -1585,7 +1585,7 @@ CLEAR_BPLCON4_CHUNKY_SCREEN	MACRO
 		move.l	#(BC0F_DEST|ANBNC|ANBC|ABNC|ABC)<<16,BLTCON0-DMACONR(a6) ; Minterm D=A
 		moveq	#FALSE,d0
 		move.l	d0,BLTAFWM-DMACONR(a6) ; Maske aus
-		ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
+		ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
 		move.l	a0,BLTDPT-DMACONR(a6) ; Ziel = Copperliste
 		moveq	#2,d0
 		move.w	d0,BLTDMOD-DMACONR(a6) ; D-Mod
@@ -1605,7 +1605,7 @@ CLEAR_BPLCON4_CHUNKY_SCREEN	MACRO
 		move.l	#(BC0F_DEST|ANBNC|ANBC|ABNC|ABC)<<16,BLTCON0-DMACONR(a6) ; Minterm D=A
 		moveq	#FALSE,d0
 		move.l	d0,BLTAFWM-DMACONR(a6) ; Maske aus
-		ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
+		ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
 		move.l	a0,BLTDPT-DMACONR(a6) ; Ziel = Copperliste
 		moveq	#2,d0
 		move.w	d0,BLTDMOD-DMACONR(a6) ; D-Mod
@@ -1653,7 +1653,7 @@ restore_first_copperlist
 					moveq	#-2,d0 ; 2. Wort des WAIT-Befehls
 					MOVEF.L	\2_\4_size*16,d1
 					move.l	\2_\3(a3),a0
-					ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
+					ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
 					moveq	#(\2_display_y_size/16)-1,d7
 restore_first_copperlist_loop
 					move.w	d0,(a0)	; WAIT-Befehl wieder herstellen
@@ -1681,7 +1681,7 @@ restore_first_copperlist_loop
 					moveq	#-2,d0 ; 2. Wort des WAIT-Befehls
 					MOVEF.L	\2_\4_size*32,d1
 					move.l	\2_\3(a3),a0
-					ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
+					ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
 					moveq	#(\2_display_y_size/32)-1,d7
 restore_first_copperlist_loop
 					move.w	d0,(a0)	; WAIT-Befehl wieder herstellen
@@ -1726,7 +1726,7 @@ restore_first_copperlist_loop
 			IFC "","\7"
 				move.l	\2_\3(a3),a0
 				WAITBLIT
-				ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
+				ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
 				move.l	a0,BLTDPT-DMACONR(a6) ;Ziel = Copperliste
 				move.w	#\2_\4_size-\1_restore_blit_width,BLTDMOD-DMACONR(a6) ; D-Mod
 				moveq	#-2,d0 ; 2. Wort des Wait-Befehls
@@ -1744,7 +1744,7 @@ restore_second_copperlist
 					moveq	#-2,d0 ;2. Wort des WAIT-Befehls
 					MOVEF.L	\2_\4_size*16,d1
 					move.l	\2_\3(a3),a0
-					ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
+					ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
 					moveq	#(\2_display_y_size/16)-1,d7
 restore_second_copperlist_loop
 					move.w	d0,(a0) ; WAIT-Befehl wieder herstellen
@@ -1772,7 +1772,7 @@ restore_second_copperlist_loop
 					moveq	 #-2,d0						 ;2. Wort des WAIT-Befehls
 					MOVEF.L \2_\4_size*32,d1
 					move.l	\2_\3(a3),a0 
-					ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
+					ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
 					moveq	 #(\2_display_y_size/32)-1,d7
 restore_second_copperlist_loop
 					move.w	d0,(a0)						;WAIT-Befehl wieder herstellen
@@ -1817,10 +1817,10 @@ restore_second_copperlist_loop
 			IFC "","\7"
 				move.l	\2_\3(a3),a0	 
 				WAITBLIT
-				ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+2,a0
+				ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
 				move.l	a0,BLTDPT-DMACONR(a6) ; Ziel = Copperliste
 				move.w	#\2_\4_size-\1_restore_blit_width,BLTDMOD-DMACONR(a6) ; D-Mod
-				moveq	#-2,d0				 ; 2. Wort des Wait-Befehls
+				moveq	#-2,d0 ; 2. Wort des Wait-Befehls
 				move.w	d0,BLTADAT-DMACONR(a6) ; Quelle = 2. Wort von CWAIT
 				move.w	#(\1_restore_blit_y_size*64)|(\1_restore_blit_x_size/16),BLTSIZE-DMACONR(a6) ; Anzahl der Zeilen
 				rts
@@ -1871,9 +1871,9 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 	IFC "B","\0"
 		moveq	#\1_bar_height*BYTE_SIZE,d4
 	ENDC
-	lea	\1_yz_coordinates(pc),a0 ; Zeiger auf YZ-Koords
+	lea	\1_yz_coords(pc),a0 ; Zeiger auf YZ-Koords
 	move.l	\2_\3(a3),a2
-	ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_BPLCON4_1+2,a2
+	ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_BPLCON4_1+WORD_SIZE,a2
 	IFC "pc","\7"
 		lea	\1_\6(\7),a5	; Zeiger auf Tabelle mit Switchwerten
 	ENDC
@@ -1958,7 +1958,7 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 	IFC "B","\0"
 		moveq	#\1_bar_height*BYTE_SIZE,d4
 	ENDC
-	lea	\1_yz_coordinates(pc),a0 ; Zeiger auf YZ-Koords
+	lea	\1_yz_coords(pc),a0 ; Zeiger auf YZ-Koords
 	move.l	\2_\3(a3),a2
 	ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_BPLCON4_1+2,a2
 	IFC "pc","\7"

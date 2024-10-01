@@ -1,4 +1,4 @@
-; Datum:	18.09.2024
+; Datum:	26.09.2024
 ; Version:	1.0
 
 
@@ -14,6 +14,8 @@
 	move.l	d0,dos_return_code(a3)
 	bne.s	cleanup_all
 
+	bsr     init_main_variables	; Externe Routine
+
 	IFD USE_CMD_LINE_CHECK
 		bsr	check_command_line ; Externe Routine
 		move.l	d0,dos_return_code(a3)
@@ -25,18 +27,18 @@
 		move.l	d0,dos_return_code(a3)
 		bne.s	cleanup_all
 	ENDC
-	IFD CUSTOM_MEMORY_USED
+	IFD USE_CUSTOM_MEMORY
 		bsr	alloc_custom_memory ; Externe Routine
 		move.l	d0,dos_return_code(a3)
 		bne.s	cleanup_all
 	ENDC
 
-	bsr     init_main_variables	; Externe Routine
 	bsr	init_main		; Externe Routine
 	tst.l	d0
 	bne.s	cleanup_all
 
 	bsr	main			; Externe Routine
+	move.l	d0,dos_return_code(a3)
 
 cleanup_all
 	bsr	cleanup_main		; Externe Routine
@@ -44,7 +46,7 @@ cleanup_all
 	IFNE memory_size
 		bsr	free_memory
 	ENDC
-	IFD CUSTOM_MEMORY_USED
+	IFD USE_CUSTOM_MEMORY
 		bsr	free_custom_memory
 	ENDC
 
@@ -119,7 +121,7 @@ get_output_ok
 		CNOP 0,4
 alloc_memory
 		MOVEF.L	memory_size,d0
-		move.l	#MEMF_CLEAR+MEMF_PUBLIC,d1
+		move.l	#MEMF_CLEAR|MEMF_PUBLIC,d1
 		CALLEXEC AllocMem
 		move.l	d0,memory(a3)
 		bne.s	alloc_memory_ok

@@ -64,9 +64,9 @@ INIT_DIWHIGH_BITS		MACRO
 		FAIL Makro INIT_DIWHIGH_BITS: Label fehlt
 	ENDC
 	IFC "","\2"
-\1 EQU (((display_window_hstop&$100)>>8)*DIWHIGHF_HSTOP8)|(((display_window_vstop&$700)>>8)*DIWHIGHF_VSTOP8)+(((display_window_hstart&$100)>>8)*DIWHIGHF_HSTART8)|((display_window_vstart&$700)>>8)
+\1 EQU (((display_window_hstop&$100)>>8)*DIWHIGHF_HSTOP8)|(((display_window_vstop&$700)>>8)*DIWHIGHF_VSTOP8)|(((display_window_hstart&$100)>>8)*DIWHIGHF_HSTART8)|((display_window_vstart&$700)>>8)
 	ELSE
-\1 EQU (((display_window_hstop&$100)>>8)*DIWHIGHF_HSTOP8)|(((display_window_vstop&$700)>>8)*DIWHIGHF_VSTOP8)+(((display_window_hstart&$100)>>8)*DIWHIGHF_HSTART8)|((display_window_vstart&$700)>>8)|\2
+\1 EQU (((display_window_hstop&$100)>>8)*DIWHIGHF_HSTOP8)|(((display_window_vstop&$700)>>8)*DIWHIGHF_VSTOP8)|(((display_window_hstart&$100)>>8)*DIWHIGHF_HSTART8)|((display_window_vstart&$700)>>8)|\2
 	ENDC
 	ENDM
 
@@ -277,7 +277,7 @@ swap_playfield\*RIGHT(\1,1)
 		IFC "","\4"
 			move.l	cl1_display(a3),a0
 			move.l	\1_construction2(a3),a1
-			ADDF.W	cl1_BPL1PTH+2,a0
+			ADDF.W	cl1_BPL1PTH+WORD_SIZE,a0
 			move.l	\1_display(a3),\1_construction2(a3)
 			move.l	a1,\1_display(a3)
 			moveq	#\1_depth3-1,d7	; Anzahl der Planes
@@ -290,7 +290,7 @@ swap_playfield\*RIGHT(\1,1)_loop
 		ELSE
 			move.l	cl1_display(a3),a0
 			move.l	\1_construction2(a3),a1
-			ADDF.W	cl1_BPL1PTH+2,a0
+			ADDF.W	cl1_BPL1PTH+WORD_SIZE,a0
 			move.l	\1_display(a3),\1_construction2(a3)
 			MOVEF.L (\4/8)+(\5*\1_plane_width*\1_depth3),d1
 			move.l	a1,\1_display(a3)
@@ -298,10 +298,10 @@ swap_playfield\*RIGHT(\1,1)_loop
 swap_playfield\*RIGHT(\1,1)_loop
 			move.l	(a1)+,d0
 			add.l	d1,d0
-			move.w	d0,4(a0) ; BPLxPTL
+			move.w	d0,LONGWORD_SIZE(a0) ; BPLxPTL
 			swap	d0	; High
 			move.w	d0,(a0)	; BPLxPTH
-			addq.w	#8,a0
+			addq.w	#QUADWORD_SIZE,a0
 			dbf	d7,SWAP_PLAYFIELD\*RIGHT(\1,1)_loop
 			rts
 		ENDC
@@ -313,13 +313,13 @@ swap_playfield\*RIGHT(\1,1)_loop
 			move.l	\1_construction2(a3),a2
 			move.l	\1_display(a3),\1_construction1(a3)
 			move.l	a1,\1_construction2(a3)
-			ADDF.W	cl1_BPL1PTH+2,a0	 
+			ADDF.W	cl1_BPL1PTH+WORD_SIZE,a0
 			move.l	a2,\1_display(a3)
 			moveq	#\3-1,d7 ; Anzahl der Planes
 swap_playfield\*RIGHT(\1,1)_loop
 			move.w	(a2)+,(a0) ; BPLxPTH
-			addq.w	#8,a0
-			move.w	(a2)+,4-8(a0) ; BPLxPTL
+			addq.w	#QUADWORD_SIZE,a0
+			move.w	(a2)+,LONGWORD_SIZE-QUADWORD_SIZE(a0) ; BPLxPTL
 			dbf	d7,SWAP_PLAYFIELD\*RIGHT(\1,1)_loop
 			rts
 		ELSE
@@ -329,16 +329,16 @@ swap_playfield\*RIGHT(\1,1)_loop
 			move.l	\1_display(a3),\1_construction1(a3)
 			MOVEF.L (\4/8)+(\5*\1_plane_width*\1_depth3),d1
 			move.l	a1,\1_construction2(a3)
-			ADDF.W	cl1_BPL1PTH+2,a0	 
+			ADDF.W	cl1_BPL1PTH+WORD_SIZE,a0
 			move.l	a2,\1_display(a3)
 			moveq	#\3-1,d7 ; Anzahl der Planes
 swap_playfield\*RIGHT(\1,1)_loop
 			move.l	(a2)+,d0
 			add.l	d1,d0
-			move.w	d0,4(a0) ; BPLxPTL
+			move.w	d0,LONGWORD_SIZE(a0) ; BPLxPTL
 			swap	d0						 ;High
 			move.w	d0,(a0) ; BPLxPTH
-			addq.w	#8,a0
+			addq.w	#QUADWORD_SIZE,a0
 			dbf	d7,SWAP_PLAYFIELD\*RIGHT(\1,1)_loop
 			rts
 		ENDC

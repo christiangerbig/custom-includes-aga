@@ -17,12 +17,12 @@ timer_device_name		DC.B "timer.device",0
 		IFEQ requires_multiscan_monitor
 monitor_request_title		DC.B "System monitor request",0
 			EVEN
-monitor_request_text		DC.B "This demo opens a VGA screen with",ASCII_LINE_FEED
+monitor_request_text_body	DC.B "This demo opens a VGA screen with",ASCII_LINE_FEED
 				DC.B "a horizontal frequency of 31 kHz.",ASCII_LINE_FEED
 				DC.B "Check your monitor to be able",ASCII_LINE_FEED
 				DC.B "to display this video mode.",0
 			EVEN
-monitor_request_gadgets_text	DC.B "Proceed|Quit",0
+monitor_request_text_gadgets	DC.B "Proceed|Quit",0
 			EVEN
 		ENDC
 
@@ -30,18 +30,18 @@ monitor_request_gadgets_text	DC.B "Proceed|Quit",0
 bsdsocket_name			DC.B "bsdsocket.library",0
 			EVEN
 
-tcp_request_title		DC.B "TCP/IP-stack request",0
+tcp_stack_request_title		DC.B "TCP/IP-stack request",0
 			EVEN
-tcp_request_text		DC.B "An active TCP/IP-stack was detected.",ASCII_LINE_FEED
+tcp_stack_request_text_body	DC.B "An active TCP/IP-stack was detected.",ASCII_LINE_FEED
 				DC.B "This may affect the interrupt handling",ASCII_LINE_FEED
 				DC.B "of the demo and freeze it.",ASCII_LINE_FEED
 				DC.B "Please close this application and proceed.",ASCII_LINE_FEED,0
 			EVEN
-tcp_request_gadgets_text DC.B "Proceed|Quit",0
+tcp_stack_request_text_gadgets	DC.B "Proceed|Quit",0
 			EVEN
 		ENDC
 
-degrade_screen_name		DC.B "Degrade screen",0
+pal_screen_name		DC.B "Degrade screen",0
 		EVEN
 
 invisible_window_name		DC.B "Invisible window",0

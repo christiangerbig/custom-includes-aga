@@ -20,7 +20,7 @@ raw_handle			RS.L 1
 raw_buffer			RS.B 1
 
 cpu_flags			RS.W 1
-fast_memory_available_enabled	RS.W 1
+fast_memory_available		RS.W 1
 
 	ELSE
 		IFD PASS_GLOBAL_REFERENCES
@@ -36,8 +36,8 @@ dos_return_code			RS.L 1
 	IFND SYS_TAKEN_OVER
 active_screen			RS.L 1
 active_screen_mode		RS.L 1
-degrade_screen			RS.L 1
-degrade_screen_colors		RS.L 1
+pal_screen			RS.L 1
+pal_screen_colors		RS.L 1
 invisible_window		RS.L 1
 mouse_pointer_data		RS.L 1
 old_sprite_resolution		RS.L 1
@@ -45,8 +45,8 @@ old_sprite_resolution		RS.L 1
 		IFEQ screen_fader_enabled
 sf_screen_color_table		RS.L 1
 sf_screen_color_cache		RS.L 1
-sfi_active			RS.W 1
-sfo_active			RS.W 1
+sfi_rgb32_active		RS.W 1
+sfo_rgb32_active		RS.W 1
 		ENDC
 
 		IFNE cl1_size3

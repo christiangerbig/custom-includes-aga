@@ -264,7 +264,6 @@ error_text_screen_fader
 		 	DC.B "Press any key.",ASCII_LINE_FEED
 error_text_screen_fader_end
 	 		EVEN
-
 		ELSE
 
 error_text_screen1

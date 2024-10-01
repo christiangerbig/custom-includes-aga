@@ -62,7 +62,6 @@ SOFTINT_int_handler
 			move.l	(a7)+,d0
 			bra.s	rt_level_1_int3
 		ENDC
-
 	ENDC
 
 
@@ -169,7 +168,6 @@ CIAA_FLG_int_handler
 			movem.l	(a7)+,d0-d1
 			bra.s	rt_level_2_int5
 		ENDC
-
 	ENDC
 
 
@@ -312,7 +310,6 @@ AUD3_int_handler
 			move.l	(a7)+,d0
 			bra.s	rt_level_4_int4
 		ENDC
-
 	ENDC
 
 
@@ -361,7 +358,6 @@ DSKSYNC_int_handler
 			move.l	(a7)+,d0
 			bra.s	rt_level_5_int2
 		ENDC
-
 	ENDC
 
 
@@ -468,7 +464,6 @@ CIAB_FLG_int_handler
 			movem.l	(a7)+,d0-d1
 			bra.s	rt_level_6_int5
 		ENDC
-
 	ENDC
 
 

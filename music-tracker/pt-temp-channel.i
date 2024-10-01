@@ -38,7 +38,7 @@ n_current_start			RS.L 1
 n_current_length		RS.W 1
 n_current_period		RS.W 1
 n_current_volume		RS.W 1
-n_channel_data_position		RS.W 1
+n_chan_data_position		RS.W 1
 	ENDC
 
 	IFEQ pt_track_volumes_enabled

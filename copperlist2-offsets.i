@@ -71,102 +71,102 @@ COLOR_PALETTE_HIGH MACRO
 ; \4: Sprite-Palettennummer $11/$33/$55,$77,$99,$bb,$dd,$ff
 	IFGE pf_colors_number-(1+\1)	; Anzahl Playfield-Farben >= 1
 		IFGT \2-1	 	; PF-Palettennummer > 1
-cl2_BPLCON3_high\2 RS.L 1
+cl2_BPLCON3_high\2		RS.L 1
 		ENDC
-cl2_COLOR00_high\2 RS.L 1
+cl2_COLOR00_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(2+\1)	; Anzahl Playfield-Farben >= 2
-cl2_COLOR01_high\2 RS.L 1
+cl2_COLOR01_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(3+\1)	; Anzahl Playfield-Farben >= 3
-cl2_COLOR02_high\2 RS.L 1
+cl2_COLOR02_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(4+\1)	; Anzahl Playfield-Farben >= 4
-cl2_COLOR03_high\2 RS.L 1
+cl2_COLOR03_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(5+\1)	; Anzahl Playfield-Farben >= 5
-cl2_COLOR04_high\2 RS.L 1
+cl2_COLOR04_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(6+\1)	; Anzahl Playfield-Farben >= 6
-cl2_COLOR05_high\2 RS.L 1
+cl2_COLOR05_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(7+\1)	; Anzahl Playfield-Farben >= 7
-cl2_COLOR06_high\2 RS.L 1
+cl2_COLOR06_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(8+\1)	; Anzahl Playfield-Farben >= 8
-cl2_COLOR07_high\2 RS.L 1
+cl2_COLOR07_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(9+\1)	; Anzahl Playfield-Farben >= 9
-cl2_COLOR08_high\2 RS.L 1
+cl2_COLOR08_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(10+\1)	; Anzahl Playfield-Farben >= 10
-cl2_COLOR09_high\2 RS.L 1
+cl2_COLOR09_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(11+\1)	; Anzahl Playfield-Farben >= 11
-cl2_COLOR10_high\2 RS.L 1
+cl2_COLOR10_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(12+\1)	; Anzahl Playfield-Farben >= 12
-cl2_COLOR11_high\2 RS.L 1
+cl2_COLOR11_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(13+\1)	; Anzahl Playfield-Farben >= 13
-cl2_COLOR12_high\2 RS.L 1
+cl2_COLOR12_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(14+\1)	; Anzahl Playfield-Farben >= 14
-cl2_COLOR13_high\2 RS.L 1
+cl2_COLOR13_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(15+\1)	; Anzahl Playfield-Farben >= 15
-cl2_COLOR14_high\2 RS.L 1
+cl2_COLOR14_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(16+\1)	; Anzahl Playfield-Farben >= 16
-cl2_COLOR15_high\2 RS.L 1
+cl2_COLOR15_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(17+\1)	; Anzahl Playfield-Farben >= 17
-cl2_COLOR16_high\2 RS.L 1
+cl2_COLOR16_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(18+\1)	; Anzahl Playfield-Farben >= 18
-cl2_COLOR17_high\2 RS.L 1
+cl2_COLOR17_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(19+\1)	; Anzahl Playfield-Farben >= 19
-cl2_COLOR18_high\2 RS.L 1
+cl2_COLOR18_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(20+\1)	; Anzahl Playfield-Farben >= 20
-cl2_COLOR19_high\2 RS.L 1
+cl2_COLOR19_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(21+\1)	; Anzahl Playfield-Farben >= 21
-cl2_COLOR20_high\2 RS.L 1
+cl2_COLOR20_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(22+\1)	; Anzahl Playfield-Farben >= 22
-cl2_COLOR21_high\2 RS.L 1
+cl2_COLOR21_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(23+\1)	; Anzahl Playfield-Farben >= 23
-cl2_COLOR22_high\2 RS.L 1
+cl2_COLOR22_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(24+\1)	; Anzahl Playfield-Farben >= 24
-cl2_COLOR23_high\2 RS.L 1
+cl2_COLOR23_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(25+\1)	; Anzahl Playfield-Farben >= 25
-cl2_COLOR24_high\2 RS.L 1
+cl2_COLOR24_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(26+\1)	; Anzahl Playfield-Farben >= 26
-cl2_COLOR25_high\2 RS.L 1
+cl2_COLOR25_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(27+\1)	; Anzahl Playfield-Farben >= 27
-cl2_COLOR26_high\2 RS.L 1
+cl2_COLOR26_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(28+\1)	; Anzahl Playfield-Farben >= 28
-cl2_COLOR27_high\2 RS.L 1
+cl2_COLOR27_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(29+\1)	; Anzahl Playfield-Farben >= 29
-cl2_COLOR28_high\2 RS.L 1
+cl2_COLOR28_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(30+\1)	; Anzahl Playfield-Farben >= 30
-cl2_COLOR29_high\2 RS.L 1
+cl2_COLOR29_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(31+\1)	; Anzahl Playfield-Farben >= 31
-cl2_COLOR30_high\2 RS.L 1
+cl2_COLOR30_high\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(32+\1)	; Anzahl Playfield-Farben >= 32
-cl2_COLOR31_high\2 RS.L 1
+cl2_COLOR31_high\2		RS.L 1
 	ENDC
 	IFNE spr_colors_number		; Anzahl SPR-Farben > 0
 		IFEQ ((bplcon4_bits&$000f)-(\3&$000f)) & ((bplcon4_bits&$00f0)-(\3&$00f0)) ; Sprite-Colortable
@@ -196,7 +196,7 @@ cl2_COLOR15_high\2		RS.L 1
 			IFLT pf_colors_number-(32+\1) ; Anzahl Playfield-Farben < 32
 	 			IFGT \2-1 ; Playfield-Palettennummer > 1
 	 				IFLT pf_colors_number-(1+\1) ; Anzahl Playfield-Farben < 1
-cl2_BPLCON3_high\2 RS.L 1
+cl2_BPLCON3_high\2		RS.L 1
 	 				ENDC
 	 			ENDC
 cl2_COLOR16_high\2		RS.L 1
@@ -238,145 +238,145 @@ COLOR_PALETTE_LOW MACRO
 ; \3: Sprite-Palettennummer $00/$22/$44,$66,$88,$aa,$cc,$ee
 ; \4: Sprite-Palettennummer $11/$33/$55,$77,$99,$bb,$dd,$ff
 	IFGE pf_colors_number-(1+\1)	; Anzahl Playfield-Farben >= 1
-cl2_BPLCON3_low\2 RS.L 1
-cl2_COLOR00_low\2 RS.L 1
+cl2_BPLCON3_low\2		RS.L 1
+cl2_COLOR00_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(2+\1)	; Anzahl Playfield-Farben >= 2
-cl2_COLOR01_low\2 RS.L 1
+cl2_COLOR01_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(3+\1)	; Anzahl Playfield-Farben >= 3
-cl2_COLOR02_low\2 RS.L 1
+cl2_COLOR02_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(4+\1)	; Anzahl Playfield-Farben >= 4
-cl2_COLOR03_low\2 RS.L 1
+cl2_COLOR03_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(5+\1)	; Anzahl Playfield-Farben >= 5
-cl2_COLOR04_low\2 RS.L 1
+cl2_COLOR04_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(6+\1)	; Anzahl Playfield-Farben >= 6
-cl2_COLOR05_low\2 RS.L 1
+cl2_COLOR05_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(7+\1)	; Anzahl Playfield-Farben >= 7
-cl2_COLOR06_low\2 RS.L 1
+cl2_COLOR06_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(8+\1)	; Anzahl Playfield-Farben >= 8
-cl2_COLOR07_low\2 RS.L 1
+cl2_COLOR07_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(9+\1)	; Anzahl Playfield-Farben >= 9
-cl2_COLOR08_low\2 RS.L 1
+cl2_COLOR08_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(10+\1)	; Anzahl Playfield-Farben >= 10
-cl2_COLOR09_low\2 RS.L 1
+cl2_COLOR09_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(11+\1)	; Anzahl Playfield-Farben >= 11
-cl2_COLOR10_low\2 RS.L 1
+cl2_COLOR10_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(12+\1)	; Anzahl Playfield-Farben >= 12
-cl2_COLOR11_low\2 RS.L 1
+cl2_COLOR11_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(13+\1)	; Anzahl Playfield-Farben >= 13
-cl2_COLOR12_low\2 RS.L 1
+cl2_COLOR12_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(14+\1)	; Anzahl Playfield-Farben >= 14
-cl2_COLOR13_low\2 RS.L 1
+cl2_COLOR13_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(15+\1)	; Anzahl Playfield-Farben >= 15
-cl2_COLOR14_low\2 RS.L 1
+cl2_COLOR14_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(16+\1)	; Anzahl Playfield-Farben >= 16
-cl2_COLOR15_low\2 RS.L 1
+cl2_COLOR15_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(17+\1)	; Anzahl Playfield-Farben >= 17
-cl2_COLOR16_low\2 RS.L 1
+cl2_COLOR16_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(18+\1)	; Anzahl Playfield-Farben >= 18
-cl2_COLOR17_low\2 RS.L 1
+cl2_COLOR17_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(19+\1)	; Anzahl Playfield-Farben >= 19
-cl2_COLOR18_low\2 RS.L 1
+cl2_COLOR18_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(20+\1)	; Anzahl Playfield-Farben >= 20
-cl2_COLOR19_low\2 RS.L 1
+cl2_COLOR19_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(21+\1)	; Anzahl Playfield-Farben >= 21
-cl2_COLOR20_low\2 RS.L 1
+cl2_COLOR20_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(22+\1)	; Anzahl Playfield-Farben >= 22
-cl2_COLOR21_low\2 RS.L 1
+cl2_COLOR21_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(23+\1)	; Anzahl Playfield-Farben >= 23
-cl2_COLOR22_low\2 RS.L 1
+cl2_COLOR22_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(24+\1)	; Anzahl Playfield-Farben >= 24
-cl2_COLOR23_low\2 RS.L 1
+cl2_COLOR23_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(25+\1)	; Anzahl Playfield-Farben >= 25
-cl2_COLOR24_low\2 RS.L 1
+cl2_COLOR24_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(26+\1)	; Anzahl Playfield-Farben >= 26
-cl2_COLOR25_low\2 RS.L 1
+cl2_COLOR25_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(27+\1)	; Anzahl Playfield-Farben >= 27
-cl2_COLOR26_low\2 RS.L 1
+cl2_COLOR26_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(28+\1)	; Anzahl Playfield-Farben >= 28
-cl2_COLOR27_low\2 RS.L 1
+cl2_COLOR27_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(29+\1)	; Anzahl Playfield-Farben >= 29
-cl2_COLOR28_low\2 RS.L 1
+cl2_COLOR28_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(30+\1)	; Anzahl Playfield-Farben >= 30
-cl2_COLOR29_low\2 RS.L 1
+cl2_COLOR29_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(31+\1)	; Anzahl Playfield-Farben >= 31
-cl2_COLOR30_low\2 RS.L 1
+cl2_COLOR30_low\2		RS.L 1
 	ENDC
 	IFGE pf_colors_number-(32+\1)	; Anzahl Playfield-Farben >= 32
-cl2_COLOR31_low\2 RS.L 1
+cl2_COLOR31_low\2		RS.L 1
 	ENDC
 	IFNE spr_colors_number		; Anzahl Sprite-Farben > 0
 		IFEQ ((bplcon4_bits&$000f)-(\3&$000f)) & ((bplcon4_bits&$00f0)-(\3&$00f0)) ; Sprite-Colortable
 	 		IFLT pf_colors_number-(16+\1) ; Anzahl Playfield-Farben < 16
-cl2_BPLCON3_low\2	RS.L 1
-cl2_COLOR00_low\2	RS.L 1
-cl2_COLOR01_low\2	RS.L 1
-cl2_COLOR02_low\2	RS.L 1
-cl2_COLOR03_low\2	RS.L 1
-cl2_COLOR04_low\2	RS.L 1
-cl2_COLOR05_low\2	RS.L 1
-cl2_COLOR06_low\2	RS.L 1
-cl2_COLOR07_low\2	RS.L 1
-cl2_COLOR08_low\2	RS.L 1
-cl2_COLOR09_low\2	RS.L 1
-cl2_COLOR10_low\2	RS.L 1
-cl2_COLOR11_low\2	RS.L 1
-cl2_COLOR12_low\2	RS.L 1
-cl2_COLOR13_low\2	RS.L 1
-cl2_COLOR14_low\2	RS.L 1
-cl2_COLOR15_low\2	RS.L 1
+cl2_BPLCON3_low\2		RS.L 1
+cl2_COLOR00_low\2		RS.L 1
+cl2_COLOR01_low\2		RS.L 1
+cl2_COLOR02_low\2		RS.L 1
+cl2_COLOR03_low\2		RS.L 1
+cl2_COLOR04_low\2		RS.L 1
+cl2_COLOR05_low\2		RS.L 1
+cl2_COLOR06_low\2		RS.L 1
+cl2_COLOR07_low\2		RS.L 1
+cl2_COLOR08_low\2		RS.L 1
+cl2_COLOR09_low\2		RS.L 1
+cl2_COLOR10_low\2		RS.L 1
+cl2_COLOR11_low\2		RS.L 1
+cl2_COLOR12_low\2		RS.L 1
+cl2_COLOR13_low\2		RS.L 1
+cl2_COLOR14_low\2		RS.L 1
+cl2_COLOR15_low\2		RS.L 1
 	 		ENDC
 		ENDC
 		IFEQ ((bplcon4_bits&$000f)-(\4&$000f)) & ((bplcon4_bits&$00f0)-(\4&$00f0)) ;SPR-Colortable 1
 	 		IFLT pf_colors_number-(32+\1) ;Anzahl Playfield-Farben < 32
 	 	 		IFLT pf_colors_number-(1+\1) ;Anzahl Playfield-Farben < 1
-cl2_BPLCON3_low\2 RS.L 1
+cl2_BPLCON3_low\2		RS.L 1
 	 	 		ENDC
-cl2_COLOR16_low\2 RS.L 1
-cl2_COLOR17_low\2 RS.L 1
-cl2_COLOR18_low\2 RS.L 1
-cl2_COLOR19_low\2 RS.L 1
-cl2_COLOR20_low\2 RS.L 1
-cl2_COLOR21_low\2 RS.L 1
-cl2_COLOR22_low\2 RS.L 1
-cl2_COLOR23_low\2 RS.L 1
-cl2_COLOR24_low\2 RS.L 1
-cl2_COLOR25_low\2 RS.L 1
-cl2_COLOR26_low\2 RS.L 1
-cl2_COLOR27_low\2 RS.L 1
-cl2_COLOR28_low\2 RS.L 1
-cl2_COLOR29_low\2 RS.L 1
-cl2_COLOR30_low\2 RS.L 1
-cl2_COLOR31_low\2 RS.L 1
+cl2_COLOR16_low\2		RS.L 1
+cl2_COLOR17_low\2		RS.L 1
+cl2_COLOR18_low\2		RS.L 1
+cl2_COLOR19_low\2		RS.L 1
+cl2_COLOR20_low\2		RS.L 1
+cl2_COLOR21_low\2		RS.L 1
+cl2_COLOR22_low\2		RS.L 1
+cl2_COLOR23_low\2		RS.L 1
+cl2_COLOR24_low\2		RS.L 1
+cl2_COLOR25_low\2		RS.L 1
+cl2_COLOR26_low\2		RS.L 1
+cl2_COLOR27_low\2		RS.L 1
+cl2_COLOR28_low\2		RS.L 1
+cl2_COLOR29_low\2		RS.L 1
+cl2_COLOR30_low\2		RS.L 1
+cl2_COLOR31_low\2		RS.L 1
 	 		ENDC
 		ENDC
 	ENDC

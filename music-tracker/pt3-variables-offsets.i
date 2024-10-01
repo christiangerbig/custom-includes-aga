@@ -11,7 +11,7 @@ pt_PatternPointer		RS.L 1
 pt_PatternPosition		RS.W 1
 pt_SongPosition			RS.W 1
 ; --> E9 "Retrig Note" or ED "Note Delay" <--
-	IFNE pt_usedefx&(pt_ecmdbitretrignote+pt_ecmdbitnotedelay)
+	IFNE pt_usedefx&(pt_ecmdbitretrignote|pt_ecmdbitnotedelay)
 pt_RtnDMACONtemp		RS.W 1
 	ENDC
 	IFEQ pt_music_fader_enabled
@@ -28,7 +28,7 @@ pt_SetAllChanDMAFlag		RS.B 1
 pt_InitAllChanLoopFlag		RS.B 1
 pt_PBreakPosition		RS.B 1
 pt_PosJumpFlag			RS.B 1
-	IFNE pt_usedefx&(pt_ecmdfineportup+pt_ecmdfineportdown)
+	IFNE pt_usedefx&(pt_ecmdfineportup|pt_ecmdfineportdown)
 pt_LowMask			RS.B 1
 	ENDC
 ; --> E6 "Jump to Loop" <--

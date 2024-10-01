@@ -68,13 +68,13 @@ read_VBR
 ; Input
 ; Result
 ; d0 ... Rückgabewert Inhalt von VBR
-			CNOP 0,4
+		CNOP 0,4
 read_VBR
-			or.w	#SRF_I0|SRF_I1|SRF_I2,SR ; Level-7-Interruptebene
-			nop
-			movec	VBR,d0
-			nop
-			rte
+		or.w	#SRF_I0|SRF_I1|SRF_I2,SR ; Level-7-Interruptebene
+		nop
+		movec	VBR,d0
+		nop
+		rte
 
 
 ; Input
@@ -88,7 +88,6 @@ write_VBR
 		movec	d0,VBR
 		nop
 		rte
-
 	ENDC
 
 
@@ -148,7 +147,7 @@ wait_copint_loop
 ; d0	... Kein Rückgabewert
 	CNOP 0,4
 cop_init_high_colors
-	move.w	#$0f0f,d2		; Maske RGB4-Nibbles
+	move.w	#GB_NIBBLES_MASK,d2		; Maske RGB4-Nibbles
 cop_init_high_colors_loop
 	move.l	(a1)+,d0		; RGB8-Farbwert
 	RGB8_TO_RGB4_HIGH d0,d1,d2
@@ -168,7 +167,7 @@ cop_init_high_colors_loop
 ; d0	... Kein Rückgabewert
 	CNOP 0,4
 cop_init_low_colors
-	move.w	#$0f0f,d2		; Maske RGB4-Nibbles
+	move.w	#GB_NIBBLES_MASK,d2		; Maske RGB4-Nibbles
 cop_init_low_colors_loop
 	move.l	(a1)+,d0		; RGB8-Farbwert
 	RGB8_TO_RGB4_LOW d0,d1,d2
@@ -187,7 +186,7 @@ cop_init_low_colors_loop
 ; d0	... Kein Rückgabewert
 	CNOP 0,4
 cpu_init_high_colors
-	move.w	#$0f0f,d2		; Maske RGB4-Nibbles
+	move.w	#GB_NIBBLES_MASK,d2		; Maske RGB4-Nibbles
 cpu_init_high_colors_loop
 	move.l	(a1)+,d0		; RGB8-Farbwert
 	RGB8_TO_RGB4_HIGH d0,d1,d2
@@ -204,7 +203,7 @@ cpu_init_high_colors_loop
 ; d0	... Kein Rückgabewert
 	CNOP 0,4
 cpu_init_low_colors
-	move.w	#$0f0f,d2		; Maske RGB4-Nibbles
+	move.w	#GB_NIBBLES_MASK,d2		; Maske RGB4-Nibbles
 cpu_init_low_colors_loop
 	move.l	(a1)+,d0		; RGB8-Farbwert
 	RGB8_TO_RGB4_LOW d0,d1,d2

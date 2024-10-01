@@ -11,7 +11,7 @@ monitor_request
 
 		IFNE intena_bits&INTF_PORTS
 			CNOP 0,4
-tcp_request
+tcp_stack_request
 			DS.B EasyStruct_SIZEOF
 		ENDC
 
@@ -22,7 +22,7 @@ timer_io
 	
 
 		CNOP 0,4
-degrade_screen_tags
+pal_screen_tags
 		DS.B screen_tag_list_size
 
 

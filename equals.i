@@ -1,12 +1,12 @@
 ; Datum:        05.09.2024
 ; Version:      5.8
 
-
 ; **** OS ****
 exec_base			EQU $0004
 
 ANY_LIBRARY_VERSION		EQU 0
-OS_VERSION_AGA			EQU 39
+OS2_VERSION			EQU 36
+OS3_VERSION			EQU 39
 CHIP_MEMORY_MIN			EQU $200000
 
 
@@ -60,22 +60,23 @@ ASCII_CTRL_S			EQU 19
 ASCII_CTRL_V			EQU 22
 ASCII_CTRL_W			EQU 23
 
-drives_motor_delay		EQU 50/2 ; 500 ms bei 50 Ticks/Sekunde
+drives_motor_delay		EQU PAL_FPS/2 ; 500 ms
+
+GB_NIBBLES_MASK			EQU $0f0f
 
 
 ; **** Display-Degrader ****
-degrade_screen_top		EQU 0
-degrade_screen_left		EQU 0
-degrade_screen_x_size		EQU 2
-degrade_screen_y_size		EQU 2
-degrade_screen_depth		EQU 1
-degrade_screen_colors_number	EQU 256
-monitor_switch_delay		EQU 50*3 ; 3s bei 50 Ticks/Sekunde
+pal_screen_top			EQU 0
+pal_screen_left			EQU 0
+pal_screen_x_size		EQU 2
+pal_screen_y_size		EQU 2
+pal_screen_depth		EQU 1
+pal_screen_colors_number	EQU 256
 
 invisible_window_left		EQU 0
 invisible_window_top		EQU 0
-invisible_window_x_size		EQU degrade_screen_x_size
-invisible_window_y_size		EQU degrade_screen_y_size
+invisible_window_x_size		EQU pal_screen_x_size
+invisible_window_y_size		EQU pal_screen_y_size
 
 cleared_sprite_x_size		EQU 16	; 1x Bandwidth
 cleared_sprite_y_size		EQU 1
@@ -83,10 +84,16 @@ cleared_sprite_x_offset		EQU 0
 cleared_sprite_y_offset		EQU 0
 sprites_colors_number		EQU 16
 
+monitor_switch_delay		EQU PAL_FPS*3 ; 3 s
+
+
 ; **** Screen-Fader ****
-sf_colors_number		EQU 256
+sf_rgb32_colors_number		EQU 256
+
 sfi_fader_speed			EQU 7
+
 sfo_fader_speed			EQU 6
+
 
 ; **** Custom_Errors ****
 NO_CUSTOM_ERROR			EQU 0
@@ -163,6 +170,7 @@ SCREEN_MODE_NOT_AVAILABLE	EQU 46
 WINDOW_COULD_NOT_OPEN		EQU 47
 
 custom_errors_number		EQU 47
+
 
 ; **** Chipset ****
 _CUSTOM				EQU $dff000
@@ -1060,3 +1068,11 @@ DDFSTOP_OVERSCAN_16_PIXEL_MIN	EQU $38
 DDFSTOP_OVERSCAN_32_PIXEL_MIN	EQU $30
 DDFSTOP_OVERSCAN_48_PIXEL_MIN	EQU $28
 DDFSTOP_OVERSCAN_64_PIXEL_MIN	EQU $20
+
+; **** Protracker ****
+	IFD PROTRACKER_VERSION_2.3A 
+		INCLUDE "music-tracker/pt2-equals.i"
+	ENDC
+	IFD PROTRACKER_VERSION_3.0B
+		INCLUDE "music-tracker/pt3-equals.i"
+	ENDC

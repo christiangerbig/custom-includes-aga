@@ -406,7 +406,7 @@ pt_NoFinetune
 	ENDC
 	move.w	n_dmabit(a2),d0	; Get audio channel DMA bit
 	or.w	d0,pt_DMACONtemp(a3)	; Set audio channel DMA bit
-	move.w	d0,_CUSTOM+DMACON ; Audiochannel DMA off
+	move.w	d0,_CUSTOM+DMACON	; Audiochannel DMA off
 ; --> 4xy "Vibrato" <--
 	IFNE pt_usedfx&pt_cmdbitvibrato
 		btst	#pt_vibnoretrigbit,n_wavecontrol(a2) ; Vibratotype 4 - no retrig waveform ?
@@ -743,7 +743,7 @@ pt_DskipC
 		beq.s	pt_DskipA	; If zero -> skip
 		subq.b	#1,pt_PattDelayTime2(a3) ; Decrement pattern delay time2
 		beq.s	pt_DskipA	; If zero -> skip
-		subq.w	#pt_pattposdata_size/4,pt_PatternPosition(a3) ;Previous pattern position
+		subq.w	#pt_pattposdata_size/4,pt_PatternPosition(a3) ; Previous pattern position
 pt_DskipA
 	ENDC
 ;--> E6x "Jump to Loop" <--
@@ -871,7 +871,7 @@ pt_PortamentoDown
 	IFNE pt_usedefx&pt_ecmdbitfineportdown
 		and.b	pt_LowMask(a3),d0 ; Use 4 or 8 bits of downspeed
 	ENDC
-	add.w	d0,d2		 		 		 		 		;Note period + downspeed
+	add.w	d0,d2		 	; Note period + downspeed
 ; --> E2x "Fine Portamento Down" <--
 	IFNE pt_usedefx&pt_ecmdbitfineportdown
 		move.b	d6,pt_LowMask(a3) ; Set back low mask to $ff
@@ -884,7 +884,7 @@ pt_PortaDownSkip
 	IFEQ pt_track_periods_enabled
 		move.w	d2,n_current_period(a2) ; Save new period
 	ENDC
-	move.w	d2,6(a6)		 		 		 		;AUDxPER Set new note period
+	move.w	d2,6(a6)		; AUDxPER Set new note period
 pt_PortaDownEnd
 	rts
 	ENDM
@@ -1002,20 +1002,20 @@ pt_VibSine
 pt_VibSet
 	moveq	#NIBBLE_MASK_LOW,d0
 	and.b	n_vibratocmd(a2),d0	; Get depth
-	mulu.w	d0,d2		 		 		 		 		;depth * amplitude
+	mulu.w	d0,d2		 	; depth * amplitude
 	move.w	n_period(a2),d0		; Get note period
-	lsr.w	#7,d2		 		 		 		 		;Period amplitude = (depth * amplitude) / 128
+	lsr.w	#7,d2		 	; Period amplitude = (depth * amplitude) / 128
 	tst.b	n_vibratopos(a2)	; Vibrato position negative ?
 	bmi.s	pt_VibratoNeg		; Yes -> skip
-	add.w	d2,d0		 		 		 		 		;Note period + period amplitude
+	add.w	d2,d0		 	; Note period + period amplitude
 	bra.s	pt_Vibrato3
 	CNOP 0,4
 pt_VibratoNeg
-	sub.w	d2,d0		 		 		 		 		;Note period - period amplitude
+	sub.w	d2,d0		 	; Note period - period amplitude
 pt_Vibrato3
-	move.b	n_vibratocmd(a2),d2 ;Get vibrato command data
+	move.b	n_vibratocmd(a2),d2	; Get vibrato command data
 	IFEQ pt_track_periods_enabled
-		move.w	d0,n_current_period(a2) ;Save new period
+		move.w	d0,n_current_period(a2) ; Save new period
 	ENDC
 	lsr.b	#2,d2
 	move.w	d0,6(a6)		; AUDxPER Set new note period

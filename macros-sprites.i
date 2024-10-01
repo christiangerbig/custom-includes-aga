@@ -87,24 +87,24 @@ SET_SPRITE_POSITION_V9		MACRO
 
 INIT_SPRITE_POINTERS_TABLE	MACRO
 	CNOP 0,4
-spr_init_pointers_table
+spr_init_ptrs_table
 	IFNE spr_x_size1
 		lea	spr0_construction(a3),a0 ; Zeiger auf Sprite-Bitmap
-		lea	spr_pointers_construction(pc),a1 ; Zeiger auf Tabelle
+		lea	spr_ptrs_construction(pc),a1 ; Zeiger auf Tabelle
 		moveq	#spr_number-1,d7 ; Anzahl der Sprites
-spr_init_pointers_table_loop1
+spr_init_ptrs_table_loop1
 		move.l	(a0)+,a2
 		move.l	(a2),(a1)+	; Zeiger auf Sprite-Struktur
-		dbf	d7,spr_init_pointers_table_loop1
+		dbf	d7,spr_init_ptrs_table_loop1
 	ENDC
 	IFNE spr_x_size2
 		lea	spr0_display(a3),a0 ; Zeiger auf Sprite-Bitmap
-		lea	spr_pointers_display(pc),a1 ; Zeiger auf Tabelle
+		lea	spr_ptrs_display(pc),a1 ; Zeiger auf Tabelle
 		moveq	#spr_number-1,d7 ; Anzahl der Sprites
-spr_init_pointers_table_loop2
+spr_init_ptrs_table_loop2
 		move.l	(a0)+,a2
 		move.l	(a2),(a1)+ ; Zeiger auf Sprite-Struktur
-		dbf	d7,spr_init_pointers_table_loop2
+		dbf	d7,spr_init_ptrs_table_loop2
 	ENDC
 	rts
 	ENDM
@@ -114,8 +114,8 @@ COPY_SPRITE_STRUCTURES		MACRO
 	CNOP 0,4
 spr_copy_structures
 	move.l	a4,-(a7)
-	lea	spr_pointers_construction(pc),a2 ; Zeiger auf Sprites
-	lea	spr_pointers_display(pc),a4 ; Zeiger auf Sprites
+	lea	spr_ptrs_construction(pc),a2 ; Zeiger auf Sprites
+	lea	spr_ptrs_display(pc),a4 ; Zeiger auf Sprites
 	move.w	#(sprite0_size/4)-1,d7 ; Anzahl der Langwörter
 	bsr.s	spr_copy_data
 	move.w	#(sprite1_size/4)-1,d7 ; Anzahl der Langwörter
@@ -204,7 +204,7 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		move.l	(a5)+,a0	; Sprite2-Struktur
 		bsr	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+8,a1 ; Zeiger auf Hintergrundbild (2. Spalte 64 Pixel)
+			lea	\1_image_data+QUADWORD_SIZE,a1 ; Zeiger auf Hintergrundbild (2. Spalte 64 Pixel)
 			bsr	\1_init_sprite_bitmap
 		ENDC
 		IFNC "NOHEADER","\7"
@@ -215,7 +215,7 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		move.l	(a5)+,a0	; Sprite3-Struktur
 		bsr.s	 \1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+8+(\1_image_plane_width*2),a1 ;Zeiger auf Hintergrundbild (2. Spalte 64 Pixel)
+			lea	\1_image_data+QUADWORD_SIZE+(\1_image_plane_width*2),a1 ;Zeiger auf Hintergrundbild (2. Spalte 64 Pixel)
 			bsr	\1_init_sprite_bitmap
 		ENDC
 
@@ -227,7 +227,7 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		move.l	(a5)+,a0	; Sprite4-Struktur
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+16,a1 ; Zeiger auf Hintergrundbild (3. Spalte 64 Pixel)
+			lea	\1_image_data+(QUADWORD_SIZE*2),a1 ; Zeiger auf Hintergrundbild (3. Spalte 64 Pixel)
 			bsr	\1_init_sprite_bitmap
 		ENDC
 		IFNC "NOHEADER","\7"
@@ -238,7 +238,7 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		move.l	(a5)+,a0	; Sprite5-Struktur
 		bsr.s	 \1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+16+(\1_image_plane_width*2),a1 ; Zeiger auf Hintergrundbild (3. Spalte 64 Pixel)
+			lea	\1_image_data+(QUADWORD_SIZE*2)+(\1_image_plane_width*2),a1 ; Zeiger auf Hintergrundbild (3. Spalte 64 Pixel)
 			bsr.s	\1_init_sprite_bitmap
 		ENDC
 	
@@ -250,7 +250,7 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		ENDC
 		bsr.s	 \1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+24,a1 ; Zeiger auf Hintergrundbild (4. Spalte 64 Pixel)
+			lea	\1_image_data+(QUADWORD_SIZE*3),a1 ; Zeiger auf Hintergrundbild (4. Spalte 64 Pixel)
 			bsr.s	\1_init_sprite_bitmap
 		ENDC
 		IFNC "NOHEADER","\7"
@@ -261,7 +261,7 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		move.l	(a5),a0		; Sprite7-Struktur
 		bsr.s	 \1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+24+(\1_image_plane_width*2),a1 ; Zeiger auf Hintergrundbild (4. Spalte 64 Pixel)
+			lea	\1_image_data+(QUADWORD_SIZE*3)+(\1_image_plane_width*2),a1 ; Zeiger auf Hintergrundbild (4. Spalte 64 Pixel)
 			bsr.s	\1_init_sprite_bitmap
 		ENDC
 		movem.l (a7)+,a4-a5
@@ -282,13 +282,13 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 			MOVEF.W	SPRCTLF_ATT,d3
 		ENDC
 		IFNC "BLANK","\8"
-			lea	\1_image_data+16,a1 ; Zeiger auf Playfield (3. Spalte 64 Pixel)
+			lea	\1_image_data+(QUADWORD_SIZE*2),a1 ; Zeiger auf Playfield (3. Spalte 64 Pixel)
 			bsr	\1_init_sprite_bitmap
 		ENDC
 		move.l	(a5)+,a0	; Sprite1-Struktur
 		bsr	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+16+(\1_image_plane_width*2),a1 ; Zeiger auf Hintergrundbild (3. Spalte 64 Pixel)
+			lea	\1_image_data+(QUADWORD_SIZE*2)+(\1_image_plane_width*2),a1 ; Zeiger auf Hintergrundbild (3. Spalte 64 Pixel)
 			bsr	\1_init_sprite_bitmap
 		ENDC
 
@@ -300,7 +300,7 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		move.l	(a5)+,a0	; Sprite2-Struktur
 		bsr		 \1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+24,a1 ; Zeiger auf Hintergrundbild (4. Spalte 64 Pixel)
+			lea	\1_image_data+(QUADWORD_SIZE*3),a1 ; Zeiger auf Hintergrundbild (4. Spalte 64 Pixel)
 			bsr	\1_init_sprite_bitmap
 		ENDC
 		IFNC "NOHEADER","\7"
@@ -311,7 +311,7 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		move.l	(a5)+,a0	; Sprite3-Struktur
 		bsr.s	 \1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+24+(\1_image_plane_width*2),a1 ; Zeiger auf Hintergrundbild (4. Spalte 64 Pixel)
+			lea	\1_image_data+(QUADWORD_SIZE*3)+(\1_image_plane_width*2),a1 ; Zeiger auf Hintergrundbild (4. Spalte 64 Pixel)
 			bsr	\1_init_sprite_bitmap
 		ENDC
 
@@ -346,7 +346,7 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		ENDC
 		bsr.s	 \1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+8,a1 ; Zeiger auf Hintergrundbild (2. Spalte 64 Pixel)
+			lea	\1_image_data+QUADWORD_SIZE,a1 ; Zeiger auf Hintergrundbild (2. Spalte 64 Pixel)
 			bsr.s	\1_init_sprite_bitmap
 		ENDC
 		IFNC "NOHEADER","\7"
@@ -357,7 +357,7 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		move.l	(a5),a0		; Sprite7-Struktur
 		bsr.s	 \1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+8+(\1_image_plane_width*2),a1 ; Zeiger auf Hintergrundbild (2. Spalte 64 Pixel)
+			lea	\1_image_data+QUADWORD_SIZE+(\1_image_plane_width*2),a1 ; Zeiger auf Hintergrundbild (2. Spalte 64 Pixel)
 			bsr.s	\1_init_sprite_bitmap
 		ENDC
 		movem.l (a7)+,a4-a5
@@ -416,11 +416,11 @@ SWAP_SPRITES_STRUCTURES		MACRO
 	CNOP 0,4
 \1_swap_structures
 	IFC "","\3"
-		lea	spr_pointers_construction(pc),a0 ; Aufbau-Sprites
-		lea	spr_pointers_display(pc),a1 ; Darstellen-Sprites
+		lea	spr_ptrs_construction(pc),a0 ; Aufbau-Sprites
+		lea	spr_ptrs_display(pc),a1 ; Darstellen-Sprites
 	ELSE
-		lea	spr_pointers_construction+(\3*4)(pc),a0 ; Aufbau-Sprites
-		lea	spr_pointers_display+(\3*4)(pc),a1 ; Darstellen-Sprites
+		lea	spr_ptrs_construction+(\3*4)(pc),a0 ; Aufbau-Sprites
+		lea	spr_ptrs_display+(\3*4)(pc),a1 ; Darstellen-Sprites
 	ENDC
 	moveq	#\2-1,d7		; Anzahl der Sprites
 \1_swap_structures_loop
@@ -431,17 +431,17 @@ SWAP_SPRITES_STRUCTURES		MACRO
 
 	move.l	cl1_display(a3),a0 
 	IFC "","\3"
-		lea	spr_pointers_display(pc),a1 ;Zeiger auf Sprites
-		ADDF.W	cl1_SPR0PTH+2,a0
+		lea	spr_ptrs_display(pc),a1 ;Zeiger auf Sprites
+		ADDF.W	cl1_SPR0PTH+WORD_SIZE,a0
 	ELSE
-		lea	spr_pointers_display+(\3*4)(pc),a1 ;Zeiger auf Sprites + Index
-		ADDF.W	cl1_SPR\3PTH+2,a0
+		lea	spr_ptrs_display+(\3*4)(pc),a1 ;Zeiger auf Sprites + Index
+		ADDF.W	cl1_SPR\3PTH+WORD_SIZE,a0
 	ENDC
 	moveq	#\2-1,d7		; Anzahl der Sprites
-\1_set_sprite_pointers_loop
+\1_set_sprite_ptrs_loop
 	move.w	(a1)+,(a0)		; SPRxPTH
-	addq.w	#8,a0			; nächter Spritezeiger
-	move.w	(a1)+,4-8(a0)		;SPRxPTL
-	dbf	d7,\1_set_sprite_pointers_loop
+	addq.w	#QUADWORD_SIZE,a0	; nächter Spritezeiger
+	move.w	(a1)+,WORD_SIZE-QUADWORD_SIZE(a0)	; SPRxPTL
+	dbf	d7,\1_set_sprite_ptrs_loop
 	rts
 	ENDM
