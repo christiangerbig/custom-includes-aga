@@ -1605,7 +1605,7 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 \1_next_character
 				addq.w	#1,d1 ; nächster Buchstabe
 				move.w	d1,\1_text_table_start(a3)
-				moveq	#TRUE,d3 ; Zähler zurücksetzen
+				moveq	#0,d3 ; Zähler zurücksetzen
 \1_keep_character_image
 				move.w	d3,\1_character_words_counter(a3)
 			ENDC
@@ -2506,7 +2506,7 @@ RGB8_COLOR_FADER			MACRO
 	bgt.s	\1_rgb8_decrease_red
 	blt.s	\1_rgb8_increase_red
 \1_rgb8_matched_red
-	subq.w	#1,d6			; Zähler verringern
+	subq.w	#1,d6			; Zielfarbwert erreicht
 
 ; ** Grünwert **
 \1_rgb8_check_green
@@ -2514,7 +2514,7 @@ RGB8_COLOR_FADER			MACRO
 	bgt.s	\1_rgb8_decrease_green
 	blt.s	\1_rgb8_increase_green
 \1_rgb8_matched_green
-	subq.w	#1,d6			; Zähler verringern
+	subq.w	#1,d6			; Zielfarbwert erreicht
 
 ; ** Blauwert **
 \1_rgb8_check_blue
@@ -2522,7 +2522,7 @@ RGB8_COLOR_FADER			MACRO
 	bgt.s	\1_rgb8_decrease_blue
 	blt.s	\1_rgb8_increase_blue
 \1_rgb8_matched_blue
-	subq.w	#1,d6			; Zähler verringern
+	subq.w	#1,d6			; Zielfarbwert erreicht
 
 \1_merge_rgb8
 	move.l	d0,d3			; neuer Rotwert	$Rr0000
@@ -2665,7 +2665,7 @@ COPY_RGB8_COLORS_TO_COPPERLIST	MACRO
 	bne.s	\1_rgb8_copy_color_table_skip2
 	move.w	#GB_NIBBLES_MASK,d3
 	IFGT \1_rgb8_colors_number-32
-		MOVEF.W \1_rgb8_start_color*8,d4 ; Color-Bank Farbregisterzähler
+		MOVEF.W \1_rgb8_start_color<<3,d4 ; Color-Bank Farbregisterzähler
 	ENDC
 	lea	\2_rgb8_color_table+(\1_rgb8_color_table_offset*LONGWORD_SIZE)(pc),a0 ; Puffer für Farbwerte
 	move.l	\3_display(a3),a1

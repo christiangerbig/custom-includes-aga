@@ -283,8 +283,8 @@ swap_playfield\*RIGHT(\1,1)
 			moveq	#\1_depth3-1,d7	; Anzahl der Planes
 swap_playfield\*RIGHT(\1,1)_loop
 			move.w	(a1)+,(a0) ; BPLxPTH
-			addq.w	#8,a0
-			move.w	(a1)+,4-8(a0) ; BPLxPTL
+			addq.w	#QUADWORD_SIZE,a0
+			move.w	(a1)+,LONGWORD_SIZE-QUADWORD_SIZE(a0) ; BPLxPTL
 			dbf	d7,SWAP_PLAYFIELD\*RIGHT(\1,1)_loop
 			rts
 		ELSE
@@ -339,7 +339,7 @@ swap_playfield\*RIGHT(\1,1)_loop
 			swap	d0						 ;High
 			move.w	d0,(a0) ; BPLxPTH
 			addq.w	#QUADWORD_SIZE,a0
-			dbf	d7,SWAP_PLAYFIELD\*RIGHT(\1,1)_loop
+			dbf	d7,swap_playfield\*RIGHT(\1,1)_loop
 			rts
 		ENDC
 	ENDC

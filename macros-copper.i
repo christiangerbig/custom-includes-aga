@@ -517,26 +517,26 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN	MACRO
 		move.l	a4,-(a7)
 		move.l	#(((\3<<24)|(((\2/4)*2)<<16))|$10000)|$fffe,d0 ; WAIT-Befehl
 		IFEQ \7
-			move.l	#(BPLCON3<<16)|bplcon3_bits3,d1 ; High-RGB-Werte
+			move.l	#(BPLCON3<<16)+bplcon3_bits3,d1 ; High-RGB-Werte
 		ELSE
-			move.l	#(BPLCON3<<16)|bplcon3_bits1,d1 ; High-RGB-Werte
+			move.l	#(BPLCON3<<16)+bplcon3_bits1,d1 ; High-RGB-Werte
 		ENDC
 		IFEQ \7
-			move.l	#(COLOR31<<16)|color00_high_bits,a2
+			move.l	#(COLOR31<<16)+color00_high_bits,a2
 		ELSE
-			move.l	#(COLOR00<<16)|color00_high_bits,a2
+			move.l	#(COLOR00<<16)+color00_high_bits,a2
 		ENDC
 		IFEQ \7
-			move.l	#(COLOR31<<16)|color00_low_bits,a4
+			move.l	#(COLOR31<<16)+color00_low_bits,a4
 		ELSE
-			move.l	#(COLOR00<<16)|color00_low_bits,a4
+			move.l	#(COLOR00<<16)+color00_low_bits,a4
 		ENDC
 		IFEQ \7
-			move.l	#(BPLCON3<<16)|bplcon3_bits4,d3 ; Low-RGB-Werte
+			move.l	#(BPLCON3<<16)+bplcon3_bits4,d3 ; Low-RGB-Werte
 		ELSE
-			move.l	#(BPLCON3<<16)|bplcon3_bits2,d3 ; Low-RGB-Werte
+			move.l	#(BPLCON3<<16)+bplcon3_bits2,d3 ; Low-RGB-Werte
 		ENDC
-		move.l	#(BPLCON4<<16)|(bplcon4_bits&$00ff),d4
+		move.l	#(BPLCON4<<16)+(bplcon4_bits&$00ff),d4
 		IFEQ \6
 			IFNC "","\9"
 				IFNC "OVERSCAN","\9"

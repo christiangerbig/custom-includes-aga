@@ -385,8 +385,8 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 	IFNC "BLANK","\8"
 		CNOP 0,4
 \1_init_sprite_bitmap
-		move.w	#\1_image_plane_width-8,a2
-		move.w	#(\1_image_plane_width*3)-8,a4
+		move.w	#\1_image_plane_width-QUADWORD_SIZE,a2
+		move.w	#(\1_image_plane_width*3)-QUADWORD_SIZE,a4
 		MOVEF.W	\1_image_y_size-1,d7 ;Anzahl der Zeilen
 \1_init_sprite_bitmap_loop
 		move.l	(a1)+,(a0)+	; BP0 64 Bits
@@ -441,7 +441,7 @@ SWAP_SPRITES_STRUCTURES		MACRO
 \1_set_sprite_ptrs_loop
 	move.w	(a1)+,(a0)		; SPRxPTH
 	addq.w	#QUADWORD_SIZE,a0	; nächter Spritezeiger
-	move.w	(a1)+,WORD_SIZE-QUADWORD_SIZE(a0)	; SPRxPTL
+	move.w	(a1)+,LONGWORD_SIZE-QUADWORD_SIZE(a0) ; SPRxPTL
 	dbf	d7,\1_set_sprite_ptrs_loop
 	rts
 	ENDM
