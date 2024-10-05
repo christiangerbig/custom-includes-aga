@@ -1,5 +1,6 @@
 ; Datum:	08.09.2024
 ; Version:	1.0
+; OS:		3.0+
 
 ; Globale Labels
 
@@ -635,12 +636,12 @@ init_variables
 	CNOP 0,4
 init_structures
 	IFND SYS_TAKEN_OVER
+		bsr	init_custom_error_table
 		bsr	init_easy_request
 		bsr	init_timer_io
-		bsr	init_custom_error_table
 		bsr	init_video_control_tags
 		IFNE screen_fader_enabled
-			bsr	init_pal_screen_colors
+			bsr	init_pal_screen_rgb32_colors
         	ENDC
 		bsr	init_pal_screen_tags
 		bsr	init_invisible_window_tags
@@ -655,54 +656,6 @@ init_structures
 
 
 	IFND SYS_TAKEN_OVER
-; Input
-; Result
-; d0.l	... Kein Rückgabewert	
-		CNOP 0,4
-init_easy_request
-		IFEQ requires_multiscan_monitor
-			lea	monitor_request(pc),a0
-			moveq	#EasyStruct_sizeOF,d0
-			move.l	d0,(a0)+ ; Größe der Struktur
-			moveq	#0,d0
-			move.l	d0,(a0)+ ; Keine Flags
-			lea	monitor_request_title(pc),a1
-			move.l	a1,(a0)+ ; Zeiger auf Titeltext
-			lea	monitor_request_text_body_body(pc),a1
-			move.l	a1,(a0)+ ; Zeiger auf Text in Requester
-			lea	monitor_request_text_body_gadgets(pc),a1
-			move.l	a1,(a0)	; Zeiger auf Gadgettexte
-		ENDC
-		IFNE intena_bits&INTF_PORTS
-			lea	tcp_stack_request(pc),a0
-			moveq	#EasyStruct_sizeOF,d0
-			move.l	d0,(a0)+ ; Größe der Struktur
-			moveq	#0,d0
-			move.l	d0,(a0)+ ; Keine Flags
-			lea	tcp_stack_request_title(pc),a1
-			move.l	a1,(a0)+ ; Zeiger auf Titeltext
-			lea	tcp_stack_request_text_body(pc),a1
-			move.l	a1,(a0)+ ; Zeiger auf Text in Requester
-			lea	tcp_stack_request_text_body_gadgets(pc),a1
-			move.l	a1,(a0)	; Zeiger auf Gadgettexte
-		ENDC
-		rts
-
-
-; Input
-; Result
-; d0.l	... Kein Rückgabewert	
-		CNOP 0,4
-init_timer_io
-		lea	timer_io(pc),a0
-		moveq	#0,d0
-		move.b	d0,LN_Type(a0)	; Eintragstyp = Null
-		move.b	d0,LN_Pri(a0)	; Priorität der Struktur = Null
-		move.l	d0,LN_Name(a0)	; Keine Name der Struktur
-		move.l	d0,MN_ReplyPort(a0) ; Kein Reply-Port
-		rts
-
-
 ; Input
 ; Result
 ; d0.l	... Kein Rückgabewert	
@@ -794,6 +747,54 @@ init_custom_error_table
 
 ; Input
 ; Result
+; d0.l	... Kein Rückgabewert	
+		CNOP 0,4
+init_easy_request
+		IFEQ requires_multiscan_monitor
+			lea	monitor_request(pc),a0
+			moveq	#EasyStruct_sizeOF,d0
+			move.l	d0,(a0)+ ; Größe der Struktur
+			moveq	#0,d0
+			move.l	d0,(a0)+ ; Keine Flags
+			lea	monitor_request_title(pc),a1
+			move.l	a1,(a0)+ ; Zeiger auf Titeltext
+			lea	monitor_request_text_body(pc),a1
+			move.l	a1,(a0)+ ; Zeiger auf Text in Requester
+			lea	monitor_request_text_gadgets(pc),a1
+			move.l	a1,(a0)	; Zeiger auf Gadgettexte
+		ENDC
+		IFNE intena_bits&INTF_PORTS
+			lea	tcp_stack_request(pc),a0
+			moveq	#EasyStruct_sizeOF,d0
+			move.l	d0,(a0)+ ; Größe der Struktur
+			moveq	#0,d0
+			move.l	d0,(a0)+ ; Keine Flags
+			lea	tcp_stack_request_title(pc),a1
+			move.l	a1,(a0)+ ; Zeiger auf Titeltext
+			lea	tcp_stack_request_text_body(pc),a1
+			move.l	a1,(a0)+ ; Zeiger auf Text in Requester
+			lea	tcp_stack_request_text_gadgets(pc),a1
+			move.l	a1,(a0)	; Zeiger auf Gadgettexte
+		ENDC
+		rts
+
+
+; Input
+; Result
+; d0.l	... Kein Rückgabewert	
+		CNOP 0,4
+init_timer_io
+		lea	timer_io(pc),a0
+		moveq	#0,d0
+		move.b	d0,LN_Type(a0)	; Eintragstyp = Null
+		move.b	d0,LN_Pri(a0)	; Priorität der Struktur = Null
+		move.l	d0,LN_Name(a0)	; Keine Name der Struktur
+		move.l	d0,MN_ReplyPort(a0) ; Kein Reply-Port
+		rts
+
+
+; Input
+; Result
 ; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 init_video_control_tags
@@ -808,14 +809,14 @@ init_video_control_tags
 ; Result
 ; d0.l	... Kein Rückgabewert
 			CNOP 0,4
-init_pal_screen_colors
-			lea	pal_screen_colors(pc),a0
+init_pal_screen_rgb32_colors
+			lea	pal_screen_rgb32_colors(pc),a0
 			move.w	#pal_screen_colors_number,(a0)+
 			moveq	#0,d0
-			move.w	d0,(a0)+	; Erste Farbe COLOR00
+			move.w	d0,(a0)+ ; Erste Farbe COLOR00
 			lea     pf1_rgb8_color_table(pc),a1
 			moveq	#0,d1
-			move.b	1(a1),d1	; 4x COLOR00 8-Bit Rotwert
+			move.b	1(a1),d1 ; 4x COLOR00 8-Bit Rotwert
 			lsl.w	#8,d1
 			move.b	1(a1),d1
 			swap	d1
@@ -823,7 +824,7 @@ init_pal_screen_colors
 			lsl.w	#8,d1
 			move.b	1(a1),d1
 			moveq	#0,d2
-			move.b	2(a1),d2	; 4x COLOR00 8-Bit Grünwert
+			move.b	2(a1),d2 ; 4x COLOR00 8-Bit Grünwert
 			lsl.w	#8,d2
 			move.b	2(a1),d2
 			swap	d2
@@ -831,7 +832,7 @@ init_pal_screen_colors
 			lsl.w	#8,d2
 			move.b	2(a1),d2
 			moveq	#0,d3
-			move.b	3(a1),d3	; 4x COLOR00 8-Bit Blauwert
+			move.b	3(a1),d3 ; 4x COLOR00 8-Bit Blauwert
 			lsl.w	#8,d3
 			move.b	3(a1),d3
 			swap	d3
@@ -839,11 +840,11 @@ init_pal_screen_colors
 			lsl.w	#8,d3
 			move.b	3(a1),d3
 			MOVEF.W	pal_screen_colors_number-1,d7
-init_pal_screen_colors_loop
+init_pal_screen_rgb32_colors_loop
 			move.l	d1,(a0)+ ; COLORxx 32-Bit Rotwert
 			move.l	d2,(a0)+ ; COLORxx 32-Bit Grünwert
 			move.l	d3,(a0)+ ; COLORxx 32-Bit Blauwert
-	               	dbf	d7,init_pal_screen_colors_loop
+	               	dbf	d7,init_pal_screen_rgb32_colors_loop
 			move.l	d0,(a0)	; Listenende
 			rts
 		ENDC
@@ -852,7 +853,7 @@ init_pal_screen_colors_loop
 ; Input
 ; Result
 ; d0.l	... Kein Rückgabewert
-	CNOP 0,4
+		CNOP 0,4
 init_pal_screen_tags
 		lea	pal_screen_tags(pc),a0
 		move.l	#SA_Left,(a0)+
@@ -918,7 +919,7 @@ init_pal_screen_tags
 ; Input
 ; Result
 ; d0.l	... Kein Rückgabewert
-	CNOP 0,4
+		CNOP 0,4
 init_invisible_window_tags
 		lea	invisible_window_tags(pc),a0
 		move.l	#WA_Left,(a0)+
@@ -2313,20 +2314,20 @@ get_active_screen
 ; Input
 ; Result
 ; d0.l	... kein Rückgabewert
-	CNOP 0,4
+		CNOP 0,4
 get_sprite_resolution
-	move.l	active_screen(a3),d0
-	beq.s	get_sprite_resolution_quit
-	move.l	d0,a0
-	move.l  sc_ViewPort+vp_ColorMap(a0),a0
-	lea	video_control_tags(pc),a1
-	move.l	#VTAG_SPRITERESN_GET,vctl_VTAG_SPRITERESN+ti_tag(a1)
-	clr.l	vctl_VTAG_SPRITERESN+ti_Data(a1)
-	CALLGRAF VideoControl
-	lea     video_control_tags(pc),a0
-	move.l  vctl_VTAG_SPRITERESN+ti_Data(a0),old_sprite_resolution(a3)
+		move.l	active_screen(a3),d0
+		beq.s	get_sprite_resolution_quit
+		move.l	d0,a0
+		move.l  sc_ViewPort+vp_ColorMap(a0),a0
+		lea	video_control_tags(pc),a1
+		move.l	#VTAG_SPRITERESN_GET,vctl_VTAG_SPRITERESN+ti_tag(a1)
+		clr.l	vctl_VTAG_SPRITERESN+ti_Data(a1)
+		CALLGRAF VideoControl
+		lea     video_control_tags(pc),a0
+		move.l  vctl_VTAG_SPRITERESN+ti_Data(a0),old_sprite_resolution(a3)
 get_sprite_resolution_quit
-	rts
+		rts
 
 
 ; Input
@@ -2536,7 +2537,7 @@ open_pal_screen
 		IFEQ screen_fader_enabled
                 	move.l	sf_screen_color_cache(a3),sctl_SA_Colors32+ti_data(a1)
 		ELSE
-			lea	pal_screen_colors(pc),a0
+			lea	pal_screen_rgb32_colors(pc),a0
 			move.l	a0,sctl_SA_Colors32+ti_data(a1)
  		ENDC
 		sub.l	a0,a0		; Keine NewScreen-Struktur
@@ -3312,17 +3313,17 @@ close_pal_screen
 	CNOP 0,4
 active_screen_to_front
 	tst.l	active_screen(a3)
-	beq.s	active_screen_to_front_ok
+	beq.s	active_screen_to_front_quit
 	moveq	#0,d0			; alle Locks
 	CALLINT LockIBase
 	move.l	d0,a0
 	move.l	ib_FirstScreen(a6),a2
 	CALLLIBS UnLockIBase
 	cmp.l	active_screen(a3),a2
-	beq.s	active_screen_to_front_ok
+	beq.s	active_screen_to_front_quit
 	move.l	active_screen(a3),a0
 	CALLLIBS ScreenToFront
-active_screen_to_front_ok
+active_screen_to_front_quit
 	rts
 
 
@@ -3348,8 +3349,8 @@ rgb32_screen_fader_in
 			MOVEF.W	sf_rgb32_colors_number*3,d6; Zähler
 			move.l	sf_screen_color_cache(a3),a0 ; Puffer für Farbwerte
 			addq.w	#4,a0		; Offset überspringen
-			move.w	#sfi_fader_speed,a4 ; Additions-/Subtraktionswert für RGB-Werte
 			move.l	sf_screen_color_table(a3),a1 ; Sollwerte
+			move.w	#sfi_fader_speed,a4 ; Additions-/Subtraktionswert für RGB-Werte
 			MOVEF.W	sf_rgb32_colors_number-1,d7
 rgb32_screen_fader_in_loop
 			moveq	#0,d0
@@ -3470,7 +3471,7 @@ print_formatted_text
 print_formatted_text_loop
 			addq.w	#1,d3
 			tst.b	(a0)+	; Nullbyte ?
-			dbeq.s	print_formatted_text_loop
+			beq.s	print_formatted_text_loop
 			CALLLIBQ Write
 			CNOP 0,4
 put_ch_process

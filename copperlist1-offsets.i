@@ -64,7 +64,7 @@ cl1_SPR7PTL			RS.L 1
 
 ; ** High-Farbwerte der 1. Palette **
 
-COLOR_PALETTE_HIGH MACRO
+COLOR_PALETTE_HIGH		MACRO
 ; \1: Farbnummer-Basis in 32er-Schritten 0/32/../224
 ; \2: PF-Palettennummer 1..8
 ; \3: Sprite-Palettennummer $00/$22/$44,$66,$88,$aa,$cc,$ee
@@ -232,7 +232,7 @@ cl1_COLOR31_high\2		RS.L 1
 
 ; ** Low-Farbwerte der 1. Palette **
 
-COLOR_PALETTE_LOW MACRO
+COLOR_PALETTE_LOW		MACRO
 ; \1: Farbnummer-Basis in 32er-Schritten 0/32/../224
 ; \2: PF-Palettennummer 1..8
 ; \3: Sprite-Palettennummer $00/$22/$44,$66,$88,$aa,$cc,$ee

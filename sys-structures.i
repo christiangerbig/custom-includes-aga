@@ -27,7 +27,7 @@ video_control_tags
 
 		IFNE screen_fader_enabled
 			CNOP 0,4
-pal_screen_colors
+pal_screen_rgb32_colors
 			DS.B screen_02_colors_size
 		ENDC
 

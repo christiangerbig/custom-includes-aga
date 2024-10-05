@@ -181,8 +181,8 @@ COP_INIT_BITPLANE_POINTERS	MACRO
 	moveq	#(pf_depth*2)-1,d7	; Anzahl der Bitplanes
 \1_init_plane_ptrs_loop
 	move.w	d0,(a0)			; BPLxPTH/L
-	addq.w	#2,d0			; nächstes Register
-	addq.w	#4,a0			; nächster Eintrag in CL
+	addq.w	#WORD_SIZE,d0		; nächstes Register
+	addq.w	#LONGWORD_SIZE,a0	; nächster Eintrag in CL
 	dbf	d7,\1_init_plane_ptrs_loop
 	rts
 	ENDM
@@ -214,8 +214,8 @@ COP_SET_BITPLANE_POINTERS	MACRO
 			moveq	#\3-1,d7 ; Anzahl der Bitplanes
 \1_set_plane_ptrs_loop
 			move.w	(a1)+,(a0) ; High-Wert
-			addq.w	#8,a0	; nächter Playfieldzeiger
-			move.w	(a1)+,4-8(a0) ; Low-Wert
+			addq.w	#QUADWORD_SIZE,a0 ; nächter Playfieldzeiger
+			move.w	(a1)+,LONGWORD_SIZE-QUADWORD_SIZE(a0) ; Low-Wert
 			dbf	d7,\1_set_plane_ptrs_loop
 		ELSE
 			move.l	\1_\2(a3),a0
@@ -229,7 +229,7 @@ COP_SET_BITPLANE_POINTERS	MACRO
 			move.w	d0,4(a0) ; BPLxPTL
 			swap	d0	; High
 			move.w	d0,(a0)	; BPLxPTH
-			addq.w	#8,a0
+			addq.w	#QUADWORD_SIZE,a0
 			dbf	d7,\1_set_plane_ptrs_loop
 		ENDC
 	ELSE
@@ -242,8 +242,8 @@ COP_SET_BITPLANE_POINTERS	MACRO
 		moveq	#\3-1,d7	; Anzahl der Bitplanes
 \1_set_plane_ptrs_loop1
 		move.w	(a2)+,(a0)	; BPLxPTH
-		ADDF.W	16,a0		; übernächter Playfieldzeiger
-		move.w	(a2)+,4-16(a0)	; BPLxPTL
+		ADDF.W	2*QUADWORD_SIZE,a0 ; übernächter Playfieldzeiger
+		move.w	(a2)+,LONGWORD_SIZE-(2*QUADWORD_SIZE)(a0) ; BPLxPTL
 		dbf	d7,\1_set_plane_ptrs_loop1
 
 ; ** Zeiger auf Playfield 2 eintragen **
@@ -251,8 +251,8 @@ COP_SET_BITPLANE_POINTERS	MACRO
 		moveq	#\4-1,d7	; Anzahl der Bitplanes
 \1_set_plane_ptrs_loop2
 		move.w	(a2)+,(a1)	; BPLxPTH
-		ADDF.W	16,a1		; übernächter Playfieldzeiger
-		move.w	(a2)+,4-16(a1)	; BPLxPTL
+		ADDF.W	2*QUADWORD_SIZE,a1		; übernächter Playfieldzeiger
+		move.w	(a2)+,LONGWORD_SIZE-(2*QUADWORD_SIZE)(a1) ; BPLxPTL
 		dbf	d7,\1_set_plane_ptrs_loop2
 	ENDC
 	rts
@@ -270,8 +270,8 @@ COP_INIT_SPRITE_POINTERS	MACRO
 	moveq	#(spr_number*2)-1,d7	; Anzahl der Sprites
 \1_init_sprite_ptrs_loop
 	move.w	d0,(a0)			; SPRxPTH/L
-	addq.w	#2,d0			; nächstes Register
-	addq.w	#4,a0			; nächster Eintrag in CL
+	addq.w	#WORD_SIZE,d0		; nächstes Register
+	addq.w	#LONGWORD_SIZE,a0	; nächster Eintrag in CL
 	dbf	d7,\1_init_sprite_ptrs_loop
 	rts
 	ENDM
@@ -304,8 +304,8 @@ COP_SET_SPRITE_POINTERS		MACRO
 	moveq	#\3-1,d7		; Anzahl der Sprites
 \1_set_sprite_ptrs_loop
 	move.w	(a1)+,(a0)		; SPRxPTH
-	addq.w	#8,a0			; nächter Spritezeiger
-	move.w	(a1)+,4-8(a0)		; SPRxPTL
+	addq.w	#QUADWORD_SIZE,a0	; nächter Spritezeiger
+	move.w	(a1)+,LONGWORD_SIZE-QUADWORD_SIZE(a0) ; SPRxPTL
 	dbf	d7,\1_set_sprite_ptrs_loop
 	rts
 	ENDM
@@ -610,15 +610,15 @@ COP_INIT_BPLCON1_CHUNKY_SCREEN	MACRO
 		move.l	#(BPLCON1<<16)|\6,d1
 	ENDC
 	moveq	 #1,d3
-	ror.l	 #8,d3							;Y-Additionswert $01000000
-	MOVEF.W \5-1,d7						;Anzahl der Zeilen
+	ror.l	 #8,d3			; Y-Additionswert $01000000
+	MOVEF.W \5-1,d7			; Anzahl der Zeilen
 \1_init_bplcon1s_loop1
-	move.l	d0,(a0)+					 ;WAIT x,y
-	moveq	 #(\4/8)-1,d6			 ;Anzahl der Spalten
+	move.l	d0,(a0)+		; WAIT x,y
+	moveq	 #(\4/8)-1,d6		; Anzahl der Spalten
 \1_init_bplcon1s_loop2
-	move.l	d1,(a0)+					 ;BPLCON1
+	move.l	d1,(a0)+		; BPLCON1
 	dbf		 d6,\1_init_bplcon1s_loop2
-	add.l	 d3,d0							;nächste Zeile
+	add.l	 d3,d0			; nächste Zeile
 	dbf		 d7,\1_init_bplcon1s_loop1
 	rts
 	ENDM
@@ -801,7 +801,7 @@ CONVERT_IMAGE_TO_HAM6_CHUNKY	MACRO
 	CNOP 0,4
 \1_convert_image_data
 	movem.l	a4-a6,-(a7)
-	lea	\1_image_data,a0	;Quellbild
+	lea	\1_image_data,a0	; Quellbild
 	lea	\1_image_color_table(pc),a1 ; Farbwerte des Playfieldes
 	IFC "","\2"
 		lea	\1_\2(\3),a2
@@ -904,70 +904,70 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY	MACRO
 	CNOP 0,4
 \1_convert_image_data
 	movem.l a4-a6,-(a7)
-	moveq	 #16,d3						 ;COLOR16
-	move.w	#GB_NIBBLES_MASK,d4					;Maske RGB-Nibbles
-	lea		 \1_image_data,a0	 ;Quellbild
-	lea		 \1_image_color_table(pc),a1 ;Farbwerte des Playfieldes
+	moveq	 #16,d3			; COLOR16
+	move.w	#GB_NIBBLES_MASK,d4
+	lea		 \1_image_data,a0 ; Quellbild
+	lea		 \1_image_color_table(pc),a1 ; Farbwerte des Playfieldes
 	IFC "","\2"
 		lea	 \1_color_table(pc),a2
 	ELSE
 		move.l \2(\3),a2
 	ENDC
-	move.w	#32,a4						 ;COLOR32
-	move.w	#64,a5						 ;COLOR64
-	move.w	#128,a6						;COLOR128
-	MOVEF.W \1_image_y_size-1,d7 ;Höhe des Playfieldes
+	move.w	#32,a4			; COLOR32
+	move.w	#64,a5			; COLOR64
+	move.w	#128,a6			; COLOR128
+	MOVEF.W \1_image_y_size-1,d7	; Höhe des Playfieldes
 \1_convert_image_loop1
-	moveq	 #\1_image_plane_width-1,d6 ;Breite des Quellbildes in Bytes
+	moveq	 #\1_image_plane_width-1,d6 ; Breite des Quellbildes in Bytes
 \1_convert_image_loop2
-	moveq	 #8-1,d5						;Anzahl der Bits pro Byte
+	moveq	 #8-1,d5		; Anzahl der Bits pro Byte
 \1_convert_image_loop3
-	moveq	 #0,d0							;Farbnummer
+	moveq	 #0,d0			; Farbnummer
 	IFGE \1_image_depth-1
-		btst		d5,(a0)					;Bit n in Bitplane0 gesetzt ?
-		beq.s	 \1_no_plane0	;Nein -> verzweige
-		addq.w	#1,d0						;Farbnummer erhöhen
+		btst		d5,(a0)	; Bit n in Bitplane0 gesetzt ?
+		beq.s	 \1_no_plane0	; Nein -> verzweige
+		addq.w	#1,d0		; Farbnummer erhöhen
 \1_no_plane0
 	ENDC
 	IFGE \1_image_depth-2
-		btst		d5,\1_image_plane_width*1(a0) ;Bit n in Bitplane1 gesetzt ?
+		btst		d5,\1_image_plane_width*1(a0) ; Bit n in Bitplane1 gesetzt ?
 		beq.s	 \1_no_plane1	;Nein -> verzweige
-		addq.w	#2,d0						;Farbnummer erhöhen
+		addq.w	#2,d0		; Farbnummer erhöhen
 \1_no_plane1
 	ENDC
 	IFGE \1_image_depth-3
-		btst		d5,\1_image_plane_width*2(a0) ;Bit n in Bitplane2 gesetzt ?
-		beq.s	 \1_no_plane2	;Nein -> verzweige
-		addq.w	#4,d0						;Farbnummer erhöhen
+		btst		d5,\1_image_plane_width*2(a0) ; Bit n in Bitplane2 gesetzt ?
+		beq.s	 \1_no_plane2	; Nein -> verzweige
+		addq.w	#4,d0		; Farbnummer erhöhen
 \1_no_plane2
 	ENDC
 	IFGE \1_image_depth-4
-		btst		d5,\1_image_plane_width*3(a0) ;Bit n in Bitplane3 gesetzt ?
-		beq.s	 \1_no_plane3	;Nein -> verzweige
-		addq.w	#8,d0						;Farbnummer erhöhen
+		btst		d5,\1_image_plane_width*3(a0) ; Bit n in Bitplane3 gesetzt ?
+		beq.s	 \1_no_plane3	; Nein -> verzweige
+		addq.w	#8,d0		; Farbnummer erhöhen
 \1_no_plane3
 	ENDC
 	IFGE \1_image_depth-5
-		btst		d5,\1_image_plane_width*4(a0) ;Bit n in Bitplane4 gesetzt ?
-		beq.s	 \1_no_plane4	;Nein -> verzweige
-		add.w	 d3,d0						;Farbnummer erhöhen
+		btst		d5,\1_image_plane_width*4(a0) ; Bit n in Bitplane4 gesetzt ?
+		beq.s	 \1_no_plane4	; Nein -> verzweige
+		add.w	 d3,d0		; Farbnummer erhöhen
 \1_no_plane4
 	ENDC
 	IFGE \1_image_depth-6
-		btst		d5,\1_image_plane_width*5(a0) ;Bit n in Bitplane5 gesetzt ?
-		beq.s	 \1_no_plane5	;Nein -> verzweige
-		add.w	 a4,d0						;Farbnummer erhöhen
+		btst		d5,\1_image_plane_width*5(a0) ; Bit n in Bitplane5 gesetzt ?
+		beq.s	 \1_no_plane5	; Nein -> verzweige
+		add.w	 a4,d0		; Farbnummer erhöhen
 \1_no_plane5
 	ENDC
 	IFGE \1_image_depth-7
-		btst		d5,\1_image_plane_width*6(a0) ;Bit n in Bitplane6 gesetzt ?
-		beq.s	 \1_no_plane6	;Nein -> verzweige
-		add.w	 a5,d0						;Farbnummer erhöhen
+		btst		d5,\1_image_plane_width*6(a0) ; Bit n in Bitplane6 gesetzt ?
+		beq.s	 \1_no_plane6	; Nein -> verzweige
+		add.w	 a5,d0		; Farbnummer erhöhen
 \1_no_plane6
 	ENDC
 	IFEQ \1_image_depth-8
 		btst		d5,\1_image_plane_width*7(a0) ; Bit n in Bitplane7 gesetzt ?
-		beq.s	 \1_no_plane7 ; Nein -> verzweige
+		beq.s	 \1_no_plane7	; Nein -> verzweige
 		add.w	 a6,d0		; Farbnummer erhöhen
 \1_no_plane7
 	ENDC
@@ -1773,7 +1773,7 @@ restore_second_copperlist_loop
 					MOVEF.L \2_\4_size*32,d1
 					move.l	\2_\3(a3),a0 
 					ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
-					moveq	 #(\2_display_y_size/32)-1,d7
+					moveq	#(\2_display_y_size/32)-1,d7
 restore_second_copperlist_loop
 					move.w	d0,(a0)						;WAIT-Befehl wieder herstellen
 					move.w	d0,\2_\4_size*1(a0)
@@ -1881,7 +1881,7 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 		move.l \6(\7),a5	; Zeiger auf Tabelle mit Switchwerten
 	ENDC
 	IFNC "","\8"
-		add.l	#\8*BYTE_SIZE,a5 ;Offset Tabellenanfamg
+		add.l	#\8*BYTE_SIZE,a5 ; Offset Tabellenanfamg
 	ENDC
 	IFC "45","\9"
 		moveq	#(\2_display_width)-1-1,d7 ; Anzahl der Spalten
@@ -1958,7 +1958,7 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 	IFC "B","\0"
 		moveq	#\1_bar_height*BYTE_SIZE,d4
 	ENDC
-	lea	\1_yz_coords(pc),a0 ; Zeiger auf YZ-Koords
+	lea	\1_yz_coords(pc),a0	; Zeiger auf YZ-Koords
 	move.l	\2_\3(a3),a2
 	ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_BPLCON4_1+2,a2
 	IFC "pc","\7"
