@@ -145,12 +145,14 @@ alloc_memory_ok
 free_memory
 		move.l	memory(a3),d0
 		bne.s   free_memory_skip
+free_memory_quit
 		rts
 		CNOP 0,4
 free_memory_skip
 		move.l	d0,a1
 		move.l	#memory_size,d0
-		CALLEXECQ FreeMem
+		CALLEXEC FreeMem
+		bra.s	free_memory_quit
 	ENDC
 
 
@@ -162,10 +164,12 @@ free_memory_skip
 free_RDArgs
 		move.l	RDArgs(a3),d1
 		bne.s   free_RDArgs_skip
+free_RDArgs_quit
 		rts
 		CNOP 0,4
 free_RDArgs_skip
-		CALLDOSQ FreeArgs
+		CALLDOS FreeArgs
+		bra.s	free_RDArgs_quit
 	ENDC
 
 
@@ -178,12 +182,14 @@ print_error_text
 	moveq   #ERROR_NO_FREE_STORE,d0
 	cmp.l   d0,d1
 	bge.s	print_error_text_skip
+print_error_text_quit
 	rts
 	CNOP 0,4
 print_error_text_skip
 	lea	error_header(pc),a0	; Header für Fehlermeldung
 	move.l	a0,d2
-	CALLDOSQ PrintFault
+	CALLDOS PrintFault
+	bra.s	print_error_text_quit
 
 
 ; Input
@@ -206,8 +212,10 @@ print_text
 close_dos_library
 	move.l	_DOSBase(pc),d0
 	bne.s   close_dos_library_skip
+close_dos_library_quit
 	rts
 	CNOP 0,4
 close_dos_library_skip
 	move.l	d0,a1
-	CALLEXECQ CloseLibrary
+	CALLEXEC CloseLibrary
+	bra.s	close_dos_library_quit

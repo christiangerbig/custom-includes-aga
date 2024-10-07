@@ -2362,6 +2362,7 @@ get_active_screen_mode_ok
 sf_get_screen_colors
 			move.l	active_screen(a3),d0
 			bne.s	sf_get_screen_colors_skip
+sf_get_screen_colors_quit
 			rts
 			CNOP 0,4
 sf_get_screen_colors_skip
@@ -2370,7 +2371,8 @@ sf_get_screen_colors_skip
 			move.l	sf_screen_color_table(a3),a1 ; 32-Bit RGB-Werte
 			moveq	#0,d0	; Ab COLOR00
 			MOVEF.L	sf_rgb32_colors_number,d1 ; Alle 256 Farben
-			CALLGRAFQ GetRGB32
+			CALLGRAF GetRGB32
+			bra.s	sf_get_screen_colors_quit
 
 
 ; Input
@@ -2518,13 +2520,15 @@ sfo_rgb32_increase_blue
 sf_rgb32_set_new_colors
 			move.l	active_screen(a3),d0
 			bne.s   sf_rgb32_set_new_colors_skip
+sf_rgb32_set_new_colors_quit
 			rts
 			CNOP 0,4
 sf_rgb32_set_new_colors_skip
 			move.l	d0,a0
 			ADDF.W	sc_ViewPort,a0
 			move.l	sf_screen_color_cache(a3),a1
-			CALLGRAFQ LoadRGB32
+			CALLGRAF LoadRGB32
+			bra.s	sf_rgb32_set_new_colors_quit
 		ENDC
 
 
@@ -2572,6 +2576,7 @@ check_pal_screen_mode
 		move.w	#SCREEN_MODE_NOT_AVAILABLE,custom_error_code(a3)
 		moveq	#RETURN_FAIL,d0
 		rts
+		CNOP 0,4
 check_pal_screen_mode_ok
 		moveq	#RETURN_OK,d0
 		rts
@@ -2640,7 +2645,8 @@ wait_monitor_switch_quit
 		CNOP 0,4
 do_wait_monitor_switch
 		MOVEF.L	monitor_switch_delay,d1
-		CALLDOSQ Delay
+		CALLDOS Delay
+		bra.s	wait_monitor_switch_quit
 
 
 ; Input
@@ -2788,8 +2794,7 @@ move_exception_vectors_loop
 		move.l	exception_vectors_base(a3),d0
 		move.l	d0,vbr_save(a3)
 		lea	write_vbr(pc),a5
-		CALLLIBQ Supervisor
-		CNOP 0,4
+		CALLLIBS Supervisor
 move_exception_vectors_quit
 		rts
 	
@@ -3487,12 +3492,14 @@ put_ch_process
 free_vectors_base_memory
 		move.l	exception_vectors_base(a3),d0
 		bne.s   free_vectors_base_memory_skip
+free_vectors_base_memory_quit
 		rts
 		CNOP 0,4
 free_vectors_base_memory_skip
 		move.l	d0,a1
 		move.l	#exception_vectors_size,d0
-		CALLEXECQ FreeMem
+		CALLEXEC FreeMem
+		bra.s	free_vectors_base_memory_quit
 	ENDC
 
 
@@ -3504,12 +3511,14 @@ free_vectors_base_memory_skip
 free_chip_memory
 		move.l	chip_memory(a3),d0
 		bne.s	free_chip_memory_skip
+free_chip_memory_quit
 		rts
 		CNOP 0,4
 free_chip_memory_skip
 		move.l	d0,a1
 		MOVEF.L	chip_memory_size,d0
-		CALLEXECQ FreeMem
+		CALLEXEC FreeMem
+		bra.s	free_chip_memory_quit
 	ENDC
 
 
@@ -3521,12 +3530,14 @@ free_chip_memory_skip
 free_extra_memory
 		move.l	extra_memory(a3),d0
 		bne.s	free_extra_memory_skip
+free_extra_memory_quit
 		rts
 		CNOP 0,4
 free_extra_memory_skip
 		move.l	d0,a1
 		MOVEF.L extra_memory_size,d0
-		CALLEXECQ FreeMem
+		CALLEXEC FreeMem
+		bra.s	free_extra_memory_quit
 	ENDC
 
 
@@ -3538,12 +3549,14 @@ free_extra_memory_skip
 free_disk_memory
 		move.l	disk_data(a3),d0
 		beq.s	free_disk_memory_skip
+free_disk_memory_quit
 		rts
 		CNOP 0,4
 free_disk_memory_skip
 		move.l	d0,a1
 		MOVEF.L	disk_memory_size,d0
-		CALLEXECQ FreeMem
+		CALLEXEC FreeMem
+		bra.s	free_disk_memory_quit
 	ENDC
 
 
@@ -3555,12 +3568,14 @@ free_disk_memory_skip
 free_audio_memory
 		move.l	audio_data(a3),d0
 		bne.s	free_audio_memory_skip
+free_audio_memory_quit
 		rts
 		CNOP 0,4
 free_audio_memory_skip
 		move.l	d0,a1
 		MOVEF.L	audio_memory_size,d0
-		CALLEXECQ FreeMem
+		CALLEXEC FreeMem
+		bra.s	free_audio_memory_quit
 	ENDC
 
 
@@ -3630,8 +3645,7 @@ free_pf2_memory3
 		move.l	pf2_bitmap3(a3),d0
 		beq.s	free_pf2_memory3_quit
 		move.l	d0,a0
-		CALLGRAFQ FreeBitMap
-		CNOP 0,4
+		CALLGRAF FreeBitMap
 free_pf2_memory3_quit
 		rts
 	ENDC
@@ -3644,8 +3658,7 @@ free_pf2_memory2
 		move.l	pf2_bitmap2(a3),d0
 		beq.s	free_pf2_memory2_quit
 		move.l	d0,a0
-		CALLGRAFQ FreeBitMap
-		CNOP 0,4
+		CALLGRAF FreeBitMap
 free_pf2_memory2_quit
 		rts
 	ENDC
@@ -3658,8 +3671,7 @@ free_pf2_memory1
 		move.l	pf2_bitmap1(a3),d0
 		beq.s	free_pf2_memory1_quit
 		move.l	d0,a0
-		CALLGRAFQ FreeBitMap
-		CNOP 0,4
+		CALLGRAF FreeBitMap
 free_pf2_memory1_quit
 		rts
 	ENDC
@@ -3674,8 +3686,7 @@ free_pf1_memory3
 		move.l	pf1_bitmap3(a3),d0
 		beq.s	free_pf1_memory3_quit
 		move.l	d0,a0
-		CALLGRAFQ FreeBitMap
-		CNOP 0,4
+		CALLGRAF FreeBitMap
 free_pf1_memory3_quit
 		rts
 	ENDC
@@ -3688,8 +3699,7 @@ free_pf1_memory2
 		move.l	pf1_bitmap2(a3),d0
 		beq.s	free_pf1_memory2_quit
 		move.l	d0,a0
-		CALLGRAFQ FreeBitMap
-		CNOP 0,4
+		CALLGRAF FreeBitMap
 free_pf1_memory2_quit
 		rts
 	ENDC
@@ -3702,8 +3712,7 @@ free_pf1_memory1
 		move.l	pf1_bitmap1(a3),d0
 		beq.s	free_pf1_memory1_quit
 		move.l	d0,a0
-		CALLGRAFQ FreeBitMap
-		CNOP 0,4
+		CALLGRAF FreeBitMap
 free_pf1_memory1_quit
 		rts
 	ENDC
@@ -3717,12 +3726,14 @@ free_pf1_memory1_quit
 free_cl2_memory3
 		move.l	cl2_display(a3),d0
 		bne.s	free_cl2_memory3_skip
+free_cl2_memory3_quit
 		rts
 		CNOP 0,4
 free_cl2_memory3_skip
 		move.l	d0,a1
 		MOVEF.L	cl2_size3,d0
-		CALLEXECQ FreeMem
+		CALLEXEC FreeMem
+		bra.s	free_cl2_memory3_quit
 	ENDC
 	IFNE cl2_size2
 ; Input
@@ -3732,12 +3743,14 @@ free_cl2_memory3_skip
 free_cl2_memory2
 		move.l	cl2_construction2(a3),d0
 		bne.s	free_cl2_memory2_skip
+free_cl2_memory2_quit
 		rts
 		CNOP 0,4
 free_cl2_memory2_skip
 		move.l	d0,a1
 		MOVEF.L	cl2_size2,d0
-		CALLEXECQ FreeMem
+		CALLEXEC FreeMem
+		bra.s	free_cl2_memory2_quit
 	ENDC
 	IFNE cl2_size1
 ; Input
@@ -3748,11 +3761,13 @@ free_cl2_memory1
 		move.l	cl2_construction1(a3),d0
 		bne.s	free_cl2_memory1_skip
 		rts
+free_cl2_memory1_quit
 		CNOP 0,4
 free_cl2_memory1_skip
 		move.l	d0,a1
 		MOVEF.L	cl2_size1,d0
-		CALLEXECQ FreeMem
+		CALLEXEC FreeMem
+		bra.s	free_cl2_memory2_quit
 	ENDC
 
 
@@ -3764,12 +3779,14 @@ free_cl2_memory1_skip
 free_cl1_memory3
 		move.l	cl1_display(a3),d0
 		bne.s	free_cl1_memory3_skip
+free_cl1_memory3_quit
 		rts
 		CNOP 0,4
 free_cl1_memory3_skip
 		move.l	d0,a1
 		MOVEF.L	cl1_size3,d0
-		CALLEXECQ FreeMem
+		CALLEXEC FreeMem
+		bra.s 	free_cl1_memory3_quit
 	ENDC
 	IFNE cl1_size2
 ; Input
@@ -3779,12 +3796,14 @@ free_cl1_memory3_skip
 free_cl1_memory2
 		move.l	cl1_construction2(a3),d0
 		bne.s	free_cl1_memory2_skip
+free_cl1_memory2_quit
 		rts
 		CNOP 0,4
 free_cl1_memory2_skip
 		move.l	d0,a1
 		MOVEF.L	cl1_size2,d0
-		CALLEXECQ FreeMem
+		CALLEXEC FreeMem
+		bra.s	free_cl1_memory2_quit
 	ENDC
 	IFNE cl1_size1
 ; Input
@@ -3794,12 +3813,14 @@ free_cl1_memory2_skip
 free_cl1_memory1
 		move.l	cl1_construction1(a3),d0
 		bne.s	free_cl1_memory1_skip
+free_cl1_memory1_quit
 		rts
 		CNOP 0,4
 free_cl1_memory1_skip
 		move.l	d0,a1
 		MOVEF.L	cl1_size1,d0
-		CALLEXECQ FreeMem
+		CALLEXEC FreeMem
+		bra.s	free_cl1_memory1_quit
 	ENDC
 
 
@@ -3812,12 +3833,14 @@ free_cl1_memory1_skip
 sf_free_screen_color_cache
 			move.l	sf_screen_color_cache(a3),d0
 			bne.s	sf_free_screen_color_cache_skip
+sf_free_screen_color_cache_quit
 			rts
 			CNOP 0,4
 sf_free_screen_color_cache_skip
 			move.l	d0,a1
 			MOVEF.L	(1+(sf_rgb32_colors_number*3)+1)*LONGWORD_SIZE,d0
-			CALLEXECQ FreeMem
+			CALLEXEC FreeMem
+			bra.s	sf_free_screen_color_cache_quit
 
 
 ; Input
@@ -3827,12 +3850,14 @@ sf_free_screen_color_cache_skip
 sf_free_screen_color_table
 			move.l	sf_screen_color_table(a3),d0
 			bne.s	sf_free_screen_color_table_skip
+sf_free_screen_color_table_quit
 			rts
 			CNOP 0,4
 sf_free_screen_color_table_skip
 			move.l	d0,a1
 			MOVEF.L	sf_rgb32_colors_number*3*LONGWORD_SIZE,d0
-			CALLEXECQ FreeMem
+			CALLEXEC FreeMem
+			bra.s	sf_free_screen_color_table_quit
 		ENDC
 
 
@@ -3843,12 +3868,14 @@ sf_free_screen_color_table_skip
 free_mouse_pointer_data
 	move.l	mouse_pointer_data(a3),d0
 	bne.s	free_mouse_pointer_data_skip
+free_mouse_pointer_data_quit
 	rts
 	CNOP 0,4
 free_mouse_pointer_data_skip
 	move.l	d0,a1
 	moveq	#cleared_pointer_data_size,d0
-	CALLEXECQ FreeMem
+	CALLEXEC FreeMem
+	bra.s	free_mouse_pointer_data_quit
 
 
 ; Input
@@ -3933,12 +3960,14 @@ close_dos_library
 reply_workbench_message
 			move.l	workbench_message(a3),d2
 			bne.s	workbench_message_ok
+reply_workbench_message_quit
 			rts
 			CNOP 0,4
 workbench_message_ok
 			CALLEXEC Forbid
 			move.l	d2,a1
 			CALLLIBS ReplyMsg
-			CALLLIBQ Permit
+			CALLLIBS Permit
+			bra.s	reply_workbench_message_quit
 		ENDC
 	ENDC
