@@ -1,11 +1,10 @@
-; Datum:	05.09.2024
-; Version:      4.6
+; Datum:	05.10.2024
+; Version:      4.7
 
 ; ** Globale Labels **
 
 ; SYS_TAKEN_OVER
 
-; COLOR_GRADIENT_RGB4
 ; COLOR_GRADIENT_RGB8
 
 
@@ -50,6 +49,7 @@ do_alloc_bitmap_memory
 	moveq	#BMF_CLEAR|BMF_DISPLAYABLE|BMF_INTERLEAVED,d3 ; Flags
 	sub.l	a0,a0			; Keine Friendbitmap
 	CALLGRAFQ AllocBitMap
+
 
 	IFD SYS_TAKEN_OVER
 		IFNE intena_bits&(~INTF_SETCLR)
@@ -119,7 +119,7 @@ wait_vbi
 wait_vbi_loop
 	moveq	#INTF_VERTB,d0
 	and.w	(a0),d0			; VERTB-Interrupt ?
-	beq.s	wait_vbi_loop		; Nein -> verzweige
+	beq.s	wait_vbi_loop
 	move.w	d0,INTREQ-DMACONR(a6)	; VERTB-Interrupt löschen
 	rts
 
@@ -133,7 +133,7 @@ wait_copint
 wait_copint_loop
 	moveq	#INTF_COPER,d0
 	and.w	(a0),d0			; COPER-Interrupt ?
-	beq.s	wait_copint_loop	; Nein -> verzweige
+	beq.s	wait_copint_loop
 	move.w	d0,INTREQ-DMACONR(a6)	; COPER-Interrupt löschen
 	rts
 
@@ -147,7 +147,7 @@ wait_copint_loop
 ; d0	... Kein Rückgabewert
 	CNOP 0,4
 cop_init_high_colors
-	move.w	#GB_NIBBLES_MASK,d2		; Maske RGB4-Nibbles
+	move.w	#GB_NIBBLES_MASK,d2
 cop_init_high_colors_loop
 	move.l	(a1)+,d0		; RGB8-Farbwert
 	RGB8_TO_RGB4_HIGH d0,d1,d2
@@ -159,15 +159,15 @@ cop_init_high_colors_loop
 
 
 ; Input
-; a0	,,, Copperliste
-; a1	,,, Tabelle mit Farbwerten
+; a0	... Copperliste
+; a1	... Tabelle mit Farbwerten
 ; d3.w	... erstes Farbregister
 ; d7.w	... Anzahl der Farben
 ; Result
 ; d0	... Kein Rückgabewert
 	CNOP 0,4
 cop_init_low_colors
-	move.w	#GB_NIBBLES_MASK,d2		; Maske RGB4-Nibbles
+	move.w	#GB_NIBBLES_MASK,d2
 cop_init_low_colors_loop
 	move.l	(a1)+,d0		; RGB8-Farbwert
 	RGB8_TO_RGB4_LOW d0,d1,d2
@@ -179,14 +179,14 @@ cop_init_low_colors_loop
 
 
 ; Input
-; a0	,,, Farbregister-Adresse
-; a1	,,, Tabelle mit Farbwerten
+; a0	... Farbregister-Adresse
+; a1	... Tabelle mit Farbwerten
 ; d7.w	... Anzahl der Farben
 ; Result
 ; d0	... Kein Rückgabewert
 	CNOP 0,4
 cpu_init_high_colors
-	move.w	#GB_NIBBLES_MASK,d2		; Maske RGB4-Nibbles
+	move.w	#GB_NIBBLES_MASK,d2
 cpu_init_high_colors_loop
 	move.l	(a1)+,d0		; RGB8-Farbwert
 	RGB8_TO_RGB4_HIGH d0,d1,d2
@@ -196,14 +196,14 @@ cpu_init_high_colors_loop
 
 
 ; Input
-; a0	,,, Farbregister-Adresse
-; a1	,,, Tabelle mit Farbwerten
+; a0	... Farbregister-Adresse
+; a1	... Tabelle mit Farbwerten
 ; d7.w	... Anzahl der Farben
 ; Result
 ; d0	... Kein Rückgabewert
 	CNOP 0,4
 cpu_init_low_colors
-	move.w	#GB_NIBBLES_MASK,d2		; Maske RGB4-Nibbles
+	move.w	#GB_NIBBLES_MASK,d2
 cpu_init_low_colors_loop
 	move.l	(a1)+,d0		; RGB8-Farbwert
 	RGB8_TO_RGB4_LOW d0,d1,d2
@@ -212,102 +212,14 @@ cpu_init_low_colors_loop
 	rts
 
 
-	IFD COLOR_GRADIENT_RGB4
-; Input
-; d0.w	... RGB4-Istwert
-; d6.w	... RGB4-Sollwert
-; d7.w	... Anzahl der Farbwerte
-; a0	... Zeiger auf Farbtabelle
-; a1.w	... Additions-/Subtraktionswert für Rot
-; a2.w	... Additions-/Subtraktionswert für Grün
-; a4.w	... Additions-/Subtraktionswert für Blau
-; a5	... Offset
-; Result
-; d0	... Kein Rückgabewert
-		CNOP 0,4
-init_color_gradient_rgb4_loop
-		move.w	d0,(a0)		; RGB4-Wert in Farbtabelle schreiben
-		add.l	a5,a0		; Offset
-		move.w	d0,d1		; Grünwert-Nibble
-		moveq	#$0f,d2		; Maske Blauwert-Nibble
-		and.w	#$0f0,d1	; Grünwert-Nibble
-		and.b	d0,d2		; Blauwert-Nibble
-		move.w	d6,d3		; RGB4-Sollwert
-		clr.b	d0		; Rotwertt-Nibble
-		move.w	d3,d4		; Grünwert-Nibble
-		moveq	#$0f,d5		; Blauwert-Nibble
-		and.w	#$0f0,d4	; Grünwert-Nibble
-		and.b	d3,d5		; Blauwert-Nibble
-		clr.b	d3		; Rotwert-Nibble
-		cmp.w	d3,d0
-		bgt.s	decrease_red_rgb4
-		blt.s	increase_red_rgb4
-check_green_nibble_rgb4
-		cmp.w	d4,d1
-		bgt.s	decrease_green_rgb4
-		blt.s	increase_green_rgb4
-check_blue_nibble_rgb4
-		cmp.b	d5,d2
-		bgt.s	decrease_blue_rgb4
-		blt.s	increase_blue_rgb4
-merge_nibbles_rgb4
-		move.b	d1,d0		; Neues Grümwert-Nibble
-		or.b	d2,d0		; Neues Blauwert-Nibble
-		dbf	d7,init_color_gradient_rgb4_loop
-		rts
-		CNOP 0,4
-decrease_red_rgb4
-		sub.w	a1,d0
-		cmp.w	d3,d0
-		bgt.s	check_green_nibble_rgb4
-		move.w	d3,d0		; Ist-Rotwert-Nibble = Soll-Rotwert-Nibble
-		bra.s	check_green_nibble_rgb4
-		CNOP 0,4
-increase_red_rgb4
-		add.w	a1,d0
-		cmp.w	d3,d0
-		blt.s	check_green_nibble_rgb4
-		move.w	d3,d0		; Ist-Rotwert-Nibble = Soll-Rotwert-Nibble
-		bra.s	check_green_nibble_rgb4
-		CNOP 0,4
-decrease_green_rgb4
-		sub.w	a2,d1
-		cmp.w	d4,d1
-		bgt.s	check_blue_nibble_rgb4
-		move.w	d4,d1		; Ist-Grünwert-Nibble = Soll-Grünwert-Nibble
-		bra.s	check_blue_nibble_rgb4
-		CNOP 0,4
-increase_green_rgb4
-		add.w	a2,d1
-		cmp.w	d1,d4
-		blt.s	check_blue_nibble_rgb4
-		move.w	d4,d1		; Ist-Grünwert-Nibble = Soll-Grünwert-Nibble
-		bra.s	check_blue_nibble_rgb4
-		CNOP 0,4
-decrease_blue_rgb4
-		sub.w	a4,d2
-		cmp.b	d5,d2
-		bgt.s	merge_nibbles_rgb4
-		move.b	d5,d2		; Ist-Blauwert-Nibble = Soll-Blauwert-Nibble
-		bra.s	merge_nibbles_rgb4
-		CNOP 0,4
-increase_blue_rgb4
-		add.w	a4,d2
-		cmp.b	d5,d2
-		blt.s	merge_nibbles_rgb4
-		move.b	d5,d2		; Ist-Blauwert-Nibble = Soll-Blauwert-Nibble
-		bra.s	merge_nibbles_rgb4
-	ENDC
-
-
 	IFD COLOR_GRADIENT_RGB8
 ; Input
 ; d0.l	... RGB8-Istwert
 ; d6.l	... RGB8-Sollwert
 ; d7.w	... Anzahl der Farbwerte
 ; a0	... Zeiger auf Farbtabelle
-; a1	... Additions-/Subtraktionswert für Rot
-; a2	... Additions-/Subtraktionswert für Grün
+; a1.l	... Additions-/Subtraktionswert für Rot
+; a2.l	... Additions-/Subtraktionswert für Grün
 ; a4.w	... Additions-/Subtraktionswert für Blau
 ; a5	... Offset
 ; Result
@@ -317,74 +229,75 @@ init_color_gradient_rgb8_loop
 		move.l	d0,(a0)		; RGB8-Wert in Farbtabelle schreiben
 		add.l	a5,a0		; Offset
 		moveq	#0,d1
-		move.w	d0,d1		; Grünwert-Byte
+		move.w	d0,d1
 		moveq	#0,d2
-		clr.b	d1		; Grünwert-Byte
-		move.b	d0,d2		; Blauwert-Byte
-		clr.w	d0		; Rotwert-Byte
-		move.l	d6,d3		; RGB8-Sollwert
+		clr.b	d1		; Ist-G8
+		move.b	d0,d2		; Ist-B8
+		clr.w	d0		; Ist-R8
+		move.l	d6,d3		; Soll-RGB8
 		moveq	#0,d4
-		move.w	d3,d4		; Grünwert-Byte
+		move.w	d3,d4
 		moveq	#0,d5
-		move.b	d3,d5		; Blauwert-Byte
-		clr.w	d3		; Rotwert-Byte
-		clr.b	d4		; Grünwert-Byte
+		move.b	d3,d5		; Soll-B8
+		clr.w	d3		; Soll-R8
+		clr.b	d4		; Soll-G8
+
 		cmp.l	d3,d0
-		bgt.s	decrease_red_nibble_rgb8
-		blt.s	increase_red_nibble_rgb8
-check_green_nibble_rgb8
+		bgt.s	decrease_red_rgb8
+		blt.s	increase_red_rgb8
+check_green_rgb8
 		cmp.l	d4,d1
-		bgt.s	decrease_green_nibble_rgb8
-		blt.s	increase_green_nibble_rgb8
-check_blue_nibble_rgb8
+		bgt.s	decrease_green_rgb8
+		blt.s	increase_green_rgb8
+check_blue_rgb8
 		cmp.w	d5,d2
-		bgt.s	decrease_blue_nibble_rgb8
-		blt.s	increase_blue_nibble_rgb8
-merge_nibbles_rgb8
-		move.w	d1,d0		; Neues Grünwert-Byte
-		move.b	d2,d0		; neues Blauwert-Byte
+		bgt.s	decrease_blue_rgb8
+		blt.s	increase_blue_rgb8
+merge_rgb8
+		move.w	d1,d0		; G8
+		move.b	d2,d0		; B8
 		dbf	d7,init_color_gradient_rgb8_loop
 		rts
 		CNOP 0,4
-decrease_red_nibble_rgb8
+decrease_red_rgb8
 		sub.l	a1,d0
 		cmp.l	d3,d0
-		bgt.s	check_green_nibble_rgb8
-		move.l	d3,d0		; Ist-Rotwert-Byte = Soll-Rotwert-Byte
-		bra.s	check_green_nibble_rgb8
+		bgt.s	check_green_rgb8
+		move.l	d3,d0
+		bra.s	check_green_rgb8
 		CNOP 0,4
-increase_red_nibble_rgb8
+increase_red_rgb8
 		add.l	a1,d0
 		cmp.l	d3,d0
-		blt.s	check_green_nibble_rgb8
-		move.l	d3,d0		; Ist-Rotwert-Byte = Soll-Rotwert-Byte
-		bra.s	check_green_nibble_rgb8
+		blt.s	check_green_rgb8
+		move.l	d3,d0
+		bra.s	check_green_rgb8
 		CNOP 0,4
-decrease_green_nibble_rgb8
+decrease_green_rgb8
 		sub.l	a2,d1
 		cmp.l	d4,d1
-		bgt.s	check_blue_nibble_rgb8
-		move.l	d4,d1		; Ist-Grünwert-Byte = Soll-Grünwert-Byte
-		bra.s	 check_blue_nibble_rgb8
+		bgt.s	check_blue_rgb8
+		move.l	d4,d1
+		bra.s	check_blue_rgb8
 		CNOP 0,4
-increase_green_nibble_rgb8
+increase_green_rgb8
 		add.l	a2,d1							;Grünanteil erhöhen
 		cmp.l	d4,d1							;Ist-Grünwert < Soll-Grünwert ?
-		blt.s	check_blue_nibble_rgb8
-		move.l	d4,d1		; Ist-Grünwert-Byte = Soll-Grünwert-Byte
-		bra.s	check_blue_nibble_rgb8
+		blt.s	check_blue_rgb8
+		move.l	d4,d1
+		bra.s	check_blue_rgb8
 		CNOP 0,4
-decrease_blue_nibble_rgb8
+decrease_blue_rgb8
 		sub.w	a4,d2
 		cmp.w	d5,d2
-		bgt.s	merge_nibbles_rgb8
-		move.w	d5,d2		; Ist-Blauwert-Byte = Soll-Blauwert-Byte
-		bra.s	merge_nibbles_rgb8
+		bgt.s	merge_rgb8
+		move.w	d5,d2
+		bra.s	merge_rgb8
 		CNOP 0,4
-increase_blue_nibble_rgb8
+increase_blue_rgb8
 		add.w	a4,d2
 		cmp.w	d5,d2
-		blt.s	merge_nibbles_rgb8
-		move.w	d5,d2		; Ist-Blauwert-Byte = Soll-Blauwert-Byte
-		bra.s	merge_nibbles_rgb8
+		blt.s	merge_rgb8
+		move.w	d5,d2
+		bra.s	merge_rgb8
 	ENDC

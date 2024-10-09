@@ -1762,15 +1762,15 @@ INIT_MIRROR_SWITCH_TABLE	MACRO
 	IFC "a3","\7"
 		move.l	\6(\7),a0	; Zeiger auf Switch-Tabelle
 	ENDC
-	IFNC "","\8"
-		add.l	#\8,a0		; Offset Tabellenanfang
-	ENDC
 	IFC "B","\0"
+		IFNC "","\8"
+			add.l	#\8*BYTE_SIZE,a0 ; Offset Tabellenanfang
+		ENDC
 		IFNC "","\2"
-		moveq	#\2,d0		; Erster Switchwert
+			moveq	#\2,d0	; Erster Switchwert
 		ENDC
 		IFNC "","\3"
-		moveq	#\3,d2		; Additionswert für Switchwert
+			moveq	#\3,d2	; Additionswert für Switchwert
 		ENDC
 		moveq	#\4-1,d7	; Anzahl der Farbverläufe
 \1_init_mirror_switch_table_loop1
@@ -1792,6 +1792,9 @@ INIT_MIRROR_SWITCH_TABLE	MACRO
 		dbf	d7,\1_init_mirror_switch_table_loop1
 	ENDC
 	IFC "W","\0"
+		IFNC "","\8"
+			add.l	#\8*WORD_SIZE,a0 ; Offset Tabellenanfang
+		ENDC
 		IFNC "","\2"
 			move.l	#(\2<<8)|bplcon4_bits,d0 ; Erster Switchwert
 		ENDC
@@ -2027,8 +2030,8 @@ INIT_COLOR_GRADIENT_RGB8	MACRO
 ; \4 NUMBER:		Color-Step-Wert für RGB (optional)
 ; \5 POINTER:		Zeiger auf Farbtabelle(optional)
 ; \6 STRING:		Pointer-Base [pc, a3] (optional)
-; \7 LONGWORD:		Offset Anfang Farbtabelle (optional)
-; \8 LONGWORD:		Offset zum nächsten Wert in Farbtabelle (optional)
+; \7 LONGWORD:		Offset zum nächsten Wert in Farbtabelle (optional)
+; \8 LONGWORD:		Offset Anfang Farbtabelle (optional)
 ; Result
 	IFC "","\1"
 		FAIL Makro COLOR_GRADIENT_RGB8: RGB8 Startwert/Istwert fehlt
@@ -2049,16 +2052,16 @@ INIT_COLOR_GRADIENT_RGB8	MACRO
 			move.l	\5(\6),a0 ; Zeiger auf Farbtabelle
 		ENDC
 	ENDC
-	IFNC "","\7"
-		add.l	#(\7)*LONGWORD_SIZE,a0 ; Nur Offset addieren
+	IFNC "","\8"
+		add.l	#(\8)*LONGWORD_SIZE,a0 ; Offset Anfang Farbtabelle
 	ENDC
 	IFNC "","\4"
 		move.l	#(\4)<<16,a1	; Additions-/Subtraktionswert für Rot
 		move.w	#(\4)<<8,a2	; Additions-/Subtraktionswert für Grün
 		move.w	#\4,a4		; Additions-/Subtraktionswert für Grün
 	ENDC
-	IFNC "","\8"
-		move.w	#(\8)*LONGWORD_SIZE,a5 ; Offset nächster Farbwert
+	IFNC "","\7"
+		move.w	#(\7)*LONGWORD_SIZE,a5 ; Offset nächster Farbwert
 	ENDC
 	MOVEF.W	\3-1,d7			; Anzahl der Farbwerte
 	bsr	init_color_gradient_RGB8_loop
@@ -2754,8 +2757,9 @@ INIT_CUSTOM_ERROR_ENTRY		MACRO
 	ENDC
 
 	moveq	#\1-1,d0
+	MULUF.W	8,d0,d1
 	lea	\2(pc),a1
-	move.l	a1,(a0,d0.w*8)
+	move.l	a1,(a0,d0.w)		; Damit es auf dem 68000 keinen Guru gibt.
 	moveq	#\3,d1
-	move.l	d1,4(a0,d0.w*8)
+	move.l	d1,4(a0,d0.w)
 	ENDM
