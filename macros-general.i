@@ -2757,7 +2757,7 @@ INIT_CUSTOM_ERROR_ENTRY		MACRO
 	ENDC
 
 	moveq	#\1-1,d0
-	MULUF.W	8,d0,d1
+	MULUF.W	8,d0,d1			; 68000er unterstützt kein variables Register-Index
 	lea	\2(pc),a1
 	move.l	a1,(a0,d0.w)		; Damit es auf dem 68000 keinen Guru gibt.
 	moveq	#\3,d1

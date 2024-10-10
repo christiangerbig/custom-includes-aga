@@ -3925,9 +3925,10 @@ print_error_message
 		CNOP 0,4
 print_error_message_skip
 		subq.w	#1,d4		; Zählung beginnt mit 0
+		MULUF.W	8,d4,d1		; 68000er unterstützt kein variables Register-Index
 		lea	custom_error_table(pc),a0
-		move.l	(a0,d4.w*8),d2	; Zeiger auf Fehlertext
-		move.l	4(a0,d4.w*8),d3	; Länge des Fehlertextes
+		move.l	(a0,d4.w),d2	; Zeiger auf Fehlertext
+		move.l	4(a0,d4.w),d3	; Länge des Fehlertextes
 		move.l	d0,d1		; Zeiger auf Datei-Handle
 		CALLLIBS Write
 		move.l	raw_handle(a3),d1
