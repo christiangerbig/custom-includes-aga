@@ -40,6 +40,8 @@ WORD_MASK			EQU $ffff
 WORD_SIGN_MASK			EQU $8000
 WORD_SIGN_BIT			EQU 15
 
+GB_NIBBLES_MASK			EQU $0f0f
+
 ALIGN_64KB			EQU $ffff
 
 PAL_FPS				EQU 50
@@ -61,8 +63,6 @@ ASCII_CTRL_V			EQU 22
 ASCII_CTRL_W			EQU 23
 
 drives_motor_delay		EQU PAL_FPS/2 ; 500 ms
-
-GB_NIBBLES_MASK			EQU $0f0f
 
 
 ; **** Display-Degrader ****

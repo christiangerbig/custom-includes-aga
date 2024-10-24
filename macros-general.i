@@ -1381,12 +1381,11 @@ INIT_CHARACTERS_OFFSETS MACRO
 		move.w	d0,(a0)+	; X+Y-Offset des Zeichens eintragen
 		addq.w	#\1_origin_character_x_size/8,d0 ; X-Offset des nächsten Zeichens
 		cmp.w	d1,d0		; Letztes Zeichen der Zeile in Zeichen-Playfieldvorlage?
-		bne.s	\1_no_x_offset_reset ; Nein -> verzweige
-\1_x_offset_reset
+		bne.s	\1_init_characters_offsets_skip ; Nein -> verzweige
 		sub.w	d2,d0		; X-Offset zurücksetzen (Erstes Zeichen in Zeile)
 		add.w	d3,d1		; + Y-Offset
 		add.w	d3,d0		; Y-Offset = Beginn nächste Reihe in Zeichen-Playfieldvorlage
-\1_no_x_offset_reset
+\1_init_characters_offsets_skip
 		dbf	d7,\1_init_characters_offsets_loop
 		rts
 	ENDC
@@ -1401,12 +1400,11 @@ INIT_CHARACTERS_OFFSETS MACRO
 		move.l	d0,(a0)+	; X+Y-Offset des Zeichens eintragen
 		add.l	#\1_origin_character_x_size/8,d0 ; X-Offset des nächsten Zeichens
 		cmp.l	d1,d0		; Letztes Zeichen der Zeile in Zeichen-Playfieldvorlage?
-		bne.s	\1_no_x_offset_reset ;Nein -> verzweige
-\1_x_offset_reset
+		bne.s	\1_init_characters_offsets_skip ; Nein -> verzweige
 		sub.l	d2,d0		; X-Offset zurücksetzen (Erstes Zeichen in Zeile)
 		add.l	d3,d1		; + Y-Offset
 		add.l	d3,d0		; Y-Offset = Beginn nächste Reihe in Zeichen-Playfieldvorlage
-\1_no_x_offset_reset
+\1_init_characters_offsets_skip
 		dbf	d7,\1_init_characters_offsets_loop
 		rts
 	ENDC
@@ -1516,8 +1514,9 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 ; \2 LABEL:	Sub-Routine zusätzliche Checks für Steuerungs-Codes (optional)
 ; \3 STRING:	"NORESTART" für Schriften, die nicht endlos sind (optional)
 ; \4 STRING:	"BACKWARDS" (optional)
+; \5 STRING:	Offset nächster Buchstabe (optional)
 ; Result
-; d0.l		Rückgabewert: Zeiger auf Zeichen-Playfield
+; d0.l		Rückgabewert: Zeiger auf Character-Image
 	IFC "","\0"
 		FAIL Makro GET_NEW_CHARACTER_IMAGE: Größenangabe W/L fehlt
 	ENDC
@@ -1552,13 +1551,25 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 	cmp.b	(a0)+,d0		; Zeichen gefunden ?
 	dbeq	d6,\1_get_new_character_image_loop ; Nein -> Schleife
 	IFC "BACKWARDS","\4"
-		subq.w	#1,d1		; nächster Buchstabe
+		IFC "","\5"
+			subq.w	#1,d1	; nächstes Zeichen
+		ELSE
+ 			SUBF.W	\1_\5,d1 ; nächstes Zeichen
+		ENDC
 	ELSE
 		IFLT \1_origin_character_x_size-32
-			addq.w	#1,d1	; nächstes Zeichen
+			IFC "","\5"
+				addq.w	#1,d1 ; nächstes Zeichen
+			ELSE
+ 				ADDF.W	\1_\5,d1 ; nächstes Zeichen
+			ENDC
 		ELSE
 		IFNE \1_text_character_x_size-16
-			addq.w	#1,d1	; nächstes Zeichen
+			IFC "","\5"
+				addq.w	#1,d1 ; nächstes Zeichen
+			ELSE
+ 				ADDF.W	\1_\5,d1 ; nächstes Zeichen
+			ENDC
 		ENDC
 		ENDC
 	ENDC
@@ -1586,7 +1597,11 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 				not.w	\1_character_toggle_image(a3) ; Neues Image für Char ?
 				bne.s	\1_no_second_image_part ; FALSE -> verzweige
 \1_second_image_part
-				addq.w	#1,d1	; nächstes Zeichen
+				IFC "","\5"
+					addq.w	#1,d1 ; nächstes Zeichen
+				ELSE
+ 					ADDF.W	\1_\5,d1 ; nächstes Zeichen
+				ENDC
 				addq.l	#2,d0	; 2. Teil des Character-Images
 				move.w	d1,\1_text_table_start(a3)
 \1_no_second_image_part
@@ -1603,7 +1618,11 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 				cmp.w	#\1_origin_character_x_size/16,d3 ; Neues Image für Char ?
 				bne.s	\1_keep_character_image ; Nein -> verzweige
 \1_next_character
-				addq.w	#1,d1 ; nächster Buchstabe
+				IFC "","\5"
+					addq.w	#1,d1 ; nächstes Zeichen
+				ELSE
+ 					ADDF.W	\1_\5,d1 ; nächstes Zeichen
+				ENDC
 				move.w	d1,\1_text_table_start(a3)
 				moveq	#0,d3 ; Zähler zurücksetzen
 \1_keep_character_image
@@ -1615,7 +1634,11 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 	IFNC "BACKWARDS","\4"
 		IFNC "","\2"
 \1_skip_control_code
-			addq.w	#1,d1	; nächstes Zeichen
+			IFC "","\5"
+				addq.w	#1,d1 ; nächstes Zeichen
+			ELSE
+				ADDF.W	\1_\5,d1 ; nächstes Zeichen
+			ENDC
 			bra.s	\1_read_character
 		ENDC
 		IFNC "NORESTART","\3"

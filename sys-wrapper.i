@@ -1,5 +1,9 @@
 ; Datum:	08.09.2024
 ; Version:	1.0
+
+; Requirements
+; CPU:		68020+
+; Chipset:	AGA PAL
 ; OS:		3.0+
 
 ; Globale Labels
@@ -308,6 +312,7 @@ wm
 		ENDC
 
 		bsr	get_active_screen
+		move.l	d0,active_screen(a3)
 		bsr	get_sprite_resolution
 		bsr	get_active_screen_mode
 		move.l	d0,dos_return_code(a3)
@@ -1358,7 +1363,7 @@ check_system_props_ok
 ; d0.l	... Rückgabewert: Return-Code	
 			CNOP 0,4
 check_cpu_requirements
-			btst	#AFB_68030,cpu_flags+BYTESIZE(a3)
+			btst	#AFB_68030,cpu_flags+BYTE_SIZE(a3)
 			bne.s	check_cpu_requirements_ok
 			move.w	#CPU_030_REQUIRED,custom_error_code(a3)
 			moveq	#RETURN_FAIL,d0
@@ -1374,7 +1379,7 @@ check_cpu_requirements_ok
 ; d0.l	... Rückgabewert: Return-Code	
 			CNOP 0,4
 check_cpu_requirements
-			btst	#AFB_68040,cpu_flags+BYTESIZE(a3)
+			btst	#AFB_68040,cpu_flags+BYTE_SIZE(a3)
 			bne.s	check_cpu_requirements_ok
 			move.w	#CPU_040_REQUIRED,custom_error_code(a3)
 			moveq	#RETURN_FAIL,d0
@@ -1390,7 +1395,7 @@ check_cpu_requirements_ok
 ; d0.l	... Rückgabewert: Return-Code	
 			CNOP 0,4
 check_cpu_requirements
-			tst.b	cpu_flags+BYTESIZE(a3)
+			tst.b	cpu_flags+BYTE_SIZE(a3)
 			bmi.s	check_cpu_requirements_ok
 			move.w	#CPU_060_REQUIRED,custom_error_code(a3)
 			moveq	#RETURN_FAIL,d0
@@ -2301,14 +2306,16 @@ save_beamcon0_register
 
 ; Input
 ; Result
-; d0.l ... kein Rückgabewert
+; d0.l ... Rückgabewert: Screenstruktur des aktiven Screens
 	CNOP 0,4
 get_active_screen
 		moveq	#0,d0		; Alle Locks
 		CALLINT LockIBase
 		move.l	d0,a0
-		move.l	ib_ActiveScreen(a6),active_screen(a3)
-		CALLLIBQ UnlockIBase
+		move.l	ib_ActiveScreen(a6),a2
+		CALLLIBS UnlockIBase
+		move.l	a2,d0
+		rts
 
 
 ; Input
@@ -2341,12 +2348,12 @@ get_active_screen_mode
 		ADDF.W	sc_ViewPort,a0
 		CALLGRAF GetVPModeID
 		cmp.l	#INVALID_ID,d0
-		bne.s	get_active_screen_mode_save
+		bne.s	get_active_screen_mode_skip
 		move.w	#VIEWPORT_MONITOR_ID_NOT_FOUND,custom_error_code(a3)
 		moveq	#RETURN_FAIL,d0
 		rts
 		CNOP 0,4
-get_active_screen_mode_save
+get_active_screen_mode_skip
 		and.l	#MONITOR_ID_MASK,d0	; Ohne Auflösung
 		move.l	d0,active_screen_mode(a3)
 get_active_screen_mode_ok
@@ -2908,7 +2915,7 @@ turn_off_drive_motors
 		moveq	#CIAF_DSKSEL0|CIAF_DSKSEL1|CIAF_DSKSEL2|CIAF_DSKSEL3,d1
 		or.b	d1,d0
 		move.b	d0,CIAPRB(a5)	; df0: bis df3: deaktivieren
-		tas	d0
+		or.b		#CIAF_DSKMOTOR,d0
 		move.b	d0,CIAPRB(a5)	; Motor aus
 		eor.b	d1,d0
 		move.b	d0,CIAPRB(a5)	; df0: bis df3: aus
@@ -3098,7 +3105,7 @@ restore_chips_registers
 		move.b	old_ciaa_tbhi(a3),CIATBHI(a4)
 	
 		move.b	old_ciaa_icr(a3),d0
-		tas	d0		; Bit 7 ggf. setzen
+		or.b		#CIAICRF_SETCLR,d0
 		move.b	d0,CIAICR(a4)
 	
 		move.b	old_ciaa_cra(a3),d0
@@ -3126,7 +3133,7 @@ restore_chips_registers_skip2
 		move.b	old_ciab_tbhi(a3),CIATBHI(a5)
 	
 		move.b	old_ciab_icr(a3),d0
-		tas	d0		; Bit 7 ggf. setzen
+		or.b		#CIAICRF_SETCLR,d0
 		move.b	d0,CIAICR(a5)
 	
 		move.b	old_ciab_cra(a3),d0
@@ -3319,15 +3326,11 @@ close_pal_screen
 active_screen_to_front
 	tst.l	active_screen(a3)
 	beq.s	active_screen_to_front_quit
-	moveq	#0,d0			; alle Locks
-	CALLINT LockIBase
-	move.l	d0,a0
-	move.l	ib_FirstScreen(a6),a2
-	CALLLIBS UnLockIBase
-	cmp.l	active_screen(a3),a2
-	beq.s	active_screen_to_front_quit
+	bsr	get_active_screen
 	move.l	active_screen(a3),a0
-	CALLLIBS ScreenToFront
+	cmp.l	d0,a0
+	beq.s	active_screen_to_front_quit
+	CALLINT ScreenToFront
 active_screen_to_front_quit
 	rts
 
@@ -3913,6 +3916,7 @@ print_error_message
 		move.w	custom_error_code(a3),d4
 		beq.s	print_error_message_ok
 		bsr	get_active_screen
+		move.l	d0,active_screen(a3)
 		CALLINT WBenchToFront
 		lea	raw_name(pc),a0
 		move.l	a0,d1
