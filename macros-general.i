@@ -1342,7 +1342,7 @@ RGB8_TO_RGB8_HIGH_LOW		MACRO
 	ENDC
 	CNOP 0,4
 \1_convert_color_table
-	move.w	#GB_NIBBLES_MASK,d3
+	move.w	#RB_NIBBLES_MASK,d3
 	lea	\1_color_table(pc),a0 ;Zeiger auf Farbtabelle
 	move.w	#\2-1,d7		; Anzahl der Einträge
 \1_convert_color_table_loop
@@ -1431,10 +1431,10 @@ INIT_CHARACTERS_X_POSITIONS	MACRO
 		moveq	#\1_text_character_x_size,d1 ; Additionswert
 	ENDC
 	IFC "HIRES","\2"
-		moveq	#\1_text_character_x_size*2,d1 ; Additionswert
+		moveq	#\1_text_character_x_size*HIRES_PIXEL_FACTOR,d1 ; Additionswert
 	ENDC
 	IFC "SHIRES","\2"
-		MOVEF.W	\1_text_character_x_size*4,d1 ; Additionswert
+		MOVEF.W	\1_text_character_x_size*SHIRES_PIXEL_FACTOR,d1 ; Additionswert
 	ENDC
 	IFNC "BACKWARDS","\3"
 		lea	\1_characters_x_positions(pc),a0 ; Zeiger auf Tabelle mit X-Koords.
@@ -1536,13 +1536,13 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 	move.b	(a0,d1.w),d0		; ASCII-Code
 	IFNC "","\2"
 		bsr.s	\2
-		tst.w	d0		; Rückgabewert = TRUE ?
-		beq.s	\1_skip_control_code ; Ja -> verzweige, Steuerzeichen gefunden
+		tst.l	d0
+		beq.s	\1_skip_control_code
 	ENDC
 	IFNC "BACKWARDS","\4"
 		IFNC "NORESTART","\3"
-			cmp.b	#FALSE,d0 ; Wenn Ende des Textes erreicht,
-			beq.s	\1_restart_text ; dann Neustart
+			cmp.b	#FALSE,d0 ; Ende des Textes erreicht ?
+			beq.s	\1_restart_text
 		ENDC
 	ENDC
 	lea	\1_ascii(pc),a0		; Zeiger auf Tabelle mit ASCII-Codes der Zeichen
@@ -1595,7 +1595,7 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 		IFEQ \1_origin_character_x_size-32
 			IFEQ \1_text_character_x_size-16
 				not.w	\1_character_toggle_image(a3) ; Neues Image für Char ?
-				bne.s	\1_no_second_image_part ; FALSE -> verzweige
+				bne.s	\1_no_second_image_part
 \1_second_image_part
 				IFC "","\5"
 					addq.w	#1,d1 ; nächstes Zeichen
@@ -1609,7 +1609,7 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 		ENDC
 		IFGT \1_origin_character_x_size-32
 			IFEQ \1_text_character_x_size-16
-				moveq	#TRUE,d3
+				moveq	#0,d3
 				move.w	\1_character_words_counter(a3),d3 ; Zähler für Worte
 				move.l	d3,d4
 				MULUF.W	2,d4 ; Wort-Offset des Images
@@ -1639,12 +1639,17 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 			ELSE
 				ADDF.W	\1_\5,d1 ; nächstes Zeichen
 			ENDC
-			bra.s	\1_read_character
+			IFGE \1_origin_character_x_size-32
+				IFEQ \1_text_character_x_size-16
+					move.w	d1,\1_text_table_start(a3)
+				ENDC
+			ENDC
+		bra.s	\1_read_character
 		ENDC
 		IFNC "NORESTART","\3"
 			CNOP 0,4
 \1_restart_text
-			moveq	#TRUE,d1
+			moveq	#0,d1
 			bra.s	\1_read_character
 		ENDC
 	ENDC
@@ -1746,7 +1751,7 @@ esb_CPU060_store_buffer_on
 	ENDM
 
 
-INIT_MIRROR_SWITCH_TABLE	MACRO
+INIT_MIRROR_bplam_table	MACRO
 ; Input
 ; \0 STRING:		Größenangabe B/W
 ; \1 STRING:		Labels-Prefix der Routine
@@ -1760,24 +1765,24 @@ INIT_MIRROR_SWITCH_TABLE	MACRO
 ; \9 NUMBER:		Erster Switchwert für Spiegelung (optional)
 ; Result
 	CNOP 0,4
-\1_init_mirror_switch_table
+\1_init_mirror_bplam_table
 	IFC "","\0"
-		FAIL Makro MIRROR_SWITCH_TABLE: Größenangabe B/W fehlt
+		FAIL Makro MIRROR_bplam_table: Größenangabe B/W fehlt
 	ENDC
 	IFC "","\1"
-		FAIL Makro MIRROR_SWITCH_TABLE: Labels-Prefix fehlt
+		FAIL Makro MIRROR_bplam_table: Labels-Prefix fehlt
 	ENDC
 	IFC "","\4"
-		FAIL Makro INIT_MIRROR_SWITCH_TABLE: Anzahl der Farbverläufe fehlt
+		FAIL Makro INIT_MIRROR_bplam_table: Anzahl der Farbverläufe fehlt
 	ENDC
 	IFC "","\5"
-		FAIL Makro INIT_MIRROR_SWITCH_TABLE: Anzahl der Abschnitte pro Farbverlauf fehlt
+		FAIL Makro INIT_MIRROR_bplam_table: Anzahl der Abschnitte pro Farbverlauf fehlt
 	ENDC
 	IFC "","\6"
-		FAIL Makro INIT_MIRROR_SWITCH_TABLE: Tabelle mit Switchwerten fehlt
+		FAIL Makro INIT_MIRROR_bplam_table: Tabelle mit Switchwerten fehlt
 	ENDC
 	IFC "","\7"
-		FAIL Makro INIT_MIRROR_SWITCH_TABLE: Pointer-Base [pc, a3] fehlt
+		FAIL Makro INIT_MIRROR_bplam_table: Pointer-Base [pc, a3] fehlt
 	ENDC
 	IFC "pc","\7"
 		lea	\1_\6(\7),a0	; Zeiger auf Switch-Tabelle
@@ -1796,23 +1801,23 @@ INIT_MIRROR_SWITCH_TABLE	MACRO
 			moveq	#\3,d2	; Additionswert für Switchwert
 		ENDC
 		moveq	#\4-1,d7	; Anzahl der Farbverläufe
-\1_init_mirror_switch_table_loop1
+\1_init_mirror_bplam_table_loop1
 		MOVEF.W \5-1,d6		; Anzahl der Farb/Switchwerte pro Farbverlauf
-\1_init_mirror_switch_table_loop2_1
+\1_init_mirror_bplam_table_loop2_1
 		move.b	d0,(a0)+	; Switchwert retten
 		add.w	d2,d0		; Switchwert erhöhen
-		dbf	d6,\1_init_mirror_switch_table_loop2_1
+		dbf	d6,\1_init_mirror_bplam_table_loop2_1
 		IFC "","\9"
 			move.w	d0,d1
 		ELSE
 			move.w	#\9,d1
 		ENDC
 		MOVEF.W	\5-1,d6		; Anzahl der Farb/Switchwerte pro Farbverlauf
-\1_init_mirror_switch_table_loop2_2
+\1_init_mirror_bplam_table_loop2_2
 		sub.w	d2,d1		; Switchwert verringern
 		move.b	d1,(a0)+	; Switchwert retten
-		dbf	d6,\1_init_mirror_switch_table_loop2_2
-		dbf	d7,\1_init_mirror_switch_table_loop1
+		dbf	d6,\1_init_mirror_bplam_table_loop2_2
+		dbf	d7,\1_init_mirror_bplam_table_loop1
 	ENDC
 	IFC "W","\0"
 		IFNC "","\8"
@@ -1825,29 +1830,29 @@ INIT_MIRROR_SWITCH_TABLE	MACRO
 			move.l	#\3<<8,d2 ; Additionswert für Switchwert
 		ENDC
 		moveq	#\4-1,d7	; Anzahl der Farbverläufe
-\1_init_mirror_switch_table_loop1
+\1_init_mirror_bplam_table_loop1
 		MOVEF.W	\5-1,d6		; Anzahl der Farb/Switchwerte pro Farbverlauf
-\1_init_mirror_switch_table_loop2_1
+\1_init_mirror_bplam_table_loop2_1
 		move.w	d0,(a0)+	; Switchwert retten
 		add.l	d2,d0		; Switchwert erhöhen
-		dbf	d6,\1_init_mirror_switch_table_loop2_1
+		dbf	d6,\1_init_mirror_bplam_table_loop2_1
 		IFC "","\9"
 			move.l	d0,d1
 		ELSE
 			move.l	#\9,d1
 		ENDC
 		moveq	#\5-1,d6	; Anzahl der Farb/Switchwerte pro Farbverlauf
-\1_init_mirror_switch_table_loop2_2
+\1_init_mirror_bplam_table_loop2_2
 		sub.l	d2,d1		; Switchwert verringern
 		move.w	d1,(a0)+	; Switchwert retten
-		dbf	d6,\1_init_mirror_switch_table_loop2_2
-		dbf	d7,\1_init_mirror_switch_table_loop1
+		dbf	d6,\1_init_mirror_bplam_table_loop2_2
+		dbf	d7,\1_init_mirror_bplam_table_loop1
 	ENDC
 	rts
 	ENDM
 
 
-INIT_NESTED_MIRROR_SWITCH_TABLE	MACRO
+INIT_NESTED_MIRROR_bplam_table	MACRO
 ; Input
 ; \0 STRING:		Größenangabe B/W
 ; \1 STRING:		Labels-Prefix der Routine
@@ -1861,30 +1866,30 @@ INIT_NESTED_MIRROR_SWITCH_TABLE	MACRO
 ; \9 NUMBER:		Erster Switchwert für Spiegelung (optional)
 ; Result
 	CNOP 0,4
-\1_init_nested_mirror_switch_table
+\1_init_nested_mirror_bplam_table
 	IFC "","\0"
-		FAIL Makro INIT_NESTED_MIRROR_SWITCH_TABLE: Größenangabe B/W fehlt
+		FAIL Makro INIT_NESTED_MIRROR_bplam_table: Größenangabe B/W fehlt
 	ENDC
 	IFC "","\1"
-		FAIL Makro INIT_NESTED_MIRROR_SWITCH_TABLE: Labels-Prefix fehlt
+		FAIL Makro INIT_NESTED_MIRROR_bplam_table: Labels-Prefix fehlt
 	ENDC
 	IFC "","\2"
-		FAIL Makro INIT_NESTED_MIRROR_SWITCH_TABLE: Erster Switchwert fehlt
+		FAIL Makro INIT_NESTED_MIRROR_bplam_table: Erster Switchwert fehlt
 	ENDC
 	IFC "","\3"
-		FAIL Makro INIT_NESTED_MIRROR_SWITCH_TABLE: Additionswert für Switchwert fehlt
+		FAIL Makro INIT_NESTED_MIRROR_bplam_table: Additionswert für Switchwert fehlt
 	ENDC
 	IFC "","\4"
-		FAIL Makro INIT_NESTED_MIRROR_SWITCH_TABLE: Anzahl der Farbverläufe fehlt
+		FAIL Makro INIT_NESTED_MIRROR_bplam_table: Anzahl der Farbverläufe fehlt
 	ENDC
 	IFC "","\5"
-		FAIL Makro INIT_NESTED_MIRROR_SWITCH_TABLE: Anzahl der Abschnitte pro Farbverlauf fehlt
+		FAIL Makro INIT_NESTED_MIRROR_bplam_table: Anzahl der Abschnitte pro Farbverlauf fehlt
 	ENDC
 	IFC "","\6"
-		FAIL Makro INIT_NESTED_MIRROR_SWITCH_TABLE: Tabelle mit Switchwerten fehlt
+		FAIL Makro INIT_NESTED_MIRROR_bplam_table: Tabelle mit Switchwerten fehlt
 	ENDC
 	IFC "","\7"
-		FAIL Makro INIT_NESTED_MIRROR_SWITCH_TABLE: Pointer-Base [pc, a3] fehlt
+		FAIL Makro INIT_NESTED_MIRROR_bplam_table: Pointer-Base [pc, a3] fehlt
 	ENDC
 	IFC "pc","\7"
 		lea	\1_\6(\7),a1	; Zeiger auf Switch-Tabelle
@@ -1899,59 +1904,59 @@ INIT_NESTED_MIRROR_SWITCH_TABLE	MACRO
 		moveq	#\2,d0		; Erster Switchwert
 		moveq	#\3,d2		; Additionswert für Switchwert
 		moveq	#\4-1,d7	; Anzahl der Farbverläufe
-\1_init_nested_mirror_switch_table_loop1
+\1_init_nested_mirror_bplam_table_loop1
 		move.l	a1,a0		; Zeiger auf Tabelle mit Switchwerten
 		moveq	#\5-1,d6	; Anzahl der Farb/Switchwerte pro Farbverlauf
-\1_init_nested_mirror_switch_table_loop2_1
+\1_init_nested_mirror_bplam_table_loop2_1
 		move.b	d0,(a0)		; Switchwert retten
 		add.w	d2,d0		; Switchwert erhöhen
 		addq.w	#\4*BYTE_SIZE,a0 ; Offset addieren
-		dbf	d6,\1_init_nested_mirror_switch_table_loop2_1
+		dbf	d6,\1_init_nested_mirror_bplam_table_loop2_1
 		IFC "","\9"
 			move.w	d0,d1
 		ELSE
 			move.w	#\9,d1
 		ENDC
 		MOVEF.W	\5-1,d6		; Anzahl der Farb/Switchwerte pro Farbverlauf
-\1_init_nested_mirror_switch_table_loop2_2
+\1_init_nested_mirror_bplam_table_loop2_2
 		sub.w	d2,d1		; Switchwert verringern
 		move.b	d1,(a0)		; Switchwert retten
 		addq.w	#\4*BYTE_SIZE,a0 ; Offset addieren
-		dbf	d6,\1_init_nested_mirror_switch_table_loop2_2
+		dbf	d6,\1_init_nested_mirror_bplam_table_loop2_2
 		addq.w	#BYTE_SIZE,a1	; nächstes Segment
-		dbf	d7,\1_init_nested_mirror_switch_table_loop1
+		dbf	d7,\1_init_nested_mirror_bplam_table_loop1
 	ENDC
 	IFC "W","\0"
 		move.l	#(\2<<8)|bplcon4_bits,d0 ; Erster Switchwert
 		move.l	#\3<<8,d2	; Additionswert für Switchwert
 		moveq	#\4-1,d7	; Anzahl der Farbverläufe
-\1_init_nested_mirror_switch_table_loop1
+\1_init_nested_mirror_bplam_table_loop1
 		move.l	a1,a0		; Zeiger auf Tabelle mit Switchwerten
 		moveq	#\5-1,d6	; Anzahl der Farb/Switchwerte pro Farbverlauf
-\1_init_nested_mirror_switch_table_loop2_1
+\1_init_nested_mirror_bplam_table_loop2_1
 		move.w	d0,(a0)		; Switchwert retten
 		add.l	d2,d0		; Switchwert erhöhen
 		addq.w	#\4*WORD_SIZE,a0 ; Offset addieren
-		dbf	d6,\1_init_nested_mirror_switch_table_loop2_1
+		dbf	d6,\1_init_nested_mirror_bplam_table_loop2_1
 		IFC "","\9"
 			move.l	d0,d1
 		ELSE
 			move.l	#\9,d1
 		ENDC
 		moveq	#\5-1,d6	; Anzahl der Farb/Switchwerte pro Farbverlauf
-\1_init_nested_mirror_switch_table_loop2_2
+\1_init_nested_mirror_bplam_table_loop2_2
 		sub.l	d2,d1		; Switchwert verringern
 		move.w	d1,(a0)		; Switchwert retten
 		addq.w	#\4*WORD_SIZE,a0 ; Offset addieren
-		dbf	d6,\1_init_nested_mirror_switch_table_loop2_2
+		dbf	d6,\1_init_nested_mirror_bplam_table_loop2_2
 		addq.w	#WORD_SIZE,a1	; nächstes Segment
-		dbf	d7,\1_init_nested_mirror_switch_table_loop1
+		dbf	d7,\1_init_nested_mirror_bplam_table_loop1
 	ENDC
 	rts
 	ENDM
 
 
-INIT_SWITCH_TABLE		MACRO
+INIT_bplam_table		MACRO
 ; Input
 ; \0 STRING:		Größenangabe B/W
 ; \1 STRING:		Labels-Prefix der Routine
@@ -1965,21 +1970,21 @@ INIT_SWITCH_TABLE		MACRO
 ; Result
 ; d0.w			Rückgabewert: Letzter Switchwert
 	CNOP 0,4
-\1_init_switch_table
+\1_init_bplam_table
 	IFC "","\0"
-		FAIL Makro INIT_SWITCH_TABLE: Größenangabe B/W fehlt
+		FAIL Makro INIT_bplam_table: Größenangabe B/W fehlt
 	ENDC
 	IFC "","\1"
-		FAIL Makro INIT_SWITCH_TABLE: Labels-Prefix fehlt
+		FAIL Makro INIT_bplam_table: Labels-Prefix fehlt
 	ENDC
 	IFC "","\2"
-		FAIL Makro INIT_SWITCH_TABLE: Erster Switchwert fehlt
+		FAIL Makro INIT_bplam_table: Erster Switchwert fehlt
 	ENDC
 	IFC "","\3"
-		FAIL Makro INIT_SWITCH_TABLE: Additionswert für Switchwert fehlt
+		FAIL Makro INIT_bplam_table: Additionswert für Switchwert fehlt
 	ENDC
 	IFC "","\4"
-		FAIL Makro INIT_SWITCH_TABLE: Anzahl der Farb/Switcvhwerte pro Farbverlauf fehlt
+		FAIL Makro INIT_bplam_table: Anzahl der Farb/Switcvhwerte pro Farbverlauf fehlt
 	ENDC
 	IFC "B","\0"
 		IFC "pc","\6"
@@ -2001,7 +2006,7 @@ INIT_SWITCH_TABLE		MACRO
 			moveq	#\3,d2		; Additionswert für Switchwert
 		ENDC
 		MOVEF.W	\4-1,d7			; Anzahl der Farb/Switchwerte pro Farbverlauf
-\1_init_switch_table_loop
+\1_init_bplam_table_loop
 		IFC "","\8"
 			move.b	d0,(a0)+	; Switchwert retten
 		ELSE
@@ -2009,7 +2014,7 @@ INIT_SWITCH_TABLE		MACRO
 			add.l	a1,a0		; nächste Zeile in Switchtabelle
 		ENDC
 		add.w	d2,d0			; Switchwert erhöhen
-		dbf	d7,\1_init_switch_table_loop
+		dbf	d7,\1_init_bplam_table_loop
 	ENDC
 	IFC "W","\0"
 		IFC "pc","\6"
@@ -2031,7 +2036,7 @@ INIT_SWITCH_TABLE		MACRO
 			move.l	#\3<<8,d2	; Additionswert für Switchwert
 		ENDC
 		MOVEF.W	\4-1,d7			; Anzahl der Farb/Switchwerte pro Farbverlauf
-\1_init_switch_table_loop
+\1_init_bplam_table_loop
 		IFC "","\8"
 			move.w	d0,(a0)+	; Switchwert retten
 		ELSE
@@ -2039,7 +2044,7 @@ INIT_SWITCH_TABLE		MACRO
 			add.l	a1,a0		; nächste Zeile in Switchtabelle
 		ENDC
 		add.l	d2,d0			; Switchwert erhöhen
-		dbf	d7,\1_init_switch_table_loop
+		dbf	d7,\1_init_bplam_table_loop
 	ENDC
 	rts
 	ENDM
@@ -2224,7 +2229,7 @@ INIT_DISPLAY_PATTERN		MACRO
 	CNOP 0,4
 \1_init_display_pattern
 	moveq	#0,d0			; Spaltenzähler-Startwert
-	moveq	#TRUE,d1		; Langwortzugriff
+	moveq	#0,d1
 	moveq	#1,d3			; Farbnummer
 	move.l	pf1_display(a3),a0	; Playfield
 	move.l	(a0),a0			; Bitplane0
@@ -2237,23 +2242,23 @@ INIT_DISPLAY_PATTERN		MACRO
 	lsr.w	#3,d1			; /8 = X-Offset
 	not.b	d2			; Bitnr.
 	btst	#0,d3			; Bit0 gesetzt?
-	beq.s	\1_no_set_pixel_plane0 ; Nein -> verzweige
+	beq.s	\1_no_set_pixel_plane0	; Nein -> verzweige
 	bset	d2,(a0,d1.l)		; Bit in Bitplane0 setzen
 \1_no_set_pixel_plane0
 	btst	#1,d3			; Bit1 gesetzt?
-	beq.s	\1_no_set_pixel_plane1 ; Nein -> verzweige
+	beq.s	\1_no_set_pixel_plane1	; Nein -> verzweige
 	bset	d2,pf1_plane_width*1(a0,d1.l) ; Bit in Bitplane1 setzen
 \1_no_set_pixel_plane1
 	btst	#2,d3			; Bit2 gesetzt?
-	beq.s	\1_no_set_pixel_plane2 ; Nein -> verzweige
+	beq.s	\1_no_set_pixel_plane2	; Nein -> verzweige
 	bset	d2,pf1_plane_width*2(a0,d1.l) ; Bit in Bitplane2 setzen
 \1_no_set_pixel_plane2
 	btst	#3,d3			; Bit3 gesetzt?
-	beq.s	\1_no_set_pixel_plane3 ; Nein -> verzweige
+	beq.s	\1_no_set_pixel_plane3	; Nein -> verzweige
 	bset	d2,pf1_plane_width*3(a0,d1.l) ; Bit in Bitplane3 setzen
 \1_no_set_pixel_plane3
 	btst	#4,d3			; Bit4 gesetzt?
-	beq.s	\1_no_set_pixel_plane4 ; Nein -> verzweige
+	beq.s	\1_no_set_pixel_plane4	; Nein -> verzweige
 	bset	d2,(pf1_plane_width*4,a0,d1.l) ; Bit in Bitplane4 setzen
 \1_no_set_pixel_plane4
 	btst	#5,d3			; Bit5 gesetzt?
@@ -2336,26 +2341,26 @@ GET_SINE_BARS_YZ_COORDINATES MACRO
 		MOVEF.W sine_table_length/2,d4 ; 180 Grad
 		MOVEF.W \1_y_distance,d5
 		lea	sine_table(pc),a0
-		lea	\1_yz_coords(pc),a1 ; Zeiger auf Y+Z-Koords-Tabelle
+		lea	\1_yz_coords(pc),a1
 		move.w	#\1_y_center,a2
-		moveq	#\1_bars_number-1,d7 ; Anzahl der Stangen
+		moveq	#\1_bars_number-1,d7
 \1_get_yz_coords_loop
 		moveq	#-(sine_table_length/4),d1 ; - 90 Grad
 		move.l	(a0,d2.w*4),d0 ; sin(w)
 		add.w	d2,d1		; - 90 Grad + Y-Winkel
-		bmi.s	\1_set_z_vector	; Wenn negativ -> verzweige
+		bmi.s	\1_set_z_vector
 		sub.w	d4,d1		; Y-Winkel - 180 Grad
-		neg.w	d1		; Vorzeichen umdrehen
+		neg.w	d1
 \1_set_z_vector
-		move.w	d1,(a1)+	; Z-Vektor retten
+		move.w	d1,(a1)+	; Z-Vektor
 		MULUF.L \1_y_radius*2,d0,d1 ; y'=(yr*sin(w))/2^15
 		swap	d0
 		add.w	a2,d0		; y' + Y-Mittelpunkt
 		MULUF.W (\3)/4,d0,d1	; Y-Offset in CL
-		move.w	d0,(a1)+	; Y retten
+		move.w	d0,(a1)+	; Y
 		add.w	d5,d2		; Y-Abstand zur nächsten Bar
 		cmp.w	d3,d2		; Y-Winkel < 360 Grad ?
-		blt.s	\1_no_restart_y_angle2 ; Ja -> verzweige
+		blt.s	\1_no_restart_y_angle2
 		sub.w	d3,d2		; Y-Winkel zurücksetzen
 \1_no_restart_y_angle2
 		dbf	d7,\1_get_yz_coords_loop
@@ -2371,23 +2376,23 @@ GET_SINE_BARS_YZ_COORDINATES MACRO
 		MOVEF.W \1_y_distance,d3
 		MOVEF.W sine_table_length/2,d4 ; 180 Grad
 		lea	sine_table(pc),a0
-		lea	\1_yz_coords(pc),a1 ; Zeiger auf Y+Z-Koords-Tabelle
+		lea	\1_yz_coords(pc),a1
 		move.w	#\1_y_center,a2
-		moveq	#\1_bars_number-1,d7 ; Anzahl der Stangen
+		moveq	#\1_bars_number-1,d7
 \1_get_yz_coords_loop
 		moveq	#-(sine_table_length/4),d1 ; - 90 Grad
 		move.l	(a0,d2.w*4),d0 ; sin(w)
 		add.w	d2,d1		; - 90 Grad + Y-Winkel
-		bmi.s	\1_set_z_vector	; Wenn negativ -> verzweige
+		bmi.s	\1_set_z_vector
 		sub.w	d4,d1		; Y-Winkel + 180 Grad
-		neg.w	d1		; Vorzeichen umdrehen
+		neg.w	d1
 \1_set_z_vector
-		move.w	d1,(a1)+	; Z-Vektor retten
+		move.w	d1,(a1)+	; Z-Vektor
 		MULUF.L \1_y_radius*2,d0,d1 ; y'=(yr*sin(w))/2^15
 		swap	d0
 		add.w	a2,d0		; y' + Y-Mittelpunkt
 		MULUF.W (\3)/4,d0,d1	; Y-Offset in CL
-		move.w	d0,(a1)+	; Y retten
+		move.w	d0,(a1)+	; Y
 		add.w	d3,d2		; Y-Abstand zur nächsten Bar
 		and.w	d5,d2		; Überlauf entfernen
 		dbf	d7,\1_get_yz_coords_loop
@@ -2689,7 +2694,7 @@ COPY_RGB8_COLORS_TO_COPPERLIST	MACRO
 	ENDC
 	tst.w	\1_rgb8_copy_colors_active(a3)
 	bne.s	\1_rgb8_copy_color_table_skip2
-	move.w	#GB_NIBBLES_MASK,d3
+	move.w	#RB_NIBBLES_MASK,d3
 	IFGT \1_rgb8_colors_number-32
 		MOVEF.W \1_rgb8_start_color<<3,d4 ; Color-Bank Farbregisterzähler
 	ENDC

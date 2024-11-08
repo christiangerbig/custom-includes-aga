@@ -190,7 +190,7 @@ COP_INIT_BITPLANE_POINTERS	MACRO
 
 COP_SET_BITPLANE_POINTERS	MACRO
 ; \1 STRING: Labels-Prefix der Routine
-; \2 STRING: ["construction1", "display"]
+; \2 STRING: ["construction1","construction2","display"]
 ; \3 BYTE SIGNED: Anzahl der Bitplanes Playfield 1
 ; \4 BYTE SIGNED: Anzahl der BitPlanes Playfield 2 (optional)
 ; \5 WORD: X-Offset (optional)
@@ -251,7 +251,7 @@ COP_SET_BITPLANE_POINTERS	MACRO
 		moveq	#\4-1,d7	; Anzahl der Bitplanes
 \1_set_plane_ptrs_loop2
 		move.w	(a2)+,(a1)	; BPLxPTH
-		ADDF.W	2*QUADWORD_SIZE,a1		; übernächter Playfieldzeiger
+		ADDF.W	2*QUADWORD_SIZE,a1 ; übernächter Playfieldzeiger
 		move.w	(a2)+,LONGWORD_SIZE-(2*QUADWORD_SIZE)(a1) ; BPLxPTL
 		dbf	d7,\1_set_plane_ptrs_loop2
 	ENDC
@@ -905,7 +905,7 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY	MACRO
 \1_convert_image_data
 	movem.l a4-a6,-(a7)
 	moveq	 #16,d3			; COLOR16
-	move.w	#GB_NIBBLES_MASK,d4
+	move.w	#RB_NIBBLES_MASK,d4
 	lea		 \1_image_data,a0 ; Quellbild
 	lea		 \1_image_color_table(pc),a1 ; Farbwerte des Playfieldes
 	IFC "","\2"
@@ -1004,7 +1004,7 @@ CONVERT_IMAGE_TO_HAM8_CHUNKY	MACRO
 \1_convert_image_data
 	movem.l	a3-a6,-(a7)
 	MOVEF.W	$c0,d3			; Maske für HAM-Bits
-	move.w	#GB_NIBBLES_MASK,d4		; RGB4-Nibble-Maske
+	move.w	#RB_NIBBLES_MASK,d4		; RGB4-Nibble-Maske
 	lea	\1_image_data,a0	; Quellbild
 	lea	\1_image_color_table(pc),a1 ; Farbwerte des Playfieldes
 	move.l	a7,save_a7(a3)
@@ -1137,7 +1137,7 @@ CONVERT_IMAGE_TO_BPLCON4_CHUNKY	MACRO
 	ENDC
 	lea	\1_image_data,a0	; Quellbild
 	IFC "","\2"
-		lea	\1_switch_table(pc),a1
+		lea	\1_bplam_table(pc),a1
 	ELSE
 		move.l	\2(\3),a1
 	ENDC

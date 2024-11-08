@@ -329,7 +329,7 @@ pt_PlvSkip
 		lsr.w	#6,d2		 		 		 		 ;/ maximum master volume
 	ENDC
 	IFEQ pt_track_periods_enabled
-		move.w	d2,n_current_volume(a2) ; Save new volume
+		move.w	d2,n_currentvolume(a2) ; Save new volume
 	ENDC
 	IFEQ pt_mute_enabled
 		move.w	d5,8(a6)		 		 		 ;AUDxVOL No volume
@@ -422,7 +422,7 @@ pt_VibNoC
 pt_TreNoC
 	ENDC
 	IFEQ pt_track_volumes_enabled
-		move.b d5,n_note_trigger(a2) ;Set note trigger flag
+		move.b d5,n_notetrigger(a2) ;Set note trigger flag
 	ENDC
 	move.l	n_start(a2),(a6)	; AUDxLCH Set sample start
 	move.l	n_length(a2),4(a6)	; AUDxLEN Set length & new note period
@@ -719,7 +719,7 @@ pt_StpEnd
 		CNOP 0,4
 pt_ClearTonePorta
 		IFEQ pt_track_volumes_enabled
-			move.b	d5,n_note_trigger(a2) ; Set note trigger flag
+			move.b	d5,n_notetrigger(a2) ; Set note trigger flag
 		ENDC
 		move.w	d5,n_wantedperiod(a2) ; Clear wanted note period
 		rts
@@ -799,7 +799,7 @@ pt_Arpeggio0
 	move.w	n_period(a2),d2		; Play note period at tick #1
 pt_ArpeggioSet
 	IFEQ pt_track_periods_enabled
-		move.w	d2,n_current_period(a2) ; Save new period
+		move.w	d2,n_currentperiod(a2) ; Save new period
 	ENDC
 	move.w	d2,6(a6)		 		 		 		;AUDxPER Set new note period
 	rts
@@ -854,7 +854,7 @@ pt_PortamentoUp
 pt_PortaUpSkip
 	move.w	d2,n_period(a2)		; Save new note period
 	IFEQ pt_track_periods_enabled
-		move.w	d2,n_current_period(a2) ; Save new period
+		move.w	d2,n_currentperiod(a2) ; Save new period
 	ENDC
 	move.w	d2,6(a6)		 		 		 		;AUDxPER Set new note period
 pt_PortaUpEnd
@@ -882,7 +882,7 @@ pt_PortamentoDown
 pt_PortaDownSkip
 	move.w	d2,n_period(a2)		; Save new note period
 	IFEQ pt_track_periods_enabled
-		move.w	d2,n_current_period(a2) ; Save new period
+		move.w	d2,n_currentperiod(a2) ; Save new period
 	ENDC
 	move.w	d2,6(a6)		; AUDxPER Set new note period
 pt_PortaDownEnd
@@ -910,7 +910,7 @@ pt_TonePortaDown
 	bgt.s	pt_TonePortaSetPer	; Yes -> skip
 	move.w	d2,d3		 	; Note period = wanted note period
 	IFEQ pt_track_volumes_enabled
-		move.b	d5,n_note_trigger(a2) ;Set note trigger flag
+		move.b	d5,n_notetrigger(a2) ;Set note trigger flag
 	ENDC
 	moveq	#0,d2		 	; Clear wanted note period
 	bra.s	pt_TonePortaSetPer
@@ -921,7 +921,7 @@ pt_TonePortaUp
 	blt.s	pt_TonePortaSetPer	; Yes -> skip
 	move.w	d2,d3		 		 		 		 		;Note period = wanted note period
 	IFEQ pt_track_volumes_enabled
-		move.b	d5,n_note_trigger(a2) ; Set note trigger flag
+		move.b	d5,n_notetrigger(a2) ; Set note trigger flag
 	ENDC
 	moveq	#0,d2		 		 		 		;Clear wanted note period
 pt_TonePortaSetPer
@@ -945,7 +945,7 @@ pt_GlissFound
 	move.w	-2(a1),d3		; Get note period from period table
 pt_GlissSkip
 	IFEQ pt_track_periods_enabled
-		move.w	d3,n_current_period(a2) ;Save new period
+		move.w	d3,n_currentperiod(a2) ;Save new period
 	ENDC
 	move.w	d3,6(a6)		 		 		 		;AUDxPER Set new period
 pt_TonePortaEnd
@@ -1015,7 +1015,7 @@ pt_VibratoNeg
 pt_Vibrato3
 	move.b	n_vibratocmd(a2),d2	; Get vibrato command data
 	IFEQ pt_track_periods_enabled
-		move.w	d0,n_current_period(a2) ; Save new period
+		move.w	d0,n_currentperiod(a2) ; Save new period
 	ENDC
 	lsr.b	#2,d2
 	move.w	d0,6(a6)		; AUDxPER Set new note period
@@ -1115,7 +1115,7 @@ pt_TremoloOk
 	ENDC
 	move.b	n_tremolocmd(a2),d2	; Get tremolo command data
 	IFEQ pt_track_periods_enabled
-		move.w	d0,n_current_volume(a2)	; Save new volume
+		move.w	d0,n_currentvolume(a2)	; Save new volume
 	ENDC
 	lsr.b	#2,d2
 	IFEQ pt_mute_enabled
@@ -1150,7 +1150,7 @@ pt_VsuSkip
 		lsr.w	#6,d2		 		 		 		 ;/ maximum master volume
 	ENDC
 	IFEQ pt_track_periods_enabled
-		move.w	d2,n_current_volume(a2)	; Save new volume
+		move.w	d2,n_currentvolume(a2)	; Save new volume
 	ENDC
 	IFEQ pt_mute_enabled
 		move.w	d5,8(a6) 	; AUDxVOL No volume
@@ -1176,7 +1176,7 @@ pt_VsdSkip
 		lsr.w	#6,d2
 	ENDC
 	IFEQ pt_track_periods_enabled
-		move.w	d2,n_current_volume(a2)	; Save new volume
+		move.w	d2,n_currentvolume(a2)	; Save new volume
 	ENDC
 	IFEQ pt_mute_enabled
 		move.w	d5,8(a6=	; AUDxVOL No volume
@@ -1236,7 +1236,7 @@ pt_MaxVolOk
 		lsr.w	#6,d0
 	ENDC
 	IFEQ pt_track_periods_enabled
-		move.w	d0,n_current_volume(a2) ; Save new volume
+		move.w	d0,n_currentvolume(a2) ; Save new volume
 	ENDC
 	IFEQ pt_mute_enabled
 		move.w	d5,8(a6)	; AUDxVOL No volume
@@ -1416,7 +1416,7 @@ pt_RtnSkip
 	or.w	d0,pt_RtnDMACONtemp(a3)	; Set effect "Retrig Note" or "Note Delay" for audio channel
 	move.b	d5,n_rtnsetchandma(a2)	; Activate interrupt set routine
 	IFEQ pt_track_volumes_enabled
-		move.b	d5,n_note_trigger(a2) ; Set note trigger flag
+		move.b	d5,n_notetrigger(a2) ; Set note trigger flag
 	ENDC
 	move.w	d0,_CUSTOM+DMACON	; Audio channel DMA off
 	move.l	n_start(a2),(a6)	; AUDxLCH Set sample start
@@ -1451,7 +1451,7 @@ pt_NoteCut
 	bne.s	pt_NoteCutEnd		; No -> skip
 	move.b	d5,n_volume(a2)		; Clear volume
 	IFEQ pt_track_periods_enabled
-		move.w	d5,n_current_volume(a2) ; Clear new volume
+		move.w	d5,n_currentvolume(a2) ; Clear new volume
 	ENDC
 	move.w	d5,8(a6)		 		 		 		;AUDxVOL Clear volume
 pt_NoteCutEnd
@@ -1473,7 +1473,7 @@ pt_NoteDelay
 	or.w	d0,pt_RtnDMACONtemp(a3) ; Set effect "Retrig Note" or "Note Delay" for audio channel
 	move.b	d5,n_rtnsetchandma(a2)	; Activate interrupt set routine
 	IFEQ pt_track_volumes_enabled
-		move.b	d5,n_note_trigger(a2) ; Set note trigger flag
+		move.b	d5,n_notetrigger(a2) ; Set note trigger flag
 	ENDC
 	move.w	d0,_CUSTOM+DMACON	; Audio channel DMA off
 	move.l	n_start(a2),(a6)	; AUDxLCH Set sample start

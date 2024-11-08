@@ -34,15 +34,15 @@ n_rtninitchanloop		RS.B 1
 
 	IFEQ pt_track_periods_enabled
 		RS_ALIGN_LONGWORD
-n_current_start			RS.L 1
-n_current_length		RS.W 1
-n_current_period		RS.W 1
-n_current_volume		RS.W 1
-n_chan_data_position		RS.W 1
+n_currentstart			RS.L 1
+n_currentlength			RS.W 1
+n_currentperiod			RS.W 1
+n_currentvolume			RS.W 1
+n_chandatapos			RS.W 1
 	ENDC
 
 	IFEQ pt_track_volumes_enabled
-n_note_trigger			RS.B 1
+n_notetrigger			RS.B 1
 	ENDC
 
 n_audchantemp_size		RS.B 0

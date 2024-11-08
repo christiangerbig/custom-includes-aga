@@ -113,7 +113,7 @@ pt_InitAudTempStrucs
 	lea	pt_audchan1temp(pc),a0
 	move.w	#DMAF_AUD0,n_dmabit(a0)	; Set channel DMA bit
 	IFEQ pt_track_volumes_enabled
-		move.b	d1,n_note_trigger(a0) ; Disable note trigger flag
+		move.b	d1,n_notetrigger(a0) ; Disable note trigger flag
 	ENDC
 	move.b	d1,n_rtnsetchandma(a0)	; Deactivate set & init routine
 	move.b	d1,n_rtninitchanloop(a0)
@@ -121,7 +121,7 @@ pt_InitAudTempStrucs
 	lea	pt_audchan2temp(pc),a0
 	move.w	#DMAF_AUD1,n_dmabit(a0)
 	IFEQ pt_track_volumes_enabled
-		move.b	d1,n_note_trigger(a0)
+		move.b	d1,n_notetrigger(a0)
 	ENDC
 	move.b	d1,n_rtnsetchandma(a0)
 	move.b	d1,n_rtninitchanloop(a0)
@@ -129,7 +129,7 @@ pt_InitAudTempStrucs
 	lea	pt_audchan3temp(pc),a0
 	move.w	#DMAF_AUD2,n_dmabit(a0)
 	IFEQ pt_track_volumes_enabled
-		move.b	d1,n_note_trigger(a0)
+		move.b	d1,n_notetrigger(a0)
 	ENDC
 	move.b	d1,n_rtnsetchandma(a0)
 	move.b	d1,n_rtninitchanloop(a0)
@@ -137,7 +137,7 @@ pt_InitAudTempStrucs
 	lea	pt_audchan4temp(pc),a0
 	move.w	#DMAF_AUD3,n_dmabit(a0)
 	IFEQ pt_track_volumes_enabled
-		move.b	d1,n_note_trigger(a0)
+		move.b	d1,n_notetrigger(a0)
 	ENDC
 	move.b	d1,n_rtnsetchandma(a0)
 	move.b	d1,n_rtninitchanloop(a0)
