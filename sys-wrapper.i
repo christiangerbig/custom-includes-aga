@@ -202,7 +202,7 @@ wm
 		bne	cleanup_all_memory
 		bsr	check_pf2_memory1
 		move.l	d0,dos_return_code(a3)
-		bne	cleanup__all_memory
+		bne	cleanup_all_memory
 	ENDC
 	IFNE pf2_x_size2
 		bsr	alloc_pf2_memory2
@@ -270,7 +270,7 @@ wm
 	IFNE chip_memory_size
 		bsr	alloc_chip_memory
 		move.l	d0,dos_return_code(a3)
-		bne.s	cleanup_all_memory
+		bne	cleanup_all_memory
 	ENDC
 	
 	IFD SYS_TAKEN_OVER
@@ -317,6 +317,7 @@ wm
 		bsr	get_active_screen_mode
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_all_memory
+
 		IFEQ screen_fader_enabled
 			bsr	sf_get_screen_colors
 			bsr	sf_copy_screen_colors
@@ -345,6 +346,7 @@ wm
 		IFD ALL_CACHES
 			bsr	enable_all_caches
 		ENDC
+
 		IFD NO_060_STORE_BUFFER
 			bsr	disable_store_buffer
 		ENDC
@@ -768,6 +770,7 @@ init_easy_request
 			lea	monitor_request_text_gadgets(pc),a1
 			move.l	a1,(a0)	; Zeiger auf Gadgettexte
 		ENDC
+
 		IFNE intena_bits&INTF_PORTS
 			lea	tcp_stack_request(pc),a0
 			moveq	#EasyStruct_sizeOF,d0
@@ -849,7 +852,7 @@ init_pal_screen_rgb32_colors_loop
 			move.l	d1,(a0)+ ; COLORxx 32-Bit Rotwert
 			move.l	d2,(a0)+ ; COLORxx 32-Bit Grünwert
 			move.l	d3,(a0)+ ; COLORxx 32-Bit Blauwert
-	               	dbf	d7,init_pal_screen_rgb32_colors_loop
+			dbf	d7,init_pal_screen_rgb32_colors_loop
 			move.l	d0,(a0)	; Listenende
 			rts
 		ENDC
@@ -865,7 +868,7 @@ init_pal_screen_tags
      		moveq	#pal_screen_left,d2
 		move.l	d2,(a0)+
 		move.l	#SA_Top,(a0)+
- 	    	moveq	#pal_screen_top,d2
+ 		moveq	#pal_screen_top,d2
 		move.l	d2,(a0)+
 		move.l	#SA_Width,(a0)+
 		moveq	#pal_screen_x_size,d2
@@ -1166,7 +1169,7 @@ spr_init_structure
 ; d0.l	... Rückgabewert: Return-Code	
 			CNOP 0,4
 check_workbench_start
-			sub.l	a1,a1	; Nach dem eigenen Task suchen
+			sub.l	a1,a1 ; Nach dem eigenem Task suchen
 			CALLEXEC FindTask
 			tst.l	d0
 			bne.s	check_workbench_start_skip1
@@ -1202,11 +1205,11 @@ open_dos_library
 		lea	_DOSBase(pc),a0
 		move.l	d0,(a0)
 		bne.s	open_dos_library_ok
-		moveq	 #RETURN_FAIL,d0
+		moveq	#RETURN_FAIL,d0
 		rts
 		CNOP 0,4
 open_dos_library_ok
-		moveq	 #RETURN_OK,d0
+		moveq	#RETURN_OK,d0
 		rts
 
 
@@ -1272,81 +1275,81 @@ open_intuition_library_ok
 check_system_props
 		move.l	_SysBase(pc),a6
 		cmp.w	#OS3_VERSION,Lib_Version(a6)
-		bge.s	check_cpu_type
+		bge.s	check_system_props_skip1
 		move.w	#KICKSTART_VERSION_NOT_FOUND,custom_error_code(a3)
 		moveq	#RETURN_FAIL,d0
 		rts
 		CNOP 0,4
-check_cpu_type
+check_system_props_skip1
 		move.w	AttnFlags(a6),d0
 		move.w	d0,cpu_flags(a3)
 		and.w	#AFF_68020,d0
-		bne.s	check_chip_memory_size
+		bne.s	check_system_props_skip2
 		move.w	#CPU_020_NOT_FOUND,custom_error_code(a3)
 		moveq	#RETURN_FAIL,d0
 		rts
 		CNOP 0,4
-check_chip_memory_size
+check_system_props_skip2
 		move.l	MaxLocMem(a6),d0
 		cmp.l	#CHIP_MEMORY_MIN,d0
-		bge.s	check_chipset_type
+		bge.s	check_system_props_skip3
 		move.w	#CHIP_MEMORY_WRONG_SIZE,custom_error_code(a3)
 		moveq	#RETURN_FAIL,d0
 		rts
 		CNOP 0,4
-check_chipset_type
+check_system_props_skip3
 		move.l	_GfxBase(pc),a1
 		IFD DEF_AGA_CHECK_BY_HARDWARE
 			move.l	#_CUSTOM+DENISEID,a0
 			move.w	-(DENISEID-VPOSR)(a0),d0
 			and.w	#$7e00,d0
 			cmp.w	#$22<<8,d0 ; PAL-Alice Revision 2 ?
-			beq.s	check_lisa_id
+			beq.s	check_system_props_skip4
 			cmp.w	#$23<<8,d0 ; PAL-Alice Revision 3 & 4 ?
-			beq.s	check_lisa_id
+			beq.s	check_system_props_skip4
 			move.w	#AGA_CHIPSET_NOT_FOUND,custom_error_code(a3)
 			moveq	#RETURN_FAIL,d0
 			rts
 			CNOP 0,4
-check_lisa_id
+check_system_props_skip4
 			move.w	(a0),d0 ; ID
-			moveq	 #32-1,d7
-check_lisa_id_loop
+			moveq	#32-1,d7
+check_system_props_loop
 			move.w	(a0),d1	; ID
 			cmp.b	d0,d1
-			bne.s	check_lisa_id_fail
-			dbf	d7,check_lisa_id_loop
+			bne.s	check_system_props_skip5
+			dbf	d7,check_system_props_loop
 			or.b	#$f0,d0	; 0th revision level setzen
 			cmp.b	#$f8,d0	; Lisa-ID ?
 			beq.s	check_pal
-check_lisa_id_fail
+check_system_props_skip5
 			move.w	#AGA_CHIPSET_NOT_FOUND,custom_error_code(a3)
 			moveq	#RETURN_FAIL,d0
 			rts
 		ELSE
 			move.b	gb_ChipRevBits0(a1),d0
 			btst	#GFXB_AA_ALICE,d0
-			bne.s	check_lisa_type
+			bne.s	check_system_props_skip4
 			move.w	#AGA_CHIPSET_NOT_FOUND,custom_error_code(a3)
 			moveq	#RETURN_FAIL,d0
 			rts
 			CNOP 0,4
-check_lisa_type
+check_system_props_skip4
 			btst	#GFXB_AA_LISA,d0
-			bne.s	check_pal
+			bne.s	check_system_props_skip6
 			move.w	#AGA_CHIPSET_NOT_FOUND,custom_error_code(a3)
 			moveq	#RETURN_FAIL,d0
 			rts
 		ENDC
 		CNOP 0,4
-check_pal
+check_system_props_skip6
 		btst	#REALLY_PALn,gb_DisplayFlags+BYTE_SIZE(a1)
-		bne.s	check_fast_memory
+		bne.s	check_system_props_skip7
 		move.w	#CONFIG_NO_PAL,custom_error_code(a3)
 		moveq	#RETURN_FAIL,d0
 		rts
 		CNOP 0,4
-check_fast_memory
+check_system_props_skip7
 		moveq	#MEMF_FAST,d1
 		CALLLIBS AvailMem
 		tst.l	d0
@@ -1606,7 +1609,7 @@ alloc_cl1_memory3
 		rts
 		CNOP 0,4
 alloc_cl1_memory3_ok
-		moveq	 #RETURN_OK,d0
+		moveq	#RETURN_OK,d0
 		rts
 	ENDC
 
@@ -1662,7 +1665,7 @@ alloc_cl2_memory3
 		rts
 		CNOP 0,4
 alloc_cl2_memory3_ok
-		moveq	 #RETURN_OK,d0
+		moveq	#RETURN_OK,d0
 		rts
 	ENDC
 
@@ -2037,7 +2040,7 @@ check_sprite_memory1_loop
 		bne.s	check_sprite_memory1_skip
 check_sprite_memory1_fail
 		move.w	#SPR_CONSTR_NOT_INTERLEAVED,custom_error_code(a3)
-		moveq	#RETURN_FAIL,d0			 
+		moveq	#RETURN_FAIL,d0			
 		rts
 		CNOP 0,4
 check_sprite_memory1_skip
@@ -2091,7 +2094,7 @@ check_sprite_memory2_loop
 		bne.s	check_sprite_memory2_skip
 check_sprite_memory2_fail
 		move.w	#SPR_DISPLAY_NOT_INTERLEAVED,custom_error_code(a3)
-		moveq	#RETURN_FAIL,d0			 
+		moveq	#RETURN_FAIL,d0			
 		rts
 		CNOP 0,4
 check_sprite_memory2_skip
@@ -2420,7 +2423,7 @@ sf_fade_out_screen
 ; d0 ... keine Rückgabewert
       CNOP 0,4
 rgb32_screen_fader_out
-			MOVEF.W	sf_rgb32_colors_number*3,d6 ; Zähler
+			MOVEF.W	sf_rgb32_colors_number*3,d6 ; RGB-Zähler
 			move.l	sf_screen_color_cache(a3),a0 ; Istwerte
 			addq.w  #4,a0	; Offset überspringen
 			move.l	pf1_rgb8_color_table(pc),a1 ; Sollwert COLOR00
@@ -2575,9 +2578,9 @@ check_pal_screen_mode
 		ADDF.W	sc_ViewPort,a0
 		CALLGRAF GetVPModeID
 		IFEQ requires_multiscan_monitor
-			cmp.l	 #VGA_MONITOR_ID|VGAPRODUCT_KEY,d0
+			cmp.l	#VGA_MONITOR_ID|VGAPRODUCT_KEY,d0
 		ELSE
-			cmp.l	 #PAL_MONITOR_ID|LORES_KEY,d0
+			cmp.l	#PAL_MONITOR_ID|LORES_KEY,d0
 		ENDC
 		beq.s	check_pal_screen_mode_ok
 		move.w	#SCREEN_MODE_NOT_AVAILABLE,custom_error_code(a3)
@@ -2646,11 +2649,11 @@ wait_monitor_switch
 		cmp.l	#DEFAULT_MONITOR_ID,d0
 		beq.s	wait_monitor_switch_quit
 		cmp.l	#PAL_MONITOR_ID,d0
-		bne.s	do_wait_monitor_switch
+		bne.s	wait_monitor_switch_skip
 wait_monitor_switch_quit
 		rts
 		CNOP 0,4
-do_wait_monitor_switch
+wait_monitor_switch_skip
 		MOVEF.L	monitor_switch_delay,d1
 		CALLDOS Delay
 		bra.s	wait_monitor_switch_quit
@@ -3164,7 +3167,7 @@ restore_chips_registers_skip4
 		ENDC
 	
 		move.w	old_dmacon(a3),d0
-		and.w	#~DMAF_RASTER,d0 ; Bitplane-DMA ggf. aus
+		and.w	#~DMAF_RASTER,d0 ; Bitplane-DMA aus
 		or.w	#DMAF_SETCLR,d0
 		move.w	d0,DMACON-DMACONR(a6)
 		move.w	old_intena(a3),d0
@@ -3368,7 +3371,7 @@ rgb32_screen_fader_in_loop
 			moveq	#0,d2
 			move.b	8(a0),d2 ; 8-Bit Blau-Istwert
 			moveq	#0,d3
-			move.b	(a1),d3	 ; 8-Bit Rot-Sollwert
+			move.b	(a1),d3	; 8-Bit Rot-Sollwert
 			moveq	#0,d4
 			move.b	4(a1),d4 ; 8-Bit Grün-Sollwert
 			moveq	#0,d5

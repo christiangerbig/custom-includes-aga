@@ -21,7 +21,7 @@ ost_sd_songname			RS.B 20	; Name padded with null bytes
 ost_sd_sampleinfo		RS.B ost_sampleinfo_size*ost_samplesnum ; Pointer to 1st sampleinfo structure, repeated for each sample 1-15
 ost_sd_numofpatt		RS.B 1	; Number of song positions [1..128]
 ost_sd_songspeed		RS.B 1	; Default song speed 120 BPM is ignored
-ost_sd_pattpos		 	RS.B 128 ; Pattern positions table [0..127]
+ost_sd_pattpos			RS.B 128 ; Pattern positions table [0..127]
 ost_sd_patterndata		RS.B 0	; Pointer to 1st pattern structure, repeated for each pattern [1..64] times
 
 ost_songdata_size		RS.B 0
@@ -32,9 +32,9 @@ ost_songdata_size		RS.B 0
 
 ost_noteinfo			RS.B 0
 
-ost_ni_note		 	RS.W 1	; Bits 11-0 noteperiod
-ost_ni_cmd		 	RS.B 1	; Bits 0-3 effect command number, bits 4-7 sample number
-ost_ni_cmdlo		 	RS.B 1	; Bits 0-7 effect command data
+ost_ni_note			RS.W 1	; Bits 11-0 noteperiod
+ost_ni_cmd			RS.B 1	; Bits 0-3 effect command number, bits 4-7 sample number
+ost_ni_cmdlo			RS.B 1	; Bits 0-7 effect command data
 
 ost_noteinfo_size		RS.B 0
 
@@ -57,6 +57,6 @@ ost_pattposdata_size		RS.B 0
 
 ost_patterndata			RS.B 0
 
-ost_pd_data		 	RS.B ost_pattposdata_size*ost_maxpattpos ;Repeated 64 times
+ost_pd_data			RS.B ost_pattposdata_size*ost_maxpattpos ;Repeated 64 times
 
 ost_patterndata_size		RS.B 0

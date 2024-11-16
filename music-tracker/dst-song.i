@@ -33,8 +33,8 @@ dst_songdata_size		RS.B 0
 dst_noteinfo			RS.B 0
 
 dst_ni_note			RS.W 1	; Bits 0-11 note period
-dst_ni_cmd		 	RS.B 1	; Bits 0-3 effect command number, bits 4-7 sample number
-dst_ni_cmdlo		 	RS.B 1	; Bits 0-7 effect command data
+dst_ni_cmd			RS.B 1	; Bits 0-3 effect command number, bits 4-7 sample number
+dst_ni_cmdlo			RS.B 1	; Bits 0-7 effect command data
 
 dst_noteinfo_size		RS.B 0
 

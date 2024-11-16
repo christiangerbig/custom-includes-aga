@@ -39,10 +39,10 @@ GET_LINE_PARAMETERS		MACRO
 	sub.w	d0,d2			; dx = x2-x1
 	bpl.s	\1_get_line_parameters_skip2
 	addq.w	#BLTCON1F_AUL,d5	; Octant #5
-	neg.w	 d2								 ;Vorzeichen umdrehen
+	neg.w	d2								;Vorzeichen umdrehen
 \1_get_line_parameters_skip2
-	sub.w	 d1,d3			; dy = y2-y1
-	ror.l	 #4,d0			; Shift-Bits in richtige Position bringen
+	sub.w	d1,d3			; dy = y2-y1
+	ror.l	#4,d0			; Shift-Bits in richtige Position bringen
 	IFC "","\4"
 		MULUF.W	(pf1_plane_width*pf1_depth3)/2,d1,d4 ; Y-Offset in Playfield
 	ELSE

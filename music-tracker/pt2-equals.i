@@ -39,15 +39,15 @@ pt_cmdtoneport			EQU 3
 pt_cmdvibrato			EQU 4
 pt_cmdtoneportvolslide 		EQU 5
 pt_cmdvibratovolslide		EQU 6
-pt_cmdtremolo		 	EQU 7
-pt_cmdnotused		 	EQU 8
+pt_cmdtremolo			EQU 7
+pt_cmdnotused			EQU 8
 pt_cmdsetsampleoffset		EQU 9
-pt_cmdvolslide		 	EQU $a
-pt_cmdposjump		 	EQU $b
-pt_cmdsetvolume		 	EQU $c
-pt_cmdpattbreak		 	EQU $d
-pt_cmdextended		 	EQU $e
-pt_cmdsetspeed		 	EQU $f
+pt_cmdvolslide			EQU $a
+pt_cmdposjump			EQU $b
+pt_cmdsetvolume			EQU $c
+pt_cmdpattbreak			EQU $d
+pt_cmdextended			EQU $e
+pt_cmdsetspeed			EQU $f
 pt_ecmdsetfilter		EQU 0
 pt_ecmdfineportup		EQU 1
 pt_ecmdfineportdown		EQU 2
@@ -56,17 +56,17 @@ pt_ecmdsetvibwaveform		EQU 4
 pt_ecmdsetsamplefinetune	EQU 5
 pt_ecmdjumptoloop		EQU 6
 pt_ecmdsettrewaveform		EQU 7
-pt_ecmdnotused		 	EQU 8
+pt_ecmdnotused			EQU 8
 pt_ecmdretrignote		EQU 9
 pt_ecmdfinevolslideup		EQU $a
 pt_ecmdfinevolslidedown		EQU $b
-pt_ecmdnotecut		 	EQU $c
+pt_ecmdnotecut			EQU $c
 pt_ecmdnotedelay		EQU $d
 pt_ecmdpattdelay		EQU $e
 pt_ecmdinvertloop		EQU $f
 
 pt_cmdbitarpeggio		EQU %0000000000000001
-pt_cmdbitportup		 	EQU %0000000000000010
+pt_cmdbitportup			EQU %0000000000000010
 pt_cmdbitportdown		EQU %0000000000000100
 pt_cmdbittoneport		EQU %0000000000001000
 pt_cmdbitvibrato		EQU %0000000000010000
@@ -98,5 +98,5 @@ pt_ecmdbitnotedelay		EQU %0010000000000000
 pt_ecmdbitpattdelay		EQU %0100000000000000
 pt_ecmdbitinvertloop		EQU %1000000000000000
 
-pt_allusedfx		 	EQU %1111111011111111
-pt_allusedefx		 	EQU %1111111011111111
+pt_allusedfx			EQU %1111111011111111
+pt_allusedefx			EQU %1111111011111111

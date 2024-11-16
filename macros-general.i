@@ -1,6 +1,7 @@
 ; Datum:	08.09.2024
 ; Version:	1.0
 
+
 RS_ALIGN_LONGWORD		MACRO
 ; Input
 ; Result
@@ -39,9 +40,9 @@ RASTER_TIME			MACRO
 	and.l	#$3ff00,d0
 	lsr.l	#8,d0
 	cmp.l	rt_rasterlines_number(a3),d0
-	blt.s	rt_no_update_y_pos_max\@
+	blt.s	raster_time_skip\@
 	move.l	d0,rt_rasterlines_number(a3)
-rt_no_update_y_pos_max\@
+raster_time_skip\@
 	IFNC "","\1"
 		SHOW_BEAM_POSITION \1
 	ENDC
@@ -88,13 +89,13 @@ MOVEF				MACRO
 ; \2 STRING:	Ziel
 ; Result
 	IFC "","\0"
-	 FAIL Makro MOVEF: Größenangabe B/W/L fehlt
+		FAIL Makro MOVEF: Größenangabe B/W/L fehlt
 	ENDC
 	IFC "","\1"
-	 FAIL Makro MOVEF: Quellwert fehlt
+		FAIL Makro MOVEF: Quellwert fehlt
 	ENDC
 	IFC "","\2"
-	 FAIL Makro MOVEF: Ziel fehlt
+		FAIL Makro MOVEF: Ziel fehlt
 	ENDC
 	IFC "B","\0"
 		IFLE $80-(\1)		; Wenn Zahl >= $80, dann
@@ -149,13 +150,13 @@ ADDF				MACRO
 ; \2 STRING:	Ziel
 ; Result
 	IFC "","\0"
-	 FAIL Makro ADDF: Größenangabe B/W/L fehlt
+		FAIL Makro ADDF: Größenangabe B/W/L fehlt
 	ENDC
 	IFC "","\1"
-	 FAIL Makro ADDF: 8/16-Bit Quellwert fehlt
+		FAIL Makro ADDF: 8/16-Bit Quellwert fehlt
 	ENDC
 	IFC "","\2"
-	 FAIL Makro ADDF: Ziel fehlt
+		FAIL Makro ADDF: Ziel fehlt
 	ENDC
 	IFEQ \1
 		MEXIT
@@ -295,7 +296,7 @@ MULUF				MACRO
 			FAIL Makro MULUF.B: Faktor ist größer als 128
 		ENDC
 	ENDC
-	IFEQ (\1)-2		 	; *2
+	IFEQ (\1)-2			; *2
 		add.\0	\2,\2
 	ENDC
 	IFEQ (\1)-3			; *3
@@ -1026,17 +1027,25 @@ MULUF				MACRO
 	ENDC
 	IFEQ (\1)-464			; *464
 		move.\0	\2,\3
-		lsl.\0	#6,\2
+		lsl.\0	#5,\2
 		sub.\0	\3,\2
 		add.\0	\3,\3
 		sub.\0	\3,\2
-		lsl.\0	#3,\2
+		lsl.\0	#4,\2
 	ENDC
 	IFEQ (\1)-480			; *480
 		move.\0	\2,\3
 		lsl.\0	#4,\2
 		sub.\0	\3,\2
 		lsl.\0	#5,\2
+	ENDC
+	IFEQ (\1)-488			; *488
+		move.\0	\2,\3
+		lsl.\0	#6,\2
+		sub.\0	\3,\2
+		add.\0	\3,\3
+		sub.\0	\3,\2
+		lsl.\0	#3,\2
 	ENDC
 	IFEQ (\1)-512			; *512
 		lsl.\0	#8,\2
@@ -1294,13 +1303,13 @@ RGB8_TO_RGB4_HIGH		MACRO
 	IFC "","\3"
 		FAIL Makro RGB8_TO_RGB4_HIGH: Maske für High-Bits fehlt
 	ENDC
-	lsr.l	#4,\1			; $000RrGgB
-	and.w	\3,\1			; $000R0G0B
-	move.l	\1,\2			; $000R0G0B
-	lsr.l	#4,\1			; $0000R0G0
-	or.b	\1,\2			; $GB
-	lsr.w	#4,\1			; $0R0G
-	move.b	\2,\1			; $0RGB
+	lsr.l	#4,\1			; RrGgB
+	and.w	\3,\1			; RrG0B
+	move.l	\1,\2			; RrG0B
+	lsr.l	#4,\1			;  RrGB
+	or.b	\1,\2			;  RrGB
+	lsr.w	#4,\1			;   RrG
+	move.b	\2,\1			;   RGB
 	ENDM
 
 
@@ -1320,12 +1329,12 @@ RGB8_TO_RGB4_LOW		MACRO
 	IFC "","\3"
 		FAIL Makro RGB8_TO_RGB4_LOW: Maske für Low-Bits fehlt
 	ENDC
-	and.w	\3,\1			; $0g0b
-	move.b	\1,\2			; $0b
-	lsr.l	#4,\1			; $000Rr0g0
-	or.b	\1,\2			; $gb
-	lsr.w	#4,\1			; $0r0g
-	move.b	\2,\1			; $0rgb
+	and.w	\3,\1			;   g0b
+	move.b	\1,\2			;    0b
+	lsr.l	#4,\1			; Rr0g0
+	or.b	\1,\2			;    gb
+	lsr.w	#4,\1			;   r0g
+	move.b	\2,\1			;   rgb
 	ENDM
 
 
@@ -1452,9 +1461,9 @@ INIT_CHARACTERS_X_POSITIONS	MACRO
 	ENDC
 \1_init_characters_x_positions_loop
 	IFNC "BACKWARDS","\3"
-		move.w	d0,(a0)+	; X eintragen
+		move.w	d0,(a0)+	; X
 	ELSE
-		move.w	d0,-(a0)	; X eintragen
+		move.w	d0,-(a0)	; X
 	ENDC
 	add.w	d1,d0			; X erhöhen
 	dbf	d7,\1_init_characters_x_positions_loop
@@ -1481,7 +1490,7 @@ INIT_CHARACTERS_Y_POSITIONS		MACRO
 		moveq	#(\1_\2)-1,d7	; Anzahl der Buchstaben
 	ENDC
 \1_init_characters_y_positions_loop
-	move.w	d0,(a0)+		; X eintragen
+	move.w	d0,(a0)+		; X
 	add.w	d1,d0			; X erhöhen
 	dbf	d7,\1_init_characters_y_positions_loop
 	rts
@@ -1497,11 +1506,11 @@ INIT_CHARACTERS_IMAGES		MACRO
 	IFC "","\1"
 		FAIL Makro INIT_CHARACTERS_IMAGES: Labels-Prefix fehlt
 	ENDC
-	lea	\1_characters_image_ptrs(pc),a2 ;Z eiger auf Tabelle mit Chars-Adressen
-	MOVEF.W	(\1_text_characters_number)-1,d7 ; Anzahl der Buchstaben
+	lea	\1_characters_image_ptrs(pc),a2
+	MOVEF.W	(\1_text_characters_number)-1,d7
 \1_init_characters_images_loop
 	bsr	\1_get_new_character_image
-	move.l	d0,(a2)+		; Char-Adresse eintragen
+	move.l	d0,(a2)+		; Character-Adresse
 	dbf	d7,\1_init_characters_images_loop
 	rts
 	ENDM
@@ -1527,22 +1536,22 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 \1_get_new_character_image
 	move.w	\1_text_table_start(a3),d1 ; Offset für bestimmtes Zeichen im Text
 	IFC "BACKWARDS","\4"
-		bpl.s	\1_no_restart_text ; Wenn positiv -> verzweige
+		bpl.s	\1_get_new_character_image_skip1
 		move.w	#\1_text_end-\1_text-1,d1 ; Neustart
-\1_no_restart_text
+\1_get_new_character_image_skip1
 	ENDC
-	lea	\1_text(pc),a0		; Zeiger auf Text
-\1_read_character
+	lea	\1_text(pc),a0
+\1_get_new_character_image_skip2
 	move.b	(a0,d1.w),d0		; ASCII-Code
 	IFNC "","\2"
 		bsr.s	\2
 		tst.l	d0
-		beq.s	\1_skip_control_code
+		beq.s	\1_get_new_character_image_skip5
 	ENDC
 	IFNC "BACKWARDS","\4"
 		IFNC "NORESTART","\3"
 			cmp.b	#FALSE,d0 ; Ende des Textes erreicht ?
-			beq.s	\1_restart_text
+			beq.s	\1_get_new_character_image_skip6
 		ENDC
 	ENDC
 	lea	\1_ascii(pc),a0		; Zeiger auf Tabelle mit ASCII-Codes der Zeichen
@@ -1595,29 +1604,27 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 		IFEQ \1_origin_character_x_size-32
 			IFEQ \1_text_character_x_size-16
 				not.w	\1_character_toggle_image(a3) ; Neues Image für Char ?
-				bne.s	\1_no_second_image_part
-\1_second_image_part
+				bne.s	\1_get_new_character_image_skip3
 				IFC "","\5"
 					addq.w	#1,d1 ; nächstes Zeichen
 				ELSE
  					ADDF.W	\1_\5,d1 ; nächstes Zeichen
 				ENDC
-				addq.l	#2,d0	; 2. Teil des Character-Images
+				addq.l	#2,d0 ; 2. Teil des Character-Images
 				move.w	d1,\1_text_table_start(a3)
-\1_no_second_image_part
+\1_get_new_character_image_skip3
 			ENDC
 		ENDC
 		IFGT \1_origin_character_x_size-32
 			IFEQ \1_text_character_x_size-16
 				moveq	#0,d3
-				move.w	\1_character_words_counter(a3),d3 ; Zähler für Worte
+				move.w	\1_character_words_counter(a3),d3
 				move.l	d3,d4
 				MULUF.W	2,d4 ; Wort-Offset des Images
 				addq.w	#1,d3 ; Nächstes Wort in Image
 				add.l	d4,d0 ; + Offset in Char-Image
-				cmp.w	#\1_origin_character_x_size/16,d3 ; Neues Image für Char ?
-				bne.s	\1_keep_character_image ; Nein -> verzweige
-\1_next_character
+				cmp.w	#\1_origin_character_x_size/16,d3 ; Neues Image für Character ?
+				bne.s	\1_get_new_character_image_skip4
 				IFC "","\5"
 					addq.w	#1,d1 ; nächstes Zeichen
 				ELSE
@@ -1625,7 +1632,7 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 				ENDC
 				move.w	d1,\1_text_table_start(a3)
 				moveq	#0,d3 ; Zähler zurücksetzen
-\1_keep_character_image
+\1_get_new_character_image_skip4
 				move.w	d3,\1_character_words_counter(a3)
 			ENDC
 		ENDC
@@ -1633,7 +1640,7 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 	rts
 	IFNC "BACKWARDS","\4"
 		IFNC "","\2"
-\1_skip_control_code
+\1_get_new_character_image_skip5
 			IFC "","\5"
 				addq.w	#1,d1 ; nächstes Zeichen
 			ELSE
@@ -1644,13 +1651,13 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 					move.w	d1,\1_text_table_start(a3)
 				ENDC
 			ENDC
-		bra.s	\1_read_character
+		bra.s	\1_get_new_character_image_skip2
 		ENDC
 		IFNC "NORESTART","\3"
 			CNOP 0,4
-\1_restart_text
+\1_get_new_character_image_skip6
 			moveq	#0,d1
-			bra.s	\1_read_character
+			bra.s	\1_get_new_character_image_skip2
 		ENDC
 	ENDC
 	ENDM
@@ -1702,19 +1709,19 @@ DISABLE_060_STORE_BUFFER	MACRO
 ; Result
 	move.l	_SysBase(pc),a6
 	tst.b	AttnFlags+BYTESZE(a6)	; CPU 68060 ?
-	bpl.s	dsb_no_CPU060		; Nein -> verzweige
-	lea	dsb_CPU060_store_buffer_off(pc),a5 ; Zeiger auf Supervisor-Routine
+	bpl.s	disable_060_store_buffer_skip
+	lea	do_disable_060_store_buffer(pc),a5
 	CALLLIBS Supervisor
-	move.l	d0,os_cacr(a3)		; alten Inhalt retten
-dsb_no_CPU060
+	move.l	d0,os_cacr(a3)
+disable_060_store_buffer_skip
 	rts
 ; ** Store-Buffer deaktivieren **
-; d0 ... Alter Inhalt von CACR
+; d0.l	... Alter Inhalt von CACR
 	CNOP 0,4
-dsb_CPU060_store_buffer_off
+do_disable_060_store_buffer
 	or.w	#SRF_I0|SRF_I1|SRF_I2,SR ; Level-7-Interruptebene
 	nop
-	movec.l CACR,d0			; Alter Inhalt von CACR
+	movec.l CACR,d0
 	move.l	d0,d1					
 	nop
 	CPUSHA	BC			; Instruction/Data/Branch-Caches flushen
@@ -1731,16 +1738,16 @@ ENABLE_060_STORE_BUFFER		MACRO
 ; Result
 	move.l	_SysBase(pc),a6
 	tst.b	AttnFlags+BYTE_SIZE(a6)	; CPU 68060 ?
-	bpl.s	esb_no_CPU060		; Nein -> verzweige
-	lea	esb_CPU060_store_buffer_on(pc),a5 ; Zeiger auf Supervisor-Routine
-	move.l	os_cacr(a3),d1		 ;Alter Inhalt von CACR
+	bpl.s	enable_060_store_buffer_skip
+	lea	do_enable_060_store_buffer(pc),a5
+	move.l	os_cacr(a3),d1
 	CALLLIBQ Supervisor
-esb_no_CPU060
+enable_060_store_buffer_skip
 	rts
 	CNOP 0,4
-; d1 ... alter Inhalt von CACR
+; d1.l	... alter Inhalt von CACR
 	CNOP 0,4
-esb_CPU060_store_buffer_on
+do_enable_060_store_buffer
 	or.w	#SRF_I0|SRF_I1|SRF_I2,SR ; Level-7-Interruptebene
 	nop
 	CPUSHA	BC			; Instruction/Data/Branch-Caches flushen
@@ -1804,7 +1811,7 @@ INIT_MIRROR_bplam_table	MACRO
 \1_init_mirror_bplam_table_loop1
 		MOVEF.W \5-1,d6		; Anzahl der Farb/Switchwerte pro Farbverlauf
 \1_init_mirror_bplam_table_loop2_1
-		move.b	d0,(a0)+	; Switchwert retten
+		move.b	d0,(a0)+	; Switchwert
 		add.w	d2,d0		; Switchwert erhöhen
 		dbf	d6,\1_init_mirror_bplam_table_loop2_1
 		IFC "","\9"
@@ -1815,7 +1822,7 @@ INIT_MIRROR_bplam_table	MACRO
 		MOVEF.W	\5-1,d6		; Anzahl der Farb/Switchwerte pro Farbverlauf
 \1_init_mirror_bplam_table_loop2_2
 		sub.w	d2,d1		; Switchwert verringern
-		move.b	d1,(a0)+	; Switchwert retten
+		move.b	d1,(a0)+	; Switchwert
 		dbf	d6,\1_init_mirror_bplam_table_loop2_2
 		dbf	d7,\1_init_mirror_bplam_table_loop1
 	ENDC
@@ -1833,7 +1840,7 @@ INIT_MIRROR_bplam_table	MACRO
 \1_init_mirror_bplam_table_loop1
 		MOVEF.W	\5-1,d6		; Anzahl der Farb/Switchwerte pro Farbverlauf
 \1_init_mirror_bplam_table_loop2_1
-		move.w	d0,(a0)+	; Switchwert retten
+		move.w	d0,(a0)+	; Switchwert
 		add.l	d2,d0		; Switchwert erhöhen
 		dbf	d6,\1_init_mirror_bplam_table_loop2_1
 		IFC "","\9"
@@ -1844,7 +1851,7 @@ INIT_MIRROR_bplam_table	MACRO
 		moveq	#\5-1,d6	; Anzahl der Farb/Switchwerte pro Farbverlauf
 \1_init_mirror_bplam_table_loop2_2
 		sub.l	d2,d1		; Switchwert verringern
-		move.w	d1,(a0)+	; Switchwert retten
+		move.w	d1,(a0)+	; Switchwert
 		dbf	d6,\1_init_mirror_bplam_table_loop2_2
 		dbf	d7,\1_init_mirror_bplam_table_loop1
 	ENDC
@@ -2008,9 +2015,9 @@ INIT_bplam_table		MACRO
 		MOVEF.W	\4-1,d7			; Anzahl der Farb/Switchwerte pro Farbverlauf
 \1_init_bplam_table_loop
 		IFC "","\8"
-			move.b	d0,(a0)+	; Switchwert retten
+			move.b	d0,(a0)+	; Switchwert
 		ELSE
-			move.b	d0,(a0)		; Switchwert retten
+			move.b	d0,(a0)		; Switchwert
 			add.l	a1,a0		; nächste Zeile in Switchtabelle
 		ENDC
 		add.w	d2,d0			; Switchwert erhöhen
@@ -2038,9 +2045,9 @@ INIT_bplam_table		MACRO
 		MOVEF.W	\4-1,d7			; Anzahl der Farb/Switchwerte pro Farbverlauf
 \1_init_bplam_table_loop
 		IFC "","\8"
-			move.w	d0,(a0)+	; Switchwert retten
+			move.w	d0,(a0)+	; Switchwert
 		ELSE
-			move.w	d0,(a0)		; Switchwert retten
+			move.w	d0,(a0)		; Switchwert
 			add.l	a1,a0		; nächste Zeile in Switchtabelle
 		ENDC
 		add.l	d2,d0			; Switchwert erhöhen
@@ -2055,23 +2062,23 @@ INIT_COLOR_GRADIENT_RGB8	MACRO
 ; \1 HEXNUMBER:		RGB8 Startwert/Istwert
 ; \2 HEXNUMBER:		RGB8 Endwert/Sollwert
 ; \3 BYTE SIGNED:	Anzahl der Farbwerte
-; \4 NUMBER:		Color-Step-Wert für RGB (optional)
+; \4 NUMBER:		Color-Step-Wert für RGB8 (optional)
 ; \5 POINTER:		Zeiger auf Farbtabelle(optional)
 ; \6 STRING:		Pointer-Base [pc, a3] (optional)
 ; \7 LONGWORD:		Offset zum nächsten Wert in Farbtabelle (optional)
 ; \8 LONGWORD:		Offset Anfang Farbtabelle (optional)
 ; Result
 	IFC "","\1"
-		FAIL Makro COLOR_GRADIENT_RGB8: RGB8 Startwert/Istwert fehlt
+		FAIL Makro INIT_COLOR_GRADIENT_RGB8: RGB8 Startwert/Istwert fehlt
 	ENDC
 	IFC "","\2"
-		FAIL Makro COLOR_GRADIENT_RGB8: RGB8 Endwert/Sollwert fehlt
+		FAIL Makro INIT_COLOR_GRADIENT_RGB8: RGB8 Endwert/Sollwert fehlt
 	ENDC					
 	IFC "","\3"
-		FAIL Makro COLOR_GRADIENT_RGB8: Anzahl der Farbwerte fehlt
+		FAIL Makro INIT_COLOR_GRADIENT_RGB8: Anzahl der Farbwerte fehlt
 	ENDC
-	move.l	#\1,d0			; RGB-Istwert
-	move.l	#\2,d6			; RGB-Sollwert
+	move.l	#\1,d0			; RGB8-Istwert
+	move.l	#\2,d6			; RGB8-Sollwert
 	IFNC "","\5"
 		IFC "pc","\6"
 			lea	\5(\6),a0 ; Zeiger auf Farbtabelle
@@ -2086,7 +2093,7 @@ INIT_COLOR_GRADIENT_RGB8	MACRO
 	IFNC "","\4"
 		move.l	#(\4)<<16,a1	; Additions-/Subtraktionswert für Rot
 		move.w	#(\4)<<8,a2	; Additions-/Subtraktionswert für Grün
-		move.w	#\4,a4		; Additions-/Subtraktionswert für Grün
+		move.w	#\4,a4		; Additions-/Subtraktionswert für Blau
 	ENDC
 	IFNC "","\7"
 		move.w	#(\7)*LONGWORD_SIZE,a5 ; Offset nächster Farbwert
@@ -2096,7 +2103,7 @@ INIT_COLOR_GRADIENT_RGB8	MACRO
 	ENDM
 
 
-INIT_COLOR_GRADIENT_GROUP_RGB8	MACRO
+INIT_COLOR_GRADIENTS_RGB8	MACRO
 ; Input
 ; \1 WORD:		Anzahl der Farbwerte
 ; \2 BYTE SIGNED:	Anzahl der Zeilen
@@ -2108,13 +2115,13 @@ INIT_COLOR_GRADIENT_GROUP_RGB8	MACRO
 ; \8 LONGWORD:		Offset zum nächsten Wert in Farbtabelle (optional)
 ; Result
 	IFC "","\1"
-		FAIL Makro COLOR_GRADIENT_GROUP_RGB8: Anzahl der Farbwerte fehlt
+		FAIL Makro INIT_COLOR_GRADIENTS_GROUP_RGB8: Anzahl der Farbwerte fehlt
 	ENDC
 	IFC "","\2"
-		FAIL Makro COLOR_GRADIENT_GROUP_RGB8: Anzahl der Zeilen fehlt
+		FAIL Makro INIT_COLOR_GRADIENTS_GROUP_RGB8: Anzahl der Zeilen fehlt
 	ENDC
 	IFC "","\3"
-		FAIL Makro COLOR_GRADIENT_GROUP_RGB8: Anzahl der Segmente fehlt
+		FAIL Makro INIT_COLOR_GRADIENTS_GROUP_RGB8: Anzahl der Segmente fehlt
 	ENDC
 	IFNC "","\5"
 		IFC "pc","\6"
@@ -2130,25 +2137,25 @@ INIT_COLOR_GRADIENT_GROUP_RGB8	MACRO
 	IFNC "","\4"
 		move.l	#\4<<16,a1	; Additions-/Subtraktionswert für Rot
 		move.w	#\4<<8,a2	; Additions-/Subtraktionswert für Grün
-		move.w	#\4,a4		; Additions-/Subtraktionswert für Grün
+		move.w	#\4,a4		; Additions-/Subtraktionswert für Blau
 	ENDC
 	move.w	#(\8)*LONGWORD_SIZE,a5	; Offset
 	moveq	#\2-1,d7		; Anzahl der Zeilen
-lines_loop\@
+init_color_gradients_rgb8_loop1\@
 	moveq	#\3-1,d5		; Anzahl der Segmente
-segments_loop\@
-	move.l	(a0),d0			; RGB-Startwert
-	move.l	(\1)*LONGWORD_SIZE(a0),d6 ; RGB-Endwert
-	tst.w	d5			; Letzte Schleife bei Segmenten ?
-	bne.s	no_last_segment\@	; Nein -> verzweige
-	move.l	-((\1)*LONGWORD_SIZE*(\3-1))(a0),d6 ; RGB-Endwert = erster Wert in Segment 1
-no_last_segment\@
+init_color_gradients_rgb8_loop2\@
+	move.l	(a0),d0			; RGB8-Startwert
+	move.l	(\1)*LONGWORD_SIZE(a0),d6 ; RGB8-Endwert
+	tst.w	d5			; Letzte Schleife bei Segment ?
+	bne.s	init_color_gradients_rgb8_skip\@
+	move.l	-((\1)*LONGWORD_SIZE*(\3-1))(a0),d6 ; RGB8-Endwert = erster Wert in Segment 1
+init_color_gradients_rgb8_skip\@
 	movem.l d5/d7,-(a7)
 	MOVEF.L	\1-1,d7			; Anzahl der Farbwerte
 	bsr	init_color_gradient_RGB8_loop
 	movem.l	(a7)+,d5/d7
-	dbf	d5,segments_loop\@
-	dbf	d7,lines_loop\@
+	dbf	d5,init_color_gradients_rgb8_loop2\@
+	dbf	d7,init_color_gradients_rgb8_loop1\@
 	ENDM
 
 
@@ -2191,7 +2198,7 @@ COPY_IMAGE_TO_BITPLANE		MACRO
 	ENDC
 \1_copy_image_to_plane_loop1
 	bsr.s	\1_copy_image_data
-	add.l	#\1_image_plane_width,a1 ; nächte Bitplane
+	add.l	#\1_image_plane_width,a1 ; nächste Bitplane
 	dbf	d7,\1_copy_image_to_plane_loop1
 	movem.l (a7)+,a4-a6
 	rts
@@ -2202,7 +2209,7 @@ COPY_IMAGE_TO_BITPLANE		MACRO
 	IFNC "","\2"
 		add.l	d4,a2		; + XY-Offset
 	ENDC
-	MOVEF.W	\1_image_y_size-1,d6	; Anzahl der Zeilen
+	MOVEF.W	\1_image_y_size-1,d6
 \1_copy_image_data_loop1
 	moveq	#(\1_image_x_size/16)-1,d5
 \1_copy_image_data_loop2
@@ -2239,36 +2246,36 @@ INIT_DISPLAY_PATTERN		MACRO
 \1_init_display_pattern_loop2
 	move.w	d0,d1			; Spaltenzähler retten
 	move.w	d0,d2			; Spaltenzähler retten
-	lsr.w	#3,d1			; /8 = X-Offset
+	lsr.w	#3,d1			; X-Offset
 	not.b	d2			; Bitnr.
-	btst	#0,d3			; Bit0 gesetzt?
-	beq.s	\1_no_set_pixel_plane0	; Nein -> verzweige
-	bset	d2,(a0,d1.l)		; Bit in Bitplane0 setzen
-\1_no_set_pixel_plane0
-	btst	#1,d3			; Bit1 gesetzt?
-	beq.s	\1_no_set_pixel_plane1	; Nein -> verzweige
-	bset	d2,pf1_plane_width*1(a0,d1.l) ; Bit in Bitplane1 setzen
-\1_no_set_pixel_plane1
-	btst	#2,d3			; Bit2 gesetzt?
-	beq.s	\1_no_set_pixel_plane2	; Nein -> verzweige
-	bset	d2,pf1_plane_width*2(a0,d1.l) ; Bit in Bitplane2 setzen
-\1_no_set_pixel_plane2
-	btst	#3,d3			; Bit3 gesetzt?
-	beq.s	\1_no_set_pixel_plane3	; Nein -> verzweige
-	bset	d2,pf1_plane_width*3(a0,d1.l) ; Bit in Bitplane3 setzen
-\1_no_set_pixel_plane3
-	btst	#4,d3			; Bit4 gesetzt?
-	beq.s	\1_no_set_pixel_plane4	; Nein -> verzweige
-	bset	d2,(pf1_plane_width*4,a0,d1.l) ; Bit in Bitplane4 setzen
-\1_no_set_pixel_plane4
-	btst	#5,d3			; Bit5 gesetzt?
-	beq.s	\1_no_set_pixel_plane5 ; Nein -> verzweige
-	bset	d2,(pf1_plane_width*5,a0,d1.l) ; Bit in Bitplane5 setzen
-\1_no_set_pixel_plane5
-	btst	#6,d3			; Bit6 gesetzt?
-	beq.s	\1_no_set_pixel_plane6 ; Nein -> verzweige
-	bset	d2,(pf1_plane_width*6,a0,d1.l) ; Bit in Bitplane6 setzen
-\1_no_set_pixel_plane6
+	btst	#0,d3
+	beq.s	\1_init_display_pattern_skip1
+	bset	d2,(a0,d1.l)		; Bit in Bitplane1 setzen
+\1_init_display_pattern_skip1
+	btst	#1,d3
+	beq.s	\1_init_display_pattern_skip2
+	bset	d2,pf1_plane_width*1(a0,d1.l) ; Bit in Bitplane2 setzen
+\1_init_display_pattern_skip2
+	btst	#2,d3
+	beq.s	\1_init_display_pattern_skip3
+	bset	d2,pf1_plane_width*2(a0,d1.l) ; Bit in Bitplane3 setzen
+\1_init_display_pattern_skip3
+	btst	#3,d3
+	beq.s	\1_init_display_pattern_skip4
+	bset	d2,pf1_plane_width*3(a0,d1.l) ; Bit in Bitplane4 setzen
+\1_init_display_pattern_skip4
+	btst	#4,d3
+	beq.s	\1_init_display_pattern_skip5
+	bset	d2,(pf1_plane_width*4,a0,d1.l) ; Bit in Bitplane5 setzen
+\1_init_display_pattern_skip5
+	btst	#5,d3
+	beq.s	\1_init_display_pattern_skip6
+	bset	d2,(pf1_plane_width*5,a0,d1.l) ; Bit in Bitplane6 setzen
+\1_init_display_pattern_skip6
+	btst	#6,d3
+	beq.s	\1_init_display_pattern_skip7
+	bset	d2,(pf1_plane_width*6,a0,d1.l) ; Bit in Bitplane7 setzen
+\1_init_display_pattern_skip7
 	addq.w	#1,d0			; Spaltenzähler erhöhen
 	dbf	d6,\1_init_display_pattern_loop2
 	addq.w	#1,d3			; Farbnummer erhöhen
@@ -2310,20 +2317,20 @@ GET_SINE_BARS_YZ_COORDINATES MACRO
 		move.w	d0,\1_y_angle(a3) 
 		MOVEF.W \1_y_distance,d3
 		lea	sine_table(pc),a0
-		lea	\1_yz_coords(pc),a1 ; Zeiger auf Y+Z-Koords-Tabelle
+		lea	\1_yz_coords(pc),a1
 		move.w	#\1_y_center,a2
-		moveq	#\1_bars_number-1,d7 ; Anzahl der Stangen
+		moveq	#\1_bars_number-1,d7
 \1_get_yz_coords_loop
 		moveq	#-(sine_table_length/4),d1 ; - 90 Grad
 		move.l	(a0,d2.w*4),d0	; sin(w)
 		add.w	d2,d1		; Y-Winkel - 90 Grad
-		ext.w	d1		; Vorzeichenrichtig auf ein Wort erweitern
-		move.w	d1,(a1)+	; Z-Vektor retten
+		ext.w	d1
+		move.w	d1,(a1)+	; Z-Vektor
 		MULUF.L \1_y_radius*2,d0,d1 ; y'=(yr*sin(w))/2^15
 		swap	d0
 		add.w	a2,d0		; y' + Y-Mittelpunkt
 		MULUF.W (\3)/4,d0,d1	; Y-Offset in CL
-		move.w	d0,(a1)+	; Y retten
+		move.w	d0,(a1)+	; Y
 		add.b	d3,d2		; Y-Abstand zur nächsten Bar
 		dbf	d7,\1_get_yz_coords_loop
 		rts
@@ -2334,9 +2341,9 @@ GET_SINE_BARS_YZ_COORDINATES MACRO
 		MOVEF.W sine_table_length,d3 ; Überlauf
 		addq.w	#\1_y_angle_speed,d0
 		cmp.w	d3,d0		; Y-Winkel < 360 Grad ?
-		blt.s	\1_no_restart_y_angle1 ; Ja -> verzweige
+		blt.s	\1_get_yz_coords_skip1
 		sub.w	d3,d0		; Y-Winkel zurücksetzen
-\1_no_restart_y_angle1
+\1_get_yz_coords_skip1
 		move.w	d0,\1_y_angle(a3) 
 		MOVEF.W sine_table_length/2,d4 ; 180 Grad
 		MOVEF.W \1_y_distance,d5
@@ -2348,10 +2355,10 @@ GET_SINE_BARS_YZ_COORDINATES MACRO
 		moveq	#-(sine_table_length/4),d1 ; - 90 Grad
 		move.l	(a0,d2.w*4),d0 ; sin(w)
 		add.w	d2,d1		; - 90 Grad + Y-Winkel
-		bmi.s	\1_set_z_vector
+		bmi.s	\1_get_yz_coords_skip2
 		sub.w	d4,d1		; Y-Winkel - 180 Grad
 		neg.w	d1
-\1_set_z_vector
+\1_get_yz_coords_skip2
 		move.w	d1,(a1)+	; Z-Vektor
 		MULUF.L \1_y_radius*2,d0,d1 ; y'=(yr*sin(w))/2^15
 		swap	d0
@@ -2360,9 +2367,9 @@ GET_SINE_BARS_YZ_COORDINATES MACRO
 		move.w	d0,(a1)+	; Y
 		add.w	d5,d2		; Y-Abstand zur nächsten Bar
 		cmp.w	d3,d2		; Y-Winkel < 360 Grad ?
-		blt.s	\1_no_restart_y_angle2
+		blt.s	\1_get_yz_coords_skip3
 		sub.w	d3,d2		; Y-Winkel zurücksetzen
-\1_no_restart_y_angle2
+\1_get_yz_coords_skip3
 		dbf	d7,\1_get_yz_coords_loop
 		rts
 	ENDC
@@ -2383,10 +2390,10 @@ GET_SINE_BARS_YZ_COORDINATES MACRO
 		moveq	#-(sine_table_length/4),d1 ; - 90 Grad
 		move.l	(a0,d2.w*4),d0 ; sin(w)
 		add.w	d2,d1		; - 90 Grad + Y-Winkel
-		bmi.s	\1_set_z_vector
+		bmi.s	\1_get_yz_coords_skip
 		sub.w	d4,d1		; Y-Winkel + 180 Grad
 		neg.w	d1
-\1_set_z_vector
+\1_get_yz_coords_skip
 		move.w	d1,(a1)+	; Z-Vektor
 		MULUF.L \1_y_radius*2,d0,d1 ; y'=(yr*sin(w))/2^15
 		swap	d0
@@ -2434,7 +2441,7 @@ GET_TWISTED_BARS_YZ_COORDINATES MACRO
 		move.w	d0,\1_y_angle(a3) 
 		MOVEF.W \1_y_distance,d3
 		lea	sine_table(pc),a0
-		lea	\1_yz_coords(pc),a1 ; Zeiger auf Y+Z-Koords-Tabelle
+		lea	\1_yz_coords(pc),a1
 		move.w	#\1_y_center,a2
 		moveq	#\*LEFT(\3,3)_display_width-1,d7 ; Anzahl der Spalten
 \1_get_yz_coords_loop1
@@ -2443,13 +2450,13 @@ GET_TWISTED_BARS_YZ_COORDINATES MACRO
 		moveq	#-(sine_table_length/4),d1 ; - 90 Grad
 		move.l	(a0,d2.w*4),d0	; sin(w)
 		add.w	d2,d1		; Y-Winkel - 90 Grad
-		ext.w	d1		; Vorzeichenrichtig auf ein Wort erweitern
-		move.w	d1,(a1)+	; Z-Vektor retten
+		ext.w	d1
+		move.w	d1,(a1)+	; Z-Vektor
 		MULUF.L \1_y_radius*2,d0,d1 ; y'=(yr*sin(w))/2^15
 		swap	d0
 		add.w	a2,d0		; y' + Y-Mittelpunkt
 		MULUF.W	(\3)/4,d0,d1	; Y-Offset in CL
-		move.w	d0,(a1)+	; Y retten
+		move.w	d0,(a1)+	; Y
 		add.b	d3,d2		; Y-Abstand zur nächsten Bar
 		dbf	d6,\1_get_yz_coords_loop2
 		IFGE \1_y_angle_step
@@ -2466,9 +2473,9 @@ GET_TWISTED_BARS_YZ_COORDINATES MACRO
 		MOVEF.W sine_table_length,d3 ; Überlauf
 		addq.w	#\1_y_angle_speed,d0
 		cmp.w	d3,d0		; Y-Winkel < 360 Grad ?
-		blt.s	\1_no_restart_y_angle1 ; Ja -> verzweige
+		blt.s	\1_get_yz_coords_skip1
 		sub.w	d3,d0		; Y-Winkel zurücksetzen
-\1_no_restart_y_angle1
+\1_get_yz_coords_skip1
 		move.w	d0,\1_y_angle(a3) 
 		MOVEF.W sine_table_length/2,d4 ; 180 Grad
 		MOVEF.W \1_y_distance,d5
@@ -2477,32 +2484,32 @@ GET_TWISTED_BARS_YZ_COORDINATES MACRO
 		move.w	#\1_y_center,a2
 		moveq	#\*LEFT(\3,3)_display_width-1,d7 ; Anzahl der Spalten
 \1_get_yz_coords_loop1
-		moveq	#\1_bars_number-1,d6 ; Anzahl der Stangen
+		moveq	#\1_bars_number-1,d6
 \1_get_yz_coords_loop2
 		moveq	#-(sine_table_length/4),d1 ; - 90 Grad
 		move.l	(a0,d2.w*4),d0	; sin(w)
 		add.w	d2,d1		; - 90 Grad + Y-Winkel
-		bmi.s	\1_set_z_vector	; Wenn negativ -> verzweige
+		bmi.s	\1_get_yz_coords_skip2
 		sub.w	d4,d1		; Y-Winkel + 180 Grad
-		neg.w	d1		; Vorzeichen umdrehen
-\1_set_z_vector
+		neg.w	d1
+\1_get_yz_coords_skip2
 		move.w	d1,(a1)+	; Z-Vektor retten
 		MULUF.L \1_y_radius*2,d0,d1 ; y'=(yr*sin(w))/2^15
 		swap	d0
 		add.w	a2,d0		; y' + Y-Mittelpunkt
 		MULUF.W	(\3)/4,d0,d1	; Y-Offset in CL
-		move.w	d0,(a1)+	; Y retten
+		move.w	d0,(a1)+	; Y
 		add.w	d5,d2		; Y-Abstand zur nächsten Bar
 		cmp.w	d3,d2		; Y-Winkel < 360 Grad ?
-		blt.s	\1_no_restart_y_angle2 ; Ja -> verzweige
+		blt.s	\1_get_yz_coords_skip3
 		sub.w	d3,d2		; Y-Winkel zurücksetzen
-\1_no_restart_y_angle2
+\1_get_yz_coords_skip3
 		dbf	d6,\1_get_yz_coords_loop2
 		addq.w	#\1_y_angle_step,d2
 		cmp.w	d3,d2		; Y-Winkel < 360 Grad ?
-		blt.s	\1_no_restart_y_angle3 ; Ja -> verzweige
+		blt.s	\1_get_yz_coords_skip4
 		sub.w	d3,d2		; Y-Winkel zurücksetzen
-\1_no_restart_y_angle3
+\1_get_yz_coords_skip4
 		dbf	d7,\1_get_yz_coords_loop1
 		rts
 	ENDC
@@ -2518,27 +2525,24 @@ RGB8_COLOR_FADER			MACRO
 \1_rgb8_fader_loop
 	move.l	(a0),d0			; RGB8-Istwert
 	moveq	#0,d1
-	move.w	d0,d1			; $00GgBb
+	move.w	d0,d1			; GgBb
 	moveq	#0,d2
-	clr.b	d1			; $00Gg00
-	move.b	d0,d2			; $0000Bb
-	clr.w	d0			; $Rr0000
+	clr.b	d1			; Gg
+	move.b	d0,d2			; Bb
+	clr.w	d0			; Rr
 	move.l	(a1)+,d3		; RGB8-Sollwert
 	moveq	#0,d4
-	move.w	d3,d4			; $00GgBb
+	move.w	d3,d4			; GgBb
 	moveq	#0,d5
-	move.b	d3,d5			; $0000Bb
-	clr.w	d3			; $Rr0000
-	clr.b	d4			; $00Gg00
-
+	move.b	d3,d5			; Bb
+	clr.w	d3			; Rr
+	clr.b	d4			; Gg
 ; ** Rotwert **
-\1_rgb8_check_red
 	cmp.l	d3,d0
 	bgt.s	\1_rgb8_decrease_red
 	blt.s	\1_rgb8_increase_red
 \1_rgb8_matched_red
 	subq.w	#1,d6			; Zielfarbwert erreicht
-
 ; ** Grünwert **
 \1_rgb8_check_green
 	cmp.l	d4,d1
@@ -2546,7 +2550,6 @@ RGB8_COLOR_FADER			MACRO
 	blt.s	\1_rgb8_increase_green
 \1_rgb8_matched_green
 	subq.w	#1,d6			; Zielfarbwert erreicht
-
 ; ** Blauwert **
 \1_rgb8_check_blue
 	cmp.w	d5,d2
@@ -2554,12 +2557,10 @@ RGB8_COLOR_FADER			MACRO
 	blt.s	\1_rgb8_increase_blue
 \1_rgb8_matched_blue
 	subq.w	#1,d6			; Zielfarbwert erreicht
-
 \1_merge_rgb8
-	move.l	d0,d3			; neuer Rotwert	$Rr0000
-	move.w	d1,d3			; neuer Grünwert $RrGg00
-	move.b	d2,d3			; neuer Blauwert $RrGgBb
-
+	move.l	d0,d3			; neuer Rotwert
+	move.w	d1,d3			; neuer Grünwert
+	move.b	d2,d3			; neuer Blauwert
 ; ** Farbwerte in Copperliste eintragen **
 	move.l	d3,(a0)+		; neuen RGB-Wert in Cache schreiben
 	dbf	d7,\1_rgb8_fader_loop
@@ -2567,8 +2568,8 @@ RGB8_COLOR_FADER			MACRO
 	CNOP 0,4
 \1_rgb8_decrease_red
 	sub.l	a2,d0			; Rotanteil verringern
-	cmp.l	d3,d0			; Ist-Rotwert > Soll-Rotwert ?
-	bgt.s	\1_rgb8_check_green	; Ja -> verzweige
+	cmp.l	d3,d0
+	bgt.s	\1_rgb8_check_green
 	move.l	d3,d0			; Rotanteil Zielwert
 	bra.s	\1_rgb8_matched_red
 	CNOP 0,4

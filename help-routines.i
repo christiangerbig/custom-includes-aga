@@ -102,7 +102,7 @@ wait_beam_position
 	lea	VHPOSR-DMACONR(a6),a1
 wait_beam_position_loop
 	move.w	(a0),d0			; VPOSR
-	swap	d0		 	; Bits in richtige Position bringen
+	swap	d0			; Bits in richtige Position bringen
 	move.w	(a1),d0			; VHPOSR
 	and.l	d1,d0			; Nur vertikale Position
 	cmp.l	d2,d0			; Auf bestimmte Rasterzeile warten
@@ -241,19 +241,18 @@ init_color_gradient_rgb8_loop
 		move.b	d3,d5		; Soll-B8
 		clr.w	d3		; Soll-R8
 		clr.b	d4		; Soll-G8
-
 		cmp.l	d3,d0
 		bgt.s	decrease_red_rgb8
 		blt.s	increase_red_rgb8
-check_green_rgb8
+init_color_gradient_rgb8_skip1
 		cmp.l	d4,d1
 		bgt.s	decrease_green_rgb8
 		blt.s	increase_green_rgb8
-check_blue_rgb8
+init_color_gradient_rgb8_skip2
 		cmp.w	d5,d2
 		bgt.s	decrease_blue_rgb8
 		blt.s	increase_blue_rgb8
-merge_rgb8
+init_color_gradient_rgb8_skip3
 		move.w	d1,d0		; G8
 		move.b	d2,d0		; B8
 		dbf	d7,init_color_gradient_rgb8_loop
@@ -262,42 +261,42 @@ merge_rgb8
 decrease_red_rgb8
 		sub.l	a1,d0
 		cmp.l	d3,d0
-		bgt.s	check_green_rgb8
+		bgt.s	init_color_gradient_rgb8_skip1
 		move.l	d3,d0
-		bra.s	check_green_rgb8
+		bra.s	init_color_gradient_rgb8_skip1
 		CNOP 0,4
 increase_red_rgb8
 		add.l	a1,d0
 		cmp.l	d3,d0
-		blt.s	check_green_rgb8
+		blt.s	init_color_gradient_rgb8_skip1
 		move.l	d3,d0
-		bra.s	check_green_rgb8
+		bra.s	init_color_gradient_rgb8_skip1
 		CNOP 0,4
 decrease_green_rgb8
 		sub.l	a2,d1
 		cmp.l	d4,d1
-		bgt.s	check_blue_rgb8
+		bgt.s	init_color_gradient_rgb8_skip2
 		move.l	d4,d1
-		bra.s	check_blue_rgb8
+		bra.s	init_color_gradient_rgb8_skip2
 		CNOP 0,4
 increase_green_rgb8
 		add.l	a2,d1							;Grünanteil erhöhen
 		cmp.l	d4,d1							;Ist-Grünwert < Soll-Grünwert ?
-		blt.s	check_blue_rgb8
+		blt.s	init_color_gradient_rgb8_skip2
 		move.l	d4,d1
-		bra.s	check_blue_rgb8
+		bra.s	init_color_gradient_rgb8_skip2
 		CNOP 0,4
 decrease_blue_rgb8
 		sub.w	a4,d2
 		cmp.w	d5,d2
-		bgt.s	merge_rgb8
+		bgt.s	init_color_gradient_rgb8_skip3
 		move.w	d5,d2
-		bra.s	merge_rgb8
+		bra.s	init_color_gradient_rgb8_skip3
 		CNOP 0,4
 increase_blue_rgb8
 		add.w	a4,d2
 		cmp.w	d5,d2
-		blt.s	merge_rgb8
+		blt.s	init_color_gradient_rgb8_skip3
 		move.w	d5,d2
-		bra.s	merge_rgb8
+		bra.s	init_color_gradient_rgb8_skip3
 	ENDC

@@ -11,6 +11,7 @@
 		INCLUDE "music-tracker/pt-macros.i"
 		INCLUDE "music-tracker/pt2-macros.i"
 	ENDC
+
 	IFD PROTRACKER_VERSION_3.0B
 		INCLUDE "music-tracker/pt-macros.i"
 		INCLUDE "music-tracker/pt3-macros.i"

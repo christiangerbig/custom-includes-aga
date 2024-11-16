@@ -31,7 +31,7 @@ pt_music_fader_quit
 	rts
 	CNOP 0,4
 pt_music_fader_end
-	move.w	#FALSE,pt_music_fader_active(a3) ; Fader aus
+	move.w	#FALSE,pt_music_fader_active(a3)
 	IFNC "","\1"
 		clr.w	\1(a3)		; Zusätzliche Variable setzen
 	ENDC

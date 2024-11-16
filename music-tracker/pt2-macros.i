@@ -20,7 +20,7 @@ PT2_INIT_VARIABLES		MACRO
 	move.w	d0,pt_SongPosition(a3)
 ; --> E9 "Retrig Note" or ED "Note Delay" used <--
 	IFNE pt_usedefx&(pt_ecmdbitretrignote|pt_ecmdbitnotedelay)
-		  move.w	d0,pt_RtnDMACONtemp(a3)
+		 move.w	d0,pt_RtnDMACONtemp(a3)
 	ENDC
 	moveq #FALSE,d1
 	IFEQ pt_music_fader_enabled
@@ -55,7 +55,7 @@ PT2_REPLAY			MACRO
 ; \1 LABEL: Subroutine for effect command 8 called at tick #1 optional
 pt_PlayMusic
 	move.l	a6,-(a7)
-	moveq	#0,d5		 		 		 		;Constant: zero longword for all clear operations
+	moveq	#0,d5								;Constant: zero longword for all clear operations
 	addq.w	#1,pt_Counter(a3)	; Increment ticks counter
 	move.w	#pt_cmdpermask,d6	; Constant: Mask out samplenumber/FALSE.b
 	move.w	pt_Counter(a3),d0	; Get ticks
@@ -84,7 +84,7 @@ pt_NoNewNote
 pt_NoNewAllChannels
 	lea	pt_audchan1temp(pc),a2	; Pointer to first channel temporary structure
 	bsr.s	pt_CheckEffects
-	ADDF.W	16,a6		 		 		 		 		;Pointer to next audio channel
+	ADDF.W	16,a6										;Pointer to next audio channel
 	lea	pt_audchan2temp(pc),a2
 	bsr.s	pt_CheckEffects
 	ADDF.W	16,a6
@@ -113,7 +113,7 @@ pt_CheckEffects
 	ENDC
 	IFNE pt_usedfx
 		move.w	n_cmd(a2),d0	; Get channel effect command
-		and.w	d6,d0		 		 		 		 		;without lower nibble of sample number
+		and.w	d6,d0										;without lower nibble of sample number
 		beq.s	pt_ChkEfxPerNop	; If no command -> skip
 		;moveq	#pt_cmdmask,d0	; Get channel effect command number without lower nibble of sample number
 		;and.b	n_cmd(a2),d0
@@ -188,7 +188,7 @@ pt_ChkEfxPerNop
 		PT2_EFFECT_PORTAMENTO_UP
 	ELSE
 		IFNE pt_usedefx&pt_ecmdbitfineportup
-			 PT2_EFFECT_PORTAMENTO_UP
+			PT2_EFFECT_PORTAMENTO_UP
 		ENDC
 	ENDC
 
@@ -227,9 +227,9 @@ pt_ChkEfxPerNop
 pt_ExtCommands
 		IFNE pt_usedefx&(pt_ecmdbitretrignote|pt_ecmdbitnotecut|pt_ecmdbitnotedelay)
 			move.b	n_cmdlo(a2),d0 ; Get channel extended effect command number
-		 	lsr.b	#NIBBLE_SHIFT_BITS,d0 ; Shift command number to lower nibble
-		 	cmp.b	#pt_ecmdnotused,d0
-		 	ble.s	pt_ExtCommandsEnd
+			lsr.b	#NIBBLE_SHIFT_BITS,d0 ; Shift command number to lower nibble
+			cmp.b	#pt_ecmdnotused,d0
+			ble.s	pt_ExtCommandsEnd
 		ENDC
 ; --> E9x "Retrig Note" <--
 		IFNE pt_usedefx&pt_ecmdbitretrignote
@@ -260,11 +260,11 @@ pt_ExtCommandsEnd
 		PT2_EFFECT_VOLUME_SLIDE
 	ELSE
 		IFNE pt_usedefx&pt_ecmdbitfinevolslideup
-	 		PT2_EFFECT_VOLUME_SLIDE
+			PT2_EFFECT_VOLUME_SLIDE
 		ELSE
 			IFNE pt_usedefx&pt_ecmdbitfinevolslidedown
-	 			PT2_EFFECT_VOLUME_SLIDE
-	 		ENDC
+				PT2_EFFECT_VOLUME_SLIDE
+			ENDC
 		ENDC
 	ENDC
 
@@ -273,14 +273,14 @@ pt_ExtCommandsEnd
 pt_GetNewNote
 	move.l	pt_SongDataPointer(a3),a0 ; Pointer to module
 	move.w	pt_SongPosition(a3),d0	; Get song position
-	moveq	#0,d1		 		 		 		;Needed for word access
+	moveq	#0,d1								;Needed for word access
 	move.b	(pt_sd_pattpos,a0,d0.w),d1 ; Get pattern number in song position table
 	MULUF.W	pt_pattsize/4,d1 ; Pattern offset
 	add.w	pt_PatternPosition(a3),d1 ; Add pattern position
 	move.w	d5,pt_DMACONtemp(a3)	; ClearDMAbits
 	lea	pt_audchan1temp(pc),a2	; Pointer to audio channel temporary structure
 	bsr.s	pt_PlayVoice
-	ADDF.W	16,a6		 		 		 		 		;Next audio channel
+	ADDF.W	16,a6										;Next audio channel
 	lea	pt_audchan2temp(pc),a2
 	bsr.s	pt_PlayVoice
 	ADDF.W	16,a6
@@ -294,11 +294,11 @@ pt_GetNewNote
 ; --> Get new note data <--
 	CNOP 0,4
 pt_PlayVoice
-	tst.l	(a2)		 		 		 		 		 ;Get last note data
+	tst.l	(a2)										;Get last note data
 	bne.s	pt_PlvSkip		; If note period or effect command -> skip
 	move.w	n_period(a2),6(a6) 	; AUDxPER Set note period
 pt_PlvSkip
-	moveq	#0,d2		 		 		 		;Needed for word access
+	moveq	#0,d2								;Needed for word access
 	move.l	(pt_sd_patterndata,a0,d1.l*4),(a2) ; Get new note data from pattern
 	MOVEF.B	NIBBLE_MASK_HIGH,d0 	; Mask for upper nibble of sample number
 	move.b	n_cmd(a2),d2
@@ -307,42 +307,42 @@ pt_PlvSkip
 	addq.w	#pt_noteinfo_size/4,d1 ;Next channel data
 	or.b	d0,d2			; Get sample number $01..$1f
 	beq.s	pt_SetRegisters		; If no sample number -> skip
-	subq.w	#1,d2		 		 		 		 		;x = sample number - 1
+	subq.w	#1,d2										;x = sample number - 1
 	lea	pt_SampleStarts(pc),a1	; Pointer to sample pointers table
-	move.w	d2,d3		 		 		 		 		;Save x
-;	MULUF.W	2,d2		 		 		 		 		 ;x*2
-;	move.w	d2,d3		 		 		 		 		;Savex*2
-;	MULUF.W	2,d2		 		 		 		 		 ;x*2
+	move.w	d2,d3										;Save x
+;	MULUF.W	2,d2										;x*2
+;	move.w	d2,d3										;Savex*2
+;	MULUF.W	2,d2										;x*2
 	move.l	(a1,d2.w*4),a1		; Get sample data pointer
-;	MULUF.W	8,d2		 		 		 		 		 ;x*8
-	MULUF.W	16,d2		 		 		 		 		;x*16
+;	MULUF.W	8,d2										;x*8
+	MULUF.W	16,d2										;x*16
 	move.l	a1,n_start(a2)		; Save sample start
-	sub.w	d3,d2		 		 		 		 		;(x*16)-x=sampleinfostructurelengthinwords
-;	sub.w	d3,d2		 		 		 		 		;(x*32)-(x*2)=sampleinfostructurelengthinbytes
+	sub.w	d3,d2										;(x*16)-x=sampleinfostructurelengthinwords
+;	sub.w	d3,d2										;(x*32)-(x*2)=sampleinfostructurelengthinbytes
 	movem.w	pt_sd_sampleinfo+pt_si_samplelength(a0,d2.w*2),d0/d2-d4 ;length, finetune, volume, repeat point, repeat length
-;	movem.w	pt_sd_sampleinfo+pt_si_samplelength(a0,d2.w),d0/d2-d4		 ;length, finetune, volume, repeat point, repeat length
+;	movem.w	pt_sd_sampleinfo+pt_si_samplelength(a0,d2.w),d0/d2-d4		;length, finetune, volume, repeat point, repeat length
 	move.w	d0,n_reallength(a2)	; Save real sample length
 	move.w	d2,n_finetune(a2)	; Save finetune and sample volume
-	ext.w	d2		 		 		 		 		 		;Extend lower byte to word
+	ext.w	d2												;Extend lower byte to word
 	IFEQ pt_music_fader_enabled
 		mulu.w	pt_master_volume(a3),d2
-		lsr.w	#6,d2		 		 		 		 ;/ maximum master volume
+		lsr.w	#6,d2								;/ maximum master volume
 	ENDC
 	IFEQ pt_track_periods_enabled
 		move.w	d2,n_currentvolume(a2) ; Save new volume
 	ENDC
 	IFEQ pt_mute_enabled
-		move.w	d5,8(a6)		 		 		 ;AUDxVOL No volume
+		move.w	d5,8(a6)						;AUDxVOL No volume
 	ELSE
-		move.w	d2,8(a6)		 		 		 ;AUDxVOL Set new volume
+		move.w	d2,8(a6)						;AUDxVOL Set new volume
 	ENDC
 	cmp.w	#1,d4			; Repeat length = 1 word ?
 	beq.s	pt_NoLoopSample		; Yes -> skip
 pt_LoopSample
-	move.w	d3,d0		 		 		 		 		;Save repeat point
-	MULUF.W	2,d3		 		 		 		 		 ;*2 = repeat point in bytes
-	add.w	d4,d0		 		 		 		 		;Add repeat length
-		add.l	d3,a1		 		 		 		 		;Add repeat point
+	move.w	d3,d0										;Save repeat point
+	MULUF.W	2,d3										;*2 = repeat point in bytes
+	add.w	d4,d0										;Add repeat length
+		add.l	d3,a1										;Add repeat point
 pt_NoLoopSample
 	move.w	d0,n_length(a2)		; Save length
 	move.w	d4,n_replen(a2)		; Save repeat length
@@ -350,8 +350,8 @@ pt_NoLoopSample
 	move.l	a1,n_wavestart(a2)	; Save wave start
  
 pt_SetRegisters
-	move.w	(a2),d3		 		 		 		 ;Get note period from pattern position
-	and.w	d6,d3		 		 		 		 		;without higher nibble of sample number
+	move.w	(a2),d3								;Get note period from pattern position
+	and.w	d6,d3										;without higher nibble of sample number
 	beq	pt_CheckMoreEffects	; If no note period -> skip
 	move.w	n_cmd(a2),d4		; Get effect command
 	and.w	#pt_ecmdmask,d4		; without lower nibble of sample number and command data
@@ -442,7 +442,7 @@ pt_CheckMoreEffects
 			ble.s	pt_ChkMoreEfxPerNop ; <= 8 -> skip
 		ELSE
 			blt.s	pt_ChkMoreEfxPerNop ; < 8 -> skip
-	 		beq	\1
+			beq	\1
 		ENDC
 	ENDC
 ; --> 9xx "Set Sample Offset" <--

@@ -85,14 +85,14 @@ DUALPF_SOFTSCROLL_64PIXEL_LORES	MACRO
 		FAIL Makro DUALPF_SOFTSCROLL_64PIXEL_LORES: PF1 Y-Koordinate fehlt
 	ENDC
 	IFC "","\3"
-		and.w	 #$00ff,\1	; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
+		and.w	#$00ff,\1	; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
 	ELSE
-		and.w	 \3,\1		; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
+		and.w	\3,\1		; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
 	ENDC
 	IFC "","\3"
-		and.w	 #$00ff,\2	; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
+		and.w	#$00ff,\2	; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
 	ELSE
-		and.w	 \3,\2		; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
+		and.w	\3,\2		; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
 	ENDC
 	lsl.w	#2,\1			; %-- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0 -- --
 	lsl.w	#2,\2			; %-- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0 -- --

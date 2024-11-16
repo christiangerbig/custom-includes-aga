@@ -58,7 +58,7 @@ COP_WAITBLIT2			MACRO
 	ENDM
 
 
-COP_SKIP MACRO
+COP_SKIP			MACRO
 ; \1 ... X-position (Bits 2-8)
 ; \2 ... Y-Position (Bits 0-7)
 	IFC "","\1"
@@ -237,7 +237,6 @@ COP_SET_BITPLANE_POINTERS	MACRO
 		lea	\1_BPL2PTH+2(a0),a1
 		ADDF.W	\1_BPL1PTH+2,a0
 		move.l	pf1_display(a3),a2 ; Zeiger auf erste Plane
-
 ; ** Zeiger auf Playfield 1 eintragen **
 		moveq	#\3-1,d7	; Anzahl der Bitplanes
 \1_set_plane_ptrs_loop1
@@ -245,7 +244,6 @@ COP_SET_BITPLANE_POINTERS	MACRO
 		ADDF.W	2*QUADWORD_SIZE,a0 ; übernächter Playfieldzeiger
 		move.w	(a2)+,LONGWORD_SIZE-(2*QUADWORD_SIZE)(a0) ; BPLxPTL
 		dbf	d7,\1_set_plane_ptrs_loop1
-
 ; ** Zeiger auf Playfield 2 eintragen **
 		move.l	pf2_display(a3),a2 ; Zeiger auf erste Plane
 		moveq	#\4-1,d7	; Anzahl der Bitplanes
@@ -401,14 +399,11 @@ COP_INIT_COLOR00_REGISTERS	MACRO
 	move.l	d3,(a0)+		; Low-Werte
 	move.l	d4,(a0)+		; COLOR00
 	IFC "YWRAP","\2"
+		COP_MOVEQ 0,NOOP
 		cmp.l	d5,d0		; Rasterzeile $ff erreicht ?
-		bne.s	no_patch_copperlist2 ; Nein -> verzweige
-patch_copperlist2
+		bne.s	\1_init_color00_skip
+		subq.w	#LONGWORD_SIZE,a0
 		COP_WAIT CL_X_WRAP,CL_Y_WRAP ; Copperliste patchen
-		bra.s	 \1_init_color00_skip
-		CNOP 0,4
-no_patch_copperlist2
-		COP_MOVEQ TRUE,NOOP
 \1_init_color00_skip
 	ENDC
 	add.l	d6,d0			; nächste Zeile
@@ -500,7 +495,7 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN	MACRO
 			IFC "OVERSCAN","\9"
 				COP_MOVEQ fmode_bits2,FMODE
 				move.l	d2,(a0)+ ; BPL1DAT
-				COP_MOVEQ TRUE,NOOP
+				COP_MOVEQ 0,NOOP
 				COP_MOVEQ fmode_bits,FMODE
 			ELSE
 				move.l	d2,(a0)+ ; BPL1DAT
@@ -561,7 +556,7 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN	MACRO
 			IFC "OVERSCAN","\9"
 				COP_MOVEQ fmode_bits2,FMODE
 				move.l	d2,(a0)+ ; BPL1DAT
-				COP_MOVEQ TRUE,NOOP
+				COP_MOVEQ 0,NOOP
 				COP_MOVEQ fmode_bits,FMODE
 			ELSE
 				move.l	d2,(a0)+ ; BPL1DAT
@@ -609,22 +604,22 @@ COP_INIT_BPLCON1_CHUNKY_SCREEN	MACRO
 	ELSE
 		move.l	#(BPLCON1<<16)|\6,d1
 	ENDC
-	moveq	 #1,d3
-	ror.l	 #8,d3			; Y-Additionswert $01000000
+	moveq	#1,d3
+	ror.l	#8,d3			; Y-Additionswert $01000000
 	MOVEF.W \5-1,d7			; Anzahl der Zeilen
 \1_init_bplcon1s_loop1
 	move.l	d0,(a0)+		; WAIT x,y
-	moveq	 #(\4/8)-1,d6		; Anzahl der Spalten
+	moveq	#(\4/8)-1,d6		; Anzahl der Spalten
 \1_init_bplcon1s_loop2
 	move.l	d1,(a0)+		; BPLCON1
-	dbf		 d6,\1_init_bplcon1s_loop2
-	add.l	 d3,d0			; nächste Zeile
-	dbf		 d7,\1_init_bplcon1s_loop1
+	dbf		d6,\1_init_bplcon1s_loop2
+	add.l	d3,d0			; nächste Zeile
+	dbf		d7,\1_init_bplcon1s_loop1
 	rts
 	ENDM
 
 
-COP_INIT_COPINT		MACRO
+COP_INIT_COPINT			MACRO
 ; \1 STRING: Label-Prefix Copperliste [cl1,cl2]
 ; \2 WORD: X-Position (optional)
 ; \3 WORD: Y-Postion	(optional)
@@ -746,33 +741,33 @@ CONVERT_IMAGE_TO_RGB4_CHUNKY	MACRO
 	moveq	#0,d0			; Farbnummer
 	IFGE \1_image_depth-1
 		btst	d5,(a0)		; Bit n in Bitplane0 gesetzt ?
-		beq.s	\1_no_plane0	; Nein -> verzweige
+		beq.s	\1_convert_image_data_skip1
 		addq.w	#1,d0		; COLOR01
-\1_no_plane0
+\1_convert_image_data_skip1
 	ENDC
 	IFGE \1_image_depth-2
 		btst	d5,\1_image_plane_width*1(a0) ; Bit n in Bitplane1 gesetzt ?
-		beq.s	\1_no_plane1	; Nein -> verzweige
+		beq.s	\1_convert_image_data_skip2
 		addq.w	#2,d0		; COLOR02
-\1_no_plane1
+\1_convert_image_data_skip2
 	ENDC
 	IFGE \1_image_depth-3
 		btst	d5,\1_image_plane_width*2(a0) ; Bit n in Bitplane2 gesetzt ?
-		beq.s	\1_no_plane2	; Nein -> verzweige
+		beq.s	\1_convert_image_data_skip3
 		addq.w	#4,d0		; COLOR04
-\1_no_plane2
+\1_convert_image_data_skip3
 	ENDC
 	IFGE \1_image_depth-4
 		btst	d5,\1_image_plane_width*3(a0) ; Bit n in Bitplane3 gesetzt ?
-		beq.s	\1_no_plane3	; Nein -> verzweige
+		beq.s	\1_convert_image_data_skip4
 		addq.w	#8,d0		; COLOR08
-\1_no_plane3
+\1_convert_image_data_skip4
 	ENDC
 	IFEQ \1_image_depth-5
 		btst	d5,\1_image_plane_width*4(a0) ;	Bit n in Bitplane4 gesetzt ?
-		beq.s	\1_no_plane4	; Nein -> verzweige
+		beq.s	\1_convert_image_data_skip5
 		add.w	d1,d0		; COLOR16
-\1_no_plane4
+\1_convert_image_data_skip5
 	ENDC
 	move.w	(a1,d0.l*2),(a2)+	; RGB4-Farbwert aufgrund der ermittelten Farbnummer kopieren
 	dbf	d5,\1_convert_image_data_loop3
@@ -822,64 +817,63 @@ CONVERT_IMAGE_TO_HAM6_CHUNKY	MACRO
 \1_convert_image_data_loop3
 	moveq	#0,d0			; Farbnummer
 	btst	d5,(a0)			; Bit n in Bitplane0 gesetzt ?
-	beq.s	\1_no_plane0		; Nein -> verzweige
+	beq.s	\1_convert_image_data_skip1
 	addq.w	#1,d0			; Farbnummer erhöhen
-\1_no_plane0
+\1_convert_image_data_skip1
 	btst	d5,\1_image_plane_width*1(a0) ; Bit n in Bitplane1 gesetzt ?
-	beq.s	\1_no_plane1		; Nein -> verzweige
+	beq.s	\1_convert_image_data_skip2
 	addq.w	#2,d0			; Farbnummer erhöhen
-\1_no_plane1
+\1_convert_image_data_skip2
 	btst	d5,\1_image_plane_width*2(a0) ; Bit n in Bitplane2 gesetzt ?
-	beq.s	\1_no_plane2		; Nein -> verzweige
+	beq.s	\1_convert_image_data_skip3
 	addq.w	#4,d0			; Farbnummer erhöhen
-\1_no_plane2
+\1_convert_image_data_skip3
 	btst	d5,\1_image_plane_width*3(a0) ;Bit n in Bitplane3 gesetzt ?
-	beq.s	\1_no_plane3		; Nein -> verzweige
+	beq.s	\1_convert_image_data_skip4
 	addq.w	#8,d0			; Farbnummer erhöhen
-\1_no_plane3
+\1_convert_image_data_skip4
 	btst	d5,\1_image_plane_width*4(a0) ;Bit n in Bitplane4 gesetzt ?
-	beq.s	\1_no_plane4		; Nein -> verzweige
+	beq.s	\1_convert_image_data_skip5
 	add.w	a4,d0			; Farbnummer erhöhen
-\1_no_plane4
+\1_convert_image_data_skip5
 	btst	d5,\1_image_plane_width*5(a0) ;Bit n in Bitplane5 gesetzt ?
-	beq.s	\1_no_plane5		; Nein -> verzweige
+	beq.s	\1_convert_image_data_skip6
 	add.w	a5,d0			; Farbnummer erhöhen
-\1_no_plane5
+\1_convert_image_data_skip6
 	move.l	d0,d1			; Farbnummer retten
 	and.b	d3,d1			; Bit 4 oder 5 gesetzt ?
-	bne.s	\1_check_blue_nibble	; Ja -> verzweige
-\1_use_color_register
-	move.w	(a1,d0.l*2),d2		; Farbwert auslesen
-	bra.s	\1_set_rgb_nibbles
+	bne.s	\1_convert_image_data_skip7
+	move.w	(a1,d0.l*2),d2		; Farbwert
+	bra.s	\1_convert_image_data_skip10
 	CNOP 0,4
-\1_check_blue_nibble
+\1_convert_image_data_skip7
 	cmp.b	#$10,d1			; Blauanteil ändern ?
-	bne.s	\1_check_red_nibble	; Nein -> verzweige
-	and.w	#$ff0,d2		; Blauanteil ausmaskieren
-	and.w	d4,d0			; Blauanteil ausmaskieren
-	or.b	d0,d2			; Neuen Blauanteil setzen
-	bra.s	\1_set_rgb_nibbles
+	bne.s	\1_convert_image_data_skip8
+	and.w	#$ff0,d2
+	and.w	d4,d0
+	or.b	d0,d2			; Neuer Blauanteil
+	bra.s	\1_convert_image_data_skip10
 	CNOP 0,4
-\1_check_red_nibble
+\1_convert_image_data_skip8
 	cmp.b	#$20,d1			; Rotanteil ändern ?
-	bne.s	\1_check_green_nibble	; Nein -> verzweige
-	and.w	#$0ff,d2		; Rotanteil ausmaskieren
-	and.w	d4,d0			; Rotanteil ausmaskieren
+	bne.s	\1_convert_image_data_skip9
+	and.w	#$0ff,d2
+	and.w	d4,d0
 	lsl.w	#8,d0			; Bits in richtige Position bringen
-	or.w	d0,d2			; Neuen Rotanteil setzen
-	bra.s	\1_set_rgb_nibbles
+	or.w	d0,d2			; Neuer Rotanteil
+	bra.s	\1_convert_image_data_skip10
 	CNOP 0,4
-\1_check_green_nibble
+\1_convert_image_data_skip9
 	cmp.b	d3,d1			; Grünanteil ändern ?
-	bne.s	\1_set_rgb_nibbles	; Nein -> verzweige
-	and.w	#$f0f,d2		; Grünanteil ausmaskieren
-	and.w	d4,d0			; Grünanteil ausmaskieren
+	bne.s	\1_convert_image_data_skip10
+	and.w	#$f0f,d2
+	and.w	d4,d0
 	lsl.b	#4,d0			; Bits in richtige Position bringen
-	or.b	d0,d2			; Neuen Grünanteil setzen
-\1_set_rgb_nibbles
-	move.w	d2,(a2)+		; RGB4-Wert retten
+	or.b	d0,d2			; Neuer Grünanteil
+\1_convert_image_data_skip10
+	move.w	d2,(a2)+		; RGB4-Wert
 	dbf	d5,\1_convert_image_data_loop3
-	addq.w	#1,a0			; Nächstes Byte in Quellbild
+	addq.w	#BYTE_SIZE,a0		; Nächstes Byte in Quellbild
 	dbf	d6,\1_convert_image_data_loop2
 	add.l	a6,a0			; restliche Bitplanes überspringen
 	dbf	d7,\1_convert_image_data_loop1
@@ -904,12 +898,12 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY	MACRO
 	CNOP 0,4
 \1_convert_image_data
 	movem.l a4-a6,-(a7)
-	moveq	 #16,d3			; COLOR16
+	moveq	#16,d3			; COLOR16
 	move.w	#RB_NIBBLES_MASK,d4
-	lea		 \1_image_data,a0 ; Quellbild
-	lea		 \1_image_color_table(pc),a1 ; Farbwerte des Playfieldes
+	lea		\1_image_data,a0 ; Quellbild
+	lea		\1_image_color_table(pc),a1 ; Farbwerte des Playfieldes
 	IFC "","\2"
-		lea	 \1_color_table(pc),a2
+		lea	\1_color_table(pc),a2
 	ELSE
 		move.l \2(\3),a2
 	ENDC
@@ -918,58 +912,58 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY	MACRO
 	move.w	#128,a6			; COLOR128
 	MOVEF.W \1_image_y_size-1,d7	; Höhe des Playfieldes
 \1_convert_image_loop1
-	moveq	 #\1_image_plane_width-1,d6 ; Breite des Quellbildes in Bytes
+	moveq	#\1_image_plane_width-1,d6 ; Breite des Quellbildes in Bytes
 \1_convert_image_loop2
-	moveq	 #8-1,d5		; Anzahl der Bits pro Byte
+	moveq	#8-1,d5		; Anzahl der Bits pro Byte
 \1_convert_image_loop3
-	moveq	 #0,d0			; Farbnummer
+	moveq	#0,d0			; Farbnummer
 	IFGE \1_image_depth-1
 		btst		d5,(a0)	; Bit n in Bitplane0 gesetzt ?
-		beq.s	 \1_no_plane0	; Nein -> verzweige
+		beq.s	\1_convert_image_skip1
 		addq.w	#1,d0		; Farbnummer erhöhen
-\1_no_plane0
+\1_convert_image_skip1
 	ENDC
 	IFGE \1_image_depth-2
-		btst		d5,\1_image_plane_width*1(a0) ; Bit n in Bitplane1 gesetzt ?
-		beq.s	 \1_no_plane1	;Nein -> verzweige
+		btst	5,\1_image_plane_width*1(a0) ; Bit n in Bitplane1 gesetzt ?
+		beq.s	\1_convert_image_skip2
 		addq.w	#2,d0		; Farbnummer erhöhen
-\1_no_plane1
+\1_convert_image_skip2
 	ENDC
 	IFGE \1_image_depth-3
-		btst		d5,\1_image_plane_width*2(a0) ; Bit n in Bitplane2 gesetzt ?
-		beq.s	 \1_no_plane2	; Nein -> verzweige
+		btst	d5,\1_image_plane_width*2(a0) ; Bit n in Bitplane2 gesetzt ?
+		beq.s	\1_convert_image_skip3
 		addq.w	#4,d0		; Farbnummer erhöhen
-\1_no_plane2
+\1_convert_image_skip3
 	ENDC
 	IFGE \1_image_depth-4
-		btst		d5,\1_image_plane_width*3(a0) ; Bit n in Bitplane3 gesetzt ?
-		beq.s	 \1_no_plane3	; Nein -> verzweige
+		btst	d5,\1_image_plane_width*3(a0) ; Bit n in Bitplane3 gesetzt ?
+		beq.s	\1_convert_image_skip4
 		addq.w	#8,d0		; Farbnummer erhöhen
-\1_no_plane3
+\1_convert_image_skip4
 	ENDC
 	IFGE \1_image_depth-5
-		btst		d5,\1_image_plane_width*4(a0) ; Bit n in Bitplane4 gesetzt ?
-		beq.s	 \1_no_plane4	; Nein -> verzweige
-		add.w	 d3,d0		; Farbnummer erhöhen
-\1_no_plane4
+		btst	d5,\1_image_plane_width*4(a0) ; Bit n in Bitplane4 gesetzt ?
+		beq.s	\1_convert_image_skip5
+		add.w	d3,d0		; Farbnummer erhöhen
+\1_convert_image_skip5
 	ENDC
 	IFGE \1_image_depth-6
-		btst		d5,\1_image_plane_width*5(a0) ; Bit n in Bitplane5 gesetzt ?
-		beq.s	 \1_no_plane5	; Nein -> verzweige
-		add.w	 a4,d0		; Farbnummer erhöhen
-\1_no_plane5
+		btst	d5,\1_image_plane_width*5(a0) ; Bit n in Bitplane5 gesetzt ?
+		beq.s	\1_convert_image_skip6
+		add.w	a4,d0		; Farbnummer erhöhen
+\1_convert_image_skip6
 	ENDC
 	IFGE \1_image_depth-7
-		btst		d5,\1_image_plane_width*6(a0) ; Bit n in Bitplane6 gesetzt ?
-		beq.s	 \1_no_plane6	; Nein -> verzweige
-		add.w	 a5,d0		; Farbnummer erhöhen
-\1_no_plane6
+		btst	d5,\1_image_plane_width*6(a0) ; Bit n in Bitplane6 gesetzt ?
+		beq.s	\1_convert_image_skip7
+		add.w	a5,d0		; Farbnummer erhöhen
+\1_convert_image_skip7
 	ENDC
 	IFEQ \1_image_depth-8
-		btst		d5,\1_image_plane_width*7(a0) ; Bit n in Bitplane7 gesetzt ?
-		beq.s	 \1_no_plane7	; Nein -> verzweige
-		add.w	 a6,d0		; Farbnummer erhöhen
-\1_no_plane7
+		btst	d5,\1_image_plane_width*7(a0) ; Bit n in Bitplane7 gesetzt ?
+		beq.s	\1_convert_image_skip8
+		add.w	a6,d0		; Farbnummer erhöhen
+\1_convert_image_skip8
 	ENDC
 	move.l	(a1,d0.l*4),d0		; RGB8-Farbwert lesen
 	move.l	d0,d2							
@@ -977,11 +971,11 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY	MACRO
 	move.w	d0,(a2)+		; High-Nibble
 	RGB8_TO_RGB4_LOW d2,d1,d4
 	move.w	d2,(a2)+		; Low-Nibble
-	dbf		 d5,\1_convert_image_loop3
+	dbf	5,\1_convert_image_loop3
 	addq.w	#1,a0			; Nächstes Byte in Quellbild
-	dbf		 d6,\1_convert_image_loop2
-	add.l	 #\1_image_plane_width*(\1_image_depth-1),a0 ; restliche Bitplanes überspringen
-	dbf		 d7,\1_convert_image_loop1
+	dbf	6,\1_convert_image_loop2
+	add.l	#\1_image_plane_width*(\1_image_depth-1),a0 ; restliche Bitplanes überspringen
+	dbf	7,\1_convert_image_loop1
 	movem.l (a7)+,a4-a6
 	rts
 	ENDM
@@ -1027,66 +1021,65 @@ CONVERT_IMAGE_TO_HAM8_CHUNKY	MACRO
 \1_translate_image_data_loop3
 	moveq	#0,d0			; Farbnummer
 	btst	d5,(a0)			; Bit n in Bitplane0 gesetzt ?
-	beq.s	\1_no_plane0		; Nein -> verzweige
+	beq.s	\1_translate_image_data_skip1
 	addq.w	#1,d0			; Farbnummer erhöhen
-\1_no_plane0
+\1_translate_image_data_skip1
 	btst	d5,\1_image_plane_width*1(a0) ; Bit n in Bitplane1 gesetzt ?
-	beq.s	\1_no_plane1		; Nein -> verzweige
+	beq.s	\1_translate_image_data_skip2
 	addq.w	#2,d0			; Farbnummer erhöhen
-\1_no_plane1
+\1_translate_image_data_skip2
 	btst	d5,\1_image_plane_width*2(a0) ; Bit n in Bitplane2 gesetzt ?
-	beq.s	\1_no_plane2		; Nein -> verzweige
+	beq.s	\1_translate_image_data_skip3
 	addq.w	#4,d0			; Farbnummer erhöhen
-\1_no_plane2
+\1_translate_image_data_skip3
 	btst	d5,\1_image_plane_width*3(a0) ; Bit n in Bitplane3 gesetzt ?
-	beq.s	\1_no_plane3		; Nein -> verzweige
+	beq.s	\1_translate_image_data_skip4
 	addq.w	#8,d0			; Farbnummer erhöhen
-\1_no_plane3
+\1_translate_image_data_skip4
 	btst	d5,\1_image_plane_width*4(a0) ;Bit n in Bitplane4 gesetzt ?
-	beq.s	\1_no_plane4		; Nein -> verzweige
+	beq.s	\1_translate_image_data_skip5
 	add.w	a3,d0			; Farbnummer erhöhen
-\1_no_plane4
+\1_translate_image_data_skip5
 	btst	d5,\1_image_plane_width*5(a0) ; Bit n in Bitplane5 gesetzt ?
-	beq.s	\1_no_plane5		; Nein -> verzweige
+	beq.s	\1_translate_image_data_skip6
 	add.w	a4,d0			; Farbnummer erhöhen
-\1_no_plane5
+\1_translate_image_data_skip6
 	btst	d5,\1_image_plane_width*6(a0) ; Bit n in Bitplane6 gesetzt ?
-	beq.s	\1_no_plane6		; Nein -> verzweige
+	beq.s	\1_translate_image_data_skip7
 	add.w	a5,d0			; Farbnummer erhöhen
-\1_no_plane6
+\1_translate_image_data_skip1
 	btst	d5,\1_image_plane_width*7(a0) ; Bit n in Bitplane7 gesetzt ?
-	beq.s	\1_no_plane7		; Nein -> verzweige
+	beq.s	\1_translate_image_data_skip8
 	add.w	a6,d0			; Farbnummer erhöhen
-\1_no_plane7
+\1_translate_image_data_skip8
 	move.l	d0,d1			; Farbnummer retten
 	and.b	d3,d1			; Bit 6 oder 7 gesetzt ?
-	bne.s	\1_check_blue_nibble	; Ja -> verzweige
-\1_use_color_register
+	bne.s	\1_translate_image_data_skip9
 	move.l	(a1,d0.l*4),d2		; Farbwert auslesen
-	bra.s	\1_set_rgb_nibbles
+	bra.s	\1_translate_image_data_skip12
 	CNOP 0,4
-\1_check_blue_nibble
+\1_translate_image_data_skip9
 	lsl.b	#2,d0			; Bits in richtige Postion bringen
 	cmp.b	#$40,d1		; Blauanteil ändern ?
-	bne.s	\1_check_red_nibble	; Nein -> verzweige
+	bne.s	\1_translate_image_data_skip10
 	move.b	d0,d2			; Neuen Blauanteil setzen
-	bra.s	\1_set_rgb_nibbles
+	bra.s	\1_translate_image_data_skip12
 	CNOP 0,4
-\1_check_red_nibble
+\1_translate_image_data_skip10
 	cmp.b	#$80,d1		; Rotanteil ändern ?
-	bne.s	\1_check_green_nibble	; Nein -> verzweige
+	bne.s	\1_translate_image_data_skip11
 	swap	d2
 	move.w	d0,d2			; Neuen Rotanteil setzen
 	swap	d2			; Bits in richtige Position bringen
 	bra.s	\1_set_rgb_nibbles
 	CNOP 0,4
-\1_check_green_nibble
+\1_translate_image_data_skip11
 	cmp.b	d3,d1			; Grünanteil ändern ?
 	bne.s	\1_set_rgb_nibbles	; Nein -> verzweige
 	and.l	#$ff00ff,d2		; Grünanteil ausmaskieren
 	lsl.w	#8,d0			; Bits in richtige Position bringen
 	or.w	d0,d2			; Neuen Grünanteil setzen
-\1_set_rgb_nibbles
+\1_translate_image_data_skip12
 	move.l	d2,d0			; RGB8-Farbwert
 	RGB8_TO_RGB4_HIGH d0,d1,d4
 	move.w	d0,(a2)+		; High-Bits
@@ -1157,51 +1150,51 @@ CONVERT_IMAGE_TO_BPLCON4_CHUNKY	MACRO
 	ENDC
 	IFGE \1_image_depth-1
 		btst	d5,(a0)		; Bit n in Bitplane0 gesetzt ?
-		beq.s	\1_no_plane0	; Nein -> verzweige
+		beq.s	\1_translate_image_data_skip1
 		addq.w	#1,d0		; Switchwert erhöhen
-\1_no_plane0
+\1_translate_image_data_skip1
 	ENDC
 	IFGE \1_image_depth-2
 		btst	d5,\1_image_plane_width*1(a0) ; Bit n in Bitplane1 gesetzt ?
-		beq.s	\1_no_plane1	; Nein -> verzweige
+		beq.s	\1_translate_image_data_skip2
 		addq.w	#2,d0		; Switchwert erhöhen
-\1_no_plane1
+\1_translate_image_data_skip2
 	ENDC
 	IFGE \1_image_depth-3
 		btst	d5,\1_image_plane_width*2(a0) ; Bit n in Bitplane2 gesetzt ?
-		beq.s	\1_no_plane2	; Nein -> verzweige
+		beq.s	\1_translate_image_data_skip3
 		addq.w	#4,d0		; Switchwert erhöhen
-\1_no_plane2
+\1_translate_image_data_skip3
 	ENDC
 	IFGE \1_image_depth-4
 		btst	d5,\1_image_plane_width*3(a0) ; Bit n in Bitplane3 gesetzt ?
-		beq.s	\1_no_plane3	; Nein -> verzweige
+		beq.s	\1_translate_image_data_skip4
 		addq.w	#8,d0		; Switchwert erhöhen
-\1_no_plane3
+\1_translate_image_data_skip4
 	ENDC
 	IFGE \1_image_depth-5
 		btst	d5,\1_image_plane_width*4(a0) ; Bit n in Bitplane4 gesetzt ?
-		beq.s	\1_no_plane4	; Nein -> verzweige
+		beq.s	\1_translate_image_data_skip5
 		add.w	d1,d0		; Switchwert erhöhen
-\1_no_plane4
+\1_translate_image_data_skip5
 	ENDC
 	IFGE \1_image_depth-6
 		btst	d5,\1_image_plane_width*5(a0) ; Bit n in Bitplane5 gesetzt ?
-		beq.s	\1_no_plane5	; Nein -> verzweige
+		beq.s	\1_translate_image_data_skip6
 		add.w	d2,d0		; Switchwert erhöhen
-\1_no_plane5
+\1_translate_image_data_skip6
 	ENDC
 	IFGE \1_image_depth-7
 		btst	d5,\1_image_plane_width*6(a0) ; Bit n in Bitplane6 gesetzt ?
-		beq.s	\1_no_plane6	; Nein -> verzweige
+		beq.s	\1_translate_image_data_skip7
 		add.w	d3,d0		; Switchwert erhöhen
-\1_no_plane6
+\1_translate_image_data_skip7
 	ENDC
 	IFEQ \1_image_depth-8
 		btst	d5,\1_image_plane_width*7(a0) ; Bit n in Bitplane7 gesetzt ?
-		beq.s	\1_no_plane7	; Nein -> verzweige
+		beq.s	\1_translate_image_data_skip8
 		add.w	d4,d0		; Switchwert erhöhen
-\1_no_plane7
+\1_translate_image_data_skip8
 	ENDC
 	IFC "B","\0"
 		move.b	d0,(a1)+	; Switchwert eintragen
@@ -1310,7 +1303,7 @@ CLEAR_COLOR00_CHUNKY_SCREEN	MACRO
 			move.w	#color00_low_bits,d1
 			MOVEF.L	\2_\4_size*16,d2
 			move.l	\2_\3(a3),a0
-			ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+2,a0
+			ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+WORD_SIZE,a0
 			moveq	#(\2_display_y_size/16)-1,d7
 \1_clear_first_copperlist_loop
 			move.w	d0,(a0)	; COLOR00 high
@@ -1354,7 +1347,7 @@ CLEAR_COLOR00_CHUNKY_SCREEN	MACRO
 			move.w	#color00_low_bits,d1
 			MOVEF.L \2_\4_size*32,d2
 			move.l	\2_\3(a3),a0
-			ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+2,a0
+			ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+WORD_SIZE,a0
 			moveq	#(\2_display_y_size/32)-1,d7
 \1_clear_first_copperlist_loop
 			move.w	d0,(a0)	; COLOR00 high
@@ -1424,7 +1417,7 @@ CLEAR_COLOR00_CHUNKY_SCREEN	MACRO
 			move.w	d0,\2_\4_size*32(a0)
 			add.l	d2,a0							;nächste Zeile in CL
 			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*15)-(\2_\4_size*32)(a0)
-			dbf		 d7,\1_clear_first_copperlist_loop
+			dbf		d7,\1_clear_first_copperlist_loop
 			rts
 		ENDC
 	ENDC
@@ -1435,7 +1428,7 @@ CLEAR_COLOR00_CHUNKY_SCREEN	MACRO
 			move.w	#color00_low_bits,d1
 			MOVEF.L	\2_\4_size*16,d2
 			move.l	\2_\3(a3),a0
-			ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+2,a0
+			ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+WORD_SIZE,a0
 			moveq	#(\2_display_y_size/16)-1,d7
 \1_clear_second_copperlist_loop
 			move.w	d0,(a0)	; COLOR00 high
@@ -1471,7 +1464,7 @@ CLEAR_COLOR00_CHUNKY_SCREEN	MACRO
 			move.w	d0,\2_\4_size*15(a0)
 			add.l	d2,a0							;nächste Zeile in CL
 			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*15)-(\2_\4_size*16)(a0)
-			dbf		 d7,\1_clear_second_copperlist_loop
+			dbf		d7,\1_clear_second_copperlist_loop
 			rts
 		ENDC
 		IFC "32","\5"
@@ -1479,7 +1472,7 @@ CLEAR_COLOR00_CHUNKY_SCREEN	MACRO
 			move.w	#color00_low_bits,d1
 			MOVEF.L	\2_\4_size*32,d2
 			move.l	\2_\3(a3),a0
-			ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+2,a0
+			ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+WORD_SIZE,a0
 			moveq	#(\2_display_y_size/32)-1,d7
 \1_clear_second_copperlist_loop
 			move.w	d0,(a0)	; COLOR00 high
@@ -1769,7 +1762,7 @@ restore_second_copperlist_loop
 					rts
 				ENDC
 				IFC "32","\5"
-					moveq	 #-2,d0						 ;2. Wort des WAIT-Befehls
+					moveq	#-2,d0						;2. Wort des WAIT-Befehls
 					MOVEF.L \2_\4_size*32,d1
 					move.l	\2_\3(a3),a0 
 					ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
@@ -1815,7 +1808,7 @@ restore_second_copperlist_loop
 		ENDC
 		IFEQ \1_restore_cl_blitter_enabled
 			IFC "","\7"
-				move.l	\2_\3(a3),a0	 
+				move.l	\2_\3(a3),a0	
 				WAITBLIT
 				ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
 				move.l	a0,BLTDPT-DMACONR(a6) ; Ziel = Copperliste
@@ -1871,7 +1864,7 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 	IFC "B","\0"
 		moveq	#\1_bar_height*BYTE_SIZE,d4
 	ENDC
-	lea	\1_yz_coords(pc),a0 ; Zeiger auf YZ-Koords
+	lea	\1_yz_coords(pc),a0
 	move.l	\2_\3(a3),a2
 	ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_BPLCON4_1+WORD_SIZE,a2
 	IFC "pc","\7"
@@ -1890,29 +1883,31 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 	ENDC
 \1_set_background_bars_loop1
 	move.l	a5,a1			; Zeiger auf Tabelle mit Switchwerten
-	moveq	#\1_bars_number-1,d6 	; Anzahl der Stangen
+	moveq	#\1_bars_number-1,d6
 \1_set_background_bars_loop2
-	move.l	(a0)+,d0		; Z + Y lesen
+	move.l	(a0)+,d0		; Bits 0-15: Y, Bits 16-31: Z-Vektor
 	IFC "B","\0"
-		bmi	\1_skip_background_bar ; Wenn Z negativ -> verzweige
+		bpl.s	\1_set_background_bars_skip1
+		add.l	d4,a1							;Switchwerte überspringen
+		bra	\1_set_background_bars_skip2
+		CNOP 0,4
+\1_set_background_bars_skip1
 	ENDC
 	IFC "W","\0"
-		bmi	\1_no_background_bar ; Wenn Z negativ -> verzweige
+		bmi	\1_set_background_bars_skip2
 	ENDC
-\1_set_background_bar
-	lea	(a2,d0.w*4),a4		; Y-Offset
+	lea	(a2,d0.w*4),a4		; Y-Offset in CL
 	COPY_TWISTED_BAR.\0 \1,\2,\4,\5
-\1_no_background_bar
+\1_set_background_bars_skip2
 	dbf	d6,\1_set_background_bars_loop2
-	addq.w	#4,a2			; nächste Spalte in CL
+	addq.w	#LONGWORD_SIZE,a2	; nächste Spalte in CL
 	dbf	d7,\1_set_background_bars_loop1
 	movem.l	(a7)+,a4-a5
 	rts
 	IFC "B","\0"
 		CNOP 0,4
 \1_skip_background_bar
-		add.l	d4,a1							;Switchwerte überspringen
-		bra.s	\1_no_background_bar
+
 	ENDC
 	ENDM
 
@@ -1958,9 +1953,9 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 	IFC "B","\0"
 		moveq	#\1_bar_height*BYTE_SIZE,d4
 	ENDC
-	lea	\1_yz_coords(pc),a0	; Zeiger auf YZ-Koords
+	lea	\1_yz_coords(pc),a0
 	move.l	\2_\3(a3),a2
-	ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_BPLCON4_1+2,a2
+	ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_BPLCON4_1+WORD_SIZE,a2
 	IFC "pc","\7"
 		lea	\1_\6(\7),a5	; Zeiger auf Tabelle mit Switchwerten
 	ENDC
@@ -1977,30 +1972,27 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 	ENDC
 \1_set_foreground_bars_loop1
 	move.l	a5,a1			; Zeiger auf Tabelle mit Switchwerten
-	moveq	#\1_bars_number-1,d6	; Anzahl der Stangen
+	moveq	#\1_bars_number-1,d6
 \1_set_foreground_bars_loop2
-	move.l	(a0)+,d0		; Z + Y lesen
+	move.l	(a0)+,d0		; Bits 0-15: Y, Bits 16-31: Z-Vektor
 	IFC "B","\0"
-		bpl	\1_skip_foreground_bar ; Wenn Z positiv -> verzweige
+		bmi.s	\1_set_foreground_bars_skip1
+		add.l	d4,a1							;Switchwerte überspringen
+		bra	\1_set_foreground_bars_skip2
+		CNOP 0,4
+\1_set_foreground_bars_skip1
 	ENDC
 	IFC "W","\0"
-		bpl	\1_no_foreground_bar ; Wenn Z positiv -> verzweige
+		bpl	\1_set_foreground_bars_skip2
 	ENDC
-\1_set_foreground_bar
-	lea	(a2,d0.w*4),a4		; Y-Offset
+	lea	(a2,d0.w*4),a4		; Y-Offset in CL
 	COPY_TWISTED_BAR.\0 \1,\2,\4,\5
-\1_no_foreground_bar
+\1_set_foreground_bars_skip2
 	dbf	d6,\1_set_foreground_bars_loop2
-	addq.w	#4,a2			; nächste Spalte in CL
+	addq.w	#LONGWORD_SIZE,a2	; nächste Spalte in CL
 	dbf	d7,\1_set_foreground_bars_loop1
 	movem.l (a7)+,a4-a5
 	rts
-	IFC "B","\0"
-		CNOP 0,4
-\1_skip_foreground_bar
-		add.l	d4,a1							;Switchwerte überspringen
-		bra.s	\1_no_foreground_bar
-	ENDC
 	ENDM
 
 
