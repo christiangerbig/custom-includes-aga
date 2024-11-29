@@ -1715,7 +1715,7 @@ DISABLE_060_STORE_BUFFER	MACRO
 	move.l	d0,os_cacr(a3)
 disable_060_store_buffer_skip
 	rts
-; ** Store-Buffer deaktivieren **
+; Store-Buffer deaktivieren
 ; d0.l	... Alter Inhalt von CACR
 	CNOP 0,4
 do_disable_060_store_buffer
@@ -2537,20 +2537,20 @@ RGB8_COLOR_FADER			MACRO
 	move.b	d3,d5			; Bb
 	clr.w	d3			; Rr
 	clr.b	d4			; Gg
-; ** Rotwert **
+; Rotwert
 	cmp.l	d3,d0
 	bgt.s	\1_rgb8_decrease_red
 	blt.s	\1_rgb8_increase_red
 \1_rgb8_matched_red
 	subq.w	#1,d6			; Zielfarbwert erreicht
-; ** Grünwert **
+; Grünwert
 \1_rgb8_check_green
 	cmp.l	d4,d1
 	bgt.s	\1_rgb8_decrease_green
 	blt.s	\1_rgb8_increase_green
 \1_rgb8_matched_green
 	subq.w	#1,d6			; Zielfarbwert erreicht
-; ** Blauwert **
+; Blauwert
 \1_rgb8_check_blue
 	cmp.w	d5,d2
 	bgt.s	\1_rgb8_decrease_blue
@@ -2561,7 +2561,7 @@ RGB8_COLOR_FADER			MACRO
 	move.l	d0,d3			; neuer Rotwert
 	move.w	d1,d3			; neuer Grünwert
 	move.b	d2,d3			; neuer Blauwert
-; ** Farbwerte in Copperliste eintragen **
+; Farbwerte in Copperliste eintragen
 	move.l	d3,(a0)+		; neuen RGB-Wert in Cache schreiben
 	dbf	d7,\1_rgb8_fader_loop
 	rts

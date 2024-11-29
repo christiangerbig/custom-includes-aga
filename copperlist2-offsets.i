@@ -1,7 +1,7 @@
 ; Datum:	05.09.2024
 ; Version:	4.3
 
-; ** Struktur, die alle Registeroffsets der 1. Copperliste enthält **
+; Struktur, die alle Registeroffsets der 1. Copperliste enthält
 
 	IFD diwstrt_bits
 cl2_DIWSTRT			RS.L 1
@@ -62,7 +62,7 @@ cl2_SPR7PTH			RS.L 1
 cl2_SPR7PTL			RS.L 1
 	ENDC
 
-; ** High-Farbwerte der 1. Palette **
+; High-Farbwerte der 1. Palette
 
 COLOR_PALETTE_HIGH		MACRO
 ; \1: Farbnummer-Basis in 32er-Schritten 0/32/../224
@@ -230,7 +230,7 @@ cl2_COLOR31_high\2		RS.L 1
 	COLOR_PALETTE_HIGH 224,8,$00ee,$00ff
 
 
-; ** Low-Farbwerte der 1. Palette **
+; Low-Farbwerte der 1. Palette
 
 COLOR_PALETTE_LOW		MACRO
 ; \1: Farbnummer-Basis in 32er-Schritten 0/32/../224

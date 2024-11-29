@@ -1,7 +1,7 @@
 ; Datum:        05.09.2024
 ; Version:      5.8
 
-; **** OS ****
+; OS
 exec_base			EQU $0004
 
 ANY_LIBRARY_VERSION		EQU 0
@@ -10,7 +10,7 @@ OS3_VERSION			EQU 39
 CHIP_MEMORY_MIN			EQU $200000
 
 
-; **** Main ****
+; Main
 TRUE				EQU 0
 FALSE				EQU -1
 FALSE_BYTE			EQU $ff
@@ -57,6 +57,7 @@ ASCII_CTRL_F			EQU 6
 ASCII_LINE_FEED			EQU 10
 ASCII_CTRL_M			EQU 13
 ASCII_CTRL_N			EQU 14
+ASCII_CTRL_O			EQU 15
 ASCII_CTRL_P			EQU 16
 ASCII_CTRL_R			EQU 18
 ASCII_CTRL_S			EQU 19
@@ -66,7 +67,7 @@ ASCII_CTRL_W			EQU 23
 drives_motor_delay		EQU PAL_FPS/2 ; 500 ms
 
 
-; **** Display-Degrader ****
+; Display-Degrader
 pal_screen_top			EQU 0
 pal_screen_left			EQU 0
 pal_screen_x_size		EQU 2
@@ -88,7 +89,7 @@ sprites_colors_number		EQU 16
 monitor_switch_delay		EQU PAL_FPS*3 ; 3 s
 
 
-; **** Screen-Fader ****
+; Screen-Fader
 sf_rgb32_colors_number		EQU 256
 
 sfi_fader_speed			EQU 7
@@ -96,7 +97,7 @@ sfi_fader_speed			EQU 7
 sfo_fader_speed			EQU 6
 
 
-; **** Custom_Errors ****
+; Custom_Errors
 NO_CUSTOM_ERROR			EQU 0
 
 KICKSTART_VERSION_NOT_FOUND	EQU 1
@@ -173,7 +174,7 @@ WINDOW_COULD_NOT_OPEN		EQU 47
 custom_errors_number		EQU 47
 
 
-; **** Chipset ****
+; Chipset
 _CUSTOM				EQU $dff000
 
 DSKPTH				EQU DSKPT
@@ -814,11 +815,11 @@ FMODEF_SPR32			EQU $0004
 FMODEF_BPAGEM			EQU $0002
 FMODEF_BPL32			EQU $0001
 
-; **** CIA ****
+; CIA
 _CIAA				EQU $bfe001
 _CIAB				EQU $bfd000
 
-; **** CPU ****
+; CPU
 SRF_T1				EQU $8000
 SRF_T0				EQU $4000
 SRF_S				EQU $2000
@@ -891,7 +892,7 @@ KEYBOARD_KEYCODE_F8		EQU $57
 KEYBOARD_KEYCODE_F9		EQU $58
 KEYBOARD_KEYCODE_F10		EQU $59
 
-; **** Display ****
+; Display
 COLOR_CLOCK_SPEED		EQU 280
 LORES_PIXEL_SPEED		EQU 140
 HIRES_PIXEL_SPEED		EQU 70
@@ -1072,7 +1073,7 @@ DDFSTOP_OVERSCAN_32_PIXEL_MIN	EQU $30
 DDFSTOP_OVERSCAN_48_PIXEL_MIN	EQU $28
 DDFSTOP_OVERSCAN_64_PIXEL_MIN	EQU $20
 
-; **** Protracker ****
+; Protracker
 	IFD PROTRACKER_VERSION_2.3A 
 		INCLUDE "music-tracker/pt2-equals.i"
 	ENDC

@@ -54,7 +54,7 @@ wm
 	ENDM
 
 
-; ** Beginn **
+; Beginn
 	movem.l d2-d7/a2-a6,-(a7)
 	lea	variables(pc),a3	; Basisadresse aller Variablen
 	bsr	init_variables
@@ -3462,7 +3462,7 @@ sfi_rgb32_increase_blue
 
 
 		IFEQ text_output_enabled
-; ** formatierten Text ausgeben **
+; formatierten Text ausgeben
 ; Input
 ; Result
 ; d0.l	... Kein Rückgabewert

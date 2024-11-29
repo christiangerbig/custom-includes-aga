@@ -47,6 +47,6 @@ pal_screen_name		DC.B "Degrade screen",0
 invisible_window_name		DC.B "Invisible window",0
 		EVEN
 		
-raw_name			DC.B "RAW:0/0/640/80/  **  Message Window  **  ",0
+raw_name			DC.B "RAW:0/0/640/80/   Message Window   ",0
 		EVEN
 	ENDC

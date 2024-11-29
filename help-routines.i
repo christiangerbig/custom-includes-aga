@@ -1,7 +1,7 @@
 ; Datum:	05.10.2024
 ; Version:      4.7
 
-; ** Globale Labels **
+; Globale Labels
 
 ; SYS_TAKEN_OVER
 

@@ -237,20 +237,20 @@ COP_SET_BITPLANE_POINTERS	MACRO
 		lea	\1_BPL2PTH+2(a0),a1
 		ADDF.W	\1_BPL1PTH+2,a0
 		move.l	pf1_display(a3),a2 ; Zeiger auf erste Plane
-; ** Zeiger auf Playfield 1 eintragen **
+; Zeiger auf Playfield 1 eintragen
 		moveq	#\3-1,d7	; Anzahl der Bitplanes
 \1_set_plane_ptrs_loop1
 		move.w	(a2)+,(a0)	; BPLxPTH
-		ADDF.W	2*QUADWORD_SIZE,a0 ; übernächter Playfieldzeiger
-		move.w	(a2)+,LONGWORD_SIZE-(2*QUADWORD_SIZE)(a0) ; BPLxPTL
+		ADDF.W	QUADWORD_SIZE*2,a0 ; übernächter Playfieldzeiger
+		move.w	(a2)+,LONGWORD_SIZE-(QUADWORD_SIZE*2)(a0) ; BPLxPTL
 		dbf	d7,\1_set_plane_ptrs_loop1
-; ** Zeiger auf Playfield 2 eintragen **
+; Zeiger auf Playfield 2 eintragen
 		move.l	pf2_display(a3),a2 ; Zeiger auf erste Plane
 		moveq	#\4-1,d7	; Anzahl der Bitplanes
 \1_set_plane_ptrs_loop2
 		move.w	(a2)+,(a1)	; BPLxPTH
-		ADDF.W	2*QUADWORD_SIZE,a1 ; übernächter Playfieldzeiger
-		move.w	(a2)+,LONGWORD_SIZE-(2*QUADWORD_SIZE)(a1) ; BPLxPTL
+		ADDF.W	QUADWORD_SIZE*2,a1 ; übernächter Playfieldzeiger
+		move.w	(a2)+,LONGWORD_SIZE-(QUADWORD_SIZE*2)(a1) ; BPLxPTL
 		dbf	d7,\1_set_plane_ptrs_loop2
 	ENDC
 	rts

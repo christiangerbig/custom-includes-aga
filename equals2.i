@@ -2,12 +2,12 @@
 ; Version:      1.0
 
 
-; **** OS ****
+; OS
 exec_base			EQU $0004
 
 ANY_LIBRARY_VERSION		EQU 0
 
-; **** Main ****
+; Main
 TRUE				EQU 0
 FALSE				EQU -1
 FALSE_BYTE			EQU $ff
@@ -40,6 +40,6 @@ WORD_SIGN_BIT			EQU 15
 ASCII_LINE_FEED			EQU 10
 
 
-; **** CIA ****
+; CIA
 _CIAA				EQU $bfe001
 _CIAB				EQU $bfd000

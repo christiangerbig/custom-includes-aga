@@ -1,4 +1,4 @@
-; **** PT2-Replay ****
+; PT2-Replay
 pt_maxsongpos			EQU 128
 pt_maxpattpos			EQU 64
 pt_pattsize			EQU 1024
@@ -19,8 +19,8 @@ pt_ntsc125bpmrate		EQU 1789773 ; = 0,715909 MHz * [(20000 µs * 125 BPM)]
 
 pt_arpdiv			EQU 3
 pt_periodsnum			EQU 36
-pt_portminper			EQU 113 ;Note period "B-3"
-pt_portmaxper			EQU 856 ;Note period "C-1"
+pt_portminper			EQU 113	; Note period "B-3"
+pt_portmaxper			EQU 856	; Note period "C-1"
 pt_finetunenum			EQU 16
 pt_minvol			EQU 0
 pt_maxvol			EQU 64
