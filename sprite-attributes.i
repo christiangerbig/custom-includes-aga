@@ -1,6 +1,3 @@
-; Datum:	07.09.2024
-; Version:	1.2
-
 	IFNE spr_number
 		RSRESET
 

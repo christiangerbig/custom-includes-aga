@@ -5,10 +5,10 @@ INIT_BPLCON0_BITS		MACRO
 ; \2 NUMBER: Playfield-Depth
 ; \3 STRING: Zusätzliche Bits (optiona)
 	IFC "","\1"
-		FAIL Makro INIT_BPLCON0_BITS: Label fehlt
+		FAIL Macro INIT_BPLCON0_BITS: Label fehlt
 	ENDC
 	IFC "","\2"
-		FAIL Makro INIT_BPLCON0_BITS: PF-Depth fehlt
+		FAIL Macro INIT_BPLCON0_BITS: PF-Depth fehlt
 	ENDC
 	IFC "","\3"
 \1 EQU BPLCON0F_ECSENA|((\2>>3)*BPLCON0F_BPU3)|(BPLCON0F_COLOR)|((\2&$07)*BPLCON0F_BPU0)
@@ -24,16 +24,16 @@ INIT_BPLCON4_BITS		MACRO
 ; \3 NUMBER: Switchwert ungerade Sprites
 ; \4 NUMBER: Switchwert gerade Sprites
 	IFC "","\1"
-		FAIL Makro INIT_BPLCON4_BITS: Label fehlt
+		FAIL Macro INIT_BPLCON4_BITS: Label fehlt
 	ENDC
 	IFC "","\2"
-		FAIL Makro INIT_BPLCON4_BITS: Switchwert Bitplanes fehlt
+		FAIL Macro INIT_BPLCON4_BITS: Switchwert Bitplanes fehlt
 	ENDC
 	IFC "","\3"
-		FAIL Makro INIT_BPLCON4_BITS: Switchwert ungerade Sprites fehlt
+		FAIL Macro INIT_BPLCON4_BITS: Switchwert ungerade Sprites fehlt
 	ENDC
 	IFC "","\4"
-		FAIL Makro INIT_BPLCON4_BITS: Switchwert gerade Sprites fehlt
+		FAIL Macro INIT_BPLCON4_BITS: Switchwert gerade Sprites fehlt
 	ENDC
 \1 EQU (BPLCON4F_BPLAM0*\2)|(BPLCON4F_OSPRM4*\3)|(BPLCON4F_ESPRM4*\4)
 	ENDM
@@ -42,7 +42,7 @@ INIT_BPLCON4_BITS		MACRO
 INIT_DIWSTRT_BITS		MACRO
 ; \1 STRING: Label
 	IFC "","\1"
-		FAIL Makro INIT_DIWSTRT_BITS: Label fehlt
+		FAIL Macro INIT_DIWSTRT_BITS: Label fehlt
 	ENDC
 \1 EQU ((display_window_vstart&$ff)*DIWSTRTF_V0)|(display_window_hstart&$ff)
 	ENDM
@@ -51,7 +51,7 @@ INIT_DIWSTRT_BITS		MACRO
 INIT_DIWSTOP_BITS		MACRO
 ; \1 STRING: Label
 	IFC "","\1"
-		FAIL Makro INIT_DIWSTOP_BITS: Label fehlt
+		FAIL Macro INIT_DIWSTOP_BITS: Label fehlt
 	ENDC
 \1 EQU ((display_window_vstop&$ff)*DIWSTOPF_V0)|(display_window_hstop&$ff)
 	ENDM
@@ -61,7 +61,7 @@ INIT_DIWHIGH_BITS		MACRO
 ; \1 STRING: Label
 ; \2 STRING: zusätzliche Bits (optional)
 	IFC "","\1"
-		FAIL Makro INIT_DIWHIGH_BITS: Label fehlt
+		FAIL Macro INIT_DIWHIGH_BITS: Label fehlt
 	ENDC
 	IFC "","\2"
 \1 EQU (((display_window_hstop&$100)>>8)*DIWHIGHF_HSTOP8)|(((display_window_vstop&$700)>>8)*DIWHIGHF_VSTOP8)|(((display_window_hstart&$100)>>8)*DIWHIGHF_HSTART8)|((display_window_vstart&$700)>>8)
@@ -79,10 +79,10 @@ DUALPF_SOFTSCROLL_64PIXEL_LORES	MACRO
 ; \3 Datenregister D[0..7] Maske für H0-H7 (optional)
 ; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
 	IFC "","\1"
-		FAIL Makro DUALPF_SOFTSCROLL_64PIXEL_LORES: PF1 X-Koordinate fehlt
+		FAIL Macro DUALPF_SOFTSCROLL_64PIXEL_LORES: PF1 X-Koordinate fehlt
 	ENDC
 	IFC "","\2"
-		FAIL Makro DUALPF_SOFTSCROLL_64PIXEL_LORES: PF1 Y-Koordinate fehlt
+		FAIL Macro DUALPF_SOFTSCROLL_64PIXEL_LORES: PF1 Y-Koordinate fehlt
 	ENDC
 	IFC "","\3"
 		and.w	#$00ff,\1	; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
@@ -113,10 +113,10 @@ PF_SOFTSCROLL_8PIXEL_LORES	MACRO
 ; \3 Datenregister D[0..7] Maske für H0-H4 (optional)
 ; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
 	IFC "","\1"
-		FAIL Makro PF_SOFTSCROLL_8PIXEL_LORES: PF1 X-Koordinate fehlt
+		FAIL Macro PF_SOFTSCROLL_8PIXEL_LORES: PF1 X-Koordinate fehlt
 	ENDC
 	IFC "","\2"
-		FAIL Makro PF_SOFTSCROLL_8PIXEL_LORES: PF1 Y-Koordinate fehlt
+		FAIL Macro PF_SOFTSCROLL_8PIXEL_LORES: PF1 Y-Koordinate fehlt
 	ENDC
 	IFC "","\3"
 		and.w	#$001f,\1 	; %-- -- -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0
@@ -139,10 +139,10 @@ PF_SOFTSCROLL_16PIXEL_LORES	MACRO
 ; \3 Datenregister D[0..7] Maske für H0-H5 (optional)
 ; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
 	IFC "","\1"
-		FAIL Makro PF_SOFTSCROLL_16PIXEL_LORES: PF1 X-Koordinate fehlt
+		FAIL Macro PF_SOFTSCROLL_16PIXEL_LORES: PF1 X-Koordinate fehlt
 	ENDC
 	IFC "","\2"
-		FAIL Makro PF_SOFTSCROLL_16PIXEL_LORES: Scratch-Register fehlt
+		FAIL Macro PF_SOFTSCROLL_16PIXEL_LORES: Scratch-Register fehlt
 	ENDC
 	IFC "","\3"
 		and.w	#$003f,\1	; %-- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
@@ -163,7 +163,7 @@ ODDPF_SOFTSCROLL_16PIXEL_LORES	MACRO
 ; \2 Datenregister D[0..7] Maske für H0-H5 (optional)
 ; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
 	IFC "","\1"
-		FAIL Makro ODDPF_SOFTSCROLL_16PIXEL_LORES: PF1 X-Koordinate fehlt
+		FAIL Macro ODDPF_SOFTSCROLL_16PIXEL_LORES: PF1 X-Koordinate fehlt
 	ENDC
 	IFC "","\2"
 		and.w	#$003f,\1	; %-- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
@@ -181,7 +181,7 @@ EVENPF_SOFTSCROLL_16PIXEL_LORES	MACRO
 ; \2 Datenregister D[0..7] Maske für H0-H5 (optional)
 ; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
 	IFC "","\1"
-		FAIL Makro EVENPF_SOFTSCROLL_16PIXEL_LORES: PF2 X-Koordinate fehlt
+		FAIL Macro EVENPF_SOFTSCROLL_16PIXEL_LORES: PF2 X-Koordinate fehlt
 	ENDC
 	IFC "","\2"
 		and.w	#$003f,\1	; %-- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
@@ -201,10 +201,10 @@ PF_SOFTSCROLL_8PIXEL_HIRES	MACRO
 ; \3 Datenregister D[0..7] Maske für H0-H3 (optional)
 ; Rückgabewert: [\1 WORD] BPLCON2 Softscrollwert
 	IFC "","\1"
-		FAIL Makro PF_SOFTSCROLL_8PIXEL_HIRES: PF1 X-Koordinate fehlt
+		FAIL Macro PF_SOFTSCROLL_8PIXEL_HIRES: PF1 X-Koordinate fehlt
 	ENDC
 	IFC "","\2"
-		FAIL Makro PF_SOFTSCROLL_8PIXEL_HIRES: Scratch-Register fehlt
+		FAIL Macro PF_SOFTSCROLL_8PIXEL_HIRES: Scratch-Register fehlt
 	ENDC
 	IFC "","\3"
 		and.w	#$000f,\1 	; %-- -- -- -- -- -- -- -- -- -- -- -- H3 H2 H1 H0
@@ -227,10 +227,10 @@ PF_SOFTSCROLL_16PIXEL_HIRES	MACRO
 ; \3 Datenregister D[0..7] Maske für H0-H4 (optional)
 ; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
 	IFC "","\1"
-		FAIL Makro PF_SOFTSCROLL_16PIXEL_HIRES: PF1 X-Koordinate fehlt
+		FAIL Macro PF_SOFTSCROLL_16PIXEL_HIRES: PF1 X-Koordinate fehlt
 	ENDC
 	IFC "","\2"
-		FAIL Makro PF_SOFTSCROLL_16PIXEL_HIRES: Scratch-Register fehlt
+		FAIL Macro PF_SOFTSCROLL_16PIXEL_HIRES: Scratch-Register fehlt
 	ENDC
 	IFC "","\3"
 		and.w	#$001f,\1	; %-- -- -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0
@@ -252,10 +252,10 @@ PF_SOFTSCROLL_64PIXEL_LORES	MACRO
 ; \3 Datenregister D[0..7] Maske für H0-H7 (optional)
 ; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
 	IFC "","\1"
-		FAIL Makro PF_SOFTSCROLL_64PIXEL_LORES: PF1 X-Koordinate fehlt
+		FAIL Macro PF_SOFTSCROLL_64PIXEL_LORES: PF1 X-Koordinate fehlt
 	ENDC
 	IFC "","\2"
-		FAIL Makro PF_SOFTSCROLL_64PIXEL_LORES: Scratch-Register fehlt
+		FAIL Macro PF_SOFTSCROLL_64PIXEL_LORES: Scratch-Register fehlt
 	ENDC
 	IFC "","\3"
 		and.w	#$00ff,\1	; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
@@ -277,7 +277,7 @@ ODDPF_SOFTSCROLL_64PIXEL_LORES	MACRO
 ; \2 Datenregister D[0..7] Maske für H0-H7 (optional)
 ; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
 	IFC "","\1"
-		FAIL Makro ODDPF_SOFTSCROLL_64PIXEL_LORES: X-Koordinate fehlt
+		FAIL Macro ODDPF_SOFTSCROLL_64PIXEL_LORES: X-Koordinate fehlt
 	ENDC
 	IFC "","\2"
 		and.w	#$00ff,\1	; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
@@ -298,10 +298,10 @@ SWAP_PLAYFIELD			MACRO
 ; \2 NUMBER: Anzahl der Playfields [2,3]
 ; \3 BYTE SIGNED: Anzahl der Bitplanes Playfield
 	IFC "","\1"
-		FAIL Makro SWAP_PLAYFIELD: Labels-Prefix der Routine fehlt
+		FAIL Macro SWAP_PLAYFIELD: Labels-Prefix der Routine fehlt
 	ENDC
 	IFC "","\2"
-		FAIL Makro SWAP_PLAYFIELD: Anzahl der Playfields fehlt
+		FAIL Macro SWAP_PLAYFIELD: Anzahl der Playfields fehlt
 	ENDC
 swap_playfield\*RIGHT(\1,1)
 	IFEQ \2-2
@@ -328,10 +328,10 @@ SET_PLAYFIELD			MACRO
 ; \4 WORD:		Y-Offset in Zeilen (optional)
 ; Result
 	IFC "","\1"
-		FAIL Makro SET_PLAYFIELD: Labels-Prefix der Routine fehlt
+		FAIL Macro SET_PLAYFIELD: Labels-Prefix der Routine fehlt
 	ENDC
 	IFC "","\2"
-		FAIL Makro SET_PLAYFIELD: Anzahl der Bitplanes fehlt
+		FAIL Macro SET_PLAYFIELD: Anzahl der Bitplanes fehlt
 	ENDC
 	CNOP 0,4
 set_playfield1
@@ -371,10 +371,10 @@ SET_DUAL_PLAYFIELD		MACRO
 ; \3 WORD:		X-Offset in Pixeln (optional)
 ; \4 WORD:		Y-Offset in Zeilen (optional)
 	IFC "","\1"
-		FAIL Makro SET_DUAL_PLAYFIELD: Labels-Prefix der Routine fehlt
+		FAIL Macro SET_DUAL_PLAYFIELD: Labels-Prefix der Routine fehlt
 	ENDC
 	IFC "","\2"
-		FAIL Makro SET_DUAL_PLAYFIELD: Anzahl der Bitplanes fehlt
+		FAIL Macro SET_DUAL_PLAYFIELD: Anzahl der Bitplanes fehlt
 	ENDC
 	CNOP 0,4
 set_dual_playfield\*RIGHT(\1,1)

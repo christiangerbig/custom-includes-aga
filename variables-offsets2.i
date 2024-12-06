@@ -1,6 +1,3 @@
-; Datum:	18.09.2024
-; Version:      1.0
-
 	RSRESET
 
 shell_parameters		RS.L 1

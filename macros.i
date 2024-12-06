@@ -1,6 +1,3 @@
-; Datum:	7.9.2024
-; Version:	10.0
-
 	INCLUDE "macros-general.i"
 	INCLUDE "macros-copper.i"
 	INCLUDE "macros-blitter.i"

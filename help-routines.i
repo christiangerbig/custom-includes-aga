@@ -1,17 +1,12 @@
-; Datum:	05.10.2024
-; Version:      4.7
-
-; Globale Labels
-
+; Global labels
 ; SYS_TAKEN_OVER
-
 ; COLOR_GRADIENT_RGB8
 
 
 ; Input
-; d0.l	... Größe des Speicherbereichs
+; d0.l	... memory block size
 ; Result
-; d0.l	... Rückgabewert: Zeiger auf Speicherbereich wenn erfolgreich
+; d0.l	... return value: pointer memory block or RETURN_FALSE
 	CNOP 0,4
 do_alloc_memory
 	move.l	#MEMF_CLEAR|MEMF_PUBLIC,d1
@@ -19,9 +14,9 @@ do_alloc_memory
 
 
 ; Input
-; d0.l	... Größe des Speicherbereichs
+; d0.l	... memory block size
 ; Result
-; d0.l	... Rückgabewert: Zeiger auf Speicherbereich wenn erfolgreich
+; d0.l	... return value: pointer memory block or RETURN_FALSE
 	CNOP 0,4
 do_alloc_chip_memory
 	move.l	#MEMF_CLEAR|MEMF_CHIP|MEMF_PUBLIC,d1
@@ -29,9 +24,9 @@ do_alloc_chip_memory
 
 
 ; Input
-; d0.l	... Größe des Speicherbereichs
+; d0.l	... memory block size
 ; Result
-; d0.l	... Rückgabewert: Zeiger auf Speicherbereich wenn erfolgreich
+; d0.l	... return value: pointer memory block or RETURN_FALSE
 	CNOP 0,4
 do_alloc_fast_memory
 	move.l	#MEMF_CLEAR|MEMF_FAST|MEMF_PUBLIC,d1
@@ -39,15 +34,15 @@ do_alloc_fast_memory
 
 
 ; Input
-; d0.l	... Breite des Playfiels in Pixeln
-; d1.l	... Höhe des Playfiels in Zeilen
-; d2.l	... Anzahl der Bitplanes
+; d0.l	... playfield width
+; d1.l	... playfield height
+; d2.l	... playfield depth
 ; Result
-; d0.l	... Rückgabewert: Zeiger auf Speicherbereich wenn erfolgreich
+; d0.l	... return value: pointer playfield or RETURN_FALSE
 	CNOP 0,4
 do_alloc_bitmap_memory
-	moveq	#BMF_CLEAR|BMF_DISPLAYABLE|BMF_INTERLEAVED,d3 ; Flags
-	sub.l	a0,a0			; Keine Friendbitmap
+	moveq	#BMF_CLEAR|BMF_DISPLAYABLE|BMF_INTERLEAVED,d3 ; flags
+	sub.l	a0,a0			; no friend bitmap
 	CALLGRAFQ AllocBitMap
 
 
@@ -55,10 +50,10 @@ do_alloc_bitmap_memory
 		IFNE intena_bits&(~INTF_SETCLR)
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Inhalt von VBR
+; d0.l	... return value: content VBR
 			CNOP 0,4
 read_VBR
-			or.w	#SRF_I0|SRF_I1|SRF_I2,SR ; Level-7-Interruptebene
+			or.w	#SRF_I0|SRF_I1|SRF_I2,SR ; highest interrupt level
 			nop
 			movec	VBR,d0
 			nop
@@ -67,10 +62,10 @@ read_VBR
 	ELSE
 ; Input
 ; Result
-; d0 ... Rückgabewert Inhalt von VBR
+; d0.l	 ... return value: content VBR
 		CNOP 0,4
 read_VBR
-		or.w	#SRF_I0|SRF_I1|SRF_I2,SR ; Level-7-Interruptebene
+		or.w	#SRF_I0|SRF_I1|SRF_I2,SR ; highest interrupt level
 		nop
 		movec	VBR,d0
 		nop
@@ -78,12 +73,12 @@ read_VBR
 
 
 ; Input
-; d0.l	... neuer Inhalt von VBR
+; d0.l	... new content VBR
 ; Result
-; d0	... Kein Rückgabewert
+; d0.l	... no return value
 		CNOP 0,4
 write_VBR
-		or.w	#SRF_I0|SRF_I1|SRF_I2,SR ; Level-7-Interruptebene
+		or.w	#SRF_I0|SRF_I1|SRF_I2,SR ; highest interrupt level
 		nop
 		movec	d0,VBR
 		nop
@@ -93,102 +88,102 @@ write_VBR
 
 ; Input
 ; Result
-; d0	... Kein Rückgabewert
+; d0.l	... no return value
 	CNOP 0,4
 wait_beam_position
-	move.l	#$0003ff00,d1		; Maske vertikale Position
-	move.l	#beam_position<<8,d2	; Y-Position
+	move.l	#$0003ff00,d1		; mask vertical beam position
+	move.l	#beam_position<<8,d2	; adjust V0-V8
 	lea	VPOSR-DMACONR(a6),a0
 	lea	VHPOSR-DMACONR(a6),a1
 wait_beam_position_loop
 	move.w	(a0),d0			; VPOSR
-	swap	d0			; Bits in richtige Position bringen
+	swap	d0			; adjust bits
 	move.w	(a1),d0			; VHPOSR
-	and.l	d1,d0			; Nur vertikale Position
-	cmp.l	d2,d0			; Auf bestimmte Rasterzeile warten
+	and.l	d1,d0			; only vertical position
+	cmp.l	d2,d0
 	blt.s	wait_beam_position_loop
 	rts
 
 
 ; Input
 ; Result
-; d0	... Kein Rückgabewert
+; d0.l	... no return value
 	CNOP 0,4
 wait_vbi
 	lea	INTREQR-DMACONR(a6),a0
 wait_vbi_loop
 	moveq	#INTF_VERTB,d0
-	and.w	(a0),d0			; VERTB-Interrupt ?
+	and.w	(a0),d0
 	beq.s	wait_vbi_loop
-	move.w	d0,INTREQ-DMACONR(a6)	; VERTB-Interrupt löschen
+	move.w	d0,INTREQ-DMACONR(a6)	; clear VERTB interrupt
 	rts
 
 
 ; Input
 ; Result
-; d0	... Kein Rückgabewert
+; d0.l	... no return value
 	CNOP 0,4
 wait_copint
 	lea	INTREQR-DMACONR(a6),a0
 wait_copint_loop
 	moveq	#INTF_COPER,d0
-	and.w	(a0),d0			; COPER-Interrupt ?
+	and.w	(a0),d0
 	beq.s	wait_copint_loop
-	move.w	d0,INTREQ-DMACONR(a6)	; COPER-Interrupt löschen
+	move.w	d0,INTREQ-DMACONR(a6)	; clear COPER interrupt
 	rts
 
 
 ; Input
-; a0	... Copperliste
-; a1	... Tabelle mit Farbwerten
-; d3.w	... erstes Farbregister
-; d7.w	... Anzahl der Farben
+; a0	... pointer copperlist
+; a1	... pointer color table
+; d3.w	... offset first color register
+; d7.w	... number of colors
 ; Result
-; d0	... Kein Rückgabewert
+; d0.l	... no return value
 	CNOP 0,4
 cop_init_high_colors
 	move.w	#RB_NIBBLES_MASK,d2
 cop_init_high_colors_loop
-	move.l	(a1)+,d0		; RGB8-Farbwert
+	move.l	(a1)+,d0		; RGB8 value
 	RGB8_TO_RGB4_HIGH d0,d1,d2
 	move.w	d3,(a0)+		; COLORxx
-	addq.w	#2,d3			; nächstes Farbregister
-	move.w	d0,(a0)+		; High-Bits
+	addq.w	#WORD_SIZE,d3		; next color register
+	move.w	d0,(a0)+		; high bits
 	dbf	d7,cop_init_high_colors_loop
 	rts
 
 
 ; Input
-; a0	... Copperliste
-; a1	... Tabelle mit Farbwerten
-; d3.w	... erstes Farbregister
-; d7.w	... Anzahl der Farben
+; a0	... pointer copperlist
+; a1	... pointer color table
+; d3.w	... offset first color register
+; d7.w	... number of colors
 ; Result
-; d0	... Kein Rückgabewert
+; d0.l	... no return value
 	CNOP 0,4
 cop_init_low_colors
 	move.w	#RB_NIBBLES_MASK,d2
 cop_init_low_colors_loop
-	move.l	(a1)+,d0		; RGB8-Farbwert
+	move.l	(a1)+,d0		; RGB8 value
 	RGB8_TO_RGB4_LOW d0,d1,d2
 	move.w	d3,(a0)+		; COLORxx
-	addq.w	#2,d3			; nächstes Farbregister
-	move.w	d0,(a0)+		; Low-Bits
+	addq.w	#WORD_SIZE,d3			; next color register
+	move.w	d0,(a0)+		; low bits
 	dbf	d7,cop_init_low_colors_loop
 	rts
 
 
 ; Input
-; a0	... Farbregister-Adresse
-; a1	... Tabelle mit Farbwerten
-; d7.w	... Anzahl der Farben
+; a0	... color register address
+; a1	... pointer color table
+; d7.w	... number of colors
 ; Result
-; d0	... Kein Rückgabewert
+; d0.l	... no return value
 	CNOP 0,4
 cpu_init_high_colors
 	move.w	#RB_NIBBLES_MASK,d2
 cpu_init_high_colors_loop
-	move.l	(a1)+,d0		; RGB8-Farbwert
+	move.l	(a1)+,d0		; RGB8 value
 	RGB8_TO_RGB4_HIGH d0,d1,d2
 	move.w	d0,(a0)+		; COLORxx
 	dbf	d7,cpu_init_high_colors_loop
@@ -196,16 +191,16 @@ cpu_init_high_colors_loop
 
 
 ; Input
-; a0	... Farbregister-Adresse
-; a1	... Tabelle mit Farbwerten
-; d7.w	... Anzahl der Farben
+; a0	... color register address
+; a1	... pointer color table
+; d7.w	... number of colors
 ; Result
-; d0	... Kein Rückgabewert
+; d0.l	... no return value
 	CNOP 0,4
 cpu_init_low_colors
 	move.w	#RB_NIBBLES_MASK,d2
 cpu_init_low_colors_loop
-	move.l	(a1)+,d0		; RGB8-Farbwert
+	move.l	(a1)+,d0		; RGB8 value
 	RGB8_TO_RGB4_LOW d0,d1,d2
 	move.w	d0,(a0)+		; COLORxx
 	dbf	d7,cpu_init_low_colors_loop
@@ -214,33 +209,33 @@ cpu_init_low_colors_loop
 
 	IFD COLOR_GRADIENT_RGB8
 ; Input
-; d0.l	... RGB8-Istwert
-; d6.l	... RGB8-Sollwert
-; d7.w	... Anzahl der Farbwerte
-; a0	... Zeiger auf Farbtabelle
-; a1.l	... Additions-/Subtraktionswert für Rot
-; a2.l	... Additions-/Subtraktionswert für Grün
-; a4.w	... Additions-/Subtraktionswert für Blau
-; a5	... Offset
+; d0.l	... RGB8 current value
+; d6.l	... RGB8 tartget value
+; d7.w	... number of colors
+; a0	... pointer color table
+; a1.l	... decrement/increment red
+; a2.l	... decrement/increment green
+; a4.w	... decrement/increment blue
+; a5.l	... offset next RGB8 value
 ; Result
-; d0	... Kein Rückgabewert
+; d0.l	... no return value
 		CNOP 0,4
 init_color_gradient_rgb8_loop
-		move.l	d0,(a0)		; RGB8-Wert in Farbtabelle schreiben
-		add.l	a5,a0		; Offset
+		move.l	d0,(a0)		; RGB8 value
+		add.l	a5,a0		; next RGB8 value
 		moveq	#0,d1
 		move.w	d0,d1
 		moveq	#0,d2
-		clr.b	d1		; Ist-G8
-		move.b	d0,d2		; Ist-B8
-		clr.w	d0		; Ist-R8
-		move.l	d6,d3		; Soll-RGB8
+		clr.b	d1		; current G8
+		move.b	d0,d2		; current B8
+		clr.w	d0		; current R8
+		move.l	d6,d3		; target RGB8
 		moveq	#0,d4
 		move.w	d3,d4
 		moveq	#0,d5
-		move.b	d3,d5		; Soll-B8
-		clr.w	d3		; Soll-R8
-		clr.b	d4		; Soll-G8
+		move.b	d3,d5		; target B8
+		clr.w	d3		; target R8
+		clr.b	d4		; target G8
 		cmp.l	d3,d0
 		bgt.s	decrease_red_rgb8
 		blt.s	increase_red_rgb8

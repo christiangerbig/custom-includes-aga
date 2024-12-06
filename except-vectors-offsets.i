@@ -1,6 +1,3 @@
-; Datum:	05.09.2024
-; Version:	1.1
-
 	RSRESET
 
 RESET_INITIAL_SSP		RS.L 1

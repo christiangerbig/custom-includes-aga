@@ -1,7 +1,4 @@
-; Datum:	18.09.2024
-; Version:	1.0
-
-; Header für PrintFault()
+; header for PrintFault()
 error_header
 	DC.B " ",0
 	EVEN

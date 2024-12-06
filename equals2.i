@@ -1,13 +1,8 @@
-; Datum:        18.09.2024
-; Version:      1.0
-
-
-; OS
+; Main
 exec_base			EQU $0004
 
 ANY_LIBRARY_VERSION		EQU 0
 
-; Main
 TRUE				EQU 0
 FALSE				EQU -1
 FALSE_BYTE			EQU $ff
@@ -39,7 +34,6 @@ WORD_SIGN_BIT			EQU 15
 
 ASCII_LINE_FEED			EQU 10
 
-
-; CIA
+; CIA chips
 _CIAA				EQU $bfe001
 _CIAB				EQU $bfd000

@@ -1,6 +1,3 @@
-; Datum:        05.09.2024
-; Version:      1.2
-
 	RSRESET
 
 custom_error_entry		RS.B 0

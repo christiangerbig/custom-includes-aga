@@ -1,6 +1,3 @@
-; Datum:	07.09.2024
-; Version:	2.2
-
 	IFND SYS_TAKEN_OVER
 dos_name			DC.B "dos.library",0
 		EVEN

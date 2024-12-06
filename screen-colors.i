@@ -1,6 +1,3 @@
-; Datum:        10.09.2024
-; Version:      1.0
-
 	RSRESET
 
 screen_02_colors		RS.B 0

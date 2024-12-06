@@ -1,6 +1,3 @@
-; Datum:	10.09.2024
-; Version:      3.5
-
 	RSRESET
 
 	IFND SYS_TAKEN_OVER

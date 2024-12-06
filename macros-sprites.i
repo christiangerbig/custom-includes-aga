@@ -6,13 +6,13 @@ SET_SPRITE_POSITION		MACRO
 ; \3 WORD: Höhe in Zeilen
 ; Rückgabewerte: [\2 WORD] SPRxPOS, [\3 WORD] SPRxCTL
 	IFC "","\1"
-		FAIL Makro SET_SPRITE_POSITION: X-Koordinate fehlt
+		FAIL Macro SET_SPRITE_POSITION: X-Koordinate fehlt
 	ENDC
 	IFC "","\2"
-		FAIL Makro SET_SPRITE_POSITION: Y-Koordinate fehlt
+		FAIL Macro SET_SPRITE_POSITION: Y-Koordinate fehlt
 	ENDC
 	IFC "","\3"
-		FAIL Makro SET_SPRITE_POSITION: Höhe in Zeilen fehlt
+		FAIL Macro SET_SPRITE_POSITION: Höhe in Zeilen fehlt
 	ENDC
 	rol.w	#8,\2			; % SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 --- --- --- --- --- --- --- SV8
 	lsl.w	#5,\1			; %SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3 SH2 SH1 SH0 --- --- --- --- ---
@@ -34,13 +34,13 @@ SET_SPRITE_POSITION_1X		MACRO
 ; \3 WORD: Höhe in Zeilen
 ; Rückgabewerte: [\2 LONGWORD] Bit 31..16 SPRxPOS Bit 15..0 SPRxCTL
 	IFC "","\1"
-		FAIL Makro SET_SPRITE_POSITION_1X: X-Koordinate fehlt
+		FAIL Macro SET_SPRITE_POSITION_1X: X-Koordinate fehlt
 	ENDC
 	IFC "","\2"
-		FAIL Makro SET_SPRITE_POSITION_1X: Y-Koordinate fehlt
+		FAIL Macro SET_SPRITE_POSITION_1X: Y-Koordinate fehlt
 	ENDC
 	IFC "","\3"
-		FAIL Makro SET_SPRITE_POSITION_1X: Höhe in Zeilen fehlt
+		FAIL Macro SET_SPRITE_POSITION_1X: Höhe in Zeilen fehlt
 	ENDC
 	SET_SPRITE_POSITION \1,\2,\3
 	swap	\2			; % SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3 --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -55,16 +55,16 @@ SET_SPRITE_POSITION_V9		MACRO
 ; \4 BYTE: Scratch-Register
 ; Rückgabewerte: [\2 WORD] SPRxPOS, [\3 WORD] SPRxCTL
 	IFC "","\1"
-		FAIL Makro SET_SPRITE_POSITION_V9: X-Koordinate fehlt
+		FAIL Macro SET_SPRITE_POSITION_V9: X-Koordinate fehlt
 	ENDC
 	IFC "","\2"
-		FAIL Makro SET_SPRITE_POSITION_V9: Y-Koordinate fehlt
+		FAIL Macro SET_SPRITE_POSITION_V9: Y-Koordinate fehlt
 	ENDC
 	IFC "","\3"
-		FAIL Makro SET_SPRITE_POSITION_V9: Höhe in Zeilen fehlt
+		FAIL Macro SET_SPRITE_POSITION_V9: Höhe in Zeilen fehlt
 	ENDC
 	IFC "","\4"
-		FAIL Makro SET_SPRITE_POSITION_V9: Scratch-Register fehlt
+		FAIL Macro SET_SPRITE_POSITION_V9: Scratch-Register fehlt
 	ENDC
 	rol.w	#7,\2			; % SV8 SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 --- --- --- --- --- --- SV9
 	move.b	\2,\4			; % SV0 --- --- --- --- --- --- SV9
@@ -156,16 +156,16 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 ; \8 STRING: "BLANK" (optional)
 ; \9 STRING: "REPEAT" (optional)
 	IFC "","\1"
-		FAIL Makro INIT_ATTACHED_SPRITES_CLUSTER: Labels-Prefix der Routine fehlt
+		FAIL Macro INIT_ATTACHED_SPRITES_CLUSTER: Labels-Prefix der Routine fehlt
 	ENDC
 	IFC "","\2"
-		FAIL Makro INIT_ATTACHED_SPRITES_CLUSTER: Sprite-Struktur fehlt
+		FAIL Macro INIT_ATTACHED_SPRITES_CLUSTER: Sprite-Struktur fehlt
 	ENDC
 	IFC "","\5"
-		FAIL Makro INIT_ATTACHED_SPRITES_CLUSTER: Breite fehlt
+		FAIL Macro INIT_ATTACHED_SPRITES_CLUSTER: Breite fehlt
 	ENDC
 	IFC "","\6"
-		FAIL Makro INIT_ATTACHED_SPRITES_CLUSTER: Höhe fehlt
+		FAIL Macro INIT_ATTACHED_SPRITES_CLUSTER: Höhe fehlt
 	ENDC
 	CNOP 0,4
 \1_init_attached_sprites_cluster
@@ -412,10 +412,10 @@ SWAP_SPRITES		MACRO
 ; \3 NUMBER:		[1,2,3,4,6,7] Index, ab welchem Sprite (optional)
 ; Result
 	IFC "","\1"
-		FAIL Makro SWAP_SPRITE_STRUCTURES: Labels-Prefix der Routine fehlt
+		FAIL Macro SWAP_SPRITE_STRUCTURES: Labels-Prefix der Routine fehlt
 	ENDC
 	IFC "","\2"
-		FAIL Makro SWAP_SPRITE_STRUCTURES: Anzahl der Sprites fehlt
+		FAIL Macro SWAP_SPRITE_STRUCTURES: Anzahl der Sprites fehlt
 	ENDC
 	CNOP 0,4
 \1_swap_structures

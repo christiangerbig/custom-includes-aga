@@ -39,6 +39,7 @@ n_currentlength			RS.W 1
 n_currentperiod			RS.W 1
 n_chandatapos			RS.W 1
 	ENDC
+
 	IFEQ pt_track_volumes_enabled
 n_currentvolume			RS.W 1
 	ENDC

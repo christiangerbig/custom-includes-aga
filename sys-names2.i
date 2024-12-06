@@ -1,6 +1,3 @@
-; Datum:	18.09.2024
-; Version:	1.0
-
 dos_library_name		DC.B "dos.library",0
 	EVEN
 	IFD USE_GRAPHICS_LIBRARY

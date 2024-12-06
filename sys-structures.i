@@ -1,6 +1,3 @@
-; Datum:	08.09.2023
-; Version:	2.0
-
 	IFND SYS_TAKEN_OVER
 		IFEQ requires_multiscan_monitor
 			CNOP 0,4

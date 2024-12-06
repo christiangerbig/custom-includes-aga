@@ -1,7 +1,3 @@
-; Datum:	26.09.2024
-; Version:	1.0
-
-
 	movem.l	d2-d7/a2-a6,-(a7)
 	lea	variables(pc),a3
 	bsr	init_variables

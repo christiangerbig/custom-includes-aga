@@ -1,14 +1,10 @@
-; Datum:        06.09.2024
-; Version:      2.1
-
-
 	IFNE intena_bits&(INTF_TBE|INTF_DSKBLK|INTF_SOFTINT)
 		CNOP 0,4
 level_1_int_handler
 		movem.l	d0-d7/a0-a6,-(a7)
 		lea	variables(pc),a3
 		move.l	#_CIAB,a5
-		lea	_CIAA-_CIAB(a5),a4 ; CIA-A-Base
+		lea	_CIAA-_CIAB(a5),a4 ; CIA-A base
 		move.l	#_CUSTOM+DMACONR,a6
 		moveq	#intena_bits&(INTF_TBE|INTF_DSKBLK|INTF_SOFTINT),d0
 		and.w	INTREQR-DMACONR(a6),d0
@@ -36,7 +32,7 @@ level_1_int_handler_skip2
 			move.l	(a7)+,d0
 level_1_int_handler_skip3
 		ENDC
-		move.w	d0,INTREQ-DMACONR(a6) ; Level-1-Interrupts löschen
+		move.w	d0,INTREQ-DMACONR(a6) ; clear level-1 interrupts
 		movem.l	(a7)+,d0-d7/a0-a6
 		nop
 		rte
@@ -49,20 +45,20 @@ level_2_int_handler
 		movem.l	d0-d7/a0-a6,-(a7)
 		lea	variables(pc),a3
 		move.l	#_CIAB,a5
-		lea	_CIAA-_CIAB(a5),a4 ; CIA-A-Base
+		lea	_CIAA-_CIAB(a5),a4 ; CIA-A base
 		move.l	#_CUSTOM+DMACONR,a6
 		moveq	#INTF_PORTS,d0
 		and.w	INTREQR-DMACONR(a6),d0
 		IFNE ciaa_icr_bits&(CIAICRF_TA|CIAICRF_TB|CIAICRB_ALRM|CIAICRB_SP|CIAICRB_FLG)
 			moveq	#ciaa_icr_bits&(~CIAICRF_SETCLR),d1
-			and.b	CIAICR(a4),d1	; CIA-A-Interrupts ?
+			and.b	CIAICR(a4),d1	; CIA-A interrupts ?
 			bne.s	level_2_int_handler_skip1
                 ENDC
 		movem.l	d0-d1,-(a7)
 		bsr	ports_int_server
 		movem.l (a7)+,d0-d1
 level_2_int_handler_quit
-		move.w	d0,INTREQ-DMACONR(a6) ; Level-2-Interrupt löschen
+		move.w	d0,INTREQ-DMACONR(a6) ; clear level-2 interrupts
 		movem.l	(a7)+,d0-d7/a0-a6
 		nop
 		rte
@@ -120,7 +116,7 @@ level_3_int_handler
 		movem.l	d0-d7/a0-a6,-(a7)
 		lea	variables(pc),a3
 		move.l	#_CIAB,a5
-		lea	_CIAA-_CIAB(a5),a4 ; CIA-A-Base
+		lea	_CIAA-_CIAB(a5),a4 ; CIA-A base
 		move.l	#_CUSTOM+DMACONR,a6
 		moveq	#intena_bits&(INTF_COPER|INTF_VERTB|INTF_BLIT),d0
 		and.w	INTREQR-DMACONR(a6),d0
@@ -148,7 +144,7 @@ level_3_int_handler_skip2
 			move.l	(a7)+,d0
 level_3_int_handler_skip3
 		ENDC
-		move.w	d0,INTREQ-DMACONR(a6) ; Level-3-Interrupts löschen
+		move.w	d0,INTREQ-DMACONR(a6) ; clear level-3 interrupts
 		movem.l (a7)+,d0-d7/a0-a6
 		nop
 		rte
@@ -161,7 +157,7 @@ level_4_int_handler
 		movem.l	d0-d7/a0-a6,-(a7)
 		lea	variables(pc),a3
 		move.l	#_CIAB,a5
-		lea	_CIAA-_CIAB(a5),a4 ; CIA-A-Base
+		lea	_CIAA-_CIAB(a5),a4 ; CIA-A base
 		move.l	#_CUSTOM+DMACONR,a6
 		move.w	INTREQR-DMACONR(a6),d0
 		and.w	#intena_bits&(INTF_AUD0|INTF_AUD1|INTF_AUD2|INTF_AUD3),d0
@@ -198,7 +194,7 @@ level_4_int_handler_skip3
 			bra.s	rt_level_4_int4
 level_4_int_handler_skip4
 		ENDC
-		move.w	d0,INTREQ-DMACONR(a6) ; Level-4-Interrupts löschen
+		move.w	d0,INTREQ-DMACONR(a6) ; clear level-4 interrupts
 		movem.l	(a7)+,d0-d7/a0-a6
 		nop
 		rte
@@ -211,7 +207,7 @@ level_5_int_handler
 		movem.l	d0-d7/a0-a6,-(a7)
 		lea	variables(pc),a3
 		move.l	#_CIAB,a5
-		lea	_CIAA-_CIAB(a5),a4 ; CIA-A-Base
+		lea	_CIAA-_CIAB(a5),a4 ; CIA-A base
 		move.l	#_CUSTOM+DMACONR,a6
 		move.w	INTREQR-DMACONR(a6),d0
 		and.w	#intena_bits&(INTF_RBF|INTF_DSKSYNC),d0
@@ -231,7 +227,7 @@ level_5_int_handler_skip1
 			move.l	(a7)+,d0
 level_5_int_handler_skip2
 		ENDC
-		move.w	d0,INTREQ-DMACONR(a6) ; Level-5-Interrupts löschen
+		move.w	d0,INTREQ-DMACONR(a6) ; clear level-5 interrupts
 		movem.l	(a7)+,d0-d7/a0-a6
 		nop
 		rte
@@ -244,20 +240,20 @@ level_6_int_handler
 		movem.l	d0-d7/a0-a6,-(a7)
 		lea	variables(pc),a3
 		move.l	#_CIAB,a5
-		lea	_CIAA-_CIAB(a5),a4 ; CIA-A-Base
+		lea	_CIAA-_CIAB(a5),a4 ; CIA-A base
 		move.l	#_CUSTOM+DMACONR,a6
 		move.w	INTREQR-DMACONR(a6),d0
 		and.w	#INTF_EXTER,d0
 		IFNE ciab_icr_bits&(CIAICRF_TA|CIAICRF_TB|CIAICRF_ALRM|CIAICRF_SP|CIAICRF_FLG)
 			moveq	#ciab_icr_bits&(~CIAICRF_SETCLR),d1
-			and.b	CIAICR(a5),d1 ; CIA-B-Interrupts ?
+			and.b	CIAICR(a5),d1 ; CIA-B interrupts ?
 			bne.s	level_6_int_handler_skip1
 		ENDC
 		movem.l	d0-d1,-(a7)
 		bsr	exter_int_server
 		movem.l	(a7)+,d0-d1
 level_6_int_handler_quit
-		move.w	d0,INTREQ-DMACONR(a6) ; Level-6-Interrupt löschen
+		move.w	d0,INTREQ-DMACONR(a6) ; clear level-6 interrupts
 		movem.l (a7)+,d0-d7/a0-a6
 		nop
 		rte
@@ -314,7 +310,7 @@ level_7_int_handler
 	movem.l	d0-d7/a0-a6,-(a7)
 	lea	variables(pc),a3
 	move.l	#_CIAB,a5
-	lea	_CIAA-_CIAB(a5),a4	; CIA-A-Base
+	lea	_CIAA-_CIAB(a5),a4	; CIA-A base
 	move.l	#_CUSTOM+DMACONR,a6
 	bsr	nmi_int_server
 	movem.l	(a7)+,d0-d7/a0-a6

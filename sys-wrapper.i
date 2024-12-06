@@ -1,6 +1,3 @@
-; Datum:	08.09.2024
-; Version:	1.0
-
 ; Requirements
 ; CPU:		68020+
 ; Chipset:	AGA PAL

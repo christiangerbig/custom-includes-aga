@@ -1,6 +1,3 @@
-; Datum:	18.09.2024
-; Version:	1.0
-
 	CNOP 0,4
 variables			DS.B variables_size
 

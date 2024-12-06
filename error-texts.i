@@ -1,6 +1,3 @@
-; Datum:	05.09.2024
-; Version:	2.7
-
 	IFND SYS_TAKEN_OVER
 error_text_kickstart
 		DC.B "This programm needs at least kickstart 3.0 !",ASCII_LINE_FEED,ASCII_LINE_FEED

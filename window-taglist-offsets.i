@@ -1,6 +1,3 @@
-; Datum:	08.09.2024
-; Version:	1.1
-
 	RSRESET
 
 window_tag_list			RS.B 0

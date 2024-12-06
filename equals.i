@@ -1,7 +1,4 @@
-; Datum:        05.09.2024
-; Version:      5.8
-
-; OS
+; Main
 exec_base			EQU $0004
 
 ANY_LIBRARY_VERSION		EQU 0
@@ -9,8 +6,6 @@ OS2_VERSION			EQU 36
 OS3_VERSION			EQU 39
 CHIP_MEMORY_MIN			EQU $200000
 
-
-; Main
 TRUE				EQU 0
 FALSE				EQU -1
 FALSE_BYTE			EQU $ff
@@ -66,7 +61,6 @@ ASCII_CTRL_W			EQU 23
 
 drives_motor_delay		EQU PAL_FPS/2 ; 500 ms
 
-
 ; Display-Degrader
 pal_screen_top			EQU 0
 pal_screen_left			EQU 0
@@ -88,7 +82,6 @@ sprites_colors_number		EQU 16
 
 monitor_switch_delay		EQU PAL_FPS*3 ; 3 s
 
-
 ; Screen-Fader
 sf_rgb32_colors_number		EQU 256
 
@@ -96,8 +89,7 @@ sfi_fader_speed			EQU 7
 
 sfo_fader_speed			EQU 6
 
-
-; Custom_Errors
+; Custom-Errors
 NO_CUSTOM_ERROR			EQU 0
 
 KICKSTART_VERSION_NOT_FOUND	EQU 1
@@ -172,7 +164,6 @@ SCREEN_MODE_NOT_AVAILABLE	EQU 46
 WINDOW_COULD_NOT_OPEN		EQU 47
 
 custom_errors_number		EQU 47
-
 
 ; Chipset
 _CUSTOM				EQU $dff000
@@ -815,7 +806,7 @@ FMODEF_SPR32			EQU $0004
 FMODEF_BPAGEM			EQU $0002
 FMODEF_BPL32			EQU $0001
 
-; CIA
+; CIA chips
 _CIAA				EQU $bfe001
 _CIAB				EQU $bfd000
 
@@ -869,7 +860,7 @@ CACR060B_EIC			EQU 15
 CACR060B_NAI			EQU 14
 CACR060B_FIC			EQU 13
 
-; Tastatur
+; Keyboard
 KEYBOARD_KEYCODE_I		EQU $17
 KEYBOARD_KEYCODE_A		EQU $20
 KEYBOARD_KEYCODE_G		EQU $24

@@ -1,7 +1,3 @@
-; Datum:	08.09.2024
-; Version:	1.0
-
-
 RS_ALIGN_LONGWORD		MACRO
 ; Input
 ; Result
@@ -31,7 +27,7 @@ wait_right_button_loop\@
 
 RASTER_TIME			MACRO
 ; Input
-; \1 HEXNUMBER:	RGB4-Wert (optional)
+; \1 HEXNUMBER:	RGB4 value (optional)
 ; Result
 	move.l	d0,-(a7)
 	move.w	VPOSR-DMACONR(a6),d0
@@ -52,7 +48,7 @@ raster_time_skip\@
 
 SHOW_BEAM_POSITION		MACRO
 ; Input
-; \1 WORD:	Farbwert
+; \1 WORD:	RGB4 color value
 ; Result
 	MOVEF.W	bplcon3_bits1,d0
 	move.w	d0,BPLCON3-DMACONR(a6)
@@ -63,81 +59,81 @@ SHOW_BEAM_POSITION		MACRO
 AUDIO_TEST			MACRO
 ; Input
 ; Result
-	lea	$20000,a0		; Zeiger auf Chip-Memory
-	move.l	a0,AUD0LCH-DMACONR(a6)	; Zeiger auf Audio-Daten
+	lea	$20000,a0
+	move.l	a0,AUD0LCH-DMACONR(a6)
 	move.l	a0,AUD1LCH-DMACONR(a6)
 	move.l	a0,AUD2LCH-DMACONR(a6)
 	move.l	a0,AUD3LCH-DMACONR(a6)
-	moveq	#1,d0			; Länge = 1 Wort
+	moveq	#1,d0
 	move.w	d0,AUD0LEN-DMACONR(a6)	
 	move.w	d0,AUD1LEN-DMACONR(a6)
 	move.w	d0,AUD2LEN-DMACONR(a6)
 	move.w	d0,AUD3LEN-DMACONR(a6)
-	moveq	#64,d0			; maximale Lautstärke
+	moveq	#64,d0
 	move.w	d0,AUD0VOL-DMACONR(a6)	
 	move.w	d0,AUD1VOL-DMACONR(a6)
 	move.w	d0,AUD2VOL-DMACONR(a6)
 	move.w	d0,AUD3VOL-DMACONR(a6)
-	move.w	#DMAF_AUD0|DMAF_AUD1|DMAF_AUD2|DMAF_AUD3|DMAF_SETCLR,DMACON-DMACONR(a6) ; Audio-DMA starten
+	move.w	#DMAF_AUD0|DMAF_AUD1|DMAF_AUD2|DMAF_AUD3|DMAF_SETCLR,DMACON-DMACONR(a6) ; start replay
 	ENDM
 
 
 MOVEF				MACRO
 ; Input
-; \0 STRING:	Größenangabe B/W/L
-; \1 NUMBER:	Quellwert
-; \2 STRING:	Ziel
+; \0 STRING:	Size [B/W/L]
+; \1 NUMBER:	source value
+; \2 STRING:	target
 ; Result
 	IFC "","\0"
-		FAIL Makro MOVEF: Größenangabe B/W/L fehlt
+		FAIL Macro MOVEF: Size [B/W/L] missing
 	ENDC
 	IFC "","\1"
-		FAIL Makro MOVEF: Quellwert fehlt
+		FAIL Macro MOVEF: Source value missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro MOVEF: Ziel fehlt
+		FAIL Macro MOVEF: Target missing
 	ENDC
 	IFC "B","\0"
-		IFLE $80-(\1)		; Wenn Zahl >= $80, dann
-			IFGE $ff-(\1)	; Wenn Zahl <= $ff, dann
-				moveq #-((-(\1)&$ff)),\2 ; erste Variante
+		IFLE $80-(\1)		; number >= $80
+			IFGE $ff-(\1)	; number <= $ff
+				moveq #-((-(\1)&$ff)),\2
 			ENDC
-		ELSE			; ansonsten
-			moveq #\1,\2	; zweite Variante
+		ELSE
+			moveq #\1,\2
 		ENDC
 	ENDC
 	IFC "W","\0"
-		IFEQ (\1)&$ff00		; Wenn Zahl <= $00ff, dann
-			IFEQ (\1)&$80	; Wenn Zahl <= $007f, dann
-				moveq	#\1,\2 ; erste Variante
+		IFEQ (\1)&$ff00		; number <= $00ff
+			IFEQ (\1)&$80	; number <= $007f
+				moveq	#\1,\2
 			ENDC
-			IFEQ (\1)-$80	; Wenn Zahl = $0080, dann
-				moveq	#$7f,\2	; zweite Variante
+			IFEQ (\1)-$80	; number = $0080
+				moveq	#$7f,\2
 				not.b	\2
 			ENDC
-			IFGT (\1)-$80	; Wenn Zahl > $0080, dann
-				moveq	#256-(\1),\2 ; dritte Variante
+			IFGT (\1)-$80	; number > $0080
+				moveq	#256-(\1),\2
 				neg.b	\2
 			ENDC
-		ELSE			; Wenn Zahl > $00ff, dann
-			move.w	#\1,\2	; vierte Variante
+		ELSE			; number > $00ff
+			move.w	#\1,\2
 		ENDC
 	ENDC
 	IFC "L","\0"
-		IFEQ (\1)&$ffffff00	; Wenn Zahl <= $000000ff, dann
-			IFEQ (\1)&$80	; Wenn Zahl <= $0000007f, dann
-				moveq	#\1,\2 ; erste Variante
+		IFEQ (\1)&$ffffff00	; number <= $000000ff
+			IFEQ (\1)&$80	; number <= $0000007f
+				moveq	#\1,\2
 			ENDC
-			IFEQ (\1)-$80	; Wenn Zahl = $00000080, dann
-				moveq	#$7f,\2 ; zweite Variante
+			IFEQ (\1)-$80	; number = $00000080
+				moveq	#$7f,\2
 				not.b	\2
 			ENDC
-			IFGT (\1)-$80	; Wenn Zahl > $00000080, dann
-				moveq	#256-(\1),\2	; dritte Variante
+			IFGT (\1)-$80	; number > $00000080
+				moveq	#256-(\1),\2
 				neg.b	\2
 			ENDC
-		ELSE			; Wenn Zahl > $000000ff, dann
-			move.l	#\1,\2	; vierte Variante
+		ELSE			; number > $000000ff
+			move.l	#\1,\2
 		ENDC
 	ENDC
 	ENDM
@@ -145,69 +141,69 @@ MOVEF				MACRO
 
 ADDF				MACRO
 ; Input
-; \0 STRING:	Größenangabe B/W/L
-; \1 NUMBER:	8/16-Bit Quellwert
-; \2 STRING:	Ziel
+; \0 STRING:	Size [B/W/L]
+; \1 NUMBER:	8/16 bit source value
+; \2 STRING:	target
 ; Result
 	IFC "","\0"
-		FAIL Makro ADDF: Größenangabe B/W/L fehlt
+		FAIL Macro ADDF: Size [B/W/L] missing
 	ENDC
 	IFC "","\1"
-		FAIL Makro ADDF: 8/16-Bit Quellwert fehlt
+		FAIL Macro ADDF: 8/16 bit source value missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro ADDF: Ziel fehlt
+		FAIL Macro ADDF: target missing
 	ENDC
 	IFEQ \1
 		MEXIT
 	ENDC
 	IFC "B","\0"
-		IFGE (\1)-$8000		; Wenn Zahl > $7fff, dann
+		IFGE (\1)-$8000		; number > $7fff
 			add.b	#\1,\2
 		ELSE
-			IFLE (\1)-8	; Wenn Zahl <= $0008, dann
+			IFLE (\1)-8	; number <= $0008
 				addq.b	#(\1),\2
-			ELSE		; Wenn > $0008, dann
-				IFLE (\1)-16	; Wenn Zahl <= $0010, dann
+			ELSE		; number > $0008
+				IFLE (\1)-16 ; number <= $0010
 					addq.b	#8,\2
 					addq.b	#\1-8,\2
-				ELSE	; Wenn Zahl > $0010, dann
+				ELSE	; number > $0010
 					add.b	#\1,\2
 				ENDC
 			ENDC
 		ENDC
 	ENDC
 	IFC "W","\0"
-		IFGE (\1)-$8000		; Wenn Zahl > $7fff, dann
+		IFGE (\1)-$8000		; number > $7fff
 			add.w	#\1,\2
 		ELSE
-			IFLE (\1)-8	; Wenn Zahl <= $0008, dann
+			IFLE (\1)-8	; number <= $0008
 				addq.w	#(\1),\2
-			ELSE		; Wenn > $0008, dann
-				IFLE (\1)-16 ; Wenn Zahl <= $0010, dann
+			ELSE		; number > $0008
+				IFLE (\1)-16 ; number <= $0010
 					addq.w	#8,\2
 					addq.w	#\1-8,\2
-				ELSE	; Wenn Zahl > $0010, dann
+				ELSE	; number > $0010
 					add.w	#\1,\2
 				ENDC
 			ENDC
 		ENDC
 	ENDC
 	IFC "L","\0"
-		IFGE (\1)-$8000		; Wenn Zahl > $7fff, dann
-		add.l	#\1,\2
+		IFGE (\1)-$8000		; number > $7fff
+			add.l	#\1,\2
 		ELSE
-			IFLE (\1)-8	; Wenn Zahl <= $0008, dann
+			IFLE (\1)-8	; number <= $0008
 				addq.l	#(\1),\2
-			ELSE		; Wenn > $0008, dann
-				IFLE (\1)-16 ; Wenn Zahl <= $0010, dann
+			ELSE		; number > $0008
+				IFLE (\1)-16 ; number <= $0010
 					addq.l	#8,\2
 					addq.l	#\1-8,\2
-				ELSE						;Wenn Zahl > $0010, dann
+				ELSE						;number > $0010
 					add.l	#\1,\2
 				ENDC
 			ENDC
-			IFGE (\1)-$8000	; Wenn Zahl > $7fff, dann
+			IFGE (\1)-$8000	; number > $7fff
 				add.l	#\1,\2
 			ENDC
 		ENDC
@@ -217,54 +213,54 @@ ADDF				MACRO
 
 SUBF				MACRO
 ; Input
-; \0 STRING:	Größenangabe B/W/L
-; \1 NUMBER:	8/16-Bit Quellwert
-; \2 STRING:	Ziel
+; \0 STRING:	Size [B/W/L]
+; \1 NUMBER:	8/16 bit source value
+; \2 STRING:	target
 ; Result
 	IFC "","\0"
-		FAIL Makro SUBF: Größenangabe B/W/L fehlt
+		FAIL Macro SUBF: Size [B/W/L] missing
 	ENDC
 	IFC "","\1"
-		FAIL Makro SUBF: 8/16-Bit Quellwert fehlt
+		FAIL Macro SUBF: 8/16 bit source missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro SUBF: Ziel fehlt
+		FAIL Macro SUBF: Target missing
 	ENDC
 	IFEQ \1
 		MEXIT
 	ENDC
 	IFC "B","\0"
-		IFLE (\1)-8		; Wenn Zahl <= $0008, dann
+		IFLE (\1)-8		; number <= $0008
 			subq.b	#(\1),\2
-		ELSE			; Wenn > $0008, dann
-			IFLE (\1)-16	; Wenn Zahl <= $0010, dann
+		ELSE			; number > $0008
+			IFLE (\1)-16	; number <= $0010
 				subq.b	#8,\2
 				subq.b	#\1-8,\2
-			ELSE		; Wenn Zahl > $0010, dann
+			ELSE		; number > $0010
 				sub.b	#\1,\2
 			ENDC
 		ENDC
 	ENDC
 	IFC "W","\0"
-		IFLE (\1)-8		; Wenn Zahl <= $0008, dann
+		IFLE (\1)-8		; number <= $0008
 			subq.w	#(\1),\2
-		ELSE			; Wenn > $0008, dann
-			IFLE (\1)-16	; Wenn Zahl <= $0010, dann
+		ELSE			; number > $0008
+			IFLE (\1)-16	; number <= $0010
 				subq.w	#8,\2
 				subq.w	#\1-8,\2
-			ELSE		; Wenn Zahl > $0010, dann
+			ELSE		; number > $0010
 				sub.w	#\1,\2
 			ENDC
 		ENDC
 	ENDC
 	IFC "L","\0"
-		IFLE (\1)-8		; Wenn Zahl <= $0008, dann
+		IFLE (\1)-8		; number <= $0008
 			subq.l	#(\1),\2
-		ELSE			; Wenn > $0008, dann
-			IFLE (\1)-16	; Wenn Zahl <= $0010, dann
+		ELSE			; number > $0008
+			IFLE (\1)-16	; number <= $0010
 				subq.l	#8,\2
 				subq.l	#\1-8,\2
-			ELSE		; Wenn Zahl > $0010, dann
+			ELSE		; number > $0010
 				sub.l	#\1,\2
 			ENDC
 		ENDC
@@ -274,26 +270,26 @@ SUBF				MACRO
 
 MULUF				MACRO
 ; Input
-; \0 STRING:	Größenangabe B/W/L
-; \1 NUMBER:	16/32-Bit Faktor
-; \2 NUMBER:	Produkt
-; \3 STRING:	Scratch-Register
+; \0 STRING:	Size [B/W/L]
+; \1 NUMBER:	16/32 bit factor
+; \2 NUMBER:	product
+; \3 STRING:	Scratch register
 ; Result
 	IFC "","\0"
-		FAIL Makro MULUF: Größenangabe B/W/L fehlt
+		FAIL Macro MULUF: Size [B/W/L] missing
 	ENDC
 	IFC "","\1"
-		FAIL Makro MULUF: 16/32-Bit Faktor fehlt
+		FAIL Macro MULUF: 16/32 bit factor missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro MULUF: Produkt fehlt
+		FAIL Macro MULUF: Product missing
 	ENDC
 	IFEQ \1
-		FAIL Makro MULUF: Faktor ist 0
+		FAIL Macro MULUF: Factor is 0
 	ENDC
 	IFC "B","\0"
 		IFGT \1-128
-			FAIL Makro MULUF.B: Faktor ist größer als 128
+			FAIL Macro MULUF.B: Fcktor is greater than 128
 		ENDC
 	ENDC
 	IFEQ (\1)-2			; *2
@@ -1180,62 +1176,62 @@ MULUF				MACRO
 
 MULSF				MACRO
 ; Input
-; \1 NUMBER:	16-Bit vorzeichenbehafteter Faktor
-; \2 NUMBER:	Produkt
-; \3 STRING:	Scratch-Register
+; \1 NUMBER:	16 bit signed factor
+; \2 NUMBER:	Product
+; \3 STRING:	Scratch register
 ; Result
 	IFC "","\1"
-		FAIL Makro MULSF: 16-Bit vorzeichenbehafteter Faktor fehlt
+		FAIL Macro MULSF: 16 bit signed factor missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro MULSF: 16-Bit Produkt fehlt
+		FAIL Macro MULSF: 16-Bit Product missing
 	ENDC
 	IFEQ \1
-		FAIL Makro MULSF: Faktor ist 0
+		FAIL Macro MULSF: Factor is 0
 	ENDC
-	ext.l	\2			; Auf 32 Bit erweitern
+	ext.l	\2
 	MULUF.L \1,\2,\3
 	ENDM
 
 
 DIVUF				MACRO
 ; Input
-; \0 STRING:	Größenangabe W
+; \0 STRING:	Size W
 ; \1 NUMBER:	Divisor
 ; \2 NUMBER:	Divident
-; \3 STRING:	Scratch-Register, Ergebnis
+; \3 STRING:	Scratch register, result
 ; Result
 	IFC "","\0"
-		FAIL Makro DIVUF: Größenangabe W fehlt
+		FAIL Macro DIVUF: Size missing
 	ENDC
 	IFC "","\1"
-		FAIL Makro DIVUF: Divsor fehlt
+		FAIL Macro DIVUF: Divsor missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro DIVUF: Divident fehlt
+		FAIL Macro DIVUF: Divident missing
 	ENDC
-	moveq	#-1,\3			; Zähler für Ergebnis
+	moveq	#-1,\3			; counter for result
 divison_loop\@
-	addq.w	#1,\3			; Zähler erhöhen
-	sub.w	\1,\2			; Divisor solange von Divident abziehen
-	bge.s	divison_loop\@		; bis Dividend < Divisor
+	addq.w	#1,\3
+	sub.w	\1,\2			; divisor - divident
+	bge.s	divison_loop\@		; until dividend < divisor
 	ENDM
 
 
 CMPF MACRO
 ; Input
-; \0 STRING:	Größenangabe B/W/L
-; \1 NUMBER:	Quelle 8/16/32-Bit
-; \2 STRING:	Ziel
+; \0 STRING:	Size [B/W/L]
+; \1 NUMBER:	Source 8/16/32 bit
+; \2 STRING:	Target
 ; Result
 	IFC "","\0"
-		FAIL Makro CMPF: Größenangabe B/W/L fehlt
+		FAIL Macro CMPF: Size [B/W/L] missing
 	ENDC
 	IFC "","\1"
-		FAIL Makro CMPF: Quelle 8/16/32-Bit fehlt
+		FAIL Macro CMPF: Source 8/16/32 bit missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro CMPF: Ziel fehlt
+		FAIL Macro CMPF: Target missing
 	ENDC
 	IFEQ \1
 		tst.\0	\2
@@ -1244,7 +1240,7 @@ CMPF MACRO
 	ENDC
 	ENDM
 
-
+; ääää
 CPU_INIT_COLOR_HIGH		MACRO
 ; Input
 ; \1 WORD:		Erstes Farbregister-Offset
@@ -1252,10 +1248,10 @@ CPU_INIT_COLOR_HIGH		MACRO
 ; \3 POINTER:		Farbtabelle (optional)
 ; Result
 	IFC "","\1"
-		FAIL Makro CPU_INIT_COLOR_HIGH: Erstes Farbregister-Offset fehlt
+		FAIL Macro CPU_INIT_COLOR_HIGH: Erstes Farbregister-Offset missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro CPU_INIT_COLOR_HIGH: Anzahl der Farbwerte fehlt
+		FAIL Macro CPU_INIT_COLOR_HIGH: Anzahl der Farbwerte missing
 	ENDC
 	lea		(\1)-DMACONR(a6),a0 ;erstes Farbregister
 	moveq	#\2-1,d7		; Anzahl der Farbwerte
@@ -1273,10 +1269,10 @@ CPU_INIT_COLOR_LOW		MACRO
 ; \3 POINTER:		Farbtabelle (optional)
 ; Result
 	IFC "","\1"
-		FAIL Makro CPU_INIT_COLOR_LOW: Erstes Farbregister-Offset fehlt
+		FAIL Macro CPU_INIT_COLOR_LOW: Erstes Farbregister-Offset missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro CPU_INIT_COLOR_LOW: Anzahl der Farbwerte fehlt
+		FAIL Macro CPU_INIT_COLOR_LOW: Anzahl der Farbwerte missing
 	ENDC
 	lea		(\1)-DMACONR(a6),a0 ; erstes Farbregister
 	moveq	#\2-1,d7		; Anzahl der Farbwerte
@@ -1295,13 +1291,13 @@ RGB8_TO_RGB4_HIGH		MACRO
 ; Result
 ; \1 WORD:	Rückgabewert: 2-Bit High-Farbwert
 	IFC "","\1"
-		FAIL Makro RGB8_TO_RGB4_HIGH: 24-Bit Farbwert fehlt
+		FAIL Macro RGB8_TO_RGB4_HIGH: 24-Bit Farbwert missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro RGB8_TO_RGB4_HIGH: Scratch-Register fehlt
+		FAIL Macro RGB8_TO_RGB4_HIGH: Scratch-Register missing
 	ENDC
 	IFC "","\3"
-		FAIL Makro RGB8_TO_RGB4_HIGH: Maske für High-Bits fehlt
+		FAIL Macro RGB8_TO_RGB4_HIGH: Maske für High-Bits missing
 	ENDC
 	lsr.l	#4,\1			; RrGgB
 	and.w	\3,\1			; RrG0B
@@ -1321,13 +1317,13 @@ RGB8_TO_RGB4_LOW		MACRO
 ; Result
 ; \1 WORD:	Rückgabewert: 12-Bit Low-Farbwert
 	IFC "","\1"
-		FAIL Makro RGB8_TO_RGB4_LOW: 24-Bit Farbwert fehlt
+		FAIL Macro RGB8_TO_RGB4_LOW: 24-Bit Farbwert missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro RGB8_TO_RGB4_LOW: Scratch-Register fehlt
+		FAIL Macro RGB8_TO_RGB4_LOW: Scratch-Register missing
 	ENDC
 	IFC "","\3"
-		FAIL Makro RGB8_TO_RGB4_LOW: Maske für Low-Bits fehlt
+		FAIL Macro RGB8_TO_RGB4_LOW: Maske für Low-Bits missing
 	ENDC
 	and.w	\3,\1			;   g0b
 	move.b	\1,\2			;    0b
@@ -1344,10 +1340,10 @@ RGB8_TO_RGB8_HIGH_LOW		MACRO
 ; \2 NUMBER:	Anzahl der Einträge
 ; Result
 	IFC "","\1"
-		FAIL Makro RGB8_TO_RGB8_HIGH_LOW: Labels-Prefix fehlt
+		FAIL Macro RGB8_TO_RGB8_HIGH_LOW: Labels-Prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro RGB8_TO_RGB8_HIGH_LOW: Anzahl der Einträge fehlt
+		FAIL Macro RGB8_TO_RGB8_HIGH_LOW: Anzahl der Einträge missing
 	ENDC
 	CNOP 0,4
 \1_convert_color_table
@@ -1374,10 +1370,10 @@ INIT_CHARACTERS_OFFSETS MACRO
 	CNOP 0,4
 \1_init_characters_offsets
 	IFC "","\0"
-		FAIL Makro INIT_CHARACTERS_OFFSETS: Größenangabe W/L fehlt
+		FAIL Macro INIT_CHARACTERS_OFFSETS: Größenangabe W/L missing
 	ENDC
 	IFC "","\1"
-		FAIL Makro INIT_CHARACTERS_OFFSETS: Labels-Prefix der Routine fehlt
+		FAIL Macro INIT_CHARACTERS_OFFSETS: Labels-Prefix der Routine missing
 	ENDC
 	IFC "W","\0"
 		moveq	#0,d0		; X-Offset erstes Zeichen in Zeichen-Playfieldvorlage
@@ -1430,10 +1426,10 @@ INIT_CHARACTERS_X_POSITIONS	MACRO
 	CNOP 0,4
 \1_init_characters_x_positions
 	IFC "","\1"
-		FAIL Makro INIT_CHARACTERS_X_POSITIONS: Labels-Prefix fehlt
+		FAIL Macro INIT_CHARACTERS_X_POSITIONS: Labels-Prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro INIT_CHARACTERS_X_POSITIONS: Pixel-Auflösung "LORES", "HIRES", "SHIRES" fehlt
+		FAIL Macro INIT_CHARACTERS_X_POSITIONS: Pixel-Auflösung "LORES", "HIRES", "SHIRES" missing
 	ENDC
 	moveq	#0,d0			; 1. X-Position
 	IFC "LORES","\2"
@@ -1479,7 +1475,7 @@ INIT_CHARACTERS_Y_POSITIONS		MACRO
 	CNOP 0,4
 \1_init_characters_y_positions
 	IFC "","\1"
-		FAIL Makro INIT_CHARACTERS_Y_POSITIONS: Labels-Prefix fehlt
+		FAIL Macro INIT_CHARACTERS_Y_POSITIONS: Labels-Prefix missing
 	ENDC
 	moveq	#0,d0			; 1. Y-Position
 	moveq	#\1_text_character_y_size,d1 ; Additionswert
@@ -1504,7 +1500,7 @@ INIT_CHARACTERS_IMAGES		MACRO
 	CNOP 0,4
 \1_init_characters_images
 	IFC "","\1"
-		FAIL Makro INIT_CHARACTERS_IMAGES: Labels-Prefix fehlt
+		FAIL Macro INIT_CHARACTERS_IMAGES: Labels-Prefix missing
 	ENDC
 	lea	\1_characters_image_ptrs(pc),a2
 	MOVEF.W	(\1_text_characters_number)-1,d7
@@ -1527,10 +1523,10 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 ; Result
 ; d0.l		Rückgabewert: Zeiger auf Character-Image
 	IFC "","\0"
-		FAIL Makro GET_NEW_CHARACTER_IMAGE: Größenangabe W/L fehlt
+		FAIL Macro GET_NEW_CHARACTER_IMAGE: Größenangabe W/L missing
 	ENDC
 	IFC "","\1"
-		FAIL Makro GET_NEW_CHARACTER_IMAGE: Labels-Prefix fehlt
+		FAIL Macro GET_NEW_CHARACTER_IMAGE: Labels-Prefix missing
 	ENDC
 	CNOP 0,4
 \1_get_new_character_image
@@ -1669,7 +1665,7 @@ CPU_SELECT_COLOR_HIGH_BANK	MACRO
 ; \2 WORD:	zusätzliche BPLCON3-bits (optional)
 ; Result
 	IFC "","\1"
-		FAIL Makro CPU_SELECT_COLOR_HIGH_BANK: Color-Bank-Nummer fehlt
+		FAIL Macro CPU_SELECT_COLOR_HIGH_BANK: Color-Bank-Nummer missing
 	ENDC
 	IFC "","\2"
 		IFNE \1
@@ -1692,7 +1688,7 @@ CPU_SELECT_COLOR_LOW_BANK	MACRO
 ; \2 WORD: zusätzliche BPLCON3-bits (optional)
 ; Result
 	IFC "","\1"
-		FAIL Makro CPU_SELECT_COLOR_LOW_BANK: Color-Bank-Nummer fehlt
+		FAIL Macro CPU_SELECT_COLOR_LOW_BANK: Color-Bank-Nummer missing
 	ENDC
 	IFC "","\2"
 		move.w	#bplcon3_bits2|(BPLCON3F_BANK0*\1),BPLCON3-DMACONR(a6) ; Low-Bits
@@ -1774,22 +1770,22 @@ INIT_MIRROR_bplam_table	MACRO
 	CNOP 0,4
 \1_init_mirror_bplam_table
 	IFC "","\0"
-		FAIL Makro MIRROR_bplam_table: Größenangabe B/W fehlt
+		FAIL Macro MIRROR_bplam_table: Größenangabe B/W missing
 	ENDC
 	IFC "","\1"
-		FAIL Makro MIRROR_bplam_table: Labels-Prefix fehlt
+		FAIL Macro MIRROR_bplam_table: Labels-Prefix missing
 	ENDC
 	IFC "","\4"
-		FAIL Makro INIT_MIRROR_bplam_table: Anzahl der Farbverläufe fehlt
+		FAIL Macro INIT_MIRROR_bplam_table: Anzahl der Farbverläufe missing
 	ENDC
 	IFC "","\5"
-		FAIL Makro INIT_MIRROR_bplam_table: Anzahl der Abschnitte pro Farbverlauf fehlt
+		FAIL Macro INIT_MIRROR_bplam_table: Anzahl der Abschnitte pro Farbverlauf missing
 	ENDC
 	IFC "","\6"
-		FAIL Makro INIT_MIRROR_bplam_table: Tabelle mit Switchwerten fehlt
+		FAIL Macro INIT_MIRROR_bplam_table: Tabelle mit Switchwerten missing
 	ENDC
 	IFC "","\7"
-		FAIL Makro INIT_MIRROR_bplam_table: Pointer-Base [pc, a3] fehlt
+		FAIL Macro INIT_MIRROR_bplam_table: Pointer-Base [pc, a3] missing
 	ENDC
 	IFC "pc","\7"
 		lea	\1_\6(\7),a0	; Zeiger auf Switch-Tabelle
@@ -1875,28 +1871,28 @@ INIT_NESTED_MIRROR_bplam_table	MACRO
 	CNOP 0,4
 \1_init_nested_mirror_bplam_table
 	IFC "","\0"
-		FAIL Makro INIT_NESTED_MIRROR_bplam_table: Größenangabe B/W fehlt
+		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Größenangabe B/W missing
 	ENDC
 	IFC "","\1"
-		FAIL Makro INIT_NESTED_MIRROR_bplam_table: Labels-Prefix fehlt
+		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Labels-Prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro INIT_NESTED_MIRROR_bplam_table: Erster Switchwert fehlt
+		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Erster Switchwert missing
 	ENDC
 	IFC "","\3"
-		FAIL Makro INIT_NESTED_MIRROR_bplam_table: Additionswert für Switchwert fehlt
+		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Additionswert für Switchwert missing
 	ENDC
 	IFC "","\4"
-		FAIL Makro INIT_NESTED_MIRROR_bplam_table: Anzahl der Farbverläufe fehlt
+		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Anzahl der Farbverläufe missing
 	ENDC
 	IFC "","\5"
-		FAIL Makro INIT_NESTED_MIRROR_bplam_table: Anzahl der Abschnitte pro Farbverlauf fehlt
+		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Anzahl der Abschnitte pro Farbverlauf missing
 	ENDC
 	IFC "","\6"
-		FAIL Makro INIT_NESTED_MIRROR_bplam_table: Tabelle mit Switchwerten fehlt
+		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Tabelle mit Switchwerten missing
 	ENDC
 	IFC "","\7"
-		FAIL Makro INIT_NESTED_MIRROR_bplam_table: Pointer-Base [pc, a3] fehlt
+		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Pointer-Base [pc, a3] missing
 	ENDC
 	IFC "pc","\7"
 		lea	\1_\6(\7),a1	; Zeiger auf Switch-Tabelle
@@ -1979,19 +1975,19 @@ INIT_bplam_table		MACRO
 	CNOP 0,4
 \1_init_bplam_table
 	IFC "","\0"
-		FAIL Makro INIT_bplam_table: Größenangabe B/W fehlt
+		FAIL Macro INIT_bplam_table: Größenangabe B/W missing
 	ENDC
 	IFC "","\1"
-		FAIL Makro INIT_bplam_table: Labels-Prefix fehlt
+		FAIL Macro INIT_bplam_table: Labels-Prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro INIT_bplam_table: Erster Switchwert fehlt
+		FAIL Macro INIT_bplam_table: Erster Switchwert missing
 	ENDC
 	IFC "","\3"
-		FAIL Makro INIT_bplam_table: Additionswert für Switchwert fehlt
+		FAIL Macro INIT_bplam_table: Additionswert für Switchwert missing
 	ENDC
 	IFC "","\4"
-		FAIL Makro INIT_bplam_table: Anzahl der Farb/Switcvhwerte pro Farbverlauf fehlt
+		FAIL Macro INIT_bplam_table: Anzahl der Farb/Switcvhwerte pro Farbverlauf missing
 	ENDC
 	IFC "B","\0"
 		IFC "pc","\6"
@@ -2069,13 +2065,13 @@ INIT_COLOR_GRADIENT_RGB8	MACRO
 ; \8 LONGWORD:		Offset Anfang Farbtabelle (optional)
 ; Result
 	IFC "","\1"
-		FAIL Makro INIT_COLOR_GRADIENT_RGB8: RGB8 Startwert/Istwert fehlt
+		FAIL Macro INIT_COLOR_GRADIENT_RGB8: RGB8 Startwert/Istwert missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro INIT_COLOR_GRADIENT_RGB8: RGB8 Endwert/Sollwert fehlt
+		FAIL Macro INIT_COLOR_GRADIENT_RGB8: RGB8 Endwert/Sollwert missing
 	ENDC					
 	IFC "","\3"
-		FAIL Makro INIT_COLOR_GRADIENT_RGB8: Anzahl der Farbwerte fehlt
+		FAIL Macro INIT_COLOR_GRADIENT_RGB8: Anzahl der Farbwerte missing
 	ENDC
 	move.l	#\1,d0			; RGB8-Istwert
 	move.l	#\2,d6			; RGB8-Sollwert
@@ -2115,13 +2111,13 @@ INIT_COLOR_GRADIENTS_RGB8	MACRO
 ; \8 LONGWORD:		Offset zum nächsten Wert in Farbtabelle (optional)
 ; Result
 	IFC "","\1"
-		FAIL Makro INIT_COLOR_GRADIENTS_GROUP_RGB8: Anzahl der Farbwerte fehlt
+		FAIL Macro INIT_COLOR_GRADIENTS_GROUP_RGB8: Anzahl der Farbwerte missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro INIT_COLOR_GRADIENTS_GROUP_RGB8: Anzahl der Zeilen fehlt
+		FAIL Macro INIT_COLOR_GRADIENTS_GROUP_RGB8: Anzahl der Zeilen missing
 	ENDC
 	IFC "","\3"
-		FAIL Makro INIT_COLOR_GRADIENTS_GROUP_RGB8: Anzahl der Segmente fehlt
+		FAIL Macro INIT_COLOR_GRADIENTS_GROUP_RGB8: Anzahl der Segmente missing
 	ENDC
 	IFNC "","\5"
 		IFC "pc","\6"
@@ -2167,7 +2163,7 @@ COPY_IMAGE_TO_BITPLANE		MACRO
 ; \4 POINTER:	Zielbild (optional)
 ; Result
 	IFC "","\1"
-		FAIL Makro COPY_IMAGE_TO_BITPLANE: Labels-Prefix fehlt
+		FAIL Macro COPY_IMAGE_TO_BITPLANE: Labels-Prefix missing
 	ENDC
 	CNOP 0,4
 \1_copy_image_to_plane
@@ -2228,10 +2224,10 @@ INIT_DISPLAY_PATTERN		MACRO
 ; \2 NUMBER: Breite einer Spalte
 ; Result
 	IFC "","\1"
-		FAIL Makro INIT_DISPLAY_PATTERN: Labels-Prefix fehlt
+		FAIL Macro INIT_DISPLAY_PATTERN: Labels-Prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro INIT_DISPLAY_PATTERN: Breite einer Spalte fehlt
+		FAIL Macro INIT_DISPLAY_PATTERN: Breite einer Spalte missing
 	ENDC
 	CNOP 0,4
 \1_init_display_pattern
@@ -2291,24 +2287,24 @@ GET_SINE_BARS_YZ_COORDINATES MACRO
 ; \3 WORD:	Multiplikator Y-Offset in CL
 ; Result
 	IFC "","\1"
-		FAIL Makro GET_SINE_BARS_YZ_COORDINATES: Labels-Prefix fehlt
+		FAIL Macro GET_SINE_BARS_YZ_COORDINATES: Labels-Prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro GET_SINE_BARS_YZ_COORDINATES: Länge der Sinustabelle [256, 360, 512] fehlt
+		FAIL Macro GET_SINE_BARS_YZ_COORDINATES: Länge der Sinustabelle [256, 360, 512] missing
 	ENDC
 	IFC "","\3"
-		FAIL Makro GET_SINE_BARS_YZ_COORDINATES: Multiplikator Y-Offset in CL fehlt
+		FAIL Macro GET_SINE_BARS_YZ_COORDINATES: Multiplikator Y-Offset in CL missing
 	ENDC
 	CNOP 0,4
 \1_get_yz_coords
 	IFC "","\1"
-		FAIL Makro GET_TWISTED_BARS_YZ_COORDINATES: Labels-Prefix fehlt
+		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Labels-Prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro GET_TWISTED_BARS_YZ_COORDINATES: Länge der Sinustabelle [256, a260, 512] fehlt
+		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Länge der Sinustabelle [256, a260, 512] missing
 	ENDC
 	IFC "","\3"
-		FAIL Makro GET_TWISTED_BARS_YZ_COORDINATES: Multiplikator Y-Offset in CL fehlt
+		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Multiplikator Y-Offset in CL missing
 	ENDC
 	IFEQ \2-256
 		move.w	\1_y_angle(a3),d2 ; 1. Y-Winkel
@@ -2415,24 +2411,24 @@ GET_TWISTED_BARS_YZ_COORDINATES MACRO
 ; \3 WORD:	Multiplikator Y-Offset in CL
 ; Result
 	IFC "","\1"
-		FAIL Makro GET_TWISTED_BARS_YZ_COORDINATES: Labels-Prefix fehlt
+		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Labels-Prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro GET_TWISTED_BARS_YZ_COORDINATES: Länge der Sinustabelle [256, 360, 512] fehlt
+		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Länge der Sinustabelle [256, 360, 512] missing
 	ENDC
 	IFC "","\3"
-		FAIL Makro GET_TWISTED_BARS_YZ_COORDINATES: Multiplikator Y-Offset in CL fehlt
+		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Multiplikator Y-Offset in CL missing
 	ENDC
 	CNOP 0,4
 \1_get_yz_coords
 	IFC "","\1"
-		FAIL Makro GET_TWISTED_BARS_YZ_COORDINATES: Labels-Prefix fehlt
+		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Labels-Prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro GET_TWISTED_BARS_YZ_COORDINATES: Länge der Sinustabelle [256, a260, 512] fehlt
+		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Länge der Sinustabelle [256, a260, 512] missing
 	ENDC
 	IFC "","\3"
-		FAIL Makro GET_TWISTED_BARS_YZ_COORDINATES: Multiplikator Y-Offset in CL fehlt
+		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Multiplikator Y-Offset in CL missing
 	ENDC
 	IFEQ \2-256
 		move.w	\1_y_angle(a3),d2 ; 1. Y-Winkel
@@ -2519,7 +2515,7 @@ GET_TWISTED_BARS_YZ_COORDINATES MACRO
 RGB8_COLOR_FADER			MACRO
 ; \1 STRING: Labels-Prefix der Routine
 	IFC "","\1"
-		FAIL Makro RGB8_COLOR_FADER: Labels-Prefix fehlt
+		FAIL Macro RGB8_COLOR_FADER: Labels-Prefix missing
 	ENDC
 	CNOP 0,4
 \1_rgb8_fader_loop
@@ -2674,19 +2670,19 @@ COPY_RGB8_COLORS_TO_COPPERLIST	MACRO
 ; \6 LONGWORD:	Offset-Base (optional)
 ; Result
 	IFC "","\1"
-		FAIL Makro COPY_RGB8_COLORS_TO_COPPERLIST: Labels-Prefix fehlt
+		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Labels-Prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro COPY_RGB8_COLORS_TO_COPPERLIST: Color-Table-Prefix fehlt
+		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Color-Table-Prefix missing
 	ENDC
 	IFC "","\3"
-		FAIL Makro COPY_RGB8_COLORS_TO_COPPERLIST: Copperlist-Prefix fehlt
+		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Copperlist-Prefix missing
 	ENDC
 	IFC "","\4"
-		FAIL Makro COPY_RGB8_COLORS_TO_COPPERLIST: Offset in Copperliste High-Werte fehlt
+		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Offset in Copperliste High-Werte missing
 	ENDC
 	IFC "","\5"
-		FAIL Makro COPY_RGB8_COLORS_TO_COPPERLIST: Offset in Copperliste Low-Werte fehlt
+		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Offset in Copperliste Low-Werte missing
 	ENDC
 	CNOP 0,4
 \1_rgb8_copy_color_table
@@ -2776,13 +2772,13 @@ INIT_CUSTOM_ERROR_ENTRY		MACRO
 ; \3 BYTE_SIGNED:	Länge des Fehrlertexts
 ; Result
 	IFC "","\1"
-		FAIL Makro INIT_CUSTOM_ERROR_ENTRY: Fehlernummer fehlt
+		FAIL Macro INIT_CUSTOM_ERROR_ENTRY: Fehlernummer missing
 	ENDC
 	IFC "","\2"
-		FAIL Makro INIT_CUSTOM_ERROR_ENTRY: Zeiger auf Fehlertext fehlt
+		FAIL Macro INIT_CUSTOM_ERROR_ENTRY: Zeiger auf Fehlertext missing
 	ENDC
 	IFC "","\3"
-		FAIL Makro INIT_CUSTOM_ERROR_ENTRY: Länge des Fehlertextes fehlt
+		FAIL Macro INIT_CUSTOM_ERROR_ENTRY: Länge des Fehlertextes missing
 	ENDC
 
 	moveq	#\1-1,d0
