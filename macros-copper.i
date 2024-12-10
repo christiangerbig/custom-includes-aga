@@ -78,7 +78,7 @@ COP_LISTEND MACRO
 COP_INIT_PLAYFIELD_REGISTERS	MACRO
 ; \1 STRING:	labels prefix
 ; \2 STRING:	["NOBITPLANES", "NOBITPLANESSPR", "BLANK", "BLANKSPR"]
-; \3 STRING:	Viewport label prefix: vp1,vp2..vpn (optional)
+; \3 STRING:	Viewport label prefix: [vp1,vp2..vpn] (optional)
 ; \4 STRING:	"TRIGGERBITPLANES" (optional) initialize BPLCON0
 	IFC "","\1"
 		FAIL Macro COP_INIT_PLAYFIELD_REGISTERS: Labels prefix missing
@@ -306,10 +306,10 @@ COP_SET_SPRITE_POINTERS		MACRO
 
 
 COP_SELECT_COLOR_HIGH_BANK	MACRO
-; \1 NUMBER:	Color bank number 0..7
+; \1 NUMBER:	Color bank number [0..7]
 ; \2 WORD:	BPLCON3 bits (optional)
 	IFC "","\1"
-		FAIL Macro COP_SELECT_COLOR_HIGH_BANK MACRO: Color bank number 0..7 missing
+		FAIL Macro COP_SELECT_COLOR_HIGH_BANK MACRO: Color bank number [0..7] missing
 	ENDC
 		COP_MOVEQ bplcon3_bits1|(BPLCON3F_BANK0*\1),BPLCON3
 	IFNC "","\2"
@@ -319,10 +319,10 @@ COP_SELECT_COLOR_HIGH_BANK	MACRO
 
 
 COP_SELECT_COLOR_LOW_BANK	MACRO
-; \1 NUMBER:	Color bank number 0..7
+; \1 NUMBER:	Color bank number [0..7]
 ; \2 WORD:	BPLCON3 bits (optional)
 	IFC "","\1"
-		FAIL Macro COP_SELECT_COLOR_LOW_BANK MACRO: Color bank number 0..7 missing
+		FAIL Macro COP_SELECT_COLOR_LOW_BANK MACRO: Color bank number [0..7] missing
 	ENDC
 		COP_MOVEQ bplcon3_bits2|(BPLCON3F_BANK0*\1),BPLCON3
 	IFNC "","\2"
@@ -483,8 +483,8 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN	MACRO
 			ENDC
 		ENDC
 		moveq	#1,d3
-		ror.l	#8,d3		; Y-Additionswert $01000000
-		MOVEF.W \5-1,d7		; Anzahl der Zeilen
+		ror.l	#8,d3		; $01000000
+		MOVEF.W \5-1,d7		; number of lines
 \1_init_bplcon4_loop1
 		move.l	d0,(a0)+	; WAIT x,y
 		IFEQ \6
@@ -699,13 +699,13 @@ copy_second_copperlist_loop
 
 CONVERT_IMAGE_TO_RGB4_CHUNKY	MACRO
 ; \1 STRING:	labels prefix
-; \2 POINTER:	switch values table
+; \2 POINTER:	BPLAM table
 ; \3 STRING:	pointer base [pc,a3]
 	IFC "","\1"
 		FAIL Macro CONVERT_IMAGE_TO_RGB4_CHUNKY: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro CONVERT_IMAGE_TO_RGB4_CHUNKY: Switch table missing
+		FAIL Macro CONVERT_IMAGE_TO_RGB4_CHUNKY: BPLAM table missing
 	ENDC
 	IFC "","\3"
 		FAIL Macro CONVERT_IMAGE_TO_RGB4_CHUNKY: Pointer base [pc,a3] missing
@@ -772,13 +772,13 @@ CONVERT_IMAGE_TO_RGB4_CHUNKY	MACRO
 
 CONVERT_IMAGE_TO_HAM6_CHUNKY	MACRO
 ; \1 STRING:	Labels prefix
-; \2 POINTER:	Switch values table
+; \2 POINTER:	BPLAM table
 ; \3 STRING:	Pointer base [pc,a3]
 	IFC "","\1"
 		FAIL Macro CONVERT_IMAGE_TO_HAM6_CHUNKY: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro CONVERT_IMAGE_TO_HAM6_CHUNKY: Switch values table missing
+		FAIL Macro CONVERT_IMAGE_TO_HAM6_CHUNKY: BPLAM table missing
 	ENDC
 	IFC "","\3"
 		FAIL Macro CONVERT_IMAGE_TO_HAM6_CHUNKY: Pointer- base [pc,a3] missing
@@ -874,13 +874,13 @@ CONVERT_IMAGE_TO_HAM6_CHUNKY	MACRO
 
 CONVERT_IMAGE_TO_RGB8_CHUNKY	MACRO
 ; \1 STRING:	labels prefix
-; \2 POINTER:	switch values table
+; \2 POINTER:	BPLAM table
 ; \3 STRING:	pointer base [pc,a3]
 	IFC "","\1"
 		FAIL Macro CONVERT_IMAGE_TO_RGB8_CHUNKY: Labels-Prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro CONVERT_IMAGE_TO_RGB8_CHUNKY: switch values table missing
+		FAIL Macro CONVERT_IMAGE_TO_RGB8_CHUNKY: BPLAM table missing
 	ENDC
 	IFC "","\3"
 		FAIL Macro CONVERT_IMAGE_TO_RGB8_CHUNKY: pointer-base [pc,a3] missing
@@ -973,13 +973,13 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY	MACRO
 
 CONVERT_IMAGE_TO_HAM8_CHUNKY	MACRO
 ; \1 STRING:	labels prefix
-; \2 POINTER:	switch values table
+; \2 POINTER:	BPLAM table
 ; \3 STRING:	pointer base [pc,a3]
 	IFC "","\1"
 		FAIL Macro CONVERT_IMAGE_TO_HAM8_CHUNKY: Labels-Prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro CONVERT_IMAGE_TO_HAM8_CHUNKY: Switch values table missing
+		FAIL Macro CONVERT_IMAGE_TO_HAM8_CHUNKY: BPLAM table missing
 	ENDC
 	IFC "","\3"
 		FAIL Macro CONVERT_IMAGE_TO_HAM8_CHUNKY: Pointer-base [pc,a3] missing
@@ -1090,9 +1090,9 @@ CONVERT_IMAGE_TO_HAM8_CHUNKY	MACRO
 CONVERT_IMAGE_TO_BPLCON4_CHUNKY	MACRO
 ; \0 STRING:	Size ["B","W"]
 ; \1 STRING:	labels prefix
-; \2 POINTER:	Switch values table
+; \2 POINTER:	BPLAM table
 ; \3 STRING:	pointer base [pc,a3]
-; \4 NUMBER:	Start switch value (optional)
+; \4 NUMBER:	Start BPLAM value (optional)
 	IFC "","\0"
 		FAIL Macro CONVERT_IMAGE_TO_BPLCON4_CHUNKY: Size ["B","W"] missing
 	ENDC
@@ -1100,7 +1100,7 @@ CONVERT_IMAGE_TO_BPLCON4_CHUNKY	MACRO
 		FAIL Macro CONVERT_IMAGE_TO_BPLCON4_CHUNKY: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro CONVERT_IMAGE_TO_BPLCON4_CHUNKY: Switch values table missing
+		FAIL Macro CONVERT_IMAGE_TO_BPLCON4_CHUNKY: BPLAM table missing
 	ENDC
 	IFC "","\3"
 		FAIL Macro CONVERT_IMAGE_TO_BPLCON4_CHUNKY: Pointer base [pc,a3] missing
@@ -1135,63 +1135,63 @@ CONVERT_IMAGE_TO_BPLCON4_CHUNKY	MACRO
 	moveq	#8-1,d5			; number of bits in byte
 \1_translate_image_data_loop3
 	IFC "","\4"
-		moveq	#0,d0		; start switch value
+		moveq	#0,d0		; start BPLAM value
 	ELSE
-		MOVEF.W	\4,d0		; start switch value
+		MOVEF.W	\4,d0		; start BPLAM value
 	ENDC
 	IFGE \1_image_depth-1
 		btst	d5,(a0)
 		beq.s	\1_translate_image_data_skip1
-		addq.w	#1,d0		; increase switch value
+		addq.w	#1,d0		; increase BPLAM value
 \1_translate_image_data_skip1
 	ENDC
 	IFGE \1_image_depth-2
 		btst	d5,\1_image_plane_width*1(a0)
 		beq.s	\1_translate_image_data_skip2
-		addq.w	#2,d0		; increase switch value
+		addq.w	#2,d0		; increase BPLAM value
 \1_translate_image_data_skip2
 	ENDC
 	IFGE \1_image_depth-3
 		btst	d5,\1_image_plane_width*2(a0)
 		beq.s	\1_translate_image_data_skip3
-		addq.w	#4,d0		; increase switch value
+		addq.w	#4,d0		; increase BPLAM value
 \1_translate_image_data_skip3
 	ENDC
 	IFGE \1_image_depth-4
 		btst	d5,\1_image_plane_width*3(a0)
 		beq.s	\1_translate_image_data_skip4
-		addq.w	#8,d0		; increase switch value
+		addq.w	#8,d0		; increase BPLAM value
 \1_translate_image_data_skip4
 	ENDC
 	IFGE \1_image_depth-5
 		btst	d5,\1_image_plane_width*4(a0)
 		beq.s	\1_translate_image_data_skip5
-		add.w	d1,d0		; increase switch value
+		add.w	d1,d0		; increase BPLAM value
 \1_translate_image_data_skip5
 	ENDC
 	IFGE \1_image_depth-6
 		btst	d5,\1_image_plane_width*5(a0)
 		beq.s	\1_translate_image_data_skip6
-		add.w	d2,d0		; increase switch value
+		add.w	d2,d0		; increase BPLAM value
 \1_translate_image_data_skip6
 	ENDC
 	IFGE \1_image_depth-7
 		btst	d5,\1_image_plane_width*6(a0)
 		beq.s	\1_translate_image_data_skip7
-		add.w	d3,d0		; increase switch value
+		add.w	d3,d0		; increase BPLAM value
 \1_translate_image_data_skip7
 	ENDC
 	IFEQ \1_image_depth-8
 		btst	d5,\1_image_plane_width*7(a0)
 		beq.s	\1_translate_image_data_skip8
-		add.w	d4,d0		; increase switch value
+		add.w	d4,d0		; increase BPLAM value
 \1_translate_image_data_skip8
 	ENDC
 	IFC "B","\0"
-		move.b	d0,(a1)+	; BPLCON4 low
+		move.b	d0,(a1)+	; BPLCON4
 	ENDC
 	IFC "W","\0"
-		move.b	d0,(a1)+	; BPLCON4 high
+		move.b	d0,(a1)+	; BPLCON4
 		move.b	#bplcon4_bits&FALSE_BYTE,(a1)+
 	ENDC
 	dbf	d5,\1_translate_image_data_loop3
@@ -1824,7 +1824,7 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 ; \3 STRING:	Name of copperlist ["construction2","construction3"]
 ; \4 STRING:	"extension[1..n]"
 ; \5 NUMBER:	Bar height [32,48]
-; \6 POINTER:	Switch values table
+; \6 POINTER:	BPLAM table
 ; \7 STRING:	pointer- base [pc,a3]
 ; \8 WORD: 	Offset table start (optional)
 ; \9 STRING:	"45" (optional)
@@ -1847,7 +1847,7 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Bar height [32,48] missing
 	ENDC
 	IFC "","\6"
-		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Höhe der Bar switch values table missing
+		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Höhe der Bar BPLAM table missing
 	ENDC
 	IFC "","\7"
 		FAIL Macro SET_TWISTED_BACKGROUND_BARS: pointer-base [pc,a3] missing
@@ -1862,10 +1862,10 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 	move.l	\2_\3(a3),a2
 	ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_BPLCON4_1+WORD_SIZE,a2
 	IFC "pc","\7"
-		lea	\1_\6(\7),a5	; pointer switch values table
+		lea	\1_\6(\7),a5	; pointer BPLAM table
 	ENDC
 	IFC "a3","\7"
-		move.l \6(\7),a5	; pointer switch values table
+		move.l \6(\7),a5	; pointer BPLAM table
 	ENDC
 	IFNC "","\8"
 		add.l	#\8*BYTE_SIZE,a5 ; offset table start
@@ -1876,13 +1876,13 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 		moveq	#\2_display_width-1,d7
 	ENDC
 \1_set_background_bars_loop1
-	move.l	a5,a1			; pointer switch values table
+	move.l	a5,a1			; pointer BPLAM table
 	moveq	#\1_bars_number-1,d6
 \1_set_background_bars_loop2
 	move.l	(a0)+,d0		; bits 0-15: y position, bits 16-31: z vector
 	IFC "B","\0"
 		bpl.s	\1_set_background_bars_skip1
-		add.l	d4,a1		; skip switch values
+		add.l	d4,a1		; skip BPLAM values
 		bra	\1_set_background_bars_skip2
 		CNOP 0,4
 \1_set_background_bars_skip1
@@ -1913,7 +1913,7 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 ; \3 STRING:	Name of copperlist construction[2,3]
 ; \4 STRING:	"extension[1..n]"
 ; \5 NUMBER:	Bar height [32, 48]
-; \6 POINTER:	Switch values table
+; \6 POINTER:	BPLAM table
 ; \7 STRING:	Pointer base [pc, a3]
 ; \8 WORD:	Offset table start (optional)
 ; \9 STRING:	"45" (optional)
@@ -1936,7 +1936,7 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Bar height [32,48] missing
 	ENDC
 	IFC "","\6"
-		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Switch values table missing
+		FAIL Macro SET_TWISTED_FOREGROUND_BARS: BPLAM table missing
 	ENDC
 	IFC "","\7"
 		FAIL Macro SET_TWISTED_FOREGROUND_BARS: pointer base [pc,a3] missing
@@ -1951,10 +1951,10 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 	move.l	\2_\3(a3),a2
 	ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_BPLCON4_1+WORD_SIZE,a2
 	IFC "pc","\7"
-		lea	\1_\6(\7),a5	; pointer switch values table
+		lea	\1_\6(\7),a5	; pointer BPLAM table
 	ENDC
 	IFC "a3","\7"
-		move.l	\6(\7),a5	; pointer switch values table
+		move.l	\6(\7),a5	; pointer BPLAM table
 	ENDC
 	IFNC "","\8"
 		add.l	#\8,a5		; offset table start
@@ -1965,13 +1965,13 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 		moveq	#\2_display_width-1,d7
 	ENDC
 \1_set_foreground_bars_loop1
-	move.l	a5,a1			; pointer switch values table
+	move.l	a5,a1			; pointer BPLAM table
 	moveq	#\1_bars_number-1,d6
 \1_set_foreground_bars_loop2
 	move.l	(a0)+,d0		; bits 0-15: y position, bits 16-31: z vector
 	IFC "B","\0"
 		bmi.s	\1_set_foreground_bars_skip1
-		add.l	d4,a1		; skip switch values
+		add.l	d4,a1		; skip BPLAM values
 		bra	\1_set_foreground_bars_skip2
 		CNOP 0,4
 \1_set_foreground_bars_skip1
@@ -2013,7 +2013,7 @@ COPY_TWISTED_BAR		MACRO
 	ENDC
 	IFC "B","\0"
 		IFEQ \1_\4-15
-			movem.l	(a1),d0-d3 ; get 15 switch values
+			movem.l	(a1),d0-d3 ; get 15 values
 			move.b	d0,\2_\3_size*3(a4)
 			lsr.w	#8,d0
 			move.b	d0,\2_\3_size*2(a4)
@@ -2043,7 +2043,7 @@ COPY_TWISTED_BAR		MACRO
 			move.b	d3,\2_\3_size*12(a4)
 		ENDC
 		IFEQ \1_\4-32
-			movem.l	(a1)+,d0-d3 ; get 16 switch values
+			movem.l	(a1)+,d0-d3 ; get 16 values
 			move.b	d0,\2_\3_size*3(a4)
 			swap	d0
 			move.b	d0,\2_\3_size*1(a4)
@@ -2072,7 +2072,7 @@ COPY_TWISTED_BAR		MACRO
 			move.b	d3,\2_\3_size*12(a4)
 			swap	d3
 			move.b	d3,\2_\3_size*14(a4)
-			movem.l	(a1)+,d0-d3 ; get 16 switch values
+			movem.l	(a1)+,d0-d3 ; get 16 values
 			move.b	d0,\2_\3_size*19(a4)
 			swap	d0
 			move.b	d0,\2_\3_size*17(a4)
@@ -2103,7 +2103,7 @@ COPY_TWISTED_BAR		MACRO
 			move.b	d3,\2_\3_size*30(a4)
 		ENDC
 		IFEQ \1_\4-48
-			movem.l	(a1)+,d0-d3 ; get 16 switch values
+			movem.l	(a1)+,d0-d3 ; get 16 values
 			move.b	d0,\2_\3_size*3(a4)
 			swap	d0
 			move.b	d0,\2_\3_size*1(a4)
@@ -2132,7 +2132,7 @@ COPY_TWISTED_BAR		MACRO
 			move.b	d3,\2_\3_size*12(a4)
 			swap	d3
 			move.b	d3,\2_\3_size*14(a4)
-			movem.l	(a1)+,d0-d3 ; get 16 switch values
+			movem.l	(a1)+,d0-d3 ; get 16 values
 			move.b	d0,\2_\3_size*19(a4)
 			swap	d0
 			move.b	d0,\2_\3_size*17(a4)
@@ -2161,7 +2161,7 @@ COPY_TWISTED_BAR		MACRO
 			move.b	d3,\2_\3_size*28(a4)
 			swap	d3
 			move.b	d3,\2_\3_size*30(a4)
-			movem.l	(a1)+,d0-d3 ; get 16 switch values
+			movem.l	(a1)+,d0-d3 ; get 16 values
 			move.b	d0,\2_\3_size*35(a4)
 			swap	d0
 			move.b	d0,\2_\3_size*33(a4)
@@ -2194,7 +2194,7 @@ COPY_TWISTED_BAR		MACRO
 	ENDC
 	IFC "W","\0"
 		IFEQ \1_\4-14
-			movem.l	(a1)+,d0-d3 ; get 8 switch values
+			movem.l	(a1)+,d0-d3 ; get 8 values
 			move.w	d0,\2_\3_size*1(a4)
 			swap	d0
 			move.w	d0,(a4)
@@ -2207,7 +2207,7 @@ COPY_TWISTED_BAR		MACRO
 			move.w	d3,\2_\3_size*7(a4)
 			swap	d3
 			move.w	d3,\2_\3_size*6(a4)
-			movem.l	(a1),d0-d2 ; get 6 switch values
+			movem.l	(a1),d0-d2 ; get 6 values
 			move.w	d0,\2_\3_size*9(a4)
 			swap	d0
 			move.w	d0,\2_\3_size*8(a4)
@@ -2219,7 +2219,7 @@ COPY_TWISTED_BAR		MACRO
 			move.w	d2,\2_\3_size*12(a4)
 		ENDC
 		IFEQ \1_\4-15
-			movem.l	(a1)+,d0-d3 ; get 8 switch values
+			movem.l	(a1)+,d0-d3 ; get 8 values
 			move.w	d0,\2_\3_size*1(a4)
 			swap	d0
 			move.w	d0,(a4)
@@ -2232,7 +2232,7 @@ COPY_TWISTED_BAR		MACRO
 			move.w	d3,\2_\3_size*7(a4)
 			swap	d3
 			move.w	d3,\2_\3_size*6(a4)
-			movem.l	(a1),d0-d3 ; get 7 switch values
+			movem.l	(a1),d0-d3 ; get 7 values
 			move.w	d0,\2_\3_size*9(a4)
 			swap	d0
 			move.w	d0,\2_\3_size*8(a4)

@@ -3,29 +3,22 @@
 ; Chipset:	AGA PAL
 ; OS:		3.0+
 
-; Globale Labels
 
-; SYS_TAKEN_OVER
-; PASS_RETURN_CODE
-; PASS_GLOBAL_REFERENCES
-; WRAPPER
-
-; CUSTOM_MEMORY_USED
-
-; SAVE_BEAMCON0
-
-; AGA_CHECK_BY_HARDWARE
-
-; ALL_CACHES
-; NO_060_STORE_BUFFER
-
-; TRAP0
-; TRAP1
-; TRAP2
-
-; SET_SECOND_COPPERLIST
-
-; MEASURE_RASTERTIME
+; Global labels
+; 	SYS_TAKEN_OVER
+; 	PASS_RETURN_CODE
+; 	PASS_GLOBAL_REFERENCES
+; 	WRAPPER
+; 	CUSTOM_MEMORY_USED
+; 	SAVE_BEAMCON0
+; 	AGA_CHECK_BY_HARDWARE
+; 	ALL_CACHES
+; 	NO_060_STORE_BUFFER
+; 	TRAP0
+; 	TRAP1
+; 	TRAP2
+; 	SET_SECOND_COPPERLIST
+; 	MEASURE_RASTERTIME
 
 
 	IFND SYS_TAKEN_OVER
@@ -43,17 +36,8 @@
 	ENDC
 
 
-WAITMOUSE			MACRO
-wm
-	move.w	$dff006,$dff180
-	btst	#2,$dff016
-	bne.s	wm
-	ENDM
-
-
-; Beginn
 	movem.l d2-d7/a2-a6,-(a7)
-	lea	variables(pc),a3	; Basisadresse aller Variablen
+	lea	variables(pc),a3	; main address for variables
 	bsr	init_variables
 	IFD SYS_TAKEN_OVER
 		tst.l	dos_return_code(a3)
@@ -63,8 +47,8 @@ wm
 
 	IFD SYS_TAKEN_OVER
 		IFD CUSTOM_MEMORY_USED
-			bsr	init_custom_memory_table ; Externe Routine
-			bsr	extend_global_references_table ; Externe Routine
+			bsr	init_custom_memory_table ; external routine
+			bsr	extend_global_references_table ; external routine
 		ENDC
 	ELSE
 		IFEQ workbench_start_enabled
@@ -272,7 +256,7 @@ wm
 	
 	IFD SYS_TAKEN_OVER
 		IFD CUSTOM_MEMORY_USED
-			bsr	alloc_custom_memory ; Externe Routine
+			bsr	alloc_custom_memory ; external routine
 			move.l	d0,dos_return_code(a3)
 			bne.s	cleanup_all_memory
 		ENDC
@@ -299,7 +283,7 @@ wm
 		ENDC
 	ENDC
 
-	bsr	init_main_variables	; Externe Routine
+	bsr	init_main_variables	; external routine
 
 	IFND SYS_TAKEN_OVER
 		bsr	wait_drives_motor
@@ -358,7 +342,7 @@ wm
 	ENDC
 
 	move.l	#_CIAB,a5
-	lea	_CIAA-_CIAB(a5),a4	; CIA-A-Base
+	lea	_CIAA-_CIAB(a5),a4	; CIA-A base
 	move.l	#_CUSTOM+DMACONR,a6
 	
 	IFND SYS_TAKEN_OVER
@@ -369,8 +353,8 @@ wm
 		bsr	turn_off_drive_motors
 	ENDC
 
-	move.w	#dma_bits&(~(DMAF_SPRITE|DMAF_COPPER|DMAF_RASTER)),DMACON-DMACONR(a6) ; DMA ausser Sprite/Copper/Bitplane-DMA an
-	bsr	init_main		; Externe Routine
+	move.w	#dma_bits&(~(DMAF_SPRITE|DMAF_COPPER|DMAF_RASTER)),DMACON-DMACONR(a6) ; enable DMA and exclude sprite/copper/bitplane DMA
+	bsr	init_main		; external routine
 	bsr	start_own_display
 	IFNE (intena_bits-INTF_SETCLR)|(ciaa_icr_bits-CIAICRF_SETCLR)|(ciab_icr_bits-CIAICRF_SETCLR)
 		bsr	start_own_interrupts
@@ -397,7 +381,7 @@ wm
 		ENDC
 	ENDC
 
-	bsr	main		; Externe Routine
+	bsr	main		; external routine
 
 	IFD PASS_RETURN_CODE
 		move.l	d0,dos_return_code(a3)
@@ -455,7 +439,7 @@ cleanup_active_screen
 cleanup_all_memory
 	IFD SYS_TAKEN_OVER
 		IFD CUSTOM_MEMORY_USED
-			bsr	free_custom_memory ; Externe Routine
+			bsr	free_custom_memory ; external routine
 		ENDC
 	ELSE
 		IFEQ screen_fader_enabled
@@ -581,7 +565,6 @@ output_rasterlines_number
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert	
 	CNOP 0,4
 init_variables
 	IFD SYS_TAKEN_OVER
@@ -636,7 +619,6 @@ init_variables
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert	
 	CNOP 0,4
 init_structures
 	IFND SYS_TAKEN_OVER
@@ -662,7 +644,6 @@ init_structures
 	IFND SYS_TAKEN_OVER
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert	
 		CNOP 0,4
 init_custom_error_table
 		lea	custom_error_table(pc),a0
@@ -751,56 +732,53 @@ init_custom_error_table
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert	
 		CNOP 0,4
 init_easy_request
 		IFEQ requires_multiscan_monitor
 			lea	monitor_request(pc),a0
 			moveq	#EasyStruct_sizeOF,d0
-			move.l	d0,(a0)+ ; Größe der Struktur
+			move.l	d0,(a0)+
 			moveq	#0,d0
-			move.l	d0,(a0)+ ; Keine Flags
+			move.l	d0,(a0)+ ; no flags
 			lea	monitor_request_title(pc),a1
-			move.l	a1,(a0)+ ; Zeiger auf Titeltext
+			move.l	a1,(a0)+
 			lea	monitor_request_text_body(pc),a1
-			move.l	a1,(a0)+ ; Zeiger auf Text in Requester
+			move.l	a1,(a0)+
 			lea	monitor_request_text_gadgets(pc),a1
-			move.l	a1,(a0)	; Zeiger auf Gadgettexte
+			move.l	a1,(a0)
 		ENDC
 
 		IFNE intena_bits&INTF_PORTS
 			lea	tcp_stack_request(pc),a0
 			moveq	#EasyStruct_sizeOF,d0
-			move.l	d0,(a0)+ ; Größe der Struktur
+			move.l	d0,(a0)+
 			moveq	#0,d0
-			move.l	d0,(a0)+ ; Keine Flags
+			move.l	d0,(a0)+ ; no flags
 			lea	tcp_stack_request_title(pc),a1
-			move.l	a1,(a0)+ ; Zeiger auf Titeltext
+			move.l	a1,(a0)+
 			lea	tcp_stack_request_text_body(pc),a1
-			move.l	a1,(a0)+ ; Zeiger auf Text in Requester
+			move.l	a1,(a0)+
 			lea	tcp_stack_request_text_gadgets(pc),a1
-			move.l	a1,(a0)	; Zeiger auf Gadgettexte
+			move.l	a1,(a0)
 		ENDC
 		rts
 
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert	
 		CNOP 0,4
 init_timer_io
 		lea	timer_io(pc),a0
 		moveq	#0,d0
-		move.b	d0,LN_Type(a0)	; Eintragstyp = Null
-		move.b	d0,LN_Pri(a0)	; Priorität der Struktur = Null
-		move.l	d0,LN_Name(a0)	; Keine Name der Struktur
-		move.l	d0,MN_ReplyPort(a0) ; Kein Reply-Port
+		move.b	d0,LN_Type(a0)
+		move.b	d0,LN_Pri(a0)
+		move.l	d0,LN_Name(a0)
+		move.l	d0,MN_ReplyPort(a0)
 		rts
 
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 init_video_control_tags
 		lea	video_control_tags+(ti_SIZEOF*1)(pc),a0
@@ -812,16 +790,15 @@ init_video_control_tags
 		IFNE screen_fader_enabled
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 			CNOP 0,4
 init_pal_screen_rgb32_colors
 			lea	pal_screen_rgb32_colors(pc),a0
 			move.w	#pal_screen_colors_number,(a0)+
 			moveq	#0,d0
-			move.w	d0,(a0)+ ; Erste Farbe COLOR00
+			move.w	d0,(a0)+ ; COLOR00
 			lea     pf1_rgb8_color_table(pc),a1
 			moveq	#0,d1
-			move.b	1(a1),d1 ; 4x COLOR00 8-Bit Rotwert
+			move.b	1(a1),d1 ; 4x COLOR00 8 bit red
 			lsl.w	#8,d1
 			move.b	1(a1),d1
 			swap	d1
@@ -829,7 +806,7 @@ init_pal_screen_rgb32_colors
 			lsl.w	#8,d1
 			move.b	1(a1),d1
 			moveq	#0,d2
-			move.b	2(a1),d2 ; 4x COLOR00 8-Bit Grünwert
+			move.b	2(a1),d2 ; 4x COLOR00 8 bit green
 			lsl.w	#8,d2
 			move.b	2(a1),d2
 			swap	d2
@@ -837,7 +814,7 @@ init_pal_screen_rgb32_colors
 			lsl.w	#8,d2
 			move.b	2(a1),d2
 			moveq	#0,d3
-			move.b	3(a1),d3 ; 4x COLOR00 8-Bit Blauwert
+			move.b	3(a1),d3 ; 4x COLOR00 8 bit blue
 			lsl.w	#8,d3
 			move.b	3(a1),d3
 			swap	d3
@@ -846,18 +823,17 @@ init_pal_screen_rgb32_colors
 			move.b	3(a1),d3
 			MOVEF.W	pal_screen_colors_number-1,d7
 init_pal_screen_rgb32_colors_loop
-			move.l	d1,(a0)+ ; COLORxx 32-Bit Rotwert
-			move.l	d2,(a0)+ ; COLORxx 32-Bit Grünwert
-			move.l	d3,(a0)+ ; COLORxx 32-Bit Blauwert
+			move.l	d1,(a0)+ ; COLORxx 32-Bit red
+			move.l	d2,(a0)+ ; COLORxx 32-Bit green
+			move.l	d3,(a0)+ ; COLORxx 32-Bit blue
 			dbf	d7,init_pal_screen_rgb32_colors_loop
-			move.l	d0,(a0)	; Listenende
+			move.l	d0,(a0)	; end of list
 			rts
 		ENDC
 
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 init_pal_screen_tags
 		lea	pal_screen_tags(pc),a0
@@ -891,7 +867,7 @@ init_pal_screen_tags
 		lea	pal_screen_name(pc),a1
 		move.l	a1,(a0)+
 		move.l	#SA_Colors32,(a0)+
-		move.l	d0,(a0)+		; Wird später initialisiert
+		move.l	d0,(a0)+	; will be initialized later
 		move.l	#SA_VideoControl,(a0)+
 		lea	video_control_tags(pc),a1
 		move.l	#VTAG_SPRITERESN_SET,+vctl_VTAG_SPRITERESN+ti_tag(a1)
@@ -923,7 +899,6 @@ init_pal_screen_tags
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 init_invisible_window_tags
 		lea	invisible_window_tags(pc),a0
@@ -950,7 +925,7 @@ init_invisible_window_tags
 		lea	invisible_window_name(pc),a1
 		move.l	a1,(a0)+
 		move.l	#WA_CustomScreen,(a0)+
-		move.l	d0,(a0)+		; Zeiger wird später initialisiert
+		move.l	d0,(a0)+	; will be initialized later
 		move.l	#WA_MinWidth,(a0)+
 		moveq	#invisible_window_x_size,d2
 		move.l	d2,(a0)+
@@ -977,7 +952,6 @@ init_invisible_window_tags
 	IFNE pf_extra_number
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert	
 		CNOP 0,4
 init_pf_extra_structure
 		lea	pf_extra_attributes(pc),a0
@@ -1067,7 +1041,6 @@ init_pf_extra_structure
 	IFNE spr_x_size1|spr_x_size2
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert	
 		CNOP 0,4
 spr_init_structure
 		IFNE spr_x_size1
@@ -1163,10 +1136,10 @@ spr_init_structure
 		IFEQ workbench_start_enabled
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code	
+; d0.l	... Return code
 			CNOP 0,4
 check_workbench_start
-			sub.l	a1,a1 ; Nach dem eigenem Task suchen
+			sub.l	a1,a1	; own task
 			CALLEXEC FindTask
 			tst.l	d0
 			bne.s	check_workbench_start_skip1
@@ -1174,7 +1147,7 @@ check_workbench_start
 			rts
 			CNOP 0,4
 check_workbench_start_skip1
-			move.l	d0,a2	; aktueller Task
+			move.l	d0,a2
 			tst.l	pr_CLI(a2)
 			beq.s	check_workbench_start_skip2
 check_workbench_start_ok
@@ -1193,7 +1166,7 @@ check_workbench_start_skip2
 
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code	
+; d0.l	... Return code
 		CNOP 0,4
 open_dos_library
 		lea	dos_name(pc),a1
@@ -1213,7 +1186,7 @@ open_dos_library_ok
 		IFEQ text_output_enabled
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code
+; d0.l	... Return code/error code
 		CNOP 0,4
 get_output
 			CALLDOS Output
@@ -1229,7 +1202,7 @@ get_output_ok
 
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code	
+; d0.l	... Return code
 		CNOP 0,4
 open_graphics_library
 		lea	graphics_name(pc),a1
@@ -1248,7 +1221,7 @@ open_graphics_library_ok
 
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code	
+; d0.l	... Return code	
 		CNOP 0,4
 open_intuition_library
 		lea	intuition_name(pc),a1
@@ -1267,7 +1240,7 @@ open_intuition_library_ok
 
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code	
+; d0.l	... Return code	
 		CNOP 0,4
 check_system_props
 		move.l	_SysBase(pc),a6
@@ -1300,9 +1273,9 @@ check_system_props_skip3
 			move.l	#_CUSTOM+DENISEID,a0
 			move.w	-(DENISEID-VPOSR)(a0),d0
 			and.w	#$7e00,d0
-			cmp.w	#$22<<8,d0 ; PAL-Alice Revision 2 ?
+			cmp.w	#$22<<8,d0 ; PAL Alice revision 2 ?
 			beq.s	check_system_props_skip4
-			cmp.w	#$23<<8,d0 ; PAL-Alice Revision 3 & 4 ?
+			cmp.w	#$23<<8,d0 ; PAL Alice revision 3 & 4 ?
 			beq.s	check_system_props_skip4
 			move.w	#AGA_CHIPSET_NOT_FOUND,custom_error_code(a3)
 			moveq	#RETURN_FAIL,d0
@@ -1316,8 +1289,8 @@ check_system_props_loop
 			cmp.b	d0,d1
 			bne.s	check_system_props_skip5
 			dbf	d7,check_system_props_loop
-			or.b	#$f0,d0	; 0th revision level setzen
-			cmp.b	#$f8,d0	; Lisa-ID ?
+			or.b	#$f0,d0	; 0th revision level
+			cmp.b	#$f8,d0	; Lisa ID ?
 			beq.s	check_pal
 check_system_props_skip5
 			move.w	#AGA_CHIPSET_NOT_FOUND,custom_error_code(a3)
@@ -1360,7 +1333,7 @@ check_system_props_ok
 		IFEQ requires_030_cpu
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code	
+; d0.l	... Return code	
 			CNOP 0,4
 check_cpu_requirements
 			btst	#AFB_68030,cpu_flags+BYTE_SIZE(a3)
@@ -1376,7 +1349,7 @@ check_cpu_requirements_ok
 		IFEQ requires_040_cpu
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code	
+; d0.l	... Return code	
 			CNOP 0,4
 check_cpu_requirements
 			btst	#AFB_68040,cpu_flags+BYTE_SIZE(a3)
@@ -1392,7 +1365,7 @@ check_cpu_requirements_ok
 		IFEQ requires_060_cpu
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code	
+; d0.l	... Return code	
 			CNOP 0,4
 check_cpu_requirements
 			tst.b	cpu_flags+BYTE_SIZE(a3)
@@ -1410,7 +1383,7 @@ check_cpu_requirements_ok
 		IFEQ requires_fast_memory
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code	
+; d0.l	... Return code	
 			CNOP 0,4
 check_memory_requirements
 			tst.w	fast_memory_available(a3)
@@ -1428,17 +1401,17 @@ check_memory_requirements_ok
 		IFEQ requires_multiscan_monitor
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code	
+; d0.l	... Return code	
 			CNOP 0,4
 do_monitor_request
-			sub.l	a0,a0	; Requester erscheint auf Workbench/Public-Screen
+			sub.l	a0,a0	; requester on workbench/public screen
 			lea	monitor_request(pc),a1
-			move.l	a0,a2	; Keine IDCMP-Flags
+			move.l	a0,a2	; no IDCMP flags
 			move.l	a3,-(a7)
-			move.l	a0,a3	; Keine Argumentenliste
+			move.l	a0,a3	; no arguments list
 			CALLINT EasyRequestArgs
 			move.l	(a7)+,a3
-			CMPF.L	BOOL_FALSE,d0 ; Gadget "Quit" angeklickt ?
+			CMPF.L	BOOL_FALSE,d0 ; gadget "Quit" clicked ?
 			bne.s	do_monitor_request_ok
 			moveq	#RETURN_FAIL,d0
 			rts
@@ -1452,7 +1425,7 @@ do_monitor_request_ok
 		IFNE intena_bits&INTF_PORTS
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code	
+; d0.l	... Return code	
 			CNOP 0,4
 check_tcp_stack
 			CALLEXEC Forbid
@@ -1471,14 +1444,14 @@ check_tcp_stack_skip
 			CNOP 0,4
 do_tcp_stack_request
 			CALLLIBS Permit
-			sub.l	a0,a0	; Requester auf WB/Public-Screen
+			sub.l	a0,a0	; requester on workbench/public screen
 			lea	tcp_stack_request(pc),a1
-			move.l	a0,a2	; Keine IDCMP-Flags
+			move.l	a0,a2	; no IDCMP flags
 			move.l	a3,-(a7)
-			move.l	a0,a3	; Keine Argumentenliste
+			move.l	a0,a3	; no arguments list
 			CALLINT EasyRequestArgs
 			move.l	(a7)+,a3
-			CMPF.L	BOOL_FALSE,d0 ; Gadget "Quit" angeklickt ?
+			CMPF.L	BOOL_FALSE,d0 ; gadget "Quit" clicked ?
 			bne.s	do_tcp_stack_request_ok
 			moveq	#RETURN_FAIL,d0
 			rts
@@ -1491,7 +1464,7 @@ do_tcp_stack_request_ok
 
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code	
+; d0.l	... Return code	
 		CNOP 0,4
 open_ciaa_resource
 		lea	CIAA_name(pc),a1
@@ -1504,7 +1477,7 @@ open_ciaa_resource
 		rts
 		CNOP 0,4
 open_ciaa_resource_save
-		moveq	#0,d0		; keine Maske
+		moveq	#0,d0		; no mask
 		CALLCIA AbleICR
 		move.b	d0,old_ciaa_icr(a3)
 		moveq	#RETURN_OK,d0
@@ -1513,7 +1486,7 @@ open_ciaa_resource_save
 
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code
+; d0.l	... Return code
 		CNOP 0,4
 open_ciab_resource	
 		lea	CIAB_name(pc),a1
@@ -1526,7 +1499,7 @@ open_ciab_resource
 		rts
 		CNOP 0,4
 open_ciab_resource_save
-		moveq	#0,d0		; keine Maske
+		moveq	#0,d0		; no mask
 		CALLCIA AbleICR
 		move.b	d0,old_ciab_icr(a3)
 		moveq	#RETURN_OK,d0
@@ -1535,13 +1508,13 @@ open_ciab_resource_save
 
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code	
+; d0.l	... Return code	
 		CNOP 0,4
 open_timer_device
 		lea	timer_device_name(pc),a0
 		lea	timer_io(pc),a1
 		moveq	#UNIT_MICROHZ,d0
-		moveq	#0,d1		; Keine Flags
+		moveq	#0,d1		; no flags
 		CALLEXEC OpenDevice
 		tst.l	d0
 		beq.s	open_timer_device_ok
@@ -1558,7 +1531,7 @@ open_timer_device_ok
 	IFNE cl1_size1
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code
+; d0.l	... Return code/error code
 		CNOP 0,4
 alloc_cl1_memory1
 		MOVEF.L	cl1_size1,d0
@@ -1576,7 +1549,7 @@ alloc_cl1_memory1_ok
 	IFNE cl1_size2
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code
+; d0.l	... Return code/Error code
 		CNOP 0,4
 alloc_cl1_memory2
 		MOVEF.L	cl1_size2,d0
@@ -1594,7 +1567,7 @@ alloc_cl1_memory2_ok
 	IFNE cl1_size3
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code
+; d0.l	... Return code/error code
 		CNOP 0,4
 alloc_cl1_memory3
 		MOVEF.L	cl1_size3,d0
@@ -1614,7 +1587,7 @@ alloc_cl1_memory3_ok
 	IFNE cl2_size1
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code	
+; d0.l	... Return code/error code
 		CNOP 0,4
 alloc_cl2_memory1
 		MOVEF.L	cl2_size1,d0
@@ -1632,7 +1605,7 @@ alloc_cl2_memory1_ok
 	IFNE cl2_size2
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code
+; d0.l	... Return code/error code
 		CNOP 0,4
 alloc_cl2_memory2
 		MOVEF.L	cl2_size2,d0
@@ -1650,7 +1623,7 @@ alloc_cl2_memory2_ok
 	IFNE cl2_size3
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code
+; d0.l	... Return code/error code
 		CNOP 0,4
 alloc_cl2_memory3
 		MOVEF.L	cl2_size3,d0
@@ -1670,7 +1643,7 @@ alloc_cl2_memory3_ok
 	IFNE pf1_x_size1
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code
+; d0.l	... Return code/error code
 		CNOP 0,4
 alloc_pf1_memory1
 		MOVEF.L	pf1_x_size1,d0
@@ -1685,12 +1658,12 @@ alloc_pf1_memory1
 		CNOP 0,4
 alloc_pf1_memory1_ok
 		addq.l	#bm_Planes,d0
-		move.l	d0,pf1_construction1(a3) ; Offset 1. Bitplanezeiger
+		move.l	d0,pf1_construction1(a3) ; offset bitplane1
 		moveq	#RETURN_OK,d0
 		rts
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code	
+; d0.l	... Return code	
 		CNOP 0,4
 check_pf1_memory1
 		move.l	pf1_bitmap1(a3),a0
@@ -1714,7 +1687,7 @@ check_pf1_memory1_ok
 	IFNE pf1_x_size2
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code
+; d0.l	... Return code/error code
 		CNOP 0,4
 alloc_pf1_memory2
 		MOVEF.L	pf1_x_size2,d0
@@ -1729,12 +1702,12 @@ alloc_pf1_memory2
 		CNOP 0,4
 alloc_pf1_memory2_ok
 		addq.l	#bm_Planes,d0
-		move.l	d0,pf1_construction2(a3) ; Offset 1. Bitplanezeiger
+		move.l	d0,pf1_construction2(a3) ; offset bitplane1
 		moveq	#RETURN_OK,d0
 		rts
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code	
+; d0.l	... Return code	
 		CNOP 0,4
 check_pf1_memory2
 		move.l	pf1_bitmap2(a3),a0
@@ -1758,7 +1731,7 @@ check_pf1_memory2_ok
 	IFNE pf1_x_size3
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code
+; d0.l	... Return code/error code
 		CNOP 0,4
 alloc_pf1_memory3
 		MOVEF.L	pf1_x_size3,d0
@@ -1773,12 +1746,12 @@ alloc_pf1_memory3
 		CNOP 0,4
 alloc_pf1_memory3_ok
 		addq.l	#bm_Planes,d0
-		move.l	d0,pf1_display(a3) ; Offset 1. Bitplanezeiger
+		move.l	d0,pf1_display(a3) ; offset bitplane1
 		moveq	#RETURN_OK,d0
 		rts
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code	
+; d0.l	... Return code	
 		CNOP 0,4
 check_pf1_memory3
 		move.l	pf1_bitmap3(a3),a0
@@ -1804,7 +1777,7 @@ check_pf1_memory3_ok
 	IFNE pf2_x_size1
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code
+; d0.l	... Return code/error code
 		CNOP 0,4
 alloc_pf2_memory1
 		MOVEF.L	pf2_x_size1,d0
@@ -1819,12 +1792,12 @@ alloc_pf2_memory1
 		CNOP 0,4
 alloc_pf2_memory1_ok
 		addq.l	#bm_Planes,d0
-		move.l	d0,pf2_construction1(a3) ; Offset 1. Bitplanezeiger
+		move.l	d0,pf2_construction1(a3) ; offset bitplane1
 		moveq	#RETURN_OK,d0
 		rts
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code	
+; d0.l	... Return code	
 		CNOP 0,4
 check_pf2_memory1
 		move.l	pf2_bitmap1(a3),a0
@@ -1848,7 +1821,7 @@ check_pf2_memory1_ok
 	IFNE pf2_x_size2
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code
+; d0.l	... Return code/error code
 		CNOP 0,4
 alloc_pf2_memory2
 		MOVEF.L	pf2_x_size2,d0
@@ -1863,12 +1836,12 @@ alloc_pf2_memory2
 		CNOP 0,4
 alloc_pf2_memory2_ok
 		addq.l	#bm_Planes,d0
-		move.l	d0,pf2_construction2(a3) ; Offset 1. Bitplanezeiger
+		move.l	d0,pf2_construction2(a3) ; offset bitplane1
 		moveq	#RETURN_OK,d0
 		rts
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code	
+; d0.l	... Return code	
 		CNOP 0,4
 check_pf2_memory2
 		move.l	pf2_bitmap2(a3),a0
@@ -1892,7 +1865,7 @@ check_pf2_memory2_ok
 	IFNE pf2_x_size3
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code
+; d0.l	... Return code/error code
 		CNOP 0,4
 alloc_pf2_memory3
 		MOVEF.L	pf2_x_size3,d0
@@ -1907,12 +1880,12 @@ alloc_pf2_memory3
 		CNOP 0,4
 alloc_pf2_memory3_ok
 		addq.l	#bm_Planes,d0
-		move.l	d0,pf2_display(a3) ; Offset 1. Bitplanezeiger
+		move.l	d0,pf2_display(a3) ; offset bitplane1
 		moveq	#RETURN_OK,d0
 		rts
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code	
+; d0.l	... Return code	
 		CNOP 0,4
 check_pf2_memory3
 		move.l	pf2_bitmap3(a3),a0
@@ -1938,7 +1911,7 @@ check_pf2_memory3_ok
 	IFNE pf_extra_number
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code
+; d0.l	... Return code/error code
 		CNOP 0,4
 alloc_pf_extra_memory
 		lea	pf_extra_bitmap1(a3),a2
@@ -1946,14 +1919,14 @@ alloc_pf_extra_memory
 		lea	pf_extra_attributes(pc),a5
 		moveq	#pf_extra_number-1,d7
 alloc_pf_extra_memory_loop
-		move.l	(a5)+,d0	; Breite des Playfields
-		move.l	(a5)+,d1	; Höhe des Playfields
-		move.l	(a5)+,d2	; Anzahl der Bitplanes
+		move.l	(a5)+,d0	; width
+		move.l	(a5)+,d1	; height
+		move.l	(a5)+,d2	; depth
 		bsr	do_alloc_bitmap_memory
-		move.l	d0,(a2)+	; Zeiger auf Bitmap-Struktur
+		move.l	d0,(a2)+	; pointer bitmap structure
 		beq.s	alloc_pf_extra_memory_fail
 		addq.l	#bm_Planes,d0
-		move.l	d0,(a4)+	; Offset 1. Bitplanezeiger
+		move.l	d0,(a4)+	; offset bitplane1
 		dbf	d7,alloc_pf_extra_memory_loop
 		moveq	#RETURN_OK,d0
 		rts
@@ -1964,19 +1937,19 @@ alloc_pf_extra_memory_fail
 		rts
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code	
+; d0.l	... Return code	
 		CNOP 0,4
 check_pf_extra_memory
 		lea	pf_extra_bitmap1(a3),a2
 		lea	pf_extra_attributes(pc),a4
 		moveq	#pf_extra_number-1,d7
 check_pf_extra_memory_loop
-		move.l	(a2)+,a0	; Zeiger auf Bitmap-Struktur
+		move.l	(a2)+,a0	; pointer bitmap structure
 		moveq	#BMA_FLAGS,d1
 		CALLGRAF GetBitmapAttr
 		btst	#BMB_DISPLAYABLE,d0
 		beq.s	check_pf_extra_memory_fail
-		cmp.l	#1,pf_extra_attribute_depth(a4) ; Nur 1 Bitplane ?
+		cmp.l	#1,pf_extra_attribute_depth(a4) ; monoplane ?
 		beq.s	check_pf_extra_memory_skip
 		btst	#BMB_INTERLEAVED,d0
 		bne.s	check_pf_extra_memory_skip
@@ -1986,7 +1959,7 @@ check_pf_extra_memory_fail
 		rts
 		CNOP 0,4
 check_pf_extra_memory_skip
-		ADDF.W	pf_extra_attribute_size,a4 ; nächster Eintrag
+		ADDF.W	pf_extra_attribute_size,a4 ; next entry
 		dbf	d7,check_pf_extra_memory_loop
 		moveq	#RETURN_OK,d0
 		rts
@@ -1996,22 +1969,22 @@ check_pf_extra_memory_skip
 	IFNE spr_x_size1
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code
+; d0.l	... Return code/error code
 		CNOP 0,4
 alloc_sprite_memory1
 		lea	spr0_bitmap1(a3),a2
 		lea	spr0_construction(a3),a4
 		lea	sprite_attributes1(pc),a5
-		moveq	#spr_number-1,d7 ; Anzahl der Hardware-Sprites [1..8]
+		moveq	#spr_number-1,d7
 alloc_sprite_memory1_loop
-		move.l	(a5)+,d0	; Breite des Sprites
-		move.l	(a5)+,d1	; Höhe des Sprites
-		move.l	(a5)+,d2	; Anzahl der Bitplanes
+		move.l	(a5)+,d0	; width
+		move.l	(a5)+,d1	; height
+		move.l	(a5)+,d2	; depth
 		bsr	do_alloc_bitmap_memory
-		move.l	d0,(a2)+	; Zeiger auf Sprite-Bitmap-Struktur
+		move.l	d0,(a2)+	; pointer bitmap structure
 		beq.s	alloc_sprite_memory1_fail
 		addq.l	#bm_Planes,d0
-		move.l	d0,(a4)+	; Offset 1. Bitplanezeiger
+		move.l	d0,(a4)+	; offset bitplane1
 		dbf	d7,alloc_sprite_memory1_loop
 		moveq	#RETURN_OK,d0
 		rts
@@ -2022,13 +1995,13 @@ alloc_sprite_memory1_fail
 		rts
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code	
+; d0.l	... Return code	
 		CNOP 0,4
 check_sprite_memory1
 		lea	spr0_bitmap1(a3),a2
-		moveq	#spr_number-1,d7 ; Anzahl der Hardware-Sprites [1..8]
+		moveq	#spr_number-1,d7
 check_sprite_memory1_loop
-		move.l	(a2)+,a0	; Zeiger auf Sprite-Bitmap-Struktur
+		move.l	(a2)+,a0	; pointer bitmap structure
 		moveq	#BMA_FLAGS,d1
 		CALLGRAF GetBitmapAttr
 		btst	#BMB_DISPLAYABLE,d0
@@ -2050,22 +2023,22 @@ check_sprite_memory1_skip
 	IFNE spr_x_size2
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code
+; d0.l	... Return code/error code
 		CNOP 0,4
 alloc_sprite_memory2
 		lea	spr0_bitmap2(a3),a2
 		lea	spr0_display(a3),a4
 		lea	sprite_attributes2(pc),a5
-		moveq	#spr_number-1,d7 ; Anzahl der Hardware-Sprites [1..8]
+		moveq	#spr_number-1,d7
 alloc_sprite_memory2_loop
-		move.l	(a5)+,d0	; Breite des Sprites
-		move.l	(a5)+,d1	; Höhe des Sprites
-		move.l	(a5)+,d2	; Anzahl der Bitplanes
+		move.l	(a5)+,d0	; width
+		move.l	(a5)+,d1	; height
+		move.l	(a5)+,d2	; depth
 		bsr	do_alloc_bitmap_memory
-		move.l	d0,(a2)+	; Zeiger auf Sprite-Bitmap-Struktur
+		move.l	d0,(a2)+	; pointer bitmap structure
 		beq.s	alloc_sprite_memory2_fail
 		addq.l	#bm_Planes,d0
-		move.l	d0,(a4)+	; Offset 1. Bitplanezeiger
+		move.l	d0,(a4)+	; offset bitplane1
 		dbf	d7,alloc_sprite_memory2_loop
 		moveq	#RETURN_OK,d0
 		rts
@@ -2076,13 +2049,13 @@ alloc_sprite_memory2_fail
 		rts
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code
+; d0.l	... Return code
 		CNOP 0,4
 check_sprite_memory2
 		lea	spr0_bitmap2(a3),a2
-		moveq	#spr_number-1,d7 ; Anzahl der Hardware-Sprites [1..8]
+		moveq	#spr_number-1,d7
 check_sprite_memory2_loop
-		move.l	(a2)+,a0	; Zeiger auf Sprite-Bitmap-Struktur
+		move.l	(a2)+,a0	; pointer bitmap structure
 		moveq	#BMA_FLAGS,d1
 		CALLGRAF GetBitmapAttr
 		btst	#BMB_DISPLAYABLE,d0
@@ -2104,7 +2077,7 @@ check_sprite_memory2_skip
 	IFNE audio_memory_size
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code
+; d0.l	... Return code/error code
 		CNOP 0,4
 alloc_audio_memory
 		MOVEF.L	audio_memory_size,d0
@@ -2124,7 +2097,7 @@ alloc_audio_memory_ok
 	IFNE disk_memory_size
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code	
+; d0.l	... Return code/error code
 		CNOP 0,4
 alloc_disk_memory
 		MOVEF.L disk_memory_size,d0
@@ -2144,7 +2117,7 @@ alloc_disk_memory_ok
 	IFNE extra_memory_size
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code
+; d0.l	... Return code/error code
 		CNOP 0,4
 alloc_extra_memory
 		MOVEF.L	extra_memory_size,d0
@@ -2164,7 +2137,7 @@ alloc_extra_memory_ok
 	IFNE chip_memory_size
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code	
+; d0.l	... Return code/error code
 		CNOP 0,4
 alloc_chip_memory
 		MOVEF.L	chip_memory_size,d0
@@ -2183,7 +2156,7 @@ alloc_chip_memory_ok
 	IFND SYS_TAKEN_OVER
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code
+; d0.l	... Return code/error code
 		CNOP 0,4
 alloc_vectors_base_memory
 		lea	read_vbr(pc),a5
@@ -2212,7 +2185,7 @@ alloc_vectors_base_memory_ok
 
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code
+; d0.l	... Return code/error code
 		CNOP 0,4
 alloc_mouse_pointer_data
 		moveq	#cleared_pointer_data_size,d0
@@ -2232,7 +2205,7 @@ alloc_mouse_pointer_data_ok
 		IFEQ screen_fader_enabled
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code
+; d0.l	... Return code/error code
 			CNOP 0,4
 sf_alloc_screen_color_table
 			MOVEF.L	sf_rgb32_colors_number*3*LONGWORD_SIZE,d0
@@ -2250,7 +2223,7 @@ sf_alloc_screen_color_table_ok
 
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code
+; d0.l	... Return code/error code
 			CNOP 0,4
 sf_alloc_screen_color_cache
 			MOVEF.L	(1+(sf_rgb32_colors_number*3)+1)*LONGWORD_SIZE,d0
@@ -2270,7 +2243,7 @@ sf_alloc_screen_color_cache_ok
 		IFD PASS_GLOBAL_REFERENCES
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code
+; d0.l	... Return code/error code
 			CNOP 0,4
 init_global_references_table
 			lea	global_references_table(pc),a0
@@ -2282,7 +2255,6 @@ init_global_references_table
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert	
 		CNOP 0,4
 wait_drives_motor
 		MOVEF.L	drives_motor_delay,d1
@@ -2292,12 +2264,11 @@ wait_drives_motor
 		IFD SAVE_BEAMCON0
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 save_beamcon0_register
 			CALLINT ViewAddress
 			move.l	d0,a0
 			CALLGRAF GfxLookUp
-			move.l	d0,a0	; Zeiger auf ViewExtra-Struktur
+			move.l	d0,a0	; pointer view extra structure
 			move.l	ve_monitor(a0),a0
 			move.w	ms_BeamCon0(a0),old_beamcon0(a3)
 			rts
@@ -2306,10 +2277,10 @@ save_beamcon0_register
 
 ; Input
 ; Result
-; d0.l ... Rückgabewert: Screenstruktur des aktiven Screens
+; d0.l	... pointer screen structure active screen
 	CNOP 0,4
 get_active_screen
-		moveq	#0,d0		; Alle Locks
+		moveq	#0,d0		; all locks
 		CALLINT LockIBase
 		move.l	d0,a0
 		move.l	ib_ActiveScreen(a6),a2
@@ -2320,7 +2291,6 @@ get_active_screen
 
 ; Input
 ; Result
-; d0.l	... kein Rückgabewert
 		CNOP 0,4
 get_sprite_resolution
 		move.l	active_screen(a3),d0
@@ -2339,7 +2309,7 @@ get_sprite_resolution_quit
 
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code
+; d0.l	... Return code
 		CNOP 0,4
 get_active_screen_mode
 		move.l	active_screen(a3),d0
@@ -2354,7 +2324,7 @@ get_active_screen_mode
 		rts
 		CNOP 0,4
 get_active_screen_mode_skip
-		and.l	#MONITOR_ID_MASK,d0	; Ohne Auflösung
+		and.l	#MONITOR_ID_MASK,d0	; without resolution
 		move.l	d0,active_screen_mode(a3)
 get_active_screen_mode_ok
 		moveq	#RETURN_OK,d0
@@ -2364,7 +2334,6 @@ get_active_screen_mode_ok
 		IFEQ screen_fader_enabled
 ; Input
 ; Result
-; d0 ... keine Rückgabewert
 			CNOP 0,4
 sf_get_screen_colors
 			move.l	active_screen(a3),d0
@@ -2384,19 +2353,18 @@ sf_get_screen_colors_skip
 
 ; Input
 ; Result
-; d0 ... keine Rückgabewert
 	CNOP 0,4
 sf_copy_screen_colors
-			move.l	sf_screen_color_table(a3),a0 ; Quelle 32-Bit RGB-Werte
-			move.l	sf_screen_color_cache(a3),a1 ; Ziel 32-Bit RGB-Werte
+			move.l	sf_screen_color_table(a3),a0 ; source
+			move.l	sf_screen_color_cache(a3),a1 ; destination
 			move.w	#sf_rgb32_colors_number,(a1)+
 			moveq	#0,d0
-			move.w	d0,(a1)+ ; Ab COLOR00
+			move.w	d0,(a1)+ ; COLOR00
 			MOVEF.W	sf_rgb32_colors_number-1,d7
 sf_copy_screen_colors_loop
-			move.l	(a0)+,(a1)+ ; 32-Bit-Rotwert
-			move.l	(a0)+,(a1)+ ; 32-Bit-Grünwert
-			move.l	(a0)+,(a1)+ ; 32-Bit-Blauwert
+			move.l	(a0)+,(a1)+ ; 32-bit red
+			move.l	(a0)+,(a1)+ ; 32-bit green
+			move.l	(a0)+,(a1)+ ; 32-bit blue
 			dbf	d7,sf_copy_screen_colors_loop
 			move.l	d0,(a1)	; Listenende
 			rts
@@ -2404,7 +2372,6 @@ sf_copy_screen_colors_loop
 
 ; Input
 ; Result
-; d0 ... keine Rückgabewert
 	CNOP 0,4
 sf_fade_out_screen
 			CALLGRAF WaitTOF
@@ -2417,63 +2384,62 @@ sf_fade_out_screen
 
 ; Input
 ; Result
-; d0 ... keine Rückgabewert
       CNOP 0,4
 rgb32_screen_fader_out
-			MOVEF.W	sf_rgb32_colors_number*3,d6 ; RGB-Zähler
-			move.l	sf_screen_color_cache(a3),a0 ; Istwerte
+			MOVEF.W	sf_rgb32_colors_number*3,d6 ; RGB counter
+			move.l	sf_screen_color_cache(a3),a0 ; target calues
 			addq.w  #4,a0	; Offset überspringen
-			move.l	pf1_rgb8_color_table(pc),a1 ; Sollwert COLOR00
-			move.w  #sfo_fader_speed,a4 ; Additions-/Subtraktionswert RGB-Werte
+			move.l	pf1_rgb8_color_table(pc),a1 ; destination COLOR00
+			move.w  #sfo_fader_speed,a4 ; increase/decrease RGB values
 			MOVEF.W sf_rgb32_colors_number-1,d7
 rgb32_screen_fader_out_loop
 			moveq   #0,d0
-			move.b  (a0),d0	; 8-Bit Rot-Istwert
+			move.b  (a0),d0	; source R8
 			move.l  a1,d3
-			swap    d3	; 8-Bit Rot-Sollwert
+			swap    d3	; destination R8
 			moveq   #0,d1
-			move.b  4(a0),d1 ; 8-Bit Grün-Istwert
+			move.b  4(a0),d1 ; source G8
 			move.w  a1,d4
-			lsr.w   #8,d4	; 8-Bit Grün-Sollwert
+			lsr.w   #8,d4	; destination G8
 			moveq   #0,d2
-			move.b  8(a0),d2 ; 8-Bit Blau-Istwert
+			move.b  8(a0),d2 ; source B8
 			move.w  a1,d5
-			and.w	#$00ff,d5 ; 8-Bit Blau-Sollwert
+			and.w	#$00ff,d5 ; destination B8
 
 			cmp.w	d3,d0
 			bgt.s	sfo_rgb32_decrease_red
 			blt.s	sfo_rgb32_increase_red
 sfo_rgb32_matched_red
-			subq.w  #1,d6	; Ziel-Rotwert erreicht
+			subq.w  #1,d6	; destination value reached
 sfo_rgb32_check_green
 			cmp.w	d4,d1
 			bgt.s	sfo_rgb32_decrease_green
 			blt.s	sfo_rgb32_increase_green
 sfo_rgb32_matched_green
-			subq.w  #1,d6	; Ziel-Grünwert erreicht
+			subq.w  #1,d6	; destination value reached
 sfo_rgb32_check_blue
 			cmp.w	d5,d2
 			bgt.s	sfo_rgb32_decrease_blue
 			blt.s	sfo_rgb32_increase_blue
 sfo_rgb32_matched_blue
-			subq.w	#1,d6	; Ziel-Blauwert erreicht
+			subq.w	#1,d6	; destination value reached
 sfo_set_rgb32
-			move.b	d0,(a0)+ ; 4x 8-Bit Rotwert in Cache schreiben
+			move.b	d0,(a0)+ ; 4x 8 bit red
 			move.b	d0,(a0)+
 			move.b	d0,(a0)+
 			move.b	d0,(a0)+
-			move.b	d1,(a0)+ ; 4x 8-Bit Grünwert in Cache schreiben
+			move.b	d1,(a0)+ ; 4x 8 bit green
 			move.b	d1,(a0)+
 			move.b	d1,(a0)+
 			move.b	d1,(a0)+
-			move.b	d2,(a0)+ ; 4x 8-Bit Blauwert in Cache schreiben
+			move.b	d2,(a0)+ ; 4x 8 bit blue
 			move.b	d2,(a0)+
 			move.b	d2,(a0)+
 			move.b	d2,(a0)+
 			dbf	d7,rgb32_screen_fader_out_loop
-			tst.w   d6	; Fertig mit ausblenden ?
-			bne.s   sfo_rgb32_flush_caches ; Nein -> verzweige
-			move.w  #FALSE,sfo_rgb32_active(a3) ; Fading-Out aus
+			tst.w   d6	; fading finished ?
+			bne.s   sfo_rgb32_flush_caches
+			move.w  #FALSE,sfo_rgb32_active(a3)
 sfo_rgb32_flush_caches
 			CALLEXECQ CacheClearU
 			CNOP 0,4
@@ -2522,7 +2488,6 @@ sfo_rgb32_increase_blue
 
 ; Input
 ; Result
-; d0 ... keine Rückgabewert
 			CNOP 0,4
 sf_rgb32_set_new_colors
 			move.l	active_screen(a3),d0
@@ -2541,7 +2506,7 @@ sf_rgb32_set_new_colors_skip
 
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code
+; d0.l	... Return code
 	CNOP 0,4
 open_pal_screen
 		lea	pal_screen_tags(pc),a1
@@ -2566,7 +2531,7 @@ open_pal_screen_ok
 
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code
+; d0.l	... Return code
 		CNOP 0,4
 check_pal_screen_mode
 		move.l	pal_screen(a3),d0
@@ -2590,10 +2555,10 @@ check_pal_screen_mode_ok
 
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code
+; d0.l	... Return code
 		CNOP 0,4
 open_invisible_window
-		sub.l	a0,a0		; Keine NewWindow-Struktur
+		sub.l	a0,a0		; no NewWindow structure
 		lea	invisible_window_tags(pc),a1
 		move.l	pal_screen(a3),wtl_WA_CustomScreen+ti_data(a1)
 		CALLINT OpenWindowTagList
@@ -2610,7 +2575,6 @@ open_invisible_window_ok
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 	CNOP 0,4
 clear_mousepointer
 		move.l	invisible_window(a3),a0
@@ -2624,21 +2588,19 @@ clear_mousepointer
 
 ; Input
 ; Result
-; d0	... Kein Rückgabewert
 		CNOP 0,4
 blank_display
-		sub.l	a1,a1			; View auf ECS-Werte zurücksetzen
+		sub.l	a1,a1			; no view
 		CALLGRAF LoadView
-		CALLLIBS WaitTOF		; Warten bis Änderung sichtbar ist
-		CALLLIBS WaitTOF		; Warten bis Interlace-Screens mit 2 Copperlisten auch voll geändert sind
-		tst.l	gb_ActiView(a6)		; Erschien zwischenzeitlich ein anderer View ?
-		bne.s	blank_display		; Ja -> neuer Versuch
+		CALLLIBS WaitTOF
+		CALLLIBS WaitTOF		; wait for interlace screens with two copperlists
+		tst.l	gb_ActiView(a6)		; did a different view appear ?
+		bne.s	blank_display
 		rts
 
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 wait_monitor_switch
 		move.l	active_screen_mode(a3),d0
@@ -2658,7 +2620,6 @@ wait_monitor_switch_skip
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 enable_exclusive_blitter
 		CALLGRAF OwnBlitter
@@ -2667,7 +2628,6 @@ enable_exclusive_blitter
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 get_system_time
 		lea	timer_io(pc),a1
@@ -2677,7 +2637,6 @@ get_system_time
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 disable_system
 		CALLEXECQ Disable
@@ -2686,7 +2645,6 @@ disable_system
 		IFD ALL_CACHES
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 			CNOP 0,4
 enable_all_caches
 			move.l	#CACRF_EnableI|CACRF_IBE|CACRF_EnableD|CACRF_DBE|CACRF_WriteAllocate|CACRF_EnableE|CACRF_CopyBack,d0 ; Alle Caches einschalten
@@ -2700,7 +2658,6 @@ enable_all_caches
 		IFD NO_060_STORE_BUFFER
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 			CNOP 0,4
 disable_store_buffer
 			DISABLE_060_STORE_BUFFER
@@ -2709,14 +2666,13 @@ disable_store_buffer
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 save_exception_vectors
-		move.l	old_vbr(a3),a0	; Quelle = Reset (Initial SSP)
-		lea	exception_vecs_save(pc),a1 ; Ziel
-		MOVEF.W	(exception_vectors_size/LONGWORD_SIZE)-1,d7 ; Anzahl der Vektoren
+		move.l	old_vbr(a3),a0	; source
+		lea	exception_vecs_save(pc),a1 ; destination
+		MOVEF.W	(exception_vectors_size/LONGWORD_SIZE)-1,d7 ; number of vectors
 copy_exception_vectors_loop
-		move.l	(a0)+,(a1)+	; Vektor kopieren
+		move.l	(a0)+,(a1)+
 		dbf	d7,copy_exception_vectors_loop
 		rts
 	ENDC
@@ -2724,7 +2680,6 @@ copy_exception_vectors_loop
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 	CNOP 0,4
 init_exception_vectors
 	IFD SYS_TAKEN_OVER
@@ -2786,16 +2741,15 @@ init_exception_vectors
 	IFND SYS_TAKEN_OVER
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 move_exception_vectors
 		move.l	exception_vectors_base(a3),d0
 		beq.s	move_exception_vectors_quit
-		move.l	d0,a1		; Ziel = Fast-Memory
-		move.l	old_vbr(a3),a0	; Quelle = Reset (Initial SSP)
-		MOVEF.W	(exception_vectors_size/LONGWORD_SIZE)-1,d7 ; Anzahl der Vektoren
+		move.l	d0,a1		; target
+		move.l	old_vbr(a3),a0	; source
+		MOVEF.W	(exception_vectors_size/LONGWORD_SIZE)-1,d7 ; number of vectors
 move_exception_vectors_loop
-		move.l	(a0)+,(a1)+	; Vektoren kopieren
+		move.l	(a0)+,(a1)+
 		dbf	d7,move_exception_vectors_loop
 		CALLEXEC CacheClearU
 		move.l	exception_vectors_base(a3),d0
@@ -2808,36 +2762,34 @@ move_exception_vectors_quit
 
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code
+; d0.l	... Return code
 save_copperlist_ptrs
 		move.l	_GfxBase(pc),a0
 		IFNE cl1_size3
 			move.l	gb_Copinit(a0),old_cop1lc(a3)
 		ENDC
 		IFNE cl2_size3
-			move.l	gb_LOFlist(a0),old_cop2lc(a3) ; LOFlist, da OS das LOF-Bit bei non-Interlaced immer setzt!
+			move.l	gb_LOFlist(a0),old_cop2lc(a3) ; OS always sets the LOF bit for non interlaced screens
 		ENDC
 		rts
 
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 get_tod_time
 		moveq	#0,d0
-		move.b	CIATODHI(a4),d0	; TOD-clock Bits 23-16
-		swap	d0		; Bits in richtige Position bringen
-		move.b	CIATODMID(a4),d0 ; TOD-clock Bits 15-8
-		lsl.w	#8,d0		; Bits in richtige Position bringen
-		move.b	CIATODLOW(a4),d0 ; TOD-clock Bits 7-0
+		move.b	CIATODHI(a4),d0	; TOD-clock bits 23-16
+		swap	d0		; adjust bits
+		move.b	CIATODMID(a4),d0 ; TOD-clock bits 15-8
+		lsl.w	#8,d0		; adjust bits
+		move.b	CIATODLOW(a4),d0 ; TOD-clock bits 7-0
 		move.l	d0,tod_time(a3)
 		rts
 
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 save_chips_registers
 		move.w	(a6),old_dmacon(a3)
@@ -2847,8 +2799,8 @@ save_chips_registers
 		move.b	CIAPRA(a4),old_ciaa_pra(a3)
 		move.b	CIACRA(a4),d0
 		move.b	d0,old_ciaa_cra(a3)
-		and.b	#~(CIACRAF_START),d0 ; Timer A stoppen
-		or.b	#CIACRAF_LOAD,d0 ; Zählwert laden
+		and.b	#~(CIACRAF_START),d0 ; stop timer a
+		or.b	#CIACRAF_LOAD,d0 ; load counter
 		move.b	d0,CIACRA(a4)
 		nop
 		move.b	CIATALO(a4),old_ciaa_talo(a3)
@@ -2856,8 +2808,8 @@ save_chips_registers
 	
 		move.b	CIACRB(a4),d0
 		move.b	d0,old_ciaa_crb(a3)
-		and.b	#~(CIACRBF_ALARM-CIACRBF_START),d0 ; Timer B stoppen
-		or.b	#CIACRBF_LOAD,d0 ; Zählwert laden
+		and.b	#~(CIACRBF_ALARM-CIACRBF_START),d0 ; stop timer b
+		or.b	#CIACRBF_LOAD,d0 ; load counter
 		move.b	d0,CIACRB(a4)
 		nop
 		move.b	CIATBLO(a4),old_ciaa_tblo(a3)
@@ -2866,8 +2818,8 @@ save_chips_registers
 		move.b	CIAPRB(a5),old_ciab_prb(a3)
 		move.b	CIACRA(a5),d0
 		move.b	d0,old_ciaa_cra(a3)
-		and.b	#~(CIACRAF_START),d0 ; Timer A stoppen
-		or.b	#CIACRAF_LOAD,d0 ; Zählwert laden
+		and.b	#~(CIACRAF_START),d0 ; stop timer a
+		or.b	#CIACRAF_LOAD,d0 ; load counter
 		move.b	d0,CIACRA(a5)
 		nop
 		move.b	CIATALO(a5),old_ciab_talo(a3)
@@ -2875,8 +2827,8 @@ save_chips_registers
 	
 		move.b	CIACRB(a5),d0
 		move.b	d0,old_ciab_crb(a3)
-		and.b	#~(CIACRBF_ALARM-CIACRBF_START),d0 ;Timer B stoppen
-		or.b	#CIACRBF_LOAD,d0 ;Zählwert laden
+		and.b	#~(CIACRBF_ALARM-CIACRBF_START),d0 ; stop timer b
+		or.b	#CIACRBF_LOAD,d0 ; load counter
 		move.b	d0,CIACRB(a5)
 		nop
 		move.b	CIATBLO(a5),old_ciab_tblo(a3)
@@ -2886,53 +2838,50 @@ save_chips_registers
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 clear_chips_registers1
 		move.w	#$7fff,d0
-		move.w	d0,DMACON-DMACONR(a6) ; DMA aus
-		move.w	d0,INTENA-DMACONR(a6) ; Interrupts aus
-		move.w	d0,INTREQ-DMACONR(a6) ; Interrupts löschen
-		move.w	d0,ADKCON-DMACONR(a6) ; ADKCON löschen
+		move.w	d0,DMACON-DMACONR(a6) ; disable DMA
+		move.w	d0,INTENA-DMACONR(a6) ; disable interrupts
+		move.w	d0,INTREQ-DMACONR(a6) ; clear interrupts
+		move.w	d0,ADKCON-DMACONR(a6)
 	
 		moveq	#$7f,d0
-		move.b	d0,CIAICR(a4)	; CIA-A-Interrupts aus
-		move.b	d0,CIAICR(a5)	; CIA-B-Interrupts aus
-		move.b	CIAICR(a4),d0	; CIA-A-Interrupts löschen
-		move.b	CIAICR(a5),d0	; CIA-B-Interrupts löschen
+		move.b	d0,CIAICR(a4)	; disable interruts
+		move.b	d0,CIAICR(a5)	; disable interrupts
+		move.b	CIAICR(a4),d0	; clear interrupts
+		move.b	CIAICR(a5),d0	; clear interrupts
 
 		moveq	#0,d0
-		move.w	d0,JOYTEST-DMACONR(a6) ; Maus- und Joystickposition zurücksetzen
+		move.w	d0,JOYTEST-DMACONR(a6) ; reset mouse/joystick position
 		rts
 
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 turn_off_drive_motors
 		move.b	CIAPRB(a5),d0
 		moveq	#CIAF_DSKSEL0|CIAF_DSKSEL1|CIAF_DSKSEL2|CIAF_DSKSEL3,d1
 		or.b	d1,d0
-		move.b	d0,CIAPRB(a5)	; df0: bis df3: deaktivieren
-		or.b		#CIAF_DSKMOTOR,d0
-		move.b	d0,CIAPRB(a5)	; Motor aus
+		move.b	d0,CIAPRB(a5)	; df0: - df3:
+		or.b	#CIAF_DSKMOTOR,d0
+		move.b	d0,CIAPRB(a5)	; motor off
 		eor.b	d1,d0
-		move.b	d0,CIAPRB(a5)	; df0: bis df3: aus
+		move.b	d0,CIAPRB(a5)	; df0: - df3:
 		or.b	d1,d0
-		move.b	d0,CIAPRB(a5)	; df0: bis df3: deaktivieren
+		move.b	d0,CIAPRB(a5)	; disable
 		rts
 	ENDC
 
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 	CNOP 0,4
 start_own_display
 	bsr	wait_vbi
 	bsr	wait_vbi
-	moveq	#copcon_bits,d0		; Copper kann ggf. auf Blitteregister zurückgreifen
+	moveq	#copcon_bits,d0
 	move.w	d0,COPCON-DMACONR(a6)
 	IFNE cl2_size3
 		IFD SET_SECOND_COPPERLIST
@@ -2951,7 +2900,6 @@ start_own_display
 	IFNE (intena_bits-INTF_SETCLR)|(ciaa_icr_bits-CIAICRF_SETCLR)|(ciab_icr_bits-CIAICRF_SETCLR)
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 start_own_interrupts
 		IFNE intena_bits-INTF_SETCLR
@@ -2959,11 +2907,11 @@ start_own_interrupts
 		ENDC
 		IFNE ciaa_icr_bits-CIAICRF_SETCLR
 			MOVEF.B	ciaa_icr_bits,d0
-			move.b	d0,CIAICR(a4) ; CIA-A-Interrupts an
+			move.b	d0,CIAICR(a4)
 		ENDC
 		IFNE ciab_icr_bits-CIAICRF_SETCLR
 			MOVEF.B	ciab_icr_bits,d0
-			move.b	d0,CIAICR(a5) ; CIA-B-Interrupts an
+			move.b	d0,CIAICR(a5)
 		ENDC
 		rts
 	ENDC
@@ -2972,7 +2920,6 @@ start_own_interrupts
 	IFEQ ciaa_ta_continuous_enabled&ciaa_tb_continuous_enabled&ciab_ta_continuous_enabled&ciab_tb_continuous_enabled
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 start_cia_timers
 		IFEQ ciaa_ta_continuous_enabled
@@ -2998,24 +2945,23 @@ start_cia_timers
 	IFEQ ciaa_ta_continuous_enabled&ciaa_tb_continuous_enabled&ciab_ta_continuous_enabled&ciab_tb_continuous_enabled
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 stop_CIA_timers
 		IFNE ciaa_ta_time
 			moveq	#~(CIACRAF_START),d0
-			and.b	d0,CIACRA(a4) ; CIA-A-Timer-A stoppen
+			and.b	d0,CIACRA(a4) ; stop timer a
 		ENDC
 		IFNE ciaa_tb_time
 			moveq	#~(CIACRBF_START),d0
-			and.b	d0,CIACRB(a4) ; CIA-A-Timer-B stoppen
+			and.b	d0,CIACRB(a4) ; stop timer b
 		ENDC
 		IFNE ciab_ta_time
 			moveq	#~(CIACRAF_START),d0
-			and.b	d0,CIACRA(a5) ; CIA-B-Timer-A stoppen
+			and.b	d0,CIACRA(a5) ; stop timer a
 		ENDC
 		IFNE ciab_tb_time
 			moveq	#~(CIACRBF_START),d0
-			and.b	d0,CIACRB(a5) ; CIA-B-Timer-B stoppen
+			and.b	d0,CIACRB(a5) ; stop timer b
 		ENDC
 		rts
 	ENDC
@@ -3024,14 +2970,13 @@ stop_CIA_timers
 	IFNE (intena_bits-INTF_SETCLR)|(ciaa_icr_bits-CIAICRF_SETCLR)|(ciab_icr_bits-CIAICRF_SETCLR)
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 stop_own_interrupts
 		IFNE intena_bits-INTF_SETCLR
 			IFD SYS_TAKEN_OVER
-				move.w	#intena_bits&(~INTF_SETCLR),INTENA-DMACONR(a6) ; Interrupts aus
+				move.w	#intena_bits&(~INTF_SETCLR),INTENA-DMACONR(a6) ; disable interrupts
 			ELSE
-				move.w	#INTF_INTEN,INTENA-DMACONR(a6) ; Interrupts aus
+				move.w	#INTF_INTEN,INTENA-DMACONR(a6) ; disable interrupts
 			ENDC
 		ENDC
 		rts
@@ -3040,21 +2985,20 @@ stop_own_interrupts
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 	CNOP 0,4
 stop_own_display
 	IFNE copcon_bits&COPCONF_CDANG
 		moveq	#0,d0
-		move.w	d0,COPCON-DMACONR(a6) ; Copper kann nicht auf Blitterregister zugreifen
+		move.w	d0,COPCON-DMACONR(a6) ; copper can't access blitter registers
 	ENDC
-	bsr	wait_beam_position	; Externe Routine
+	bsr	wait_beam_position	; external routine
 	IFNE dma_bits&DMAF_BLITTER
 		WAITBLIT
 	ENDC
 	IFD SYS_TAKEN_OVER
-		move.w	#dma_bits&(~DMAF_SETCLR),DMACON-DMACONR(a6) ; DMA aus
+		move.w	#dma_bits&(~DMAF_SETCLR),DMACON-DMACONR(a6) ; disable DMA
 	ELSE
-		move.w	#DMAF_MASTER,DMACON-DMACONR(a6) ; DMA aus
+		move.w	#DMAF_MASTER,DMACON-DMACONR(a6) ; disable DMA
 	ENDC
 	rts
 
@@ -3062,27 +3006,26 @@ stop_own_display
 	IFND SYS_TAKEN_OVER
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 clear_chips_registers2
 		move.w	#$7fff,d0
-		move.w	d0,DMACON-DMACONR(a6) ; DMA aus
-		move.w	d0,INTENA-DMACONR(a6) ; Interrupts aus
-		move.w	d0,INTREQ-DMACONR(a6) ; Interrupts löschen
-		move.w	d0,ADKCON-DMACONR(a6) ; ADKCON löschen
+		move.w	d0,DMACON-DMACONR(a6) ; disable DMA
+		move.w	d0,INTENA-DMACONR(a6) ; disable interrupts
+		move.w	d0,INTREQ-DMACONR(a6) ; clear interrupts
+		move.w	d0,ADKCON-DMACONR(a6)
 	
 		moveq	#$7f,d0
-		move.b	d0,CIAICR(a4)	; CIA-A-Interrupts aus
-		move.b	d0,CIAICR(a5)	; CIA-B-Interrupts aus
+		move.b	d0,CIAICR(a4)	; disable interrupts
+		move.b	d0,CIAICR(a5)	; disable interrupts
 		IFNE ciaa_icr_bits-CIAICRF_SETCLR
-			move.b	CIAICR(a4),d0 ; CIA-A-Interrupts löschen
+			move.b	CIAICR(a4),d0 ; clear interrupts
 		ENDC
 		IFNE ciab_icr_bits-CIAICRF_SETCLR
-			move.b	CIAICR(a5),d0 ; CIA-B-Interrupts löschen
+			move.b	CIAICR(a5),d0 ; clear interrupts
 		ENDC
 
 		moveq	#0,d0
-		move.w	d0,AUD0VOL-DMACONR(a6) ; Lautstärke aus
+		move.w	d0,AUD0VOL-DMACONR(a6) ; volume off
 		move.w	d0,AUD1VOL-DMACONR(a6)
 		move.w	d0,AUD2VOL-DMACONR(a6)
 		move.w	d0,AUD3VOL-DMACONR(a6)
@@ -3091,7 +3034,6 @@ clear_chips_registers2
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 restore_chips_registers
 		move.b	old_ciaa_pra(a3),CIAPRA(a4)
@@ -3109,14 +3051,14 @@ restore_chips_registers
 		move.b	d0,CIAICR(a4)
 	
 		move.b	old_ciaa_cra(a3),d0
-		btst	#CIACRAB_RUNMODE,d0 ; Continuous-Modus ?
+		btst	#CIACRAB_RUNMODE,d0 ; continuous mode ?
 		bne.s	restore_chips_registers_skip1
 		or.b	#CIACRAF_START,d0
 restore_chips_registers_skip1
 		move.b	d0,CIACRA(a4)
 	
 		move.b	old_ciaa_crb(a3),d0
-		btst	#CIACRBB_RUNMODE,d0 ;Continuous-Modus ?
+		btst	#CIACRBB_RUNMODE,d0 ; continuous mode ?
 		bne.s	restore_chips_registers_skip2
 		or.b	#CIACRBF_START,d0
 restore_chips_registers_skip2
@@ -3137,14 +3079,14 @@ restore_chips_registers_skip2
 		move.b	d0,CIAICR(a5)
 	
 		move.b	old_ciab_cra(a3),d0
-		btst	#CIACRAB_RUNMODE,d0 ; Continuous-Modus ?
+		btst	#CIACRAB_RUNMODE,d0 ; continuous mode ?
 		bne.s	restore_chips_registers_skip3
 		or.b	#CIACRAF_START,d0
 restore_chips_registers_skip3
 		move.b	d0,CIACRA(a5)
 	
 		move.b	old_ciab_crb(a3),d0
-		btst	#CIACRBB_RUNMODE,d0 ; Continuous-Modus ?
+		btst	#CIACRBB_RUNMODE,d0 ; continuous mode ?
 		bne.s restore_chips_registers_skip4
 		or.b	#CIACRBF_START,d0
 restore_chips_registers_skip4
@@ -3164,7 +3106,7 @@ restore_chips_registers_skip4
 		ENDC
 	
 		move.w	old_dmacon(a3),d0
-		and.w	#~DMAF_RASTER,d0 ; Bitplane-DMA aus
+		and.w	#~DMAF_RASTER,d0 ; disable bitplane DMA
 		or.w	#DMAF_SETCLR,d0
 		move.w	d0,DMACON-DMACONR(a6)
 		move.w	old_intena(a3),d0
@@ -3181,30 +3123,29 @@ restore_chips_registers_skip4
 ; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 get_tod_duration	
-		move.l	tod_time(a3),d0 ; Zeit vor Programmstart
+		move.l	tod_time(a3),d0 ; program start time
 		moveq	#0,d1
-		move.b	CIATODHI(a4),d1	; Bits 23-16
-		swap	d1		; Bits in richtige Position bringen
-		move.b	CIATODMID(a4),d1 ; Bits 15-8
-		lsl.w	#8,d1		; Bits in richtige Position bringen
-		move.b	CIATODLOW(a4),d1 ; Bits 7-0
-		cmp.l	d0,d1		; TOD Überlauf ?
-		bge.s	get_tod_duration_skip
-		move.l	#$ffffff,d2	; Maximalwert
-		sub.l	d0,d2		; Differenz bis zum Überlauf
-		add.l	d2,d1		; zuzüglich Wert nach dem Überlauf
-		bra.s	get_tod_duration_save
+		move.b	CIATODHI(a4),d1	; TOD bits 23-16
+		swap	d1		; adjust bits
+		move.b	CIATODMID(a4),d1 ; TOD bits 15-8
+		lsl.w	#8,d1		; adjust bits
+		move.b	CIATODLOW(a4),d1 ; TOD bits 7-0
+		cmp.l	d0,d1		; TOD overflow ?
+		bge.s	get_tod_duration_skip1
+		move.l	#$ffffff,d2	; TOD max
+		sub.l	d0,d2
+		add.l	d2,d1           ; correct time
+		bra.s	get_tod_duration_skip2
 		CNOP 0,4
-get_tod_duration_skip
-		sub.l	d0,d1		; Normale Differenz
-get_tod_duration_save
+get_tod_duration_skip1
+		sub.l	d0,d1		; no TOD overflow
+get_tod_duration_skip2
 		move.l	d1,tod_time(a3)
 		rts
 
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 restore_vbr
 		move.l	old_vbr(a3),d0
@@ -3215,11 +3156,10 @@ restore_vbr
 		IFD ALL_CACHES
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 			CNOP 0,4
 restore_caches
 			move.l	old_cacr(a3),d0
-			move.l	#CACRF_EnableI|CACRF_FreezeI|CACRF_ClearI|CACRF_IBE|CACRF_EnableD|CACRF_FreezeD|CACRF_ClearD|CACRF_DBE|CACRF_WriteAllocate|CACRF_EnableE|CACRF_CopyBack,d1 ; Alle Bits ändern
+			move.l	#CACRF_EnableI|CACRF_FreezeI|CACRF_ClearI|CACRF_IBE|CACRF_EnableD|CACRF_FreezeD|CACRF_ClearD|CACRF_DBE|CACRF_WriteAllocate|CACRF_EnableE|CACRF_CopyBack,d1 ; change all bits
 			CALLEXECQ CacheControl
 		ENDC
 
@@ -3227,7 +3167,6 @@ restore_caches
 		IFD NO_060_STORE_BUFFER
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 			CNOP 0,4
 restore_store_buffer
 			ENABLE_060_STORE_BUFFER
@@ -3236,21 +3175,19 @@ restore_store_buffer
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 restore_exception_vectors
-		lea	exception_vecs_save(pc),a0 ; Quelle
-		move.l	old_vbr(a3),a1	; Ziel = Reset (Initial SSP)
-		MOVEF.W	(exception_vectors_size/LONGWORD_SIZE)-1,d7 ; Anzahl der Vektoren
+		lea	exception_vecs_save(pc),a0 ; source
+		move.l	old_vbr(a3),a1	; target
+		MOVEF.W	(exception_vectors_size/LONGWORD_SIZE)-1,d7 ; number of vectors
 restore_exception_vectors_loop
-		move.l	(a0)+,(a1)+	; Vektor kopieren
+		move.l	(a0)+,(a1)+
 		dbf	d7,restore_exception_vectors_loop
 		CALLEXECQ CacheClearU
 
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 enable_system
 		CALLEXECQ Enable
@@ -3258,28 +3195,26 @@ enable_system
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 update_system_time
 		move.l	exec_base.w,a6
-		move.l	tod_time(a3),d0 ; Vergangene Zeit, als System ausgeschaltet war
+		move.l	tod_time(a3),d0
 		moveq	#0,d1
 		move.b	VBlankFrequency(a6),d1
-		divu.w	d1,d0		; / Vertikalfrequenz (50Hz) = Unix-Sekunden, Rest Unix-Microsekunden
+		divu.w	d1,d0		; / vertical frequency = unix seconds, remainder unix microseconds
 		lea	timer_io(pc),a1
 		move.w	#TR_SETSYSTIME,IO_command(a1)
 		move.l	d0,d1
 		ext.l	d0
-		swap	d1		; Rest der Division
-		add.l	d0,IO_size+TV_SECS(a1) ; Unix-Sekunden
-		mulu.w	#10000,d1	; In Mikrosekunden
-		add.l	d1,IO_size+TV_MICRO(a1) ; Unix-Mikrosekunden
+		swap	d1		; remainder
+		add.l	d0,IO_size+TV_SECS(a1)
+		mulu.w	#10000,d1	; convert to microseconds
+		add.l	d1,IO_size+TV_MICRO(a1)
 		CALLLIBQ DoIO
 	
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 disable_exclusive_blitter
 		CALLGRAFQ DisownBlitter
@@ -3287,7 +3222,6 @@ disable_exclusive_blitter
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 restore_sprite_resolution
 		move.l	pal_screen(a3),a2
@@ -3296,14 +3230,13 @@ restore_sprite_resolution
 		move.l	#VTAG_SPRITERESN_SET,vctl_VTAG_SPRITERESN+ti_tag(a1)
 		move.l	old_sprite_resolution(a3),vctl_VTAG_SPRITERESN+ti_data(a1)
 		CALLGRAF VideoControl
-		move.l	a2,a0			; Zeiger auf Screen
+		move.l	a2,a0			; pointer screen structure
 		CALLINT MakeScreen
 		CALLLIBQ RethinkDisplay
 
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 	CNOP 0,4
 close_invisible_window
 		move.l	invisible_window(a3),a0
@@ -3312,7 +3245,6 @@ close_invisible_window
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 close_pal_screen
 		move.l	pal_screen(a3),a0
@@ -3321,7 +3253,6 @@ close_pal_screen
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 	CNOP 0,4
 active_screen_to_front
 	tst.l	active_screen(a3)
@@ -3338,7 +3269,6 @@ active_screen_to_front_quit
 		IFEQ screen_fader_enabled
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 			CNOP 0,4
 sf_fade_in_screen
 			CALLGRAF WaitTOF
@@ -3351,66 +3281,65 @@ sf_fade_in_screen
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 			CNOP 0,4	
 rgb32_screen_fader_in
-			MOVEF.W	sf_rgb32_colors_number*3,d6; Zähler
-			move.l	sf_screen_color_cache(a3),a0 ; Puffer für Farbwerte
-			addq.w	#4,a0		; Offset überspringen
-			move.l	sf_screen_color_table(a3),a1 ; Sollwerte
-			move.w	#sfi_fader_speed,a4 ; Additions-/Subtraktionswert für RGB-Werte
+			MOVEF.W	sf_rgb32_colors_number*3,d6 ; RGB counter
+			move.l	sf_screen_color_cache(a3),a0 ; color values buffer
+			addq.w	#LONGWORD_SIZE,a0 ; skip offset
+			move.l	sf_screen_color_table(a3),a1 ; destination color values
+			move.w	#sfi_fader_speed,a4 ; increase/decrease RGB values
 			MOVEF.W	sf_rgb32_colors_number-1,d7
 rgb32_screen_fader_in_loop
 			moveq	#0,d0
-			move.b	(a0),d0 ; 8-Bit Rot-Istwert
+			move.b	(a0),d0 ; 8 bit current red
 			moveq	#0,d1
-			move.b	4(a0),d1 ; 8-Bit Grün-Istwert
+			move.b	4(a0),d1 ; 8 bit current green
 			moveq	#0,d2
-			move.b	8(a0),d2 ; 8-Bit Blau-Istwert
+			move.b	8(a0),d2 ; 8 bit current blue
 			moveq	#0,d3
-			move.b	(a1),d3	; 8-Bit Rot-Sollwert
+			move.b	(a1),d3	; 8 bit destination red
 			moveq	#0,d4
-			move.b	4(a1),d4 ; 8-Bit Grün-Sollwert
+			move.b	4(a1),d4 ; 8-Bit destination green
 			moveq	#0,d5
-			move.b	8(a1),d5 ; 8-Bit Blau-Sollwert
+			move.b	8(a1),d5 ; 8-Bit destination blue
 
 			cmp.w	d3,d0
 			bgt.s	sfi_rgb32_decrease_red
 			blt.s	sfi_rgb32_increase_red
 sfi_rgb32_matched_red
-			subq.w	#1,d6	; Ziel-Rotwert erreicht
+			subq.w	#1,d6	; destination value reached
 sfi_rgb32_check_green
 			cmp.w	d4,d1
 			bgt.s	sfi_rgb32_decrease_green
 			blt.s	sfi_rgb32_increase_green
 sfi_rgb32_matched_green
-			subq.w	#1,d6	; Ziel-Grünwert erreicht
+			subq.w	#1,d6	; destination value reached
 sfi_rgb32_check_blue
 			cmp.w	d5,d2
 			bgt.s	sfi_rgb32_decrease_blue
 			blt.s	sfi_rgb32_increase_blue
 sfi_rgb32_matched_blue
-			subq.w	#1,d6	; Ziel-Blauwert erreicht
+			subq.w	#1,d6	; destination value reached
 
 sfi_set_rgb32
-			move.b	d0,(a0)+ ; 4x 8-Bit Rotwert in Cache schreiben
+			move.b	d0,(a0)+ ; 4x 8 bit red
 			move.b	d0,(a0)+
 			move.b	d0,(a0)+
 			move.b	d0,(a0)+
-			move.b	d1,(a0)+ ; 4x 8-Bit Grünwert in Cache schreiben
+			move.b	d1,(a0)+ ; 4x 8 bit green
 			move.b	d1,(a0)+
 			move.b	d1,(a0)+
 			move.b	d1,(a0)+
-			move.b	d2,(a0)+ ; 4x 8-Bit Blauwert in Cache schreiben
+			move.b	d2,(a0)+ ; 4x 8 bit blue
 			move.b	d2,(a0)+
-			addq.w	#8,a1	; nächstes 32-Bit-Tripple (4*3)
+			addq.w	#8,a1	; next 32 bit tripple (4*3)
 			move.b	d2,(a0)+
 			addq.w	#4,a1
 			move.b	d2,(a0)+
 			dbf	d7,rgb32_screen_fader_in_loop
-			tst.w	d6	; Fertig mit ausblenden ?
-			bne.s	sfi_rgb32_flush_caches ; Nein -> verzweige
-			move.w	#FALSE,sfi_rgb32_active(a3) ; Fading-In aus
+			tst.w	d6	; Fading finished ?
+			bne.s	sfi_rgb32_flush_caches
+			move.w	#FALSE,sfi_rgb32_active(a3)
 sfi_rgb32_flush_caches
 			CALLEXECQ CacheClearU
 			CNOP 0,4
@@ -3459,38 +3388,36 @@ sfi_rgb32_increase_blue
 
 
 		IFEQ text_output_enabled
-; formatierten Text ausgeben
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 			CNOP 0,4
 print_formatted_text
+
 			lea	format_string(pc),a0
-			lea	data_stream(pc),a1 ; Daten für den Format-String
-			lea	put_ch_process(pc),a2 ; Zeiger auf Kopierroutine
+			lea	data_stream(pc),a1 ; data format string
+			lea	put_ch_process(pc),a2 ; pointer copy routine
 			move.l	a3,-(a7)
-			lea	put_ch_data(pc),a3 ; Zeiger auf Ausgabestring
+			lea	put_ch_data(pc),a3 ; pointer output string
 			CALLEXEC RawDoFmt
 			move.l	(a7)+,a3
 			move.l	output_handle(a3),d1
 			lea	put_ch_data(pc),a0 
-			move.l	a0,d2	; Zeiger auf Text
-			moveq	#-1,d3	; Zeichenzähler
+			move.l	a0,d2	; pointer text
+			moveq	#-1,d3	; characters counter
 print_formatted_text_loop
 			addq.w	#1,d3
-			tst.b	(a0)+	; Nullbyte ?
+			tst.b	(a0)+	; nullbyte ?
 			beq.s	print_formatted_text_loop
 			CALLLIBQ Write
 			CNOP 0,4
 put_ch_process
-			move.b	d0,(a3)+ ; Daten in den Ausgabestring schreiben
+			move.b	d0,(a3)+ ; copy data into output string
 			rts
 		ENDC
 
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 free_vectors_base_memory
 		move.l	exception_vectors_base(a3),d0
@@ -3509,7 +3436,6 @@ free_vectors_base_memory_skip
 	IFNE CHIP_memory_size
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 free_chip_memory
 		move.l	chip_memory(a3),d0
@@ -3528,7 +3454,6 @@ free_chip_memory_skip
 	IFNE extra_memory_size
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 free_extra_memory
 		move.l	extra_memory(a3),d0
@@ -3547,7 +3472,6 @@ free_extra_memory_skip
 	IFNE disk_memory_size
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 free_disk_memory
 		move.l	disk_data(a3),d0
@@ -3566,7 +3490,6 @@ free_disk_memory_skip
 	IFNE audio_memory_size
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 free_audio_memory
 		move.l	audio_data(a3),d0
@@ -3585,11 +3508,10 @@ free_audio_memory_skip
 	IFNE spr_x_size2
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 free_sprite_memory2
 		lea	spr0_bitmap2(a3),a2
-		moveq	#spr_number-1,d7 ; Anzahl der Hardware-Sprites [1..8]
+		moveq	#spr_number-1,d7
 free_sprite_memory2_loop
 		move.l	(a2)+,d0
 		beq.s	free_sprite_memory2_quit
@@ -3604,11 +3526,10 @@ free_sprite_memory2_quit
 	IFNE spr_x_size1
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 free_sprite_memory1
 		lea	spr0_bitmap1(a3),a2
-		moveq	#spr_number-1,d7 ; Anzahl der Hardware-Sprites [1..8]
+		moveq	#spr_number-1,d7
 free_sprite_memory1_loop
 		move.l	(a2)+,d0
 		beq.s	free_sprite_memory1_quit
@@ -3623,7 +3544,6 @@ free_sprite_memory1_quit
 	IFNE pf_extra_number
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 free_pf_extra_memory
 		lea	pf_extra_bitmap1(a3),a2
@@ -3642,7 +3562,6 @@ free_pf_extra_memory_quit
 	IFNE pf2_x_size3
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 free_pf2_memory3
 		move.l	pf2_bitmap3(a3),d0
@@ -3655,7 +3574,6 @@ free_pf2_memory3_quit
 	IFNE pf2_x_size2
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 free_pf2_memory2
 		move.l	pf2_bitmap2(a3),d0
@@ -3668,7 +3586,6 @@ free_pf2_memory2_quit
 	IFNE pf2_x_size1
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 free_pf2_memory1
 		move.l	pf2_bitmap1(a3),d0
@@ -3683,7 +3600,6 @@ free_pf2_memory1_quit
 	IFNE pf1_x_size3
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 free_pf1_memory3
 		move.l	pf1_bitmap3(a3),d0
@@ -3696,7 +3612,6 @@ free_pf1_memory3_quit
 	IFNE pf1_x_size2
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 free_pf1_memory2
 		move.l	pf1_bitmap2(a3),d0
@@ -3709,7 +3624,6 @@ free_pf1_memory2_quit
 	IFNE pf1_x_size1
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 free_pf1_memory1
 		move.l	pf1_bitmap1(a3),d0
@@ -3724,7 +3638,6 @@ free_pf1_memory1_quit
 	IFNE cl2_size3
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 free_cl2_memory3
 		move.l	cl2_display(a3),d0
@@ -3741,7 +3654,6 @@ free_cl2_memory3_skip
 	IFNE cl2_size2
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 free_cl2_memory2
 		move.l	cl2_construction2(a3),d0
@@ -3758,7 +3670,6 @@ free_cl2_memory2_skip
 	IFNE cl2_size1
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 free_cl2_memory1
 		move.l	cl2_construction1(a3),d0
@@ -3777,7 +3688,6 @@ free_cl2_memory1_skip
 	IFNE cl1_size3
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 free_cl1_memory3
 		move.l	cl1_display(a3),d0
@@ -3794,7 +3704,6 @@ free_cl1_memory3_skip
 	IFNE cl1_size2
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 free_cl1_memory2
 		move.l	cl1_construction2(a3),d0
@@ -3811,7 +3720,6 @@ free_cl1_memory2_skip
 	IFNE cl1_size1
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 free_cl1_memory1
 		move.l	cl1_construction1(a3),d0
@@ -3831,7 +3739,6 @@ free_cl1_memory1_skip
 		IFEQ screen_fader_enabled
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 			CNOP 0,4
 sf_free_screen_color_cache
 			move.l	sf_screen_color_cache(a3),d0
@@ -3848,7 +3755,6 @@ sf_free_screen_color_cache_skip
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 			CNOP 0,4
 sf_free_screen_color_table
 			move.l	sf_screen_color_table(a3),d0
@@ -3866,7 +3772,6 @@ sf_free_screen_color_table_skip
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 	CNOP 0,4
 free_mouse_pointer_data
 	move.l	mouse_pointer_data(a3),d0
@@ -3883,7 +3788,6 @@ free_mouse_pointer_data_skip
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 close_timer_device
 		lea	timer_io(pc),a1
@@ -3892,7 +3796,6 @@ close_timer_device
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 close_intuition_library
 		move.l	_IntuitionBase(pc),a1
@@ -3901,7 +3804,6 @@ close_intuition_library
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 close_graphics_library
 		move.l	_GfxBase(pc),a1
@@ -3910,7 +3812,6 @@ close_graphics_library
 	
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 print_error_message
 		move.w	custom_error_code(a3),d4
@@ -3928,17 +3829,17 @@ print_error_message
 		rts
 		CNOP 0,4
 print_error_message_skip
-		subq.w	#1,d4		; Zählung beginnt mit 0
-		MULUF.W	8,d4,d1		; 68000er unterstützt kein variables Register-Index
+		subq.w	#1,d4		; count starts at 0
+		MULUF.W	8,d4,d1
 		lea	custom_error_table(pc),a0
-		move.l	(a0,d4.w),d2	; Zeiger auf Fehlertext
-		move.l	4(a0,d4.w),d3	; Länge des Fehlertextes
-		move.l	d0,d1		; Zeiger auf Datei-Handle
+		move.l	(a0,d4.w),d2	; pointer error text
+		move.l	4(a0,d4.w),d3	; error text length
+		move.l	d0,d1		; file handle
 		CALLLIBS Write
 		move.l	raw_handle(a3),d1
 		lea	raw_buffer(a3),a0
-		move.l	a0,d2		; Zeiger auf Puffer
-		moveq	#1,d3		; Anzahl der Zeichen zum Lesen
+		move.l	a0,d2		; buffer
+		moveq	#1,d3		; read 1 character
 		CALLLIBS Read
 		move.l	raw_handle(a3),d1
 		CALLLIBS Close
@@ -3950,7 +3851,6 @@ print_error_message_ok
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 close_dos_library
 		move.l	_DOSBase(pc),a1
@@ -3960,7 +3860,6 @@ close_dos_library
 		IFEQ workbench_start_enabled
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 			CNOP 0,4
 reply_workbench_message
 			move.l	workbench_message(a3),d2

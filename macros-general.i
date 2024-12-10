@@ -25,6 +25,14 @@ wait_right_button_loop\@
 	ENDM
 
 
+WAIT_MOUSE			MACRO	; ONLY for testing purposes
+wm_loop\@
+	move.w	$dff006,$dff180
+	btst	#2,$dff016
+	bne.s	wm_loop\@
+	ENDM
+
+
 RASTER_TIME			MACRO
 ; Input
 ; \1 HEXNUMBER:	RGB4 value (optional)
@@ -59,7 +67,7 @@ SHOW_BEAM_POSITION		MACRO
 AUDIO_TEST			MACRO
 ; Input
 ; Result
-	lea	$20000,a0
+	lea	$20000,a0		; dummy chip memory address
 	move.l	a0,AUD0LCH-DMACONR(a6)
 	move.l	a0,AUD1LCH-DMACONR(a6)
 	move.l	a0,AUD2LCH-DMACONR(a6)
@@ -69,8 +77,8 @@ AUDIO_TEST			MACRO
 	move.w	d0,AUD1LEN-DMACONR(a6)
 	move.w	d0,AUD2LEN-DMACONR(a6)
 	move.w	d0,AUD3LEN-DMACONR(a6)
-	moveq	#64,d0
-	move.w	d0,AUD0VOL-DMACONR(a6)	
+	moveq	#0,d0
+	move.w	d0,AUD0VOL-DMACONR(a6)
 	move.w	d0,AUD1VOL-DMACONR(a6)
 	move.w	d0,AUD2VOL-DMACONR(a6)
 	move.w	d0,AUD3VOL-DMACONR(a6)
@@ -1240,64 +1248,64 @@ CMPF MACRO
 	ENDC
 	ENDM
 
-; ääää
+
 CPU_INIT_COLOR_HIGH		MACRO
 ; Input
-; \1 WORD:		Erstes Farbregister-Offset
-; \2 BYTE_SIGNED:	Anzahl der Farbwerte
-; \3 POINTER:		Farbtabelle (optional)
+; \1 WORD:		First color register offset
+; \2 BYTE_SIGNED:	Number of colors
+; \3 POINTER:		Color table (optional)
 ; Result
 	IFC "","\1"
-		FAIL Macro CPU_INIT_COLOR_HIGH: Erstes Farbregister-Offset missing
+		FAIL Macro CPU_INIT_COLOR_HIGH: First color register offset missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro CPU_INIT_COLOR_HIGH: Anzahl der Farbwerte missing
+		FAIL Macro CPU_INIT_COLOR_HIGH: Number of colors missing
 	ENDC
-	lea		(\1)-DMACONR(a6),a0 ;erstes Farbregister
-	moveq	#\2-1,d7		; Anzahl der Farbwerte
+	lea		(\1)-DMACONR(a6),a0 ;first color register
 	IFNC "","\3"
-		lea	\3(pc),a1	; Farbtabelle
+		lea	\3(pc),a1	; pointer color table
 	ENDC
+	moveq	#\2-1,d7		; number of colors
 	bsr	cpu_init_high_colors
 	ENDM
 
 
 CPU_INIT_COLOR_LOW		MACRO
 ; Input
-; \1 WORD:		Erstes Farbregister-Offset
-; \2 BYTE_SIGNED:	Anzahl der Farbwerte
-; \3 POINTER:		Farbtabelle (optional)
+; \1 WORD:		First color register offset
+; \2 BYTE_SIGNED:	Number of colors
+; \3 POINTER:		Color table (optional)
 ; Result
 	IFC "","\1"
-		FAIL Macro CPU_INIT_COLOR_LOW: Erstes Farbregister-Offset missing
+		FAIL Macro CPU_INIT_COLOR_LOW: First color register offset missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro CPU_INIT_COLOR_LOW: Anzahl der Farbwerte missing
+		FAIL Macro CPU_INIT_COLOR_LOW: Number of colors missing
 	ENDC
 	lea		(\1)-DMACONR(a6),a0 ; erstes Farbregister
-	moveq	#\2-1,d7		; Anzahl der Farbwerte
 	IFNC "","\3"
-		lea	\3(pc),a1	; Farbtabelle
+		lea	\3(pc),a1	; pointer color table
 	ENDC
+	moveq	#\2-1,d7		; number of colors
 	bsr	cpu_init_low_colors
 	ENDM
 
 
 RGB8_TO_RGB4_HIGH		MACRO
 ; Input
-; \1 LONGWORD:	24-Bit Farbwert
-; \2 LONGWORD:	Scratch-Register
-; \3 STRING:	Maske für High-Bits
+; \1 LONGWORD:	RGB8 value
+; \2 LONGWORD:	Scratch register
+; \3 STRING:	Color high bits mask
 ; Result
-; \1 WORD:	Rückgabewert: 2-Bit High-Farbwert
+; \1 WORD:	Return value:  RGB4 high bits
 	IFC "","\1"
-		FAIL Macro RGB8_TO_RGB4_HIGH: 24-Bit Farbwert missing
+		FAIL Macro RGB8_TO_RGB4_HIGH: RGB8 value missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro RGB8_TO_RGB4_HIGH: Scratch-Register missing
+		FAIL Macro RGB8_TO_RGB4_HIGH: Scratch register missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro RGB8_TO_RGB4_HIGH: Maske für High-Bits missing
+		FAIL Macro RGB8_TO_RGB4_HIGH: Color high bits mask missing
 	ENDC
 	lsr.l	#4,\1			; RrGgB
 	and.w	\3,\1			; RrG0B
@@ -1311,19 +1319,19 @@ RGB8_TO_RGB4_HIGH		MACRO
 
 RGB8_TO_RGB4_LOW		MACRO
 ; Input
-; \1 LONGWORD:	24-Bit Farbwert
-; \2 BYTE:	Scratch-Register
-; \3 STRING:	Maske für Low-Bits
+; \1 LONGWORD:	RGB8 value
+; \2 BYTE:	Scratch register
+; \3 STRING:	Color low bits mask
 ; Result
-; \1 WORD:	Rückgabewert: 12-Bit Low-Farbwert
+; \1 WORD:	Return value RGB4 low bits
 	IFC "","\1"
-		FAIL Macro RGB8_TO_RGB4_LOW: 24-Bit Farbwert missing
+		FAIL Macro RGB8_TO_RGB4_LOW: RGB8 value missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro RGB8_TO_RGB4_LOW: Scratch-Register missing
+		FAIL Macro RGB8_TO_RGB4_LOW: Scratch register missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro RGB8_TO_RGB4_LOW: Maske für Low-Bits missing
+		FAIL Macro RGB8_TO_RGB4_LOW: Color low bits mask missing
 	ENDC
 	and.w	\3,\1			;   g0b
 	move.b	\1,\2			;    0b
@@ -1336,27 +1344,27 @@ RGB8_TO_RGB4_LOW		MACRO
 
 RGB8_TO_RGB8_HIGH_LOW		MACRO
 ; Input
-; \1 STRING:	Labels-Prefix der Routine
-; \2 NUMBER:	Anzahl der Einträge
+; \1 STRING:	Labels prefix
+; \2 NUMBER:	Number of entries
 ; Result
 	IFC "","\1"
-		FAIL Macro RGB8_TO_RGB8_HIGH_LOW: Labels-Prefix missing
+		FAIL Macro RGB8_TO_RGB8_HIGH_LOW: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro RGB8_TO_RGB8_HIGH_LOW: Anzahl der Einträge missing
+		FAIL Macro RGB8_TO_RGB8_HIGH_LOW: Number of entries missing
 	ENDC
 	CNOP 0,4
 \1_convert_color_table
 	move.w	#RB_NIBBLES_MASK,d3
-	lea	\1_color_table(pc),a0 ;Zeiger auf Farbtabelle
-	move.w	#\2-1,d7		; Anzahl der Einträge
+	lea	\1_color_table(pc),a0
+	move.w	#\2-1,d7		; number of colors
 \1_convert_color_table_loop
-	move.l	(a0),d0			; Farbwert aus Tabelle lesen
+	move.l	(a0),d0			; RGB8 value
 	move.l	d0,d2					
 	RGB8_TO_RGB4_HIGH d0,d1,d3
-	move.w	d0,(a0)+		; High-Bits
+	move.w	d0,(a0)+		; RGB4 high
 	RGB8_TO_RGB4_LOW d2,d1,d3
-	move.w	d2,(a0)+		; Low-Bits
+	move.w	d2,(a0)+		; RGB4 low
 	dbf	d7,\1_convert_color_table_loop
 	rts
 	ENDM
@@ -1364,51 +1372,51 @@ RGB8_TO_RGB8_HIGH_LOW		MACRO
 
 INIT_CHARACTERS_OFFSETS MACRO
 ; Input
-; \0 STRING:	Größenangabe W/L
-; \1 STRING:	Labels-Prefix der Routine
+; \0 STRING:	Size [W/L]
+; \1 STRING:	Labels prefix
 ; Result
 	CNOP 0,4
 \1_init_characters_offsets
 	IFC "","\0"
-		FAIL Macro INIT_CHARACTERS_OFFSETS: Größenangabe W/L missing
+		FAIL Macro INIT_CHARACTERS_OFFSETS: Size [W/L] missing
 	ENDC
 	IFC "","\1"
-		FAIL Macro INIT_CHARACTERS_OFFSETS: Labels-Prefix der Routine missing
+		FAIL Macro INIT_CHARACTERS_OFFSETS: Labels prefix missing
 	ENDC
 	IFC "W","\0"
-		moveq	#0,d0		; X-Offset erstes Zeichen in Zeichen-Playfieldvorlage
-		moveq	#\1_image_plane_width,d1 ; X-Offset letztes Zeichen in Zeichen-Playfieldvorlage
-		move.w	d1,d2		; X-Offset Resetwert
-		MOVEF.W \1_image_plane_width*\1_image_depth*(\1_origin_character_y_size+1),d3 ; Y-Offset für nächste Reihe der Zeichen in Zeichen-Playfieldvorlage
-		lea	\1_characters_offsets(pc),a0 ; Offsets der Zeichen in Zeichen-Playfieldvorlage
-		moveq	#\1_ascii_end-\1_ascii-1,d7 ; Anzahl der Zeichen des Fonts
+		moveq	#0,d0		; first character image x offset
+		moveq	#\1_image_plane_width,d1 ; last character image x offset
+		move.w	d1,d2		; x offset reset
+		MOVEF.W \1_image_plane_width*\1_image_depth*(\1_origin_character_y_size+1),d3 ; next character images line
+		lea	\1_characters_offsets(pc),a0
+		moveq	#\1_ascii_end-\1_ascii-1,d7
 \1_init_characters_offsets_loop
-		move.w	d0,(a0)+	; X+Y-Offset des Zeichens eintragen
-		addq.w	#\1_origin_character_x_size/8,d0 ; X-Offset des nächsten Zeichens
-		cmp.w	d1,d0		; Letztes Zeichen der Zeile in Zeichen-Playfieldvorlage?
-		bne.s	\1_init_characters_offsets_skip ; Nein -> verzweige
-		sub.w	d2,d0		; X-Offset zurücksetzen (Erstes Zeichen in Zeile)
-		add.w	d3,d1		; + Y-Offset
-		add.w	d3,d0		; Y-Offset = Beginn nächste Reihe in Zeichen-Playfieldvorlage
+		move.w	d0,(a0)+	; character image offset
+		addq.w	#\1_origin_character_x_size/8,d0 ; next character image
+		cmp.w	d1,d0		; last character image in line ?
+		bne.s	\1_init_characters_offsets_skip
+		sub.w	d2,d0		; reset x offset
+		add.w	d3,d1		; + y offset
+		add.w	d3,d0		; next character images line
 \1_init_characters_offsets_skip
 		dbf	d7,\1_init_characters_offsets_loop
 		rts
 	ENDC
 	IFC "L","\0"
-		lea	\1_characters_offsets(pc),a0 ; Offsets der Zeichen in Zeichen-Playfieldvorlage
-		moveq	#0,d0		; X-Offset erstes Zeichen in Zeichen-Playfieldvorlage
-		moveq	#\1_image_plane_width,d1 ; X-Offset letztes Zeichen in Zeichen-Playfieldvorlage
-		move.l	d1,d2		; X-Offset Resetwert
-		move.l	#\1_image_plane_width*\1_image_depth*(\1_origin_character_y_size),d3			Y-Offset für nächste Reihe der Zeichen in Zeichen-Playfieldvorlage
-		moveq	#\1_ascii_end-\1_ascii-1,d7 ; Anzahl der Zeichen des Fonts
+		moveq	#0,d0		; first character image x offset
+		moveq	#\1_image_plane_width,d1 ; last character image x offset
+		move.l	d1,d2		; x offset reset
+		move.l	#\1_image_plane_width*\1_image_depth*(\1_origin_character_y_size),d3 ; next character images line
+		lea	\1_characters_offsets(pc),a0
+		moveq	#\1_ascii_end-\1_ascii-1,d7
 \1_init_characters_offsets_loop
-		move.l	d0,(a0)+	; X+Y-Offset des Zeichens eintragen
-		add.l	#\1_origin_character_x_size/8,d0 ; X-Offset des nächsten Zeichens
-		cmp.l	d1,d0		; Letztes Zeichen der Zeile in Zeichen-Playfieldvorlage?
-		bne.s	\1_init_characters_offsets_skip ; Nein -> verzweige
-		sub.l	d2,d0		; X-Offset zurücksetzen (Erstes Zeichen in Zeile)
-		add.l	d3,d1		; + Y-Offset
-		add.l	d3,d0		; Y-Offset = Beginn nächste Reihe in Zeichen-Playfieldvorlage
+		move.l	d0,(a0)+	; character image offset
+		add.l	#\1_origin_character_x_size/8,d0 ; next character image
+		cmp.l	d1,d0		; last character image in line ?
+		bne.s	\1_init_characters_offsets_skip
+		sub.l	d2,d0		; reset x offset
+		add.l	d3,d1		; + y offset
+		add.l	d3,d0		; next character images line
 \1_init_characters_offsets_skip
 		dbf	d7,\1_init_characters_offsets_loop
 		rts
@@ -1418,50 +1426,50 @@ INIT_CHARACTERS_OFFSETS MACRO
 
 INIT_CHARACTERS_X_POSITIONS	MACRO
 ; Input
-; \1 STRING:	Labels-Prefix der Routine
-; \2 STRING:	Pixel-Auflösung "LORES", "HIRES", "SHIRES"
-; \3 STRING:	Tabellenzugriff "BACKWARDS" (optional)
-; \4 NUMBER:	Anzahl der Buchstaben (optional)
+; \1 STRING:	Labels prefix
+; \2 STRING:	Pixel resolution ["LORES", "HIRES", "SHIRES"]
+; \3 STRING:	Entry access "BACKWARDS" (optional)
+; \4 NUMBER:	Number of characters (optional)
 ; Result
 	CNOP 0,4
 \1_init_characters_x_positions
 	IFC "","\1"
-		FAIL Macro INIT_CHARACTERS_X_POSITIONS: Labels-Prefix missing
+		FAIL Macro INIT_CHARACTERS_X_POSITIONS: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro INIT_CHARACTERS_X_POSITIONS: Pixel-Auflösung "LORES", "HIRES", "SHIRES" missing
+		FAIL Macro INIT_CHARACTERS_X_POSITIONS: Pixel resolution ["LORES", "HIRES", "SHIRES"] missing
 	ENDC
-	moveq	#0,d0			; 1. X-Position
+	moveq	#0,d0			; first x
 	IFC "LORES","\2"
-		moveq	#\1_text_character_x_size,d1 ; Additionswert
+		moveq	#\1_text_character_x_size,d1 ; next character image
 	ENDC
 	IFC "HIRES","\2"
-		moveq	#\1_text_character_x_size*HIRES_PIXEL_FACTOR,d1 ; Additionswert
+		moveq	#\1_text_character_x_size*HIRES_PIXEL_FACTOR,d1 ; next character image
 	ENDC
 	IFC "SHIRES","\2"
-		MOVEF.W	\1_text_character_x_size*SHIRES_PIXEL_FACTOR,d1 ; Additionswert
+		MOVEF.W	\1_text_character_x_size*SHIRES_PIXEL_FACTOR,d1 ; next character image
 	ENDC
 	IFNC "BACKWARDS","\3"
-		lea	\1_characters_x_positions(pc),a0 ; Zeiger auf Tabelle mit X-Koords.
+		lea	\1_characters_x_positions(pc),a0
 	ELSE
 		IFC "","\4"
-			lea	\1_characters_x_positions+(\1_text_characters_number*WORD_SIZE)(pc),a0 ; Tabelle mit X-Koords.-Ende
+			lea	\1_characters_x_positions+(\1_text_characters_number*WORD_SIZE)(pc),a0
 		ELSE
-			lea	\1_characters_x_positions+((\1_\4)*WORD_SIZE)(pc),a0 ; Tabelle mit X-Koords.-Ende
+			lea	\1_characters_x_positions+((\1_\4)*WORD_SIZE)(pc),a0
 		ENDC
 	ENDC
 	IFC "","\4"
-		moveq	#(\1_text_characters_number)-1,d7 ;Anzahl der Buchstaben
+		moveq	#(\1_text_characters_number)-1,d7
 	ELSE
-		moveq	#(\1_\4)-1,d7	; Anzahl der Buchstaben
+		moveq	#(\1_\4)-1,d7	; number of chracters
 	ENDC
 \1_init_characters_x_positions_loop
 	IFNC "BACKWARDS","\3"
-		move.w	d0,(a0)+	; X
+		move.w	d0,(a0)+	; x position
 	ELSE
-		move.w	d0,-(a0)	; X
+		move.w	d0,-(a0)	; x position
 	ENDC
-	add.w	d1,d0			; X erhöhen
+	add.w	d1,d0			; next character image
 	dbf	d7,\1_init_characters_x_positions_loop
 	rts
 	ENDM
@@ -1469,25 +1477,25 @@ INIT_CHARACTERS_X_POSITIONS	MACRO
 
 INIT_CHARACTERS_Y_POSITIONS		MACRO
 ; Input
-; \1 STRING:	Labels-Prefix der Routine
-; \2 NUMBER:	Anzahl der Buchstaben (optional)
+; \1 STRING:	Labels prefix
+; \2 NUMBER:	Number of characters (optional)
 ; Result
 	CNOP 0,4
 \1_init_characters_y_positions
 	IFC "","\1"
-		FAIL Macro INIT_CHARACTERS_Y_POSITIONS: Labels-Prefix missing
+		FAIL Macro INIT_CHARACTERS_Y_POSITIONS: Labels prefix missing
 	ENDC
-	moveq	#0,d0			; 1. Y-Position
-	moveq	#\1_text_character_y_size,d1 ; Additionswert
-	lea	\1_characters_y_positions(pc),a0 ; Zeiger auf Tabelle mit X-Koords.
+	moveq	#0,d0			; First y
+	moveq	#\1_text_character_y_size,d1 ; next chracter image
+	lea	\1_characters_y_positions(pc),a0
 	IFC "","\2"
-		moveq	#(\1_text_characters_number)-1,d7 ; Anzahl der Buchstaben
+		moveq	#(\1_text_characters_number)-1,d7
 	ELSE
-		moveq	#(\1_\2)-1,d7	; Anzahl der Buchstaben
+		moveq	#(\1_\2)-1,d7	; Number of characters
 	ENDC
 \1_init_characters_y_positions_loop
-	move.w	d0,(a0)+		; X
-	add.w	d1,d0			; X erhöhen
+	move.w	d0,(a0)+		; y position
+	add.w	d1,d0			; next character image
 	dbf	d7,\1_init_characters_y_positions_loop
 	rts
 	ENDM
@@ -1495,18 +1503,18 @@ INIT_CHARACTERS_Y_POSITIONS		MACRO
 
 INIT_CHARACTERS_IMAGES		MACRO
 ; Input
-; \1 STRING:	Labels-Prefix der Routine
+; \1 STRING:	Labels prefix
 ; Result
 	CNOP 0,4
 \1_init_characters_images
 	IFC "","\1"
-		FAIL Macro INIT_CHARACTERS_IMAGES: Labels-Prefix missing
+		FAIL Macro INIT_CHARACTERS_IMAGES: Labels prefix missing
 	ENDC
 	lea	\1_characters_image_ptrs(pc),a2
 	MOVEF.W	(\1_text_characters_number)-1,d7
 \1_init_characters_images_loop
 	bsr	\1_get_new_character_image
-	move.l	d0,(a2)+		; Character-Adresse
+	move.l	d0,(a2)+		; Character image
 	dbf	d7,\1_init_characters_images_loop
 	rts
 	ENDM
@@ -1514,31 +1522,31 @@ INIT_CHARACTERS_IMAGES		MACRO
 
 GET_NEW_CHARACTER_IMAGE		MACRO
 ; Input
-; \0 STRING:	Größenangabe W/L
-; \1 STRING:	Labels-Prefix der Routine
-; \2 LABEL:	Sub-Routine zusätzliche Checks für Steuerungs-Codes (optional)
-; \3 STRING:	"NORESTART" für Schriften, die nicht endlos sind (optional)
+; \0 STRING:	Size [W/L]
+; \1 STRING:	Labels prefix
+; \2 LABEL:	Sub routine acheck control codes (optional)
+; \3 STRING:	"NORESTART" (optional)
 ; \4 STRING:	"BACKWARDS" (optional)
-; \5 STRING:	Offset nächster Buchstabe (optional)
+; \5 STRING:	Offset next character image (optional)
 ; Result
-; d0.l		Rückgabewert: Zeiger auf Character-Image
+; d0.l		Return value: pointer character image
 	IFC "","\0"
-		FAIL Macro GET_NEW_CHARACTER_IMAGE: Größenangabe W/L missing
+		FAIL Macro GET_NEW_CHARACTER_IMAGE: Size [W/L] missing
 	ENDC
 	IFC "","\1"
-		FAIL Macro GET_NEW_CHARACTER_IMAGE: Labels-Prefix missing
+		FAIL Macro GET_NEW_CHARACTER_IMAGE: Labels prefix missing
 	ENDC
 	CNOP 0,4
 \1_get_new_character_image
-	move.w	\1_text_table_start(a3),d1 ; Offset für bestimmtes Zeichen im Text
+	move.w	\1_text_table_start(a3),d1
 	IFC "BACKWARDS","\4"
 		bpl.s	\1_get_new_character_image_skip1
-		move.w	#\1_text_end-\1_text-1,d1 ; Neustart
+		move.w	#\1_text_end-\1_text-1,d1 ; restart text
 \1_get_new_character_image_skip1
 	ENDC
 	lea	\1_text(pc),a0
 \1_get_new_character_image_skip2
-	move.b	(a0,d1.w),d0		; ASCII-Code
+	move.b	(a0,d1.w),d0		; ASCII code
 	IFNC "","\2"
 		bsr.s	\2
 		tst.l	d0
@@ -1546,67 +1554,67 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 	ENDC
 	IFNC "BACKWARDS","\4"
 		IFNC "NORESTART","\3"
-			cmp.b	#FALSE,d0 ; Ende des Textes erreicht ?
+			cmp.b	#FALSE,d0 ; End of text reached ?
 			beq.s	\1_get_new_character_image_skip6
 		ENDC
 	ENDC
-	lea	\1_ascii(pc),a0		; Zeiger auf Tabelle mit ASCII-Codes der Zeichen
-	moveq	#\1_ascii_end-\1_ascii-1,d6 ; Anzahl der zu suchenden Zeichen
+	lea	\1_ascii(pc),a0
+	moveq	#\1_ascii_end-\1_ascii-1,d6
 \1_get_new_character_image_loop
-	cmp.b	(a0)+,d0		; Zeichen gefunden ?
-	dbeq	d6,\1_get_new_character_image_loop ; Nein -> Schleife
+	cmp.b	(a0)+,d0		; character found ?
+	dbeq	d6,\1_get_new_character_image_loop
 	IFC "BACKWARDS","\4"
 		IFC "","\5"
-			subq.w	#1,d1	; nächstes Zeichen
+			subq.w	#BYTE_SIZE,d1 ; next character
 		ELSE
- 			SUBF.W	\1_\5,d1 ; nächstes Zeichen
+ 			SUBF.W	\1_\5,d1 ; next character
 		ENDC
 	ELSE
 		IFLT \1_origin_character_x_size-32
 			IFC "","\5"
-				addq.w	#1,d1 ; nächstes Zeichen
+				addq.w	#BYTE_SIZE,d1 ; next character
 			ELSE
- 				ADDF.W	\1_\5,d1 ; nächstes Zeichen
+ 				ADDF.W	\1_\5,d1 ; next character
 			ENDC
 		ELSE
 		IFNE \1_text_character_x_size-16
 			IFC "","\5"
-				addq.w	#1,d1 ; nächstes Zeichen
+				addq.w	#BYTE_SIZE,d1 ; next character
 			ELSE
- 				ADDF.W	\1_\5,d1 ; nächstes Zeichen
+ 				ADDF.W	\1_\5,d1 ; next character
 			ENDC
 		ENDC
 		ENDC
 	ENDC
 
-	moveq	#\1_ascii_end-\1_ascii-1,d0 ; Anzahl der zu suchenden Zeichen
+	moveq	#\1_ascii_end-\1_ascii-1,d0
 	IFLT \1_origin_character_x_size-32
-		move.w	d1,\1_text_table_start(a3) ; Offset auf das Zeichen retten
+		move.w	d1,\1_text_table_start(a3)
 	ELSE
 		IFNE \1_text_character_x_size-16
-			move.w	d1,\1_text_table_start(a3) ; Offset auf das Zeichen retten
+			move.w	d1,\1_text_table_start(a3)
 		ENDC
 	ENDC
-	sub.w	d6,d0			; Anzahl der Zeichen - Schleifenzähler
-	lea	\1_characters_offsets(pc),a0 ; Zeiger auf Tabelle mit Offsets der Zeichen-Playfields
+	sub.w	d6,d0			; number of characters - loop counter
+	lea	\1_characters_offsets(pc),a0
 	IFC "W","\0"
-		move.w	(a0,d0.w*2),d0	; Offset des Zeichen-Playfieldes
+		move.w	(a0,d0.w*2),d0	; offset character image
 	ENDC
 	IFC "L","\0"
-		move.l	(a0,d0.w*4),d0	; Offset des Zeichen-Playfieldes
+		move.l	(a0,d0.w*4),d0	; offset character image
 	ENDC
-	add.l	\1_image(a3),d0		; Adresse der Zeichen-Playfieldvorlage ergänzen
+	add.l	\1_image(a3),d0
 	IFNC "BACKWARDS","\4"
 		IFEQ \1_origin_character_x_size-32
 			IFEQ \1_text_character_x_size-16
-				not.w	\1_character_toggle_image(a3) ; Neues Image für Char ?
+				not.w	\1_character_toggle_image(a3) ; new character image ?
 				bne.s	\1_get_new_character_image_skip3
 				IFC "","\5"
-					addq.w	#1,d1 ; nächstes Zeichen
+					addq.w	#BYTE_SIZE,d1 ; next character
 				ELSE
- 					ADDF.W	\1_\5,d1 ; nächstes Zeichen
+ 					ADDF.W	\1_\5,d1 ; next character
 				ENDC
-				addq.l	#2,d0 ; 2. Teil des Character-Images
+				addq.l	#WORD_SIZE,d0 ; 2nd part of character image
 				move.w	d1,\1_text_table_start(a3)
 \1_get_new_character_image_skip3
 			ENDC
@@ -1616,18 +1624,18 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 				moveq	#0,d3
 				move.w	\1_character_words_counter(a3),d3
 				move.l	d3,d4
-				MULUF.W	2,d4 ; Wort-Offset des Images
-				addq.w	#1,d3 ; Nächstes Wort in Image
-				add.l	d4,d0 ; + Offset in Char-Image
-				cmp.w	#\1_origin_character_x_size/16,d3 ; Neues Image für Character ?
+				MULUF.W	WORD_SIZE,d4
+				addq.w	#1,d3
+				add.l	d4,d0 ; offset in character image
+				cmp.w	#\1_origin_character_x_size/16,d3 ; new character image ?
 				bne.s	\1_get_new_character_image_skip4
 				IFC "","\5"
-					addq.w	#1,d1 ; nächstes Zeichen
+					addq.w	#BYTE_SIZE,d1 ; next character
 				ELSE
- 					ADDF.W	\1_\5,d1 ; nächstes Zeichen
+ 					ADDF.W	\1_\5,d1 ; next chataczer
 				ENDC
 				move.w	d1,\1_text_table_start(a3)
-				moveq	#0,d3 ; Zähler zurücksetzen
+				moveq	#0,d3 ; reset words counter
 \1_get_new_character_image_skip4
 				move.w	d3,\1_character_words_counter(a3)
 			ENDC
@@ -1638,9 +1646,9 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 		IFNC "","\2"
 \1_get_new_character_image_skip5
 			IFC "","\5"
-				addq.w	#1,d1 ; nächstes Zeichen
+				addq.w	#BYTE_SIZE,d1 ; next character
 			ELSE
-				ADDF.W	\1_\5,d1 ; nächstes Zeichen
+				ADDF.W	\1_\5,d1 ; next character
 			ENDC
 			IFGE \1_origin_character_x_size-32
 				IFEQ \1_text_character_x_size-16
@@ -1661,41 +1669,41 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 
 CPU_SELECT_COLOR_HIGH_BANK	MACRO
 ; Input
-; \1 NUMBER:	Color-Bank 0..7
-; \2 WORD:	zusätzliche BPLCON3-bits (optional)
+; \1 NUMBER:	Color bank [0..7]
+; \2 WORD:	Additional BPLCON3 bits (optional)
 ; Result
 	IFC "","\1"
-		FAIL Macro CPU_SELECT_COLOR_HIGH_BANK: Color-Bank-Nummer missing
+		FAIL Macro CPU_SELECT_COLOR_HIGH_BANK: Color bank [0..7] missing
 	ENDC
 	IFC "","\2"
 		IFNE \1
-			move.w	#bplcon3_bits1|(BPLCON3F_BANK0*\1),BPLCON3-DMACONR(a6) ; High-Bits
+			move.w	#bplcon3_bits1|(BPLCON3F_BANK0*\1),BPLCON3-DMACONR(a6)
 		ELSE
 			MOVEF.W bplcon3_bits1|(BPLCON3F_BANK0*\1),d0
-			move.w	d0,BPLCON3-DMACONR(a6) ; High-Bits
+			move.w	d0,BPLCON3-DMACONR(a6)
 		ENDC
 	ELSE
 		MOVEF.W bplcon3_bits1|(BPLCON3F_BANK0*\1),d0
 		or.w	#\2,d0
-		move.w	d0,BPLCON3-DMACONR(a6) ; High-Bits
+		move.w	d0,BPLCON3-DMACONR(a6)
 	ENDC
 	ENDM
 
 
 CPU_SELECT_COLOR_LOW_BANK	MACRO
 ; Input
-; \1 NUMBER: Color-Bank 0..7
-; \2 WORD: zusätzliche BPLCON3-bits (optional)
+; \1 NUMBER:	Color bank [0..7]
+; \2 WORD:	Additional BPCON3 bits (optional)
 ; Result
 	IFC "","\1"
-		FAIL Macro CPU_SELECT_COLOR_LOW_BANK: Color-Bank-Nummer missing
+		FAIL Macro CPU_SELECT_COLOR_LOW_BANK: Color bank [0..7] missing
 	ENDC
 	IFC "","\2"
-		move.w	#bplcon3_bits2|(BPLCON3F_BANK0*\1),BPLCON3-DMACONR(a6) ; Low-Bits
+		move.w	#bplcon3_bits2|(BPLCON3F_BANK0*\1),BPLCON3-DMACONR(a6)
 	ELSE
 		MOVEF.W bplcon3_bits2|(BPLCON3F_BANK0*\1),d0
 		or.w	#\2,d0
-		move.w	d0,BPLCON3-DMACONR(a6) ; Low-Bits
+		move.w	d0,BPLCON3-DMACONR(a6)
 	ENDC
 	ENDM
 
@@ -1703,27 +1711,27 @@ CPU_SELECT_COLOR_LOW_BANK	MACRO
 DISABLE_060_STORE_BUFFER	MACRO
 ; Input
 ; Result
+; d0.l	... CACR old content
 	move.l	_SysBase(pc),a6
-	tst.b	AttnFlags+BYTESZE(a6)	; CPU 68060 ?
+	tst.b	AttnFlags+BYTESZE(a6)	; 68060 ?
 	bpl.s	disable_060_store_buffer_skip
 	lea	do_disable_060_store_buffer(pc),a5
 	CALLLIBS Supervisor
 	move.l	d0,os_cacr(a3)
 disable_060_store_buffer_skip
 	rts
-; Store-Buffer deaktivieren
-; d0.l	... Alter Inhalt von CACR
+
 	CNOP 0,4
 do_disable_060_store_buffer
-	or.w	#SRF_I0|SRF_I1|SRF_I2,SR ; Level-7-Interruptebene
+	or.w	#SRF_I0|SRF_I1|SRF_I2,SR ; highest interrupt level
 	nop
 	movec.l CACR,d0
 	move.l	d0,d1					
 	nop
-	CPUSHA	BC			; Instruction/Data/Branch-Caches flushen
+	CPUSHA	BC			; flush instruction/data/branch caches
 	nop
-	and.l	#~CACR060F_ESB,d1
-	movec.l	d1,CACR			; Store-Buffer aus
+	and.l	#~CACR060F_ESB,d1	; disable store buffer
+	movec.l	d1,CACR
 	nop
 	rte
 	ENDM
@@ -1731,9 +1739,10 @@ do_disable_060_store_buffer
 
 ENABLE_060_STORE_BUFFER		MACRO
 ; Input
+; d1.l	... CACR old content
 ; Result
 	move.l	_SysBase(pc),a6
-	tst.b	AttnFlags+BYTE_SIZE(a6)	; CPU 68060 ?
+	tst.b	AttnFlags+BYTE_SIZE(a6)	; 68060 ?
 	bpl.s	enable_060_store_buffer_skip
 	lea	do_enable_060_store_buffer(pc),a5
 	move.l	os_cacr(a3),d1
@@ -1741,113 +1750,113 @@ ENABLE_060_STORE_BUFFER		MACRO
 enable_060_store_buffer_skip
 	rts
 	CNOP 0,4
-; d1.l	... alter Inhalt von CACR
-	CNOP 0,4
 do_enable_060_store_buffer
-	or.w	#SRF_I0|SRF_I1|SRF_I2,SR ; Level-7-Interruptebene
+	or.w	#SRF_I0|SRF_I1|SRF_I2,SR ; highest interrupt level
 	nop
-	CPUSHA	BC			; Instruction/Data/Branch-Caches flushen
+	CPUSHA	BC			; flush instruction/data/branch caches
 	nop
-	movec.l d1,CACR			; Store Buffer an
+	or.b	#CACR060F_ESB,d1	; enable store buffer
+	nop
+	movec.l d1,CACR
 	nop
 	rte
 	ENDM
 
 
-INIT_MIRROR_bplam_table	MACRO
+INIT_MIRROR_BPLAM_TABLE	MACRO
 ; Input
-; \0 STRING:		Größenangabe B/W
-; \1 STRING:		Labels-Prefix der Routine
-; \2 NUMBER:		Erster Switchwert (optional)
-; \3 NUMBER:		Additionswert für Switchwert (optional)
-; \4 BYTE SIGNED:	Anzahl der Farbverläufe
-; \5 BYTE SINGED:	Anzahl der Abschnitte pro Farbverlauf
-; \6 POINTER:		Tabelle mit Switchwerten
-; \7 STRING:		Pointer-Base [pc, a3]
-; \8 WORD:		Offset Tabellenanfang (optional)
-; \9 NUMBER:		Erster Switchwert für Spiegelung (optional)
+; \0 STRING:		Size [B/W]
+; \1 STRING:		Labels prefix
+; \2 NUMBER:		First BPLAM value (optional)
+; \3 NUMBER:		Next switch value (optional)
+; \4 BYTE SIGNED:	Number of color gradients
+; \5 BYTE SINGED:	Number of sections per color gradient
+; \6 POINTER:		BPLAM table
+; \7 STRING:		Pointer base [pc, a3]
+; \8 WORD:		Offset table start (optional)
+; \9 NUMBER:		Firsr switch value for mirroring (optional)
 ; Result
 	CNOP 0,4
 \1_init_mirror_bplam_table
 	IFC "","\0"
-		FAIL Macro MIRROR_bplam_table: Größenangabe B/W missing
+		FAIL Macro MIRROR_bplam_table: Size [B/W] missing
 	ENDC
 	IFC "","\1"
-		FAIL Macro MIRROR_bplam_table: Labels-Prefix missing
+		FAIL Macro MIRROR_bplam_table: Labels prefix missing
 	ENDC
 	IFC "","\4"
-		FAIL Macro INIT_MIRROR_bplam_table: Anzahl der Farbverläufe missing
+		FAIL Macro INIT_MIRROR_bplam_table: Number of color gradients missing
 	ENDC
 	IFC "","\5"
-		FAIL Macro INIT_MIRROR_bplam_table: Anzahl der Abschnitte pro Farbverlauf missing
+		FAIL Macro INIT_MIRROR_bplam_table: Number of sections per color gradient missing
 	ENDC
 	IFC "","\6"
-		FAIL Macro INIT_MIRROR_bplam_table: Tabelle mit Switchwerten missing
+		FAIL Macro INIT_MIRROR_bplam_table: BPLAM table missing
 	ENDC
 	IFC "","\7"
-		FAIL Macro INIT_MIRROR_bplam_table: Pointer-Base [pc, a3] missing
+		FAIL Macro INIT_MIRROR_bplam_table: Pointer base [pc, a3] missing
 	ENDC
 	IFC "pc","\7"
-		lea	\1_\6(\7),a0	; Zeiger auf Switch-Tabelle
+		lea	\1_\6(\7),a0	; pointer BPLAM table
 	ENDC
 	IFC "a3","\7"
-		move.l	\6(\7),a0	; Zeiger auf Switch-Tabelle
+		move.l	\6(\7),a0	; pointer BPLAM table
 	ENDC
 	IFC "B","\0"
 		IFNC "","\8"
-			add.l	#\8*BYTE_SIZE,a0 ; Offset Tabellenanfang
+			add.l	#\8*BYTE_SIZE,a0 ; Offset table start
 		ENDC
 		IFNC "","\2"
-			moveq	#\2,d0	; Erster Switchwert
+			moveq	#\2,d0	; first BPLAM value
 		ENDC
 		IFNC "","\3"
-			moveq	#\3,d2	; Additionswert für Switchwert
+			moveq	#\3,d2	; next BPLAM value
 		ENDC
-		moveq	#\4-1,d7	; Anzahl der Farbverläufe
+		moveq	#\4-1,d7	; number of color gradients
 \1_init_mirror_bplam_table_loop1
-		MOVEF.W \5-1,d6		; Anzahl der Farb/Switchwerte pro Farbverlauf
+		MOVEF.W \5-1,d6		; number of sections per color gradient
 \1_init_mirror_bplam_table_loop2_1
-		move.b	d0,(a0)+	; Switchwert
-		add.w	d2,d0		; Switchwert erhöhen
+		move.b	d0,(a0)+
+		add.w	d2,d0		; next BPLAM value
 		dbf	d6,\1_init_mirror_bplam_table_loop2_1
 		IFC "","\9"
 			move.w	d0,d1
 		ELSE
 			move.w	#\9,d1
 		ENDC
-		MOVEF.W	\5-1,d6		; Anzahl der Farb/Switchwerte pro Farbverlauf
+		MOVEF.W	\5-1,d6		; number of sections per color gradient
 \1_init_mirror_bplam_table_loop2_2
-		sub.w	d2,d1		; Switchwert verringern
-		move.b	d1,(a0)+	; Switchwert
+		sub.w	d2,d1		; previous BPLAM value
+		move.b	d1,(a0)+
 		dbf	d6,\1_init_mirror_bplam_table_loop2_2
 		dbf	d7,\1_init_mirror_bplam_table_loop1
 	ENDC
 	IFC "W","\0"
 		IFNC "","\8"
-			add.l	#\8*WORD_SIZE,a0 ; Offset Tabellenanfang
+			add.l	#\8*WORD_SIZE,a0 ; Offset table start
 		ENDC
 		IFNC "","\2"
-			move.l	#(\2<<8)|bplcon4_bits,d0 ; Erster Switchwert
+			move.l	#(\2<<8)|bplcon4_bits,d0 ; first BPLAM value
 		ENDC
 		IFNC "","\3"
-			move.l	#\3<<8,d2 ; Additionswert für Switchwert
+			move.l	#\3<<8,d2 ; next BPLAM value
 		ENDC
-		moveq	#\4-1,d7	; Anzahl der Farbverläufe
+		moveq	#\4-1,d7	; number of color gradients
 \1_init_mirror_bplam_table_loop1
-		MOVEF.W	\5-1,d6		; Anzahl der Farb/Switchwerte pro Farbverlauf
+		MOVEF.W	\5-1,d6		; number of sections per color gradient
 \1_init_mirror_bplam_table_loop2_1
-		move.w	d0,(a0)+	; Switchwert
-		add.l	d2,d0		; Switchwert erhöhen
+		move.w	d0,(a0)+
+		add.l	d2,d0		; next BPLAM value
 		dbf	d6,\1_init_mirror_bplam_table_loop2_1
 		IFC "","\9"
 			move.l	d0,d1
 		ELSE
 			move.l	#\9,d1
 		ENDC
-		moveq	#\5-1,d6	; Anzahl der Farb/Switchwerte pro Farbverlauf
+		moveq	#\5-1,d6	; number of sections per color gradient
 \1_init_mirror_bplam_table_loop2_2
-		sub.l	d2,d1		; Switchwert verringern
-		move.w	d1,(a0)+	; Switchwert
+		sub.l	d2,d1		; previous BPLAM value
+		move.w	d1,(a0)+
 		dbf	d6,\1_init_mirror_bplam_table_loop2_2
 		dbf	d7,\1_init_mirror_bplam_table_loop1
 	ENDC
@@ -1855,198 +1864,198 @@ INIT_MIRROR_bplam_table	MACRO
 	ENDM
 
 
-INIT_NESTED_MIRROR_bplam_table	MACRO
+INIT_NESTED_MIRROR_BPLAM_TABLE	MACRO
 ; Input
-; \0 STRING:		Größenangabe B/W
-; \1 STRING:		Labels-Prefix der Routine
-; \2 NUMBER:		Erster Switchwert
-; \3 NUMBER:		Additionswert für Switchwert
-; \4 BYTE SIGNED:	Anzahl der Farbverläufe
-; \5 BYTE SINGED:	Anzahl der Abschnitte pro Farbverlauf
-; \6 POINTER:		Tabelle mit Switchwerten
-; \7 STRING:		Pointer-Base [pc, a3]
-; \8 WORD:		Offset Tabellenanfang (optional)
-; \9 NUMBER:		Erster Switchwert für Spiegelung (optional)
+; \0 STRING:		Size [B/W]
+; \1 STRING:		Labels prefix
+; \2 NUMBER:		First BPLAM value
+; \3 NUMBER:		next BPLAM value
+; \4 BYTE SIGNED:	Number of color gradients
+; \5 BYTE SINGED:       Number of sections per color gradient
+; \6 POINTER:		BPLAM table
+; \7 STRING:		Pointer base [pc, a3]
+; \8 WORD:		Offset table start (optional)
+; \9 NUMBER:		First BPLAM value for mirroring (optional)
 ; Result
 	CNOP 0,4
 \1_init_nested_mirror_bplam_table
 	IFC "","\0"
-		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Größenangabe B/W missing
+		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Size [B/W] missing
 	ENDC
 	IFC "","\1"
-		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Labels-Prefix missing
+		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Erster Switchwert missing
+		FAIL Macro INIT_NESTED_MIRROR_bplam_table: First BPLAM value missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Additionswert für Switchwert missing
+		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Next BPLAM value missing
 	ENDC
 	IFC "","\4"
-		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Anzahl der Farbverläufe missing
+		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Number of color gradients missing
 	ENDC
 	IFC "","\5"
-		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Anzahl der Abschnitte pro Farbverlauf missing
+		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Number of sections per color gradient missing
 	ENDC
 	IFC "","\6"
-		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Tabelle mit Switchwerten missing
+		FAIL Macro INIT_NESTED_MIRROR_bplam_table: BPLAM table missing
 	ENDC
 	IFC "","\7"
-		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Pointer-Base [pc, a3] missing
+		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Pointer base [pc, a3] missing
 	ENDC
 	IFC "pc","\7"
-		lea	\1_\6(\7),a1	; Zeiger auf Switch-Tabelle
+		lea	\1_\6(\7),a1	; pointer BPLAM table
 	ENDC
 	IFC "a3","\7"
-		move.l	\6(\7),a1	; Zeiger auf Switch-Tabelle
+		move.l	\6(\7),a1	; pointer BPLAM table
 	ENDC
 	IFNC "","\8"
-		add.l	#\8,a1		; Offset Tabellenanfang
+		add.l	#\8,a1		; Offset table start
 	ENDC
 	IFC "B","\0"
-		moveq	#\2,d0		; Erster Switchwert
-		moveq	#\3,d2		; Additionswert für Switchwert
-		moveq	#\4-1,d7	; Anzahl der Farbverläufe
+		moveq	#\2,d0		; first BPLAM value
+		moveq	#\3,d2		; next BPLAM value
+		moveq	#\4-1,d7	; number of color gradients
 \1_init_nested_mirror_bplam_table_loop1
-		move.l	a1,a0		; Zeiger auf Tabelle mit Switchwerten
-		moveq	#\5-1,d6	; Anzahl der Farb/Switchwerte pro Farbverlauf
+		move.l	a1,a0		; pointer BPLAM table
+		moveq	#\5-1,d6	; number of sections per color gradient
 \1_init_nested_mirror_bplam_table_loop2_1
-		move.b	d0,(a0)		; Switchwert retten
-		add.w	d2,d0		; Switchwert erhöhen
-		addq.w	#\4*BYTE_SIZE,a0 ; Offset addieren
+		move.b	d0,(a0)
+		add.w	d2,d0		; next BPLAM value
+		addq.w	#\4*BYTE_SIZE,a0 ; add offset
 		dbf	d6,\1_init_nested_mirror_bplam_table_loop2_1
 		IFC "","\9"
 			move.w	d0,d1
 		ELSE
 			move.w	#\9,d1
 		ENDC
-		MOVEF.W	\5-1,d6		; Anzahl der Farb/Switchwerte pro Farbverlauf
+		MOVEF.W	\5-1,d6		; number of sections per color gradient
 \1_init_nested_mirror_bplam_table_loop2_2
-		sub.w	d2,d1		; Switchwert verringern
-		move.b	d1,(a0)		; Switchwert retten
-		addq.w	#\4*BYTE_SIZE,a0 ; Offset addieren
+		sub.w	d2,d1		; previous BPLAM value
+		move.b	d1,(a0)
+		addq.w	#\4*BYTE_SIZE,a0 ; add offset
 		dbf	d6,\1_init_nested_mirror_bplam_table_loop2_2
-		addq.w	#BYTE_SIZE,a1	; nächstes Segment
+		addq.w	#BYTE_SIZE,a1	; next section
 		dbf	d7,\1_init_nested_mirror_bplam_table_loop1
 	ENDC
 	IFC "W","\0"
-		move.l	#(\2<<8)|bplcon4_bits,d0 ; Erster Switchwert
-		move.l	#\3<<8,d2	; Additionswert für Switchwert
-		moveq	#\4-1,d7	; Anzahl der Farbverläufe
+		move.l	#(\2<<8)|bplcon4_bits,d0 ; first BPLAM value
+		move.l	#\3<<8,d2	; next BPLAM value
+		moveq	#\4-1,d7	; number of color gradients
 \1_init_nested_mirror_bplam_table_loop1
-		move.l	a1,a0		; Zeiger auf Tabelle mit Switchwerten
-		moveq	#\5-1,d6	; Anzahl der Farb/Switchwerte pro Farbverlauf
+		move.l	a1,a0		; pointer BPLAM table
+		moveq	#\5-1,d6	; number of sections per color gradient
 \1_init_nested_mirror_bplam_table_loop2_1
-		move.w	d0,(a0)		; Switchwert retten
-		add.l	d2,d0		; Switchwert erhöhen
-		addq.w	#\4*WORD_SIZE,a0 ; Offset addieren
+		move.w	d0,(a0)
+		add.l	d2,d0		; next BPLAM value
+		addq.w	#\4*WORD_SIZE,a0 ; add offset
 		dbf	d6,\1_init_nested_mirror_bplam_table_loop2_1
 		IFC "","\9"
 			move.l	d0,d1
 		ELSE
 			move.l	#\9,d1
 		ENDC
-		moveq	#\5-1,d6	; Anzahl der Farb/Switchwerte pro Farbverlauf
+		moveq	#\5-1,d6	; number of sections per color gradient
 \1_init_nested_mirror_bplam_table_loop2_2
-		sub.l	d2,d1		; Switchwert verringern
-		move.w	d1,(a0)		; Switchwert retten
-		addq.w	#\4*WORD_SIZE,a0 ; Offset addieren
+		sub.l	d2,d1		; previous BPLAM value
+		move.w	d1,(a0)
+		addq.w	#\4*WORD_SIZE,a0 ; add offset
 		dbf	d6,\1_init_nested_mirror_bplam_table_loop2_2
-		addq.w	#WORD_SIZE,a1	; nächstes Segment
+		addq.w	#WORD_SIZE,a1	; next section
 		dbf	d7,\1_init_nested_mirror_bplam_table_loop1
 	ENDC
 	rts
 	ENDM
 
 
-INIT_bplam_table		MACRO
+INIT_BPLAM_TABLE		MACRO
 ; Input
-; \0 STRING:		Größenangabe B/W
-; \1 STRING:		Labels-Prefix der Routine
-; \2 NUMBER:		Erster Switchwert
-; \3 NUMBER:		Additionswert für Switchwert
-; \4 BYTE SIGNED:	Anzahl der Farb/Switchwerte pro Farbverlauf
-; \5 POINTER:		Tabelle mit Switchwerten (optional)
-; \6 STRING:		Pointer-Base [pc, a3] (optoinal)
-; \7 WORD:		Offset Tabellenanfang (optional)
-; \8 LONGWORD:		Offset zum nächsten Wert in Switchtabelle (optional)
+; \0 STRING:		Size [B/W]
+; \1 STRING:		Labels prefix
+; \2 NUMBER:		First BPLAM value
+; \3 NUMBER:		Next BPLAM value
+; \4 BYTE SIGNED:	Number of sections per color gradient
+; \5 POINTER:		BPLAM table (optional)
+; \6 STRING:		Pointer base [pc, a3] (optoinal)
+; \7 WORD:		Offset table start (optional)
+; \8 LONGWORD:		Offset next BPLAM value (optional)
 ; Result
-; d0.w			Rückgabewert: Letzter Switchwert
+; d0.w			Return value: Last BPLAM value
 	CNOP 0,4
 \1_init_bplam_table
 	IFC "","\0"
-		FAIL Macro INIT_bplam_table: Größenangabe B/W missing
+		FAIL Macro INIT_bplam_table: Size [B/W] missing
 	ENDC
 	IFC "","\1"
-		FAIL Macro INIT_bplam_table: Labels-Prefix missing
+		FAIL Macro INIT_bplam_table: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro INIT_bplam_table: Erster Switchwert missing
+		FAIL Macro INIT_bplam_table: First BPLAM value missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro INIT_bplam_table: Additionswert für Switchwert missing
+		FAIL Macro INIT_bplam_table: Next BPLAM value missing
 	ENDC
 	IFC "","\4"
-		FAIL Macro INIT_bplam_table: Anzahl der Farb/Switcvhwerte pro Farbverlauf missing
+		FAIL Macro INIT_bplam_table: Number of sections per color gradient missing
 	ENDC
 	IFC "B","\0"
 		IFC "pc","\6"
-			lea	\1_\5(\6),a0 ; Zeiger auf Farbtabelle
+			lea	\1_\5(\6),a0 ; pointer BPLAM table
 		ENDC
 		IFC "a3","\6"
-			move.l	\5(\6),a0 ; Zeiger auf Farbtabelle
+			move.l	\5(\6),a0 ; pointer BPLAM table
 		ENDC
 		IFNC "","\7"
-			add.l	#(\7)*BYTE_SIZE,a0 ; Offset Tabellenanfang
+			add.l	#(\7)*BYTE_SIZE,a0 ; offset table start
 		ENDC
 		IFNC "","\8"
-			move.l	#(\8)*BYTE_SIZE,a1 ; Offset zum nächsten Wert
+			move.l	#(\8)*BYTE_SIZE,a1 ; offset next BPLAM value
 		ENDC
 		IFNC "","\2"
-			MOVEF.W	\2,d0		; Erster Switchwert
+			MOVEF.W	\2,d0		; first BPLAM value
 		ENDC
 		IFNC "","\3"
-			moveq	#\3,d2		; Additionswert für Switchwert
+			moveq	#\3,d2		; next BPLAM value
 		ENDC
-		MOVEF.W	\4-1,d7			; Anzahl der Farb/Switchwerte pro Farbverlauf
+		MOVEF.W	\4-1,d7			; Number of sections per color gradient
 \1_init_bplam_table_loop
 		IFC "","\8"
-			move.b	d0,(a0)+	; Switchwert
+			move.b	d0,(a0)+
 		ELSE
-			move.b	d0,(a0)		; Switchwert
-			add.l	a1,a0		; nächste Zeile in Switchtabelle
+			move.b	d0,(a0)
+			add.l	a1,a0		; next line in BPLAM table
 		ENDC
-		add.w	d2,d0			; Switchwert erhöhen
+		add.w	d2,d0			; next BPLAM value
 		dbf	d7,\1_init_bplam_table_loop
 	ENDC
 	IFC "W","\0"
 		IFC "pc","\6"
-			lea	\1_\5(\6),a0	; Zeiger auf Switch-Tabelle
+			lea	\1_\5(\6),a0	; pointer BPLAM table
 		ENDC
 		IFC "a3","\6"
-			move.l	\5(\6),a0	; Zeiger auf Switch-Tabelle
+			move.l	\5(\6),a0	; pointer BPLAM table
 		ENDC
 		IFNC "","\7"
-			add.l	#(\7)*WORD_SIZE,a0 ; Offset Tabellenanfang
+			add.l	#(\7)*WORD_SIZE,a0 ; offset table start
 		ENDC
 		IFNC "","\8"
-			move.l	#(\8)*WORD_SIZE,a1 ; Offset zum nächsten Wert
+			move.l	#(\8)*WORD_SIZE,a1 ; offset next BPLAM value
 		ENDC
 		IFNC "","\2"
-			move.l	#\2<<8,d0	; Erster Switchwert
+			move.l	#\2<<8,d0	; first BPLAM value
 		ENDC
 		IFNC "","\3"
-			move.l	#\3<<8,d2	; Additionswert für Switchwert
+			move.l	#\3<<8,d2	; next BPLAM value
 		ENDC
-		MOVEF.W	\4-1,d7			; Anzahl der Farb/Switchwerte pro Farbverlauf
+		MOVEF.W	\4-1,d7			; number of sections per color gradient missing
 \1_init_bplam_table_loop
 		IFC "","\8"
-			move.w	d0,(a0)+	; Switchwert
+			move.w	d0,(a0)+
 		ELSE
-			move.w	d0,(a0)		; Switchwert
-			add.l	a1,a0		; nächste Zeile in Switchtabelle
+			move.w	d0,(a0)
+			add.l	a1,a0		; next line in BPLAM table
 		ENDC
-		add.l	d2,d0			; Switchwert erhöhen
+		add.l	d2,d0			; next BPLAM value
 		dbf	d7,\1_init_bplam_table_loop
 	ENDC
 	rts
@@ -2055,99 +2064,99 @@ INIT_bplam_table		MACRO
 
 INIT_COLOR_GRADIENT_RGB8	MACRO
 ; Input
-; \1 HEXNUMBER:		RGB8 Startwert/Istwert
-; \2 HEXNUMBER:		RGB8 Endwert/Sollwert
-; \3 BYTE SIGNED:	Anzahl der Farbwerte
-; \4 NUMBER:		Color-Step-Wert für RGB8 (optional)
-; \5 POINTER:		Zeiger auf Farbtabelle(optional)
-; \6 STRING:		Pointer-Base [pc, a3] (optional)
-; \7 LONGWORD:		Offset zum nächsten Wert in Farbtabelle (optional)
-; \8 LONGWORD:		Offset Anfang Farbtabelle (optional)
+; \1 HEXNUMBER:		RGB8 start
+; \2 HEXNUMBER:		RGB8 end
+; \3 BYTE SIGNED:	number of color values
+; \4 NUMBER:		color step RGB8 (optional)
+; \5 POINTER:		color table (optional)
+; \6 STRING:		Pointer base [pc, a3] (optional)
+; \7 LONGWORD:		Offset next color value(optional)
+; \8 LONGWORD:		Offset table start (optional)
 ; Result
 	IFC "","\1"
-		FAIL Macro INIT_COLOR_GRADIENT_RGB8: RGB8 Startwert/Istwert missing
+		FAIL Macro INIT_COLOR_GRADIENT_RGB8: RGB8 start missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro INIT_COLOR_GRADIENT_RGB8: RGB8 Endwert/Sollwert missing
+		FAIL Macro INIT_COLOR_GRADIENT_RGB8: RGB8 end missing
 	ENDC					
 	IFC "","\3"
-		FAIL Macro INIT_COLOR_GRADIENT_RGB8: Anzahl der Farbwerte missing
+		FAIL Macro INIT_COLOR_GRADIENT_RGB8: Number of color values missing
 	ENDC
-	move.l	#\1,d0			; RGB8-Istwert
-	move.l	#\2,d6			; RGB8-Sollwert
+	move.l	#\1,d0			; RGB8 start
+	move.l	#\2,d6			; RGB8 end
 	IFNC "","\5"
 		IFC "pc","\6"
-			lea	\5(\6),a0 ; Zeiger auf Farbtabelle
+			lea	\5(\6),a0 ; pointer color table
 		ENDC
 		IFC "a3","\6"
-			move.l	\5(\6),a0 ; Zeiger auf Farbtabelle
+			move.l	\5(\6),a0 ; pointer color table
 		ENDC
 	ENDC
 	IFNC "","\8"
-		add.l	#(\8)*LONGWORD_SIZE,a0 ; Offset Anfang Farbtabelle
+		add.l	#(\8)*LONGWORD_SIZE,a0 ; offset table start
 	ENDC
 	IFNC "","\4"
-		move.l	#(\4)<<16,a1	; Additions-/Subtraktionswert für Rot
-		move.w	#(\4)<<8,a2	; Additions-/Subtraktionswert für Grün
-		move.w	#\4,a4		; Additions-/Subtraktionswert für Blau
+		move.l	#(\4)<<16,a1	; increase/decrease red
+		move.w	#(\4)<<8,a2	; increase/decrease green
+		move.w	#\4,a4		; increase/decrease blue
 	ENDC
 	IFNC "","\7"
-		move.w	#(\7)*LONGWORD_SIZE,a5 ; Offset nächster Farbwert
+		move.w	#(\7)*LONGWORD_SIZE,a5 ; offset next color value
 	ENDC
-	MOVEF.W	\3-1,d7			; Anzahl der Farbwerte
+	MOVEF.W	\3-1,d7			; number of colors
 	bsr	init_color_gradient_RGB8_loop
 	ENDM
 
 
 INIT_COLOR_GRADIENTS_RGB8	MACRO
 ; Input
-; \1 WORD:		Anzahl der Farbwerte
-; \2 BYTE SIGNED:	Anzahl der Zeilen
-; \3 BYTE SIGNED:	Anzahl der Segmente
-; \4 NUMBER:		Colorstep-Wert für RGB (optional)
-; \5 POINTER:		Zeiger auf Farbtabelle (optional)
-; \6 STRING:		Pointer-Base [pc, a3] (optional)
-; \7 LONGWORD:		Offset Anfang Farbtabelle (optional)
-; \8 LONGWORD:		Offset zum nächsten Wert in Farbtabelle (optional)
+; \1 WORD:		Number of colors
+; \2 BYTE SIGNED:	Number of Lines
+; \3 BYTE SIGNED:	Number of sections
+; \4 NUMBER:		RGB8 step (optional)
+; \5 POINTER:		Color table (optional)
+; \6 STRING:		Pointer base [pc, a3] (optional)
+; \7 LONGWORD:		Offset table start (optional)
+; \8 LONGWORD:		Offset next color value (optional)
 ; Result
 	IFC "","\1"
-		FAIL Macro INIT_COLOR_GRADIENTS_GROUP_RGB8: Anzahl der Farbwerte missing
+		FAIL Macro INIT_COLOR_GRADIENTS_GROUP_RGB8: Number of colors missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro INIT_COLOR_GRADIENTS_GROUP_RGB8: Anzahl der Zeilen missing
+		FAIL Macro INIT_COLOR_GRADIENTS_GROUP_RGB8: Number of lines missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro INIT_COLOR_GRADIENTS_GROUP_RGB8: Anzahl der Segmente missing
+		FAIL Macro INIT_COLOR_GRADIENTS_GROUP_RGB8: Number of sections missing
 	ENDC
 	IFNC "","\5"
 		IFC "pc","\6"
-			lea	\5(\6),a0 ; Zeiger auf Farbtabelle
+			lea	\5(\6),a0 ; pointer color table
 		ENDC
 		IFC "a3","\6"
-			move.l	\5(\6),a0
+			move.l	\5(\6),a0 ; pointer color table
 		ENDC
 		IFNC "","\7"
-			add.l	#(\7)*LONGWORD_SIZE,a0 ; Nur Offset addieren
+			add.l	#(\7)*LONGWORD_SIZE,a0 ; add offset
 		ENDC
 	ENDC
 	IFNC "","\4"
-		move.l	#\4<<16,a1	; Additions-/Subtraktionswert für Rot
-		move.w	#\4<<8,a2	; Additions-/Subtraktionswert für Grün
-		move.w	#\4,a4		; Additions-/Subtraktionswert für Blau
+		move.l	#\4<<16,a1	; increase/decrease red
+		move.w	#\4<<8,a2	; increase/decrease green
+		move.w	#\4,a4		; increase/decrease blue
 	ENDC
-	move.w	#(\8)*LONGWORD_SIZE,a5	; Offset
-	moveq	#\2-1,d7		; Anzahl der Zeilen
+	move.w	#(\8)*LONGWORD_SIZE,a5	; offset
+	moveq	#\2-1,d7		; number of lines
 init_color_gradients_rgb8_loop1\@
-	moveq	#\3-1,d5		; Anzahl der Segmente
+	moveq	#\3-1,d5		; number of sections
 init_color_gradients_rgb8_loop2\@
-	move.l	(a0),d0			; RGB8-Startwert
-	move.l	(\1)*LONGWORD_SIZE(a0),d6 ; RGB8-Endwert
-	tst.w	d5			; Letzte Schleife bei Segment ?
+	move.l	(a0),d0			; RGB8 start
+	move.l	(\1)*LONGWORD_SIZE(a0),d6 ; RGB8 end
+	tst.w	d5			; last loop in section ?
 	bne.s	init_color_gradients_rgb8_skip\@
-	move.l	-((\1)*LONGWORD_SIZE*(\3-1))(a0),d6 ; RGB8-Endwert = erster Wert in Segment 1
+	move.l	-((\1)*LONGWORD_SIZE*(\3-1))(a0),d6 ; RGB8 end = first value in section 1
 init_color_gradients_rgb8_skip\@
 	movem.l d5/d7,-(a7)
-	MOVEF.L	\1-1,d7			; Anzahl der Farbwerte
+	MOVEF.L	\1-1,d7			; number of color values
 	bsr	init_color_gradient_RGB8_loop
 	movem.l	(a7)+,d5/d7
 	dbf	d5,init_color_gradients_rgb8_loop2\@
@@ -2157,13 +2166,13 @@ init_color_gradients_rgb8_skip\@
 
 COPY_IMAGE_TO_BITPLANE		MACRO
 ; Input
-; \1 STRING:	Labels-Prefix der Routine
-; \2 WORD:	X-Offset in Pixeln optional (optional)
-; \3 WORD:	Y-Offset in Zeilen optional (optional)
-; \4 POINTER:	Zielbild (optional)
+; \1 STRING:	Labels prefix
+; \2 WORD:	X offset (optional)
+; \3 WORD:	Y offset (optional)
+; \4 POINTER:	Target (optional)
 ; Result
 	IFC "","\1"
-		FAIL Macro COPY_IMAGE_TO_BITPLANE: Labels-Prefix missing
+		FAIL Macro COPY_IMAGE_TO_BITPLANE: Labels prefix missing
 	ENDC
 	CNOP 0,4
 \1_copy_image_to_plane
@@ -2175,11 +2184,11 @@ COPY_IMAGE_TO_BITPLANE		MACRO
 			MOVEF.L (\2/8)+(\3*\4_plane_width*\4_depth),d4
 		ENDC
 	ENDC
-	lea	\1_image_data,a1	; Quellbild
+	lea	\1_image_data,a1	; source
 	IFC "","\4"
-		move.l	pf1_display(a3),a4 ; Zielbild
+		move.l	pf1_display(a3),a4 ; target
 	ELSE
-		move.l	\4(a3),a4	; Zielbild
+		move.l	\4(a3),a4	; target
 	ENDC
 	move.w	#(\1_image_plane_width*\1_image_depth)-\1_image_plane_width,a5
 	IFC "","\4"
@@ -2194,16 +2203,16 @@ COPY_IMAGE_TO_BITPLANE		MACRO
 	ENDC
 \1_copy_image_to_plane_loop1
 	bsr.s	\1_copy_image_data
-	add.l	#\1_image_plane_width,a1 ; nächste Bitplane
+	add.l	#\1_image_plane_width,a1 ; next bitplane
 	dbf	d7,\1_copy_image_to_plane_loop1
 	movem.l (a7)+,a4-a6
 	rts
 	CNOP 0,4
 \1_copy_image_data
-	move.l	a1,a0			; Quellbild
-	move.l	(a4)+,a2		; Zielbild
+	move.l	a1,a0			; source
+	move.l	(a4)+,a2		; target
 	IFNC "","\2"
-		add.l	d4,a2		; + XY-Offset
+		add.l	d4,a2		; + xy offset
 	ENDC
 	MOVEF.W	\1_image_y_size-1,d6
 \1_copy_image_data_loop1
@@ -2211,8 +2220,8 @@ COPY_IMAGE_TO_BITPLANE		MACRO
 \1_copy_image_data_loop2
 	move.w	(a0)+,(a2)+
 	dbf	d5,\1_copy_image_data_loop2
-	add.l	a5,a0			; nächste Zeile in Quellbild
-	add.l	a6,a2			; nächste Zeile in Zielbild
+	add.l	a5,a0			; next line in source
+	add.l	a6,a2			; next line in target
 	dbf	d6,\1_copy_image_data_loop1
 	rts
 	ENDM
@@ -2220,61 +2229,61 @@ COPY_IMAGE_TO_BITPLANE		MACRO
 
 INIT_DISPLAY_PATTERN		MACRO
 ; Input
-; \1 STRING: Labels-Prefix der Routine
-; \2 NUMBER: Breite einer Spalte
+; \1 STRING:	Labels prefix
+; \2 NUMBER:	Column width
 ; Result
 	IFC "","\1"
-		FAIL Macro INIT_DISPLAY_PATTERN: Labels-Prefix missing
+		FAIL Macro INIT_DISPLAY_PATTERN: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro INIT_DISPLAY_PATTERN: Breite einer Spalte missing
+		FAIL Macro INIT_DISPLAY_PATTERN: Column width missing
 	ENDC
 	CNOP 0,4
 \1_init_display_pattern
-	moveq	#0,d0			; Spaltenzähler-Startwert
+	moveq	#0,d0			; columns counter
 	moveq	#0,d1
-	moveq	#1,d3			; Farbnummer
-	move.l	pf1_display(a3),a0	; Playfield
-	move.l	(a0),a0			; Bitplane0
-	moveq	#(cl2_display_width)-1,d7 ; Anzahl der Spalten
+	moveq	#1,d3			; first color number
+	move.l	pf1_display(a3),a0
+	move.l	(a0),a0
+	moveq	#(cl2_display_width)-1,d7 ; number of columns
 \1_init_display_pattern_loop1
-	moveq	#\2-1,d6		; Breite einer Spalte
+	moveq	#\2-1,d6		; column width
 \1_init_display_pattern_loop2
-	move.w	d0,d1			; Spaltenzähler retten
-	move.w	d0,d2			; Spaltenzähler retten
-	lsr.w	#3,d1			; X-Offset
-	not.b	d2			; Bitnr.
+	move.w	d0,d1			; columns counter
+	move.w	d0,d2
+	lsr.w	#3,d1			; x offset
+	not.b	d2			; bit number
 	btst	#0,d3
 	beq.s	\1_init_display_pattern_skip1
-	bset	d2,(a0,d1.l)		; Bit in Bitplane1 setzen
+	bset	d2,(a0,d1.l)		; set bit in bitplane
 \1_init_display_pattern_skip1
 	btst	#1,d3
 	beq.s	\1_init_display_pattern_skip2
-	bset	d2,pf1_plane_width*1(a0,d1.l) ; Bit in Bitplane2 setzen
+	bset	d2,pf1_plane_width*1(a0,d1.l)
 \1_init_display_pattern_skip2
 	btst	#2,d3
 	beq.s	\1_init_display_pattern_skip3
-	bset	d2,pf1_plane_width*2(a0,d1.l) ; Bit in Bitplane3 setzen
+	bset	d2,pf1_plane_width*2(a0,d1.l)
 \1_init_display_pattern_skip3
 	btst	#3,d3
 	beq.s	\1_init_display_pattern_skip4
-	bset	d2,pf1_plane_width*3(a0,d1.l) ; Bit in Bitplane4 setzen
+	bset	d2,pf1_plane_width*3(a0,d1.l)
 \1_init_display_pattern_skip4
 	btst	#4,d3
 	beq.s	\1_init_display_pattern_skip5
-	bset	d2,(pf1_plane_width*4,a0,d1.l) ; Bit in Bitplane5 setzen
+	bset	d2,(pf1_plane_width*4,a0,d1.l)
 \1_init_display_pattern_skip5
 	btst	#5,d3
 	beq.s	\1_init_display_pattern_skip6
-	bset	d2,(pf1_plane_width*5,a0,d1.l) ; Bit in Bitplane6 setzen
+	bset	d2,(pf1_plane_width*5,a0,d1.l)
 \1_init_display_pattern_skip6
 	btst	#6,d3
 	beq.s	\1_init_display_pattern_skip7
-	bset	d2,(pf1_plane_width*6,a0,d1.l) ; Bit in Bitplane7 setzen
+	bset	d2,(pf1_plane_width*6,a0,d1.l)
 \1_init_display_pattern_skip7
-	addq.w	#1,d0			; Spaltenzähler erhöhen
+	addq.w	#1,d0			; increase columns counter
 	dbf	d6,\1_init_display_pattern_loop2
-	addq.w	#1,d3			; Farbnummer erhöhen
+	addq.w	#1,d3			; increase color number
 	dbf	d7,\1_init_display_pattern_loop1
 	rts
 	ENDM
@@ -2282,23 +2291,23 @@ INIT_DISPLAY_PATTERN		MACRO
 
 GET_SINE_BARS_YZ_COORDINATES MACRO
 ; Input
-; \1 STRING:	Labels-Prefix der Routine
-; \2 NUMBER:	Länge der Sinustabelle [256, 360, 512]
-; \3 WORD:	Multiplikator Y-Offset in CL
+; \1 STRING:	Labels prefix
+; \2 NUMBER:	Sine table length [256, 360, 512]
+; \3 WORD:	Multiplier y offset in copperlist
 ; Result
 	IFC "","\1"
-		FAIL Macro GET_SINE_BARS_YZ_COORDINATES: Labels-Prefix missing
+		FAIL Macro GET_SINE_BARS_YZ_COORDINATES: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro GET_SINE_BARS_YZ_COORDINATES: Länge der Sinustabelle [256, 360, 512] missing
+		FAIL Macro GET_SINE_BARS_YZ_COORDINATES: Sine table length [256, 360, 512] missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro GET_SINE_BARS_YZ_COORDINATES: Multiplikator Y-Offset in CL missing
+		FAIL Macro GET_SINE_BARS_YZ_COORDINATES: Multiplier y offset in copperlist missing
 	ENDC
 	CNOP 0,4
 \1_get_yz_coords
 	IFC "","\1"
-		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Labels-Prefix missing
+		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Labels prefix missing
 	ENDC
 	IFC "","\2"
 		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Länge der Sinustabelle [256, a260, 512] missing
@@ -2307,7 +2316,7 @@ GET_SINE_BARS_YZ_COORDINATES MACRO
 		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Multiplikator Y-Offset in CL missing
 	ENDC
 	IFEQ \2-256
-		move.w	\1_y_angle(a3),d2 ; 1. Y-Winkel
+		move.w	\1_y_angle(a3),d2
 		move.w	d2,d0				
 		addq.b	#\1_y_angle_speed,d0
 		move.w	d0,\1_y_angle(a3) 
@@ -2317,87 +2326,87 @@ GET_SINE_BARS_YZ_COORDINATES MACRO
 		move.w	#\1_y_center,a2
 		moveq	#\1_bars_number-1,d7
 \1_get_yz_coords_loop
-		moveq	#-(sine_table_length/4),d1 ; - 90 Grad
+		moveq	#-(sine_table_length/4),d1 ; - 90°
 		move.l	(a0,d2.w*4),d0	; sin(w)
-		add.w	d2,d1		; Y-Winkel - 90 Grad
+		add.w	d2,d1		; y angle - 90°
 		ext.w	d1
-		move.w	d1,(a1)+	; Z-Vektor
+		move.w	d1,(a1)+	; z vector
 		MULUF.L \1_y_radius*2,d0,d1 ; y'=(yr*sin(w))/2^15
 		swap	d0
-		add.w	a2,d0		; y' + Y-Mittelpunkt
-		MULUF.W (\3)/4,d0,d1	; Y-Offset in CL
-		move.w	d0,(a1)+	; Y
-		add.b	d3,d2		; Y-Abstand zur nächsten Bar
+		add.w	a2,d0		; y' + y center
+		MULUF.W (\3)/4,d0,d1	; y offset in cl
+		move.w	d0,(a1)+	; y
+		add.b	d3,d2		; y distance next bar
 		dbf	d7,\1_get_yz_coords_loop
 		rts
 	ENDC
 	IFEQ \2-360
-		move.w	\1_y_angle(a3),d2 ; 1. Y-Winkel
+		move.w	\1_y_angle(a3),d2
 		move.w	d2,d0				
-		MOVEF.W sine_table_length,d3 ; Überlauf
+		MOVEF.W sine_table_length,d3 ; overflow
 		addq.w	#\1_y_angle_speed,d0
-		cmp.w	d3,d0		; Y-Winkel < 360 Grad ?
+		cmp.w	d3,d0		; 360° ?
 		blt.s	\1_get_yz_coords_skip1
-		sub.w	d3,d0		; Y-Winkel zurücksetzen
+		sub.w	d3,d0		; et back y angle
 \1_get_yz_coords_skip1
 		move.w	d0,\1_y_angle(a3) 
-		MOVEF.W sine_table_length/2,d4 ; 180 Grad
+		MOVEF.W sine_table_length/2,d4 ; 180°
 		MOVEF.W \1_y_distance,d5
 		lea	sine_table(pc),a0
 		lea	\1_yz_coords(pc),a1
 		move.w	#\1_y_center,a2
 		moveq	#\1_bars_number-1,d7
 \1_get_yz_coords_loop
-		moveq	#-(sine_table_length/4),d1 ; - 90 Grad
+		moveq	#-(sine_table_length/4),d1 ; - 90+°
 		move.l	(a0,d2.w*4),d0 ; sin(w)
-		add.w	d2,d1		; - 90 Grad + Y-Winkel
+		add.w	d2,d1		; y angle - 90°
 		bmi.s	\1_get_yz_coords_skip2
-		sub.w	d4,d1		; Y-Winkel - 180 Grad
+		sub.w	d4,d1		; y angle - 180°
 		neg.w	d1
 \1_get_yz_coords_skip2
-		move.w	d1,(a1)+	; Z-Vektor
+		move.w	d1,(a1)+	; z vector
 		MULUF.L \1_y_radius*2,d0,d1 ; y'=(yr*sin(w))/2^15
 		swap	d0
-		add.w	a2,d0		; y' + Y-Mittelpunkt
-		MULUF.W (\3)/4,d0,d1	; Y-Offset in CL
-		move.w	d0,(a1)+	; Y
-		add.w	d5,d2		; Y-Abstand zur nächsten Bar
-		cmp.w	d3,d2		; Y-Winkel < 360 Grad ?
+		add.w	a2,d0		; y' + y center
+		MULUF.W (\3)/4,d0,d1	; y offset in cl
+		move.w	d0,(a1)+	; y
+		add.w	d5,d2		; y distance next bar
+		cmp.w	d3,d2		; 360° ?
 		blt.s	\1_get_yz_coords_skip3
-		sub.w	d3,d2		; Y-Winkel zurücksetzen
+		sub.w	d3,d2		; restart y angle
 \1_get_yz_coords_skip3
 		dbf	d7,\1_get_yz_coords_loop
 		rts
 	ENDC
 	IFEQ \2-512
-		move.w	\1_y_angle(a3),d2 ; 1. Y-Winkel
+		move.w	\1_y_angle(a3),d2
 		move.w	d2,d0				
-		MOVEF.W sine_table_length-1,d5 ; Überlauf
-		addq.w	#\1_y_angle_speed,d0 ; nächster Y-Winkel
-		and.w	d5,d0		; Überlauf entfernen
+		MOVEF.W sine_table_length-1,d5 ; overflow
+		addq.w	#\1_y_angle_speed,d0 ; next y angle
+		and.w	d5,d0		; remove overflow
 		move.w	d0,\1_y_angle(a3) 
 		MOVEF.W \1_y_distance,d3
-		MOVEF.W sine_table_length/2,d4 ; 180 Grad
+		MOVEF.W sine_table_length/2,d4 ; 180°
 		lea	sine_table(pc),a0
 		lea	\1_yz_coords(pc),a1
 		move.w	#\1_y_center,a2
 		moveq	#\1_bars_number-1,d7
 \1_get_yz_coords_loop
-		moveq	#-(sine_table_length/4),d1 ; - 90 Grad
+		moveq	#-(sine_table_length/4),d1 ; - 90°
 		move.l	(a0,d2.w*4),d0 ; sin(w)
-		add.w	d2,d1		; - 90 Grad + Y-Winkel
+		add.w	d2,d1		; y angle - 90°
 		bmi.s	\1_get_yz_coords_skip
-		sub.w	d4,d1		; Y-Winkel + 180 Grad
+		sub.w	d4,d1		; y angle + 180°
 		neg.w	d1
 \1_get_yz_coords_skip
-		move.w	d1,(a1)+	; Z-Vektor
+		move.w	d1,(a1)+	; z vector
 		MULUF.L \1_y_radius*2,d0,d1 ; y'=(yr*sin(w))/2^15
 		swap	d0
-		add.w	a2,d0		; y' + Y-Mittelpunkt
-		MULUF.W (\3)/4,d0,d1	; Y-Offset in CL
-		move.w	d0,(a1)+	; Y
-		add.w	d3,d2		; Y-Abstand zur nächsten Bar
-		and.w	d5,d2		; Überlauf entfernen
+		add.w	a2,d0		; y' + center
+		MULUF.W (\3)/4,d0,d1	; y offset in cl
+		move.w	d0,(a1)+	; y
+		add.w	d3,d2		; y distance next bar
+		and.w	d5,d2		; remove overflow
 		dbf	d7,\1_get_yz_coords_loop
 		rts
 	ENDC
@@ -2406,32 +2415,23 @@ GET_SINE_BARS_YZ_COORDINATES MACRO
 
 GET_TWISTED_BARS_YZ_COORDINATES MACRO
 ; Input
-; \1 STRING:	Labels-Prefix der Routine
-; \2 NUMBER:	Länge der Sinustabelle [256, 360, 512]
-; \3 WORD:	Multiplikator Y-Offset in CL
+; \1 STRING:	Labels prefix
+; \2 NUMBER:	Sine table length [256, 360, 512]
+; \3 WORD:	Multiplier y offset in copperlist
 ; Result
 	IFC "","\1"
-		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Labels-Prefix missing
+		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Länge der Sinustabelle [256, 360, 512] missing
+		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Sine table length [256, 360, 512] missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Multiplikator Y-Offset in CL missing
+		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Multiplier y offset in copperlist missing
 	ENDC
 	CNOP 0,4
 \1_get_yz_coords
-	IFC "","\1"
-		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Labels-Prefix missing
-	ENDC
-	IFC "","\2"
-		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Länge der Sinustabelle [256, a260, 512] missing
-	ENDC
-	IFC "","\3"
-		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Multiplikator Y-Offset in CL missing
-	ENDC
 	IFEQ \2-256
-		move.w	\1_y_angle(a3),d2 ; 1. Y-Winkel
+		move.w	\1_y_angle(a3),d2
 		move.w	d2,d0				
 		addq.b	#\1_y_angle_speed,d0
 		move.w	d0,\1_y_angle(a3) 
@@ -2439,72 +2439,72 @@ GET_TWISTED_BARS_YZ_COORDINATES MACRO
 		lea	sine_table(pc),a0
 		lea	\1_yz_coords(pc),a1
 		move.w	#\1_y_center,a2
-		moveq	#\*LEFT(\3,3)_display_width-1,d7 ; Anzahl der Spalten
+		moveq	#\*LEFT(\3,3)_display_width-1,d7 ; number of columns
 \1_get_yz_coords_loop1
-		moveq	#\1_bars_number-1,d6 ; Anzahl der Stangen
+		moveq	#\1_bars_number-1,d6
 \1_get_yz_coords_loop2
-		moveq	#-(sine_table_length/4),d1 ; - 90 Grad
+		moveq	#-(sine_table_length/4),d1 ; - 90°
 		move.l	(a0,d2.w*4),d0	; sin(w)
-		add.w	d2,d1		; Y-Winkel - 90 Grad
+		add.w	d2,d1		; y angle - 90°
 		ext.w	d1
-		move.w	d1,(a1)+	; Z-Vektor
+		move.w	d1,(a1)+	; z vector
 		MULUF.L \1_y_radius*2,d0,d1 ; y'=(yr*sin(w))/2^15
 		swap	d0
-		add.w	a2,d0		; y' + Y-Mittelpunkt
-		MULUF.W	(\3)/4,d0,d1	; Y-Offset in CL
-		move.w	d0,(a1)+	; Y
-		add.b	d3,d2		; Y-Abstand zur nächsten Bar
+		add.w	a2,d0		; y' + y center
+		MULUF.W	(\3)/4,d0,d1	; y offset in cl
+		move.w	d0,(a1)+	; y
+		add.b	d3,d2		; y distance next bar
 		dbf	d6,\1_get_yz_coords_loop2
 		IFGE \1_y_angle_step
-			addq.b	#\1_y_angle_step,d2 ; nächster Y-Winkel
+			addq.b	#\1_y_angle_step,d2 ; next y angle
 		ELSE
-			subq.b	#-\1_y_angle_step,d2 ; nächster Y-Winkel
+			subq.b	#-\1_y_angle_step,d2 ; next y angle
 		ENDC
 		dbf	d7,\1_get_yz_coords_loop1
 		rts
 	ENDC
 	IFEQ \2-360
-		move.w	\1_y_angle(a3),d2 ; 1. Y-Winkel
+		move.w	\1_y_angle(a3),d2
 		move.w	d2,d0				
-		MOVEF.W sine_table_length,d3 ; Überlauf
+		MOVEF.W sine_table_length,d3 ; overflow
 		addq.w	#\1_y_angle_speed,d0
-		cmp.w	d3,d0		; Y-Winkel < 360 Grad ?
+		cmp.w	d3,d0		; 360° ?
 		blt.s	\1_get_yz_coords_skip1
-		sub.w	d3,d0		; Y-Winkel zurücksetzen
+		sub.w	d3,d0		; reset y angle
 \1_get_yz_coords_skip1
 		move.w	d0,\1_y_angle(a3) 
-		MOVEF.W sine_table_length/2,d4 ; 180 Grad
+		MOVEF.W sine_table_length/2,d4 ; 180°
 		MOVEF.W \1_y_distance,d5
 		lea	sine_table(pc),a0
-		lea	\1_yz_coords(pc),a1 ; Zeiger auf Y+Z-Koords-Tabelle
+		lea	\1_yz_coords(pc),a1
 		move.w	#\1_y_center,a2
-		moveq	#\*LEFT(\3,3)_display_width-1,d7 ; Anzahl der Spalten
+		moveq	#\*LEFT(\3,3)_display_width-1,d7 ; number of columns
 \1_get_yz_coords_loop1
 		moveq	#\1_bars_number-1,d6
 \1_get_yz_coords_loop2
-		moveq	#-(sine_table_length/4),d1 ; - 90 Grad
+		moveq	#-(sine_table_length/4),d1 ; - 90°
 		move.l	(a0,d2.w*4),d0	; sin(w)
-		add.w	d2,d1		; - 90 Grad + Y-Winkel
+		add.w	d2,d1		; y angle - 90°
 		bmi.s	\1_get_yz_coords_skip2
-		sub.w	d4,d1		; Y-Winkel + 180 Grad
+		sub.w	d4,d1		; y angle + 180°
 		neg.w	d1
 \1_get_yz_coords_skip2
-		move.w	d1,(a1)+	; Z-Vektor retten
+		move.w	d1,(a1)+	; z vector
 		MULUF.L \1_y_radius*2,d0,d1 ; y'=(yr*sin(w))/2^15
 		swap	d0
-		add.w	a2,d0		; y' + Y-Mittelpunkt
-		MULUF.W	(\3)/4,d0,d1	; Y-Offset in CL
-		move.w	d0,(a1)+	; Y
-		add.w	d5,d2		; Y-Abstand zur nächsten Bar
-		cmp.w	d3,d2		; Y-Winkel < 360 Grad ?
+		add.w	a2,d0		; y' + y center
+		MULUF.W	(\3)/4,d0,d1	; y offset in cl
+		move.w	d0,(a1)+	; y
+		add.w	d5,d2		; y distance next bar
+		cmp.w	d3,d2		; 360° ?
 		blt.s	\1_get_yz_coords_skip3
-		sub.w	d3,d2		; Y-Winkel zurücksetzen
+		sub.w	d3,d2		; reset y angle
 \1_get_yz_coords_skip3
 		dbf	d6,\1_get_yz_coords_loop2
 		addq.w	#\1_y_angle_step,d2
-		cmp.w	d3,d2		; Y-Winkel < 360 Grad ?
+		cmp.w	d3,d2		; 360° ?
 		blt.s	\1_get_yz_coords_skip4
-		sub.w	d3,d2		; Y-Winkel zurücksetzen
+		sub.w	d3,d2		; reset y angle
 \1_get_yz_coords_skip4
 		dbf	d7,\1_get_yz_coords_loop1
 		rts
@@ -2513,20 +2513,20 @@ GET_TWISTED_BARS_YZ_COORDINATES MACRO
 
 
 RGB8_COLOR_FADER			MACRO
-; \1 STRING: Labels-Prefix der Routine
+; \1 STRING: Labels prefix
 	IFC "","\1"
-		FAIL Macro RGB8_COLOR_FADER: Labels-Prefix missing
+		FAIL Macro RGB8_COLOR_FADER: Labels prefix missing
 	ENDC
 	CNOP 0,4
 \1_rgb8_fader_loop
-	move.l	(a0),d0			; RGB8-Istwert
+	move.l	(a0),d0			; RGB8 source
 	moveq	#0,d1
 	move.w	d0,d1			; GgBb
 	moveq	#0,d2
 	clr.b	d1			; Gg
 	move.b	d0,d2			; Bb
 	clr.w	d0			; Rr
-	move.l	(a1)+,d3		; RGB8-Sollwert
+	move.l	(a1)+,d3		; RGB8 target
 	moveq	#0,d4
 	move.w	d3,d4			; GgBb
 	moveq	#0,d5
@@ -2538,79 +2538,85 @@ RGB8_COLOR_FADER			MACRO
 	bgt.s	\1_rgb8_decrease_red
 	blt.s	\1_rgb8_increase_red
 \1_rgb8_matched_red
-	subq.w	#1,d6			; Zielfarbwert erreicht
+	subq.w	#1,d6			; target value reached
 ; Grünwert
 \1_rgb8_check_green
 	cmp.l	d4,d1
 	bgt.s	\1_rgb8_decrease_green
 	blt.s	\1_rgb8_increase_green
 \1_rgb8_matched_green
-	subq.w	#1,d6			; Zielfarbwert erreicht
+	subq.w	#1,d6			; arget value reached
 ; Blauwert
 \1_rgb8_check_blue
 	cmp.w	d5,d2
 	bgt.s	\1_rgb8_decrease_blue
 	blt.s	\1_rgb8_increase_blue
 \1_rgb8_matched_blue
-	subq.w	#1,d6			; Zielfarbwert erreicht
+	subq.w	#1,d6			; arget value reached
 \1_merge_rgb8
-	move.l	d0,d3			; neuer Rotwert
-	move.w	d1,d3			; neuer Grünwert
-	move.b	d2,d3			; neuer Blauwert
+	move.l	d0,d3			; updated red
+	move.w	d1,d3			; updated green
+	move.b	d2,d3			; updated blue
 ; Farbwerte in Copperliste eintragen
-	move.l	d3,(a0)+		; neuen RGB-Wert in Cache schreiben
+	move.l	d3,(a0)+		; RGB8 value
 	dbf	d7,\1_rgb8_fader_loop
 	rts
 	CNOP 0,4
 \1_rgb8_decrease_red
-	sub.l	a2,d0			; Rotanteil verringern
+	sub.l	a2,d0			; decrease red
 	cmp.l	d3,d0
 	bgt.s	\1_rgb8_check_green
-	move.l	d3,d0			; Rotanteil Zielwert
+	move.l	d3,d0			; target value red
 	bra.s	\1_rgb8_matched_red
 	CNOP 0,4
 \1_rgb8_increase_red
-	add.l	a2,d0			; Rotanteil erhöhen
+	add.l	a2,d0			; increase red
 	cmp.l	d3,d0
 	blt.s	\1_rgb8_check_green
-	move.l	d3,d0			; Rotanteil Zielwert
+	move.l	d3,d0			; target value red
 	bra.s	\1_rgb8_matched_red
 	CNOP 0,4
 \1_rgb8_decrease_green
-	sub.l	a4,d1			; Grünanteil verringern
+	sub.l	a4,d1			; decrease green
 	cmp.l	d4,d1
 	bgt.s	\1_rgb8_check_blue
-	move.l	d4,d1			; Grünanteil Zielwert
+	move.l	d4,d1			; target value green
 	bra.s	\1_rgb8_matched_green
 	CNOP 0,4
 \1_rgb8_increase_green
-	add.l	a4,d1			; Grünanteil erhöhen
+	add.l	a4,d1			; increase green
 	cmp.l	d4,d1
 	blt.s	\1_rgb8_check_blue
-	move.l	d4,d1			; Grünanteil Zielwert
+	move.l	d4,d1			; target value green
 	bra.s	\1_rgb8_matched_green
 	CNOP 0,4
 \1_rgb8_decrease_blue
-	sub.w	a5,d2			; Blauanteil verringern
+	sub.w	a5,d2			; decrease blue
 	cmp.w	d5,d2
 	bgt.s	\1_merge_rgb8
-	move.w	d5,d2			; Blauanteil Zielwert
+	move.w	d5,d2			; target value blue
 	bra.s	\1_rgb8_matched_blue
 	CNOP 0,4
 \1_rgb8_increase_blue
-	add.w	a5,d2			; Blauanteil erhöhen
+	add.w	a5,d2			; increase blue
 	cmp.w	d5,d2
 	blt.s	\1_merge_rgb8
-	move.w	d5,d2			; Blauanteil Zielwert
+	move.w	d5,d2			; target value blue
 	bra.s	\1_rgb8_matched_blue
 	ENDM
 
 
 ROTATE_X_AXIS			MACRO
-	move.w	d1,d3			; Y -> d3
+; Input
+; d1.w	y
+; d2.w	z
+; Result
+; d1.w	y position
+; d2.w	z position
+	move.w	d1,d3			; save y
 	muls.w	d4,d1			; y*cos(a)
 	swap	d4			; sin(w)
-	move.w	d2,d7			; Z -> d7
+	move.w	d2,d7			; save z
 	muls.w	d4,d3			; y*sin(a)
 	muls.w	d4,d7			; z*sin(a)
 	swap	d4			; cos(a)
@@ -2618,17 +2624,23 @@ ROTATE_X_AXIS			MACRO
 	muls.w	d4,d2			; z*cos(a)
 	MULUF.L 2,d1			; y'=(y*cos(a)-z*sin(a))/2^15
 	add.l	d3,d2			; y*sin(a)+z*cos(a)
-	swap	d1			; neue Y-Pos.
+	swap	d1			; y position
 	MULUF.L 2,d2			; z'=(y*sin(a)+z*cos(a))/2^15
-	swap	d2			; neue Z-Pos.
+	swap	d2			; z position
 	ENDM
 
 
 ROTATE_Y_AXIS			MACRO
-	move.w	d0,d3			; X -> d3
+; Input
+; d0.w	x
+; d2.w	z
+; Result
+; d0.w	x position
+; d2.w	z position
+	move.w	d0,d3			; save x
 	muls.w	d5,d0			; x*cos(b)
 	swap	d5			; sin(b)
-	move.w	d2,d7			; Z -> d7
+	move.w	d2,d7			; save z
 	muls.w	d5,d3			; x*sin(b)
 	muls.w	d5,d7			; z*sin(b)
 	swap	d5			; cos(b)
@@ -2636,17 +2648,23 @@ ROTATE_Y_AXIS			MACRO
 	muls.w	d5,d2			; z*cos(b)
 	MULUF.L 2,d0			; x'=(x*cos(b)+z*sin(b))/2^15
 	sub.l	d3,d2			; z*cos(b)-x*sin(b)
-	swap	d0			; neue X-Pos.
+	swap	d0			; x position
 	MULUF.L 2,d2			; z'=(z*cos(b)-x*sin(b))/2^15
-	swap	d2			; neue Z-Pos.
+	swap	d2			; z position
 	ENDM
 
 
 ROTATE_Z_AXIS			MACRO
-	move.w	d0,d3			; X -> d3
+; Input
+; d0.w	x
+; d1.w	y
+; Result
+; d0.w	x position
+; d1.w	y position
+	move.w	d0,d3			; save x
 	muls.w	d6,d0			; x*cos(c)
 	swap	d6			; sin(c)
-	move.w	d1,d7			; Y -> d7
+	move.w	d1,d7			; save y
 	muls.w	d6,d3			; x*sin(c)
 	muls.w	d6,d7			; y*sin(c)
 	swap	d6			; cos(c)
@@ -2654,35 +2672,35 @@ ROTATE_Z_AXIS			MACRO
 	muls.w	d6,d1			; y*cos(c)
 	MULUF.L 2,d0			; x'=(x*cos(c)-y*sin(c))/2^15
 	add.l	d3,d1			; x*sin(c)+y*cos(c)
-	swap	d0			; X-Pos.
+	swap	d0			; x position
 	MULUF.L 2,d1			; y'=(x)*sin(c)+y*cos(c))/2^15
-	swap	d1			; Y-Pos.
+	swap	d1			; y position
 	ENDM
 
 
 COPY_RGB8_COLORS_TO_COPPERLIST	MACRO
 ; Input
-; \1 STRING:	Labels-Prefix der Routine
-; \2 STRING:	Color-Table-Prefix
-; \3 STRUNG:	Copperlist-Prefix
-; \4 STRING:	Offset in Copperliste High-Werte
-; \5 STRING:	Offset in Copperliste Low-Werte
-; \6 LONGWORD:	Offset-Base (optional)
+; \1 STRING:	Labels prefix
+; \2 STRING:	Color table prefix
+; \3 STRUNG:	Copperlist prefix
+; \4 STRING:	Offset in copperlist color high
+; \5 STRING:	Offset in copperlist color low
+; \6 LONGWORD:	Offset base (optional)
 ; Result
 	IFC "","\1"
-		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Labels-Prefix missing
+		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Color-Table-Prefix missing
+		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Color table prefix missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Copperlist-Prefix missing
+		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Copperlist prefix missing
 	ENDC
 	IFC "","\4"
-		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Offset in Copperliste High-Werte missing
+		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Offset in copperlist color high missing
 	ENDC
 	IFC "","\5"
-		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Offset in Copperliste Low-Werte missing
+		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Offset in copperlist color low missing
 	ENDC
 	CNOP 0,4
 \1_rgb8_copy_color_table
@@ -2693,9 +2711,9 @@ COPY_RGB8_COLORS_TO_COPPERLIST	MACRO
 	bne.s	\1_rgb8_copy_color_table_skip2
 	move.w	#RB_NIBBLES_MASK,d3
 	IFGT \1_rgb8_colors_number-32
-		MOVEF.W \1_rgb8_start_color<<3,d4 ; Color-Bank Farbregisterzähler
+		MOVEF.W \1_rgb8_start_color<<3,d4 ; counter color registers per color bank
 	ENDC
-	lea	\2_rgb8_color_table+(\1_rgb8_color_table_offset*LONGWORD_SIZE)(pc),a0 ; Puffer für Farbwerte
+	lea	\2_rgb8_color_table+(\1_rgb8_color_table_offset*LONGWORD_SIZE)(pc),a0 ; colors buffer
 	move.l	\3_display(a3),a1
 	IFC "","\6"
 		ADDF.W	\4+WORD_SIZE,a1
@@ -2720,36 +2738,36 @@ COPY_RGB8_COLORS_TO_COPPERLIST	MACRO
 	ENDC
 	MOVEF.W	\1_rgb8_colors_number-1,d7
 \1_rgb8_copy_color_table_loop
-	move.l	(a0)+,d0		; RGB8-Farbwert
+	move.l	(a0)+,d0		; RGB8 value
 	move.l	d0,d2					
 	RGB8_TO_RGB4_HIGH d0,d1,d3
-	move.w	d0,(a1)			; COLORxx High-Bits
+	move.w	d0,(a1)			; COLORxx high
 	IFNE \3_size1
-		move.w	d0,(a2)		; COLORxx High-Bits
+		move.w	d0,(a2)		; COLORxx high
 	ENDC
 	IFNE \3_size2
-		move.w	d0,(a4)		; COLORxx High-Bits
+		move.w	d0,(a4)		; COLORxx high
 	ENDC
 	RGB8_TO_RGB4_LOW d2,d1,d3
-	move.w	d2,\5-\4(a1)		; Low-Bits COLORxx
-	addq.w	#LONGWORD_SIZE,a1	; nächstes Farbregister
+	move.w	d2,\5-\4(a1)		; COLORxx low
+	addq.w	#LONGWORD_SIZE,a1	; next color register
 	IFNE \3_size1
-		move.w	d2,\5-\4(a2)	; Low-Bits COLORxx
-		addq.w	#LONGWORD_SIZE,a2 ; nächstes Farbregister
+		move.w	d2,\5-\4(a2)	; COLORxx low
+		addq.w	#LONGWORD_SIZE,a2 ; next color register
 	ENDC
 	IFNE \3_size2
-		move.w	d2,\5-\4(a4)	; Low-Bits COLORxx
-		addq.w	#LONGWORD_SIZE,a4 ; nächstes Farbregister
+		move.w	d2,\5-\4(a4)	; COLORxx low
+		addq.w	#LONGWORD_SIZE,a4 ; next color register
 	ENDC
 	IFGT \1_rgb8_colors_number-32
-		addq.b	#1<<3,d4	; Farbregister-Zähler erhöhen
+		addq.b	#1<<3,d4	; increase color registers counter
 		bne.s	\1_rgb8_copy_color_table_skip1
-		addq.w	#LONGWORD_SIZE,a1 ; CMOVE überspringen
+		addq.w	#LONGWORD_SIZE,a1 ; skip CMOVE
 		IFNE \3_size1
-			addq.w	#LONGWORD_SIZE,a2 ; CMOVE überspringen
+			addq.w	#LONGWORD_SIZE,a2 ; skip CMOVE
 		ENDC
 		IFNE \3_size2
-			addq.w	#LONGWORD_SIZE,a4 ; CMOVE überspringen
+			addq.w	#LONGWORD_SIZE,a4 ; skip CMOVE
 		ENDC
 \1_rgb8_copy_color_table_skip1
 	ENDC
@@ -2767,24 +2785,24 @@ COPY_RGB8_COLORS_TO_COPPERLIST	MACRO
 
 INIT_CUSTOM_ERROR_ENTRY		MACRO
 ; Input
-; \1 BYTE_SIGNED:	Fehlernummer
-; \2 POINTER:		Zeiger auf Fehlertext
-; \3 BYTE_SIGNED:	Länge des Fehrlertexts
+; \1 BYTE_SIGNED:	Error number
+; \2 POINTER:		Error text
+; \3 BYTE_SIGNED:	Error text length
 ; Result
 	IFC "","\1"
-		FAIL Macro INIT_CUSTOM_ERROR_ENTRY: Fehlernummer missing
+		FAIL Macro INIT_CUSTOM_ERROR_ENTRY: Error number missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro INIT_CUSTOM_ERROR_ENTRY: Zeiger auf Fehlertext missing
+		FAIL Macro INIT_CUSTOM_ERROR_ENTRY: Error text missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro INIT_CUSTOM_ERROR_ENTRY: Länge des Fehlertextes missing
+		FAIL Macro INIT_CUSTOM_ERROR_ENTRY: Error text length missing
 	ENDC
 
 	moveq	#\1-1,d0
-	MULUF.W	8,d0,d1			; 68000er unterstützt kein variables Register-Index
-	lea	\2(pc),a1
-	move.l	a1,(a0,d0.w)		; Damit es auf dem 68000 keinen Guru gibt.
-	moveq	#\3,d1
+	MULUF.W	8,d0,d1			; offset in error texts
+	lea	\2(pc),a1		; error text
+	move.l	a1,(a0,d0.w)
+	moveq	#\3,d1			; error text length
 	move.l	d1,4(a0,d0.w)
 	ENDM

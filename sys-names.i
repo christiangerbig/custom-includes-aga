@@ -38,7 +38,7 @@ tcp_stack_request_text_gadgets	DC.B "Proceed|Quit",0
 			EVEN
 		ENDC
 
-pal_screen_name		DC.B "Degrade screen",0
+pal_screen_name			DC.B "Degrade screen",0
 		EVEN
 
 invisible_window_name		DC.B "Invisible window",0

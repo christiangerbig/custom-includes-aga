@@ -10,10 +10,10 @@
 	move.l	d0,dos_return_code(a3)
 	bne.s	cleanup_all
 
-	bsr     init_main_variables	; Externe Routine
+	bsr     init_main_variables	; external routine
 
 	IFD USE_CMD_LINE_CHECK
-		bsr	check_command_line ; Externe Routine
+		bsr	check_command_line ; external routine
 		move.l	d0,dos_return_code(a3)
 		bne.s	cleanup_all
 	ENDC
@@ -24,20 +24,20 @@
 		bne.s	cleanup_all
 	ENDC
 	IFD USE_CUSTOM_MEMORY
-		bsr	alloc_custom_memory ; Externe Routine
+		bsr	alloc_custom_memory ; external routine
 		move.l	d0,dos_return_code(a3)
 		bne.s	cleanup_all
 	ENDC
 
-	bsr	init_main		; Externe Routine
+	bsr	init_main		; external routine
 	tst.l	d0
 	bne.s	cleanup_all
 
-	bsr	main			; Externe Routine
+	bsr	main			; external routine
 	move.l	d0,dos_return_code(a3)
 
 cleanup_all
-	bsr	cleanup_main		; Externe Routine
+	bsr	cleanup_main		; external routine
 
 	IFNE memory_size
 		bsr	free_memory
@@ -62,7 +62,6 @@ quit
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert	
 	CNOP 0,4
 init_variables
 	move.l	a0,shell_parameters(a3)
@@ -78,7 +77,7 @@ init_variables
 
 ; Input
 ; Result
-; d0.l	... Return-Code
+; d0.l	... Return code
 	CNOP 0,4
 open_dos_library
 	lea     dos_library_name(pc),a1
@@ -97,7 +96,7 @@ open_dos_library_ok
 
 ; Input
 ; Result
-; d0.l	... Rückgabewert: Return-Code/Error-Code
+; d0.l	... Return code/Error code
 	CNOP 0,4
 get_output
 	CALLDOS Output
@@ -113,7 +112,7 @@ get_output_ok
 	IFNE memory_size
 ; Input
 ; Result
-; d0.l	... Return-Code
+; d0.l	... Return code
 		CNOP 0,4
 alloc_memory
 		MOVEF.L	memory_size,d0
@@ -136,7 +135,6 @@ alloc_memory_ok
 	IFNE memory_size
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 free_memory
 		move.l	memory(a3),d0
@@ -155,7 +153,6 @@ free_memory_skip
 	IFD USE_CMD_LINE_CHECK
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 free_RDArgs
 		move.l	RDArgs(a3),d1
@@ -171,7 +168,6 @@ free_RDArgs_skip
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 	CNOP 0,4
 print_error_text
 	move.l  dos_return_code(a3),d1
@@ -182,28 +178,26 @@ print_error_text_quit
 	rts
 	CNOP 0,4
 print_error_text_skip
-	lea	error_header(pc),a0	; Header für Fehlermeldung
+	lea	error_header(pc),a0
 	move.l	a0,d2
 	CALLDOS PrintFault
 	bra.s	print_error_text_quit
 
 
 ; Input
-; a0	... Zeiger auf Fehlertext
-; d0.l	... Länge des Textes
+; d0.l	... Error text length
+; a0	... Error text
 ; Result
-; d0.l	... Kein Rückgabewert
 	CNOP 0,4
 print_text
-	move.l	d0,d3			; Anzahl der Zeichen zum Schreiben
 	move.l	output_handle(a3),d1
-	move.l	a0,d2			; Zeiger auf Text
+	move.l	a0,d2			; pointer error text
+	move.l	d0,d3			; error text length
 	CALLDOSQ Write
 
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 	CNOP 0,4
 close_dos_library
 	move.l	_DOSBase(pc),d0

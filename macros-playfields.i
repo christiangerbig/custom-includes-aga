@@ -1,14 +1,12 @@
-; -- Inits --
-
 INIT_BPLCON0_BITS		MACRO
-; \1 STRING: Label
-; \2 NUMBER: Playfield-Depth
+; \1 STRING:	Label
+; \2 NUMBER:	Playfield depth
 ; \3 STRING: Zusätzliche Bits (optiona)
 	IFC "","\1"
-		FAIL Macro INIT_BPLCON0_BITS: Label fehlt
+		FAIL Macro INIT_BPLCON0_BITS: Label missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro INIT_BPLCON0_BITS: PF-Depth fehlt
+		FAIL Macro INIT_BPLCON0_BITS: Playfield epth missing
 	ENDC
 	IFC "","\3"
 \1 EQU BPLCON0F_ECSENA|((\2>>3)*BPLCON0F_BPU3)|(BPLCON0F_COLOR)|((\2&$07)*BPLCON0F_BPU0)
@@ -19,49 +17,49 @@ INIT_BPLCON0_BITS		MACRO
 
 
 INIT_BPLCON4_BITS		MACRO
-; \1 STRING: Label
-; \2 NUMBER: Switchwert Bitplanes
-; \3 NUMBER: Switchwert ungerade Sprites
-; \4 NUMBER: Switchwert gerade Sprites
+; \1 STRING:	Label
+; \2 NUMBER:	BPLAM value
+; \3 NUMBER:	OSPRM value
+; \4 NUMBER:	ESPRM value
 	IFC "","\1"
-		FAIL Macro INIT_BPLCON4_BITS: Label fehlt
+		FAIL Macro INIT_BPLCON4_BITS: Label missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro INIT_BPLCON4_BITS: Switchwert Bitplanes fehlt
+		FAIL Macro INIT_BPLCON4_BITS: BPLAM value missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro INIT_BPLCON4_BITS: Switchwert ungerade Sprites fehlt
+		FAIL Macro INIT_BPLCON4_BITS: OSPRM value missing
 	ENDC
 	IFC "","\4"
-		FAIL Macro INIT_BPLCON4_BITS: Switchwert gerade Sprites fehlt
+		FAIL Macro INIT_BPLCON4_BITS: ESPRM value missing
 	ENDC
 \1 EQU (BPLCON4F_BPLAM0*\2)|(BPLCON4F_OSPRM4*\3)|(BPLCON4F_ESPRM4*\4)
 	ENDM
 
 
 INIT_DIWSTRT_BITS		MACRO
-; \1 STRING: Label
+; \1 STRING:	Label
 	IFC "","\1"
-		FAIL Macro INIT_DIWSTRT_BITS: Label fehlt
+		FAIL Macro INIT_DIWSTRT_BITS: Label missing
 	ENDC
 \1 EQU ((display_window_vstart&$ff)*DIWSTRTF_V0)|(display_window_hstart&$ff)
 	ENDM
 
 
 INIT_DIWSTOP_BITS		MACRO
-; \1 STRING: Label
+; \1 STRING:	Label
 	IFC "","\1"
-		FAIL Macro INIT_DIWSTOP_BITS: Label fehlt
+		FAIL Macro INIT_DIWSTOP_BITS: Label missing
 	ENDC
 \1 EQU ((display_window_vstop&$ff)*DIWSTOPF_V0)|(display_window_hstop&$ff)
 	ENDM
 
 
 INIT_DIWHIGH_BITS		MACRO
-; \1 STRING: Label
-; \2 STRING: zusätzliche Bits (optional)
+; \1 STRING:	Label
+; \2 STRING:	additional bits (optional)
 	IFC "","\1"
-		FAIL Macro INIT_DIWHIGH_BITS: Label fehlt
+		FAIL Macro INIT_DIWHIGH_BITS: Label missing
 	ENDC
 	IFC "","\2"
 \1 EQU (((display_window_hstop&$100)>>8)*DIWHIGHF_HSTOP8)|(((display_window_vstop&$700)>>8)*DIWHIGHF_VSTOP8)|(((display_window_hstart&$100)>>8)*DIWHIGHF_HSTART8)|((display_window_vstart&$700)>>8)
@@ -71,18 +69,18 @@ INIT_DIWHIGH_BITS		MACRO
 	ENDM
 
 
-; -- Raster-Routines --
-
 DUALPF_SOFTSCROLL_64PIXEL_LORES	MACRO
-; \1 WORD: PF1 X-Koordinate
-; \2 WORD: PF2 X-Koordinate
-; \3 Datenregister D[0..7] Maske für H0-H7 (optional)
-; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
+; Input
+; \1 WORD:	PF1 x shift
+; \2 WORD:	PF2 x shift
+; \3 WORD:	H0-H7 mask (optional)
+; Result
+; [\1 WORD]	BPLCON1 soft scroll
 	IFC "","\1"
-		FAIL Macro DUALPF_SOFTSCROLL_64PIXEL_LORES: PF1 X-Koordinate fehlt
+		FAIL Macro DUALPF_SOFTSCROLL_64PIXEL_LORES: PF1 x shift missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro DUALPF_SOFTSCROLL_64PIXEL_LORES: PF1 Y-Koordinate fehlt
+		FAIL Macro DUALPF_SOFTSCROLL_64PIXEL_LORES: PF1 y shift missing
 	ENDC
 	IFC "","\3"
 		and.w	#$00ff,\1	; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
@@ -108,15 +106,17 @@ DUALPF_SOFTSCROLL_64PIXEL_LORES	MACRO
 
 
 PF_SOFTSCROLL_8PIXEL_LORES	MACRO
-; \1 WORD: X-Koordinate
-; \2 WORD: Scratch-Register
-; \3 Datenregister D[0..7] Maske für H0-H4 (optional)
-; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
+; Input
+; \1 WORD:	X shift
+; \2 WORD:	Scratch register
+; \3 WORD:	H0-H7 mask (optional)
+; Result
+; \1 WORD	BPLCON1 soft scroll
 	IFC "","\1"
-		FAIL Macro PF_SOFTSCROLL_8PIXEL_LORES: PF1 X-Koordinate fehlt
+		FAIL Macro PF_SOFTSCROLL_8PIXEL_LORES: X shift missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro PF_SOFTSCROLL_8PIXEL_LORES: PF1 Y-Koordinate fehlt
+		FAIL Macro PF_SOFTSCROLL_8PIXEL_LORES: Scratch register missing
 	ENDC
 	IFC "","\3"
 		and.w	#$001f,\1 	; %-- -- -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0
@@ -134,15 +134,17 @@ PF_SOFTSCROLL_8PIXEL_LORES	MACRO
 
 
 PF_SOFTSCROLL_16PIXEL_LORES	MACRO
-; \1 WORD: X-Koordinate
-; \2 WORD: Scratch-Register
-; \3 Datenregister D[0..7] Maske für H0-H5 (optional)
-; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
+; Input
+; \1 WORD:	X shift
+; \2 WORD:	Scratch register
+; \3 WORD:	H0-H5 mask (optional)
+; Result
+; \1 WORD: 	BPLCON1 soft scroll
 	IFC "","\1"
-		FAIL Macro PF_SOFTSCROLL_16PIXEL_LORES: PF1 X-Koordinate fehlt
+		FAIL Macro PF_SOFTSCROLL_16PIXEL_LORES: X shift missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro PF_SOFTSCROLL_16PIXEL_LORES: Scratch-Register fehlt
+		FAIL Macro PF_SOFTSCROLL_16PIXEL_LORES: Scratch register missing
 	ENDC
 	IFC "","\3"
 		and.w	#$003f,\1	; %-- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
@@ -159,11 +161,13 @@ PF_SOFTSCROLL_16PIXEL_LORES	MACRO
 
 
 ODDPF_SOFTSCROLL_16PIXEL_LORES	MACRO
-; \1 WORD: X-Koordinate
-; \2 Datenregister D[0..7] Maske für H0-H5 (optional)
-; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
+; Input
+; \1 WORD:	X shift
+; \2 WORD:	H0-H5 mask (optional)
+; Result
+; \1 WORD: BPLCON1 Softscrollwert
 	IFC "","\1"
-		FAIL Macro ODDPF_SOFTSCROLL_16PIXEL_LORES: PF1 X-Koordinate fehlt
+		FAIL Macro ODDPF_SOFTSCROLL_16PIXEL_LORES: PF1 X shift missing
 	ENDC
 	IFC "","\2"
 		and.w	#$003f,\1	; %-- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
@@ -177,11 +181,13 @@ ODDPF_SOFTSCROLL_16PIXEL_LORES	MACRO
 
 
 EVENPF_SOFTSCROLL_16PIXEL_LORES	MACRO
-; \1 WORD: X-Koordinate
-; \2 Datenregister D[0..7] Maske für H0-H5 (optional)
-; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
+; Input
+; \1 WORD:	X shift missing
+; \2 WORD:	H0-H5 mask (optional)
+; Result
+; \1 WORD:	BPLCON1 soft scroll
 	IFC "","\1"
-		FAIL Macro EVENPF_SOFTSCROLL_16PIXEL_LORES: PF2 X-Koordinate fehlt
+		FAIL Macro EVENPF_SOFTSCROLL_16PIXEL_LORES: x shift missing
 	ENDC
 	IFC "","\2"
 		and.w	#$003f,\1	; %-- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
@@ -196,15 +202,17 @@ EVENPF_SOFTSCROLL_16PIXEL_LORES	MACRO
 
 
 PF_SOFTSCROLL_8PIXEL_HIRES	MACRO
-; \1 WORD: X-Koordinate
-; \2 WORD: Scratch-Register
-; \3 Datenregister D[0..7] Maske für H0-H3 (optional)
-; Rückgabewert: [\1 WORD] BPLCON2 Softscrollwert
+; Input
+; \1 WORD:	X shift
+; \2 WORD:	Scratch register
+; \3 WORD:	H0-H3 mask (optional)
+; Result
+; \1 WORD:	BPLCON2 soft scroll
 	IFC "","\1"
-		FAIL Macro PF_SOFTSCROLL_8PIXEL_HIRES: PF1 X-Koordinate fehlt
+		FAIL Macro PF_SOFTSCROLL_8PIXEL_HIRES: X Shift missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro PF_SOFTSCROLL_8PIXEL_HIRES: Scratch-Register fehlt
+		FAIL Macro PF_SOFTSCROLL_8PIXEL_HIRES: Scratch register missing
 	ENDC
 	IFC "","\3"
 		and.w	#$000f,\1 	; %-- -- -- -- -- -- -- -- -- -- -- -- H3 H2 H1 H0
@@ -222,15 +230,17 @@ PF_SOFTSCROLL_8PIXEL_HIRES	MACRO
 
 
 PF_SOFTSCROLL_16PIXEL_HIRES	MACRO
-; \1 WORD: X-Koordinate
-; \2 WORD: Scratch-Register
-; \3 Datenregister D[0..7] Maske für H0-H4 (optional)
-; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
+; Input
+; \1 WORD:	X shift
+; \2 WORD:	Scratch register
+; \3 WORD:	H0-H4 mask (optional)
+; Result
+; \1 WORD:	BPLCON1 soft scroll
 	IFC "","\1"
-		FAIL Macro PF_SOFTSCROLL_16PIXEL_HIRES: PF1 X-Koordinate fehlt
+		FAIL Macro PF_SOFTSCROLL_16PIXEL_HIRES: X shift missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro PF_SOFTSCROLL_16PIXEL_HIRES: Scratch-Register fehlt
+		FAIL Macro PF_SOFTSCROLL_16PIXEL_HIRES: Scratch register missing
 	ENDC
 	IFC "","\3"
 		and.w	#$001f,\1	; %-- -- -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0
@@ -247,15 +257,16 @@ PF_SOFTSCROLL_16PIXEL_HIRES	MACRO
 
 
 PF_SOFTSCROLL_64PIXEL_LORES	MACRO
-; \1 WORD: X-Koordinate
-; \2 WORD: Scratch-Register
-; \3 Datenregister D[0..7] Maske für H0-H7 (optional)
-; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
+; \1 WORD:	X shift
+; \2 WORD:	Scratch register
+; \3 WORD:	H0-H7 mask (optional)
+; Result
+; \1 WORD:	BPLCON1 softscroll
 	IFC "","\1"
-		FAIL Macro PF_SOFTSCROLL_64PIXEL_LORES: PF1 X-Koordinate fehlt
+		FAIL Macro PF_SOFTSCROLL_64PIXEL_LORES: X shift missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro PF_SOFTSCROLL_64PIXEL_LORES: Scratch-Register fehlt
+		FAIL Macro PF_SOFTSCROLL_64PIXEL_LORES: Scratch register missing
 	ENDC
 	IFC "","\3"
 		and.w	#$00ff,\1	; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
@@ -273,11 +284,13 @@ PF_SOFTSCROLL_64PIXEL_LORES	MACRO
 
 
 ODDPF_SOFTSCROLL_64PIXEL_LORES	MACRO
-; \1 WORD: X-Koordinate
-; \2 Datenregister D[0..7] Maske für H0-H7 (optional)
-; Rückgabewert: [\1 WORD] BPLCON1 Softscrollwert
+; Input
+; \1 WORD:	X shift
+; \2 WORD:	H0-H7 (optional)
+; Result
+; \1 WORD:	BPLCON1 soft scroll
 	IFC "","\1"
-		FAIL Macro ODDPF_SOFTSCROLL_64PIXEL_LORES: X-Koordinate fehlt
+		FAIL Macro ODDPF_SOFTSCROLL_64PIXEL_LORES: X shift missing
 	ENDC
 	IFC "","\2"
 		and.w	#$00ff,\1	; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
@@ -291,17 +304,16 @@ ODDPF_SOFTSCROLL_64PIXEL_LORES	MACRO
 	ENDM
 
 
-; -- Raster routines --
-
 SWAP_PLAYFIELD			MACRO
-; \1 STRING: Labels-Prefix der Routine
-; \2 NUMBER: Anzahl der Playfields [2,3]
-; \3 BYTE SIGNED: Anzahl der Bitplanes Playfield
+; Input
+; \1 STRING:		Labels prefix
+; \2 NUMBER:		Number of playfields [2,3]
+; Result
 	IFC "","\1"
-		FAIL Macro SWAP_PLAYFIELD: Labels-Prefix der Routine fehlt
+		FAIL Macro SWAP_PLAYFIELD: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro SWAP_PLAYFIELD: Anzahl der Playfields fehlt
+		FAIL Macro SWAP_PLAYFIELD: Number of playfields missing
 	ENDC
 swap_playfield\*RIGHT(\1,1)
 	IFEQ \2-2
@@ -322,16 +334,16 @@ swap_playfield\*RIGHT(\1,1)
 
 SET_PLAYFIELD			MACRO
 ; Input
-; \1 STRING:		Labels-Prefix der Routine
-; \2 BYTE SIGNED:	Anzahl der Bitplanes Playfield
-; \3 WORD:		X-Offset in Pixeln (optional)
-; \4 WORD:		Y-Offset in Zeilen (optional)
+; \1 STRING:		Labels prefix
+; \2 BYTE SIGNED:	Playfield depth
+; \3 WORD:		x shift (optional)
+; \4 WORD:		y shift (optional)
 ; Result
 	IFC "","\1"
-		FAIL Macro SET_PLAYFIELD: Labels-Prefix der Routine fehlt
+		FAIL Macro SET_PLAYFIELD: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro SET_PLAYFIELD: Anzahl der Bitplanes fehlt
+		FAIL Macro SET_PLAYFIELD: Playfield depth missing
 	ENDC
 	CNOP 0,4
 set_playfield1
@@ -339,7 +351,7 @@ set_playfield1
 		move.l	cl1_display(a3),a0
 		ADDF.W	cl1_BPL1PTH+WORD_SIZE,a0
 		move.l	\1_display(a3),a1
-		moveq	#\2-1,d7	; Anzahl der Planes
+		moveq	#\2-1,d7	; playfield depth
 set_playfield1_loop
 		move.w	(a1)+,(a0)	; BPLxPTH
 		addq.w	#QUADWORD_SIZE,a0
@@ -350,12 +362,12 @@ set_playfield1_loop
 		move.l	cl1_display(a3),a0
 		ADDF.W	cl1_BPL1PTH+WORD_SIZE,a0
 		move.l	\1_display(a3),a1
-		moveq	#\2-1,d7 ; Anzahl der Planes
+		moveq	#\2-1,d7	; playfield depth
 set_playfield1_loop
 		move.l	(a1)+,d0
 		add.l	d1,d0
 		move.w	d0,LONGWORD_SIZE(a0) ; BPLxPTL
-		swap	d0		; High
+		swap	d0
 		move.w	d0,(a0)		; BPLxPTH
 		addq.w	#QUADWORD_SIZE,a0
 		dbf	d7,set_playfield1_loop
@@ -366,15 +378,16 @@ set_playfield1_loop
 
 SET_DUAL_PLAYFIELD		MACRO
 ; Input
-; \1 STRING:		Labels-Prefix der Routine
-; \2 BYTE SIGNED:	Anzahl der Bitplanes Playfield
-; \3 WORD:		X-Offset in Pixeln (optional)
-; \4 WORD:		Y-Offset in Zeilen (optional)
+; \1 STRING:		Labels prefix
+; \2 BYTE SIGNED:	Playfield depth
+; \3 WORD:		x shift (optional)
+; \4 WORD:		y shift (optional)
+; Result
 	IFC "","\1"
-		FAIL Macro SET_DUAL_PLAYFIELD: Labels-Prefix der Routine fehlt
+		FAIL Macro SET_DUAL_PLAYFIELD: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro SET_DUAL_PLAYFIELD: Anzahl der Bitplanes fehlt
+		FAIL Macro SET_DUAL_PLAYFIELD: Playfield depth missing
 	ENDC
 	CNOP 0,4
 set_dual_playfield\*RIGHT(\1,1)
@@ -382,7 +395,7 @@ set_dual_playfield\*RIGHT(\1,1)
 		move.l	cl1_display(a3),a0
 		ADDF.W	cl1_BPL\*RIGHT(\1,1)PTH+WORD_SIZE,a0
 		move.l	\1_display(a3),a1
-		moveq	#\2-1,d7	; Anzahl der Planes
+		moveq	#\2-1,d7	; Playfield depth
 set_dual_playfield\*RIGHT(\1,1)_loop
 		move.w	(a1)+,(a0)	; BPLxPTH
 		ADDF.W	QUADWORD_SIZE*2,a0
@@ -394,12 +407,12 @@ set_dual_playfield\*RIGHT(\1,1)_loop
 		move.l	cl1_display(a3),a0
 		ADDF.W	cl1_BPL\*RIGHT(\1,1)PTH+WORD_SIZE,a0
 		move.l	\1_display(a3),a1
-		moveq	#\1_depth3-1,d7 ; Anzahl der Planes
+		moveq	#\1_depth3-1,d7 ; Playfield depth
 set_dual_playfield\*RIGHT(\1,1)_loop
 		move.l	(a1)+,d0
 		add.l	d1,d0
 		move.w	d0,LONGWORD_SIZE(a0) ; BPLxPTL
-		swap	d0		; High
+		swap	d0
 		move.w	d0,(a0)		; BPLxPTH
 		ADDF.W	QUADWORD_SIZE*2,a0
 		dbf	d7,set_dual_playfield\*RIGHT(\1,1)_loop

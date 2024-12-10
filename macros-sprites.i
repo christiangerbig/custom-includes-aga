@@ -1,18 +1,19 @@
-; -- Inits --
-
 SET_SPRITE_POSITION		MACRO
-; \1 WORD: X-Koordinate
-; \2 WORD: Y-Koordinate
-; \3 WORD: Höhe in Zeilen
-; Rückgabewerte: [\2 WORD] SPRxPOS, [\3 WORD] SPRxCTL
+; Input
+; \1 WORD:	X
+; \2 WORD:	Y
+; \3 WORD:	Height
+; Result
+; \2 WORD:	SPRxPOS
+; \3 WORD:	SPRxCTL
 	IFC "","\1"
-		FAIL Macro SET_SPRITE_POSITION: X-Koordinate fehlt
+		FAIL Macro SET_SPRITE_POSITION: X missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro SET_SPRITE_POSITION: Y-Koordinate fehlt
+		FAIL Macro SET_SPRITE_POSITION: Y missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro SET_SPRITE_POSITION: Höhe in Zeilen fehlt
+		FAIL Macro SET_SPRITE_POSITION: Height missing
 	ENDC
 	rol.w	#8,\2			; % SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 --- --- --- --- --- --- --- SV8
 	lsl.w	#5,\1			; %SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3 SH2 SH1 SH0 --- --- --- --- ---
@@ -29,18 +30,20 @@ SET_SPRITE_POSITION		MACRO
 
 
 SET_SPRITE_POSITION_1X		MACRO
-; \1 WORD: X-Koordinate
-; \2 WORD: Y-Koordinate
-; \3 WORD: Höhe in Zeilen
-; Rückgabewerte: [\2 LONGWORD] Bit 31..16 SPRxPOS Bit 15..0 SPRxCTL
+; Input
+; \1 WORD:	X
+; \2 WORD:	Y
+; \3 WORD:	Height
+; Result
+; \2 LONGWORD:	bits 0..15 SPRxCTL, bits 16..31 SPRxPOS
 	IFC "","\1"
-		FAIL Macro SET_SPRITE_POSITION_1X: X-Koordinate fehlt
+		FAIL Macro SET_SPRITE_POSITION_1X: X missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro SET_SPRITE_POSITION_1X: Y-Koordinate fehlt
+		FAIL Macro SET_SPRITE_POSITION_1X: Y missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro SET_SPRITE_POSITION_1X: Höhe in Zeilen fehlt
+		FAIL Macro SET_SPRITE_POSITION_1X: Height missing
 	ENDC
 	SET_SPRITE_POSITION \1,\2,\3
 	swap	\2			; % SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3 --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -49,22 +52,25 @@ SET_SPRITE_POSITION_1X		MACRO
 
 
 SET_SPRITE_POSITION_V9		MACRO
-; \1 WORD: X-Koordinate
-; \2 WORD: Y-Koordinate
-; \3 WORD: Höhe in Zeilen
-; \4 BYTE: Scratch-Register
-; Rückgabewerte: [\2 WORD] SPRxPOS, [\3 WORD] SPRxCTL
+; Input
+; \1 WORD:	X
+; \2 WORD:	Y
+; \3 WORD:	Height
+; \4 BYTE:	Scratch register
+; Result
+; \2 WORD: SPRxPOS
+; \3 WORD: SPRxCTL
 	IFC "","\1"
-		FAIL Macro SET_SPRITE_POSITION_V9: X-Koordinate fehlt
+		FAIL Macro SET_SPRITE_POSITION_V9: X missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro SET_SPRITE_POSITION_V9: Y-Koordinate fehlt
+		FAIL Macro SET_SPRITE_POSITION_V9: Y missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro SET_SPRITE_POSITION_V9: Höhe in Zeilen fehlt
+		FAIL Macro SET_SPRITE_POSITION_V9: Height missing
 	ENDC
 	IFC "","\4"
-		FAIL Macro SET_SPRITE_POSITION_V9: Scratch-Register fehlt
+		FAIL Macro SET_SPRITE_POSITION_V9: Scratch register missing
 	ENDC
 	rol.w	#7,\2			; % SV8 SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 --- --- --- --- --- --- SV9
 	move.b	\2,\4			; % SV0 --- --- --- --- --- --- SV9
@@ -81,20 +87,22 @@ SET_SPRITE_POSITION_V9		MACRO
 	addx.b	\3,\3			; % EV7 EV6 EV5 EV4 EV3 EV2 EV1 EV0 --- --- SV9 EV9 SH1 SH0 SV8 EV8
 	lsr.w	#3,\1			; % --- --- --- --- --- --- --- --- SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3
 	addx.b	\3,\3			; % EV7 EV6 EV5 EV4 EV3 EV2 EV1 EV0 --- SV9 EV9 SH1 SH0 SV8 EV8 SH2
-	move.b	\1,\2			; % SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3: SPRxPOS
+	move.b	\1,\2			; % SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3
 	ENDM
 
 
 INIT_SPRITE_POINTERS_TABLE	MACRO
 	CNOP 0,4
 spr_init_ptrs_table
+; Input
+; Result
 	IFNE spr_x_size1
 		lea	spr0_construction(a3),a0
 		lea	spr_ptrs_construction(pc),a1
 		moveq	#spr_number-1,d7
 spr_init_ptrs_table_loop1
 		move.l	(a0)+,a2
-		move.l	(a2),(a1)+	; Zeiger auf Sprite-Struktur
+		move.l	(a2),(a1)+	; pointer sprite structure
 		dbf	d7,spr_init_ptrs_table_loop1
 	ENDC
 	IFNE spr_x_size2
@@ -103,7 +111,7 @@ spr_init_ptrs_table_loop1
 		moveq	#spr_number-1,d7
 spr_init_ptrs_table_loop2
 		move.l	(a0)+,a2
-		move.l	(a2),(a1)+	; Zeiger auf Sprite-Struktur
+		move.l	(a2),(a1)+	; pointer sprite structure
 		dbf	d7,spr_init_ptrs_table_loop2
 	ENDC
 	rts
@@ -113,155 +121,159 @@ spr_init_ptrs_table_loop2
 COPY_SPRITE_STRUCTURES		MACRO
 	CNOP 0,4
 spr_copy_structures
+; Input
+; Result
 	move.l	a4,-(a7)
 	lea	spr_ptrs_construction(pc),a2
 	lea	spr_ptrs_display(pc),a4
-	move.w	#(sprite0_size/LONGWORD_SIZE)-1,d7 ; Anzahl der Langwörter
+	move.w	#(sprite0_size/LONGWORD_SIZE)-1,d7
 	bsr.s	spr_copy_data
-	move.w	#(sprite1_size/LONGWORD_SIZE)-1,d7 ; Anzahl der Langwörter
+	move.w	#(sprite1_size/LONGWORD_SIZE)-1,d7
 	bsr.s	spr_copy_data
-	move.w	#(sprite2_size/LONGWORD_SIZE)-1,d7 ; Anzahl der Langwörter
+	move.w	#(sprite2_size/LONGWORD_SIZE)-1,d7
 	bsr.s	spr_copy_data
-	move.w	#(sprite3_size/LONGWORD_SIZE)-1,d7 ; Anzahl der Langwörter
+	move.w	#(sprite3_size/LONGWORD_SIZE)-1,d7
 	bsr.s	spr_copy_data
-	move.w	#(sprite4_size/LONGWORD_SIZE)-1,d7 ; Anzahl der Langwörter
+	move.w	#(sprite4_size/LONGWORD_SIZE)-1,d7
 	bsr.s	spr_copy_data
-	move.w	#(sprite5_size/LONGWORD_SIZE)-1,d7 ; Anzahl der Langwörter
+	move.w	#(sprite5_size/LONGWORD_SIZE)-1,d7
 	bsr.s	spr_copy_data
-	move.w	#(sprite6_size/LONGWORD_SIZE)-1,d7 ; Anzahl der Langwörter
+	move.w	#(sprite6_size/LONGWORD_SIZE)-1,d7
 	bsr.s	spr_copy_data
-	move.w	#(sprite7_size/LONGWORD_SIZE)-1,d7 ; Anzahl der Langwörter
+	move.w	#(sprite7_size/LONGWORD_SIZE)-1,d7
 	bsr.s	spr_copy_data
 	move.l	(a7)+,a4
 	rts
 	CNOP 0,4
 spr_copy_data
-	move.l	(a2)+,a0		; Quelle
-	move.l	(a4)+,a1		; Ziel
+	move.l	(a2)+,a0		; source
+	move.l	(a4)+,a1		; destination
 spr_copy_data_loop
-	move.l	(a0)+,(a1)+		; 4 Bytes kopieren
+	move.l	(a0)+,(a1)+
 	dbf	d7,spr_copy_data_loop
 	rts
 	ENDM
 
 
 INIT_ATTACHED_SPRITES_CLUSTER	MACRO
-; \1 STRING: Labels-Prefix der Routine
-; \2 POINTER: Sprite-Struktur
-; \3 WORD: X-Position (optional)
-; \4 WORD: Y-Position (optional)
-; \5 WORD: Breite des Sprites in Pixeln
-; \6 WORD: Höhe des Sprites in Zeilen
-; \7 STRING: "NOHEADER" (optional)
-; \8 STRING: "BLANK" (optional)
-; \9 STRING: "REPEAT" (optional)
+; Input
+; \1 STRING:	Labels prefix
+; \2 POINTER:	Table sprite structures pointers
+; \3 WORD:	X (optional)
+; \4 WORD:	Y (optional)
+; \5 WORD:	Width
+; \6 WORD:	Height
+; \7 STRING:	"NOHEADER" (optional)
+; \8 STRING:	"BLANK" (optional)
+; \9 STRING:	"REPEAT" (optional)
+; Result
 	IFC "","\1"
-		FAIL Macro INIT_ATTACHED_SPRITES_CLUSTER: Labels-Prefix der Routine fehlt
+		FAIL Macro INIT_ATTACHED_SPRITES_CLUSTER: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro INIT_ATTACHED_SPRITES_CLUSTER: Sprite-Struktur fehlt
+		FAIL Macro INIT_ATTACHED_SPRITES_CLUSTER: Table sprite structures pointers missing
 	ENDC
 	IFC "","\5"
-		FAIL Macro INIT_ATTACHED_SPRITES_CLUSTER: Breite fehlt
+		FAIL Macro INIT_ATTACHED_SPRITES_CLUSTER: Width missing
 	ENDC
 	IFC "","\6"
-		FAIL Macro INIT_ATTACHED_SPRITES_CLUSTER: Höhe fehlt
+		FAIL Macro INIT_ATTACHED_SPRITES_CLUSTER: Height missing
 	ENDC
 	CNOP 0,4
 \1_init_attached_sprites_cluster
 	IFNC "REPEAT","\9"
 		movem.l a4-a5,-(a7)
 		IFNC "NOHEADER","\7"
-			move.w	#(\3+(\5*0))*SHIRES_PIXEL_FACTOR,d0 ; X-Koord.
-			MOVEF.W \4,d1 ;Y-Koord.
+			move.w	#(\3+(\5*0))*SHIRES_PIXEL_FACTOR,d0 ; x
+			MOVEF.W \4,d1	; y
 			moveq	#0,d3
 		ENDC
-		lea	\2(pc),a5	; Zeiger auf Sprite-Strukturen
-		move.l	(a5)+,a0	; Sprite0-Struktur
+		lea	\2(pc),a5	; pointer table sprite structures pointers
+		move.l	(a5)+,a0	; pointer sprite0 structure
 		bsr	\1_init_sprite_header
 		IFNC "NOHEADER","\7"
-			move.w	#(\3+(\5*0))*SHIRES_PIXEL_FACTOR,d0 ; X-Koord.
-			move.w	#\4,d1	; Y-Koord.
+			move.w	#(\3+(\5*0))*SHIRES_PIXEL_FACTOR,d0 ; x
+			move.w	#\4,d1	; y
 			MOVEF.W	SPRCTLF_ATT,d3
 		ENDC
 
 		IFNC "BLANK","\8"
-			lea	\1_image_data,a1 ; Zeiger auf Playfield (1. Spalte 64 Pixel)
+			lea	\1_image_data,a1 ; first column 64 pixel
 			bsr	\1_init_sprite_bitmap
 		ENDC
-		move.l	(a5)+,a0	; Sprite1-Struktur
+		move.l	(a5)+,a0	; pointer sprite1 structure
 		bsr	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(\1_image_plane_width*2),a1 ; Zeiger auf Hintergrundbild (1. Spalte 64 Pixel)
+			lea	\1_image_data+(\1_image_plane_width*2),a1 ; first column 64 pixel
 			bsr	\1_init_sprite_bitmap
 		ENDC
 
 		IFNC "NOHEADER","\7"
-			move.w	#(\3+(\5*1))*SHIRES_PIXEL_FACTOR,d0 ; X-Koord.
-			MOVEF.W	\4,d1	; Y-Koord.
+			move.w	#(\3+(\5*1))*SHIRES_PIXEL_FACTOR,d0 ; x
+			MOVEF.W	\4,d1	; y
 			moveq	#0,d3
 		ENDC
-		move.l	(a5)+,a0	; Sprite2-Struktur
+		move.l	(a5)+,a0	; pointer sprite2 structure
 		bsr	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+QUADWORD_SIZE,a1 ; Zeiger auf Hintergrundbild (2. Spalte 64 Pixel)
+			lea	\1_image_data+QUADWORD_SIZE,a1 ; second column 64 pixel
 			bsr	\1_init_sprite_bitmap
 		ENDC
 		IFNC "NOHEADER","\7"
-			move.w	#(\3+(\5*1))*SHIRES_PIXEL_FACTOR,d0 ; X-Koord.
-			MOVEF.W	\4,d1	; Y-Koord.
+			move.w	#(\3+(\5*1))*SHIRES_PIXEL_FACTOR,d0 ; x
+			MOVEF.W	\4,d1	; y
 			MOVEF.W	SPRCTLF_ATT,d3
 		ENDC
-		move.l	(a5)+,a0	; Sprite3-Struktur
+		move.l	(a5)+,a0	; pointer sprite3 structure
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+QUADWORD_SIZE+(\1_image_plane_width*2),a1 ; Zeiger auf Hintergrundbild (2. Spalte 64 Pixel)
+			lea	\1_image_data+QUADWORD_SIZE+(\1_image_plane_width*2),a1 ; second column 64 pixel
 			bsr	\1_init_sprite_bitmap
 		ENDC
 
 		IFNC "NOHEADER","\7"
-			move.w	#(\3+(\5*2))*SHIRES_PIXEL_FACTOR,d0 ; X-Koord.
-			MOVEF.W \4,d1	; Y-Koord.
+			move.w	#(\3+(\5*2))*SHIRES_PIXEL_FACTOR,d0 ; x
+			MOVEF.W \4,d1	; y
 			moveq	#0,d3
 		ENDC
-		move.l	(a5)+,a0	; Sprite4-Struktur
+		move.l	(a5)+,a0	; pointer sprite4 structure
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(QUADWORD_SIZE*2),a1 ; Zeiger auf Hintergrundbild (3. Spalte 64 Pixel)
+			lea	\1_image_data+(QUADWORD_SIZE*2),a1 ; third column 64 pixel
 			bsr	\1_init_sprite_bitmap
 		ENDC
 		IFNC "NOHEADER","\7"
-			move.w	#(\3+(\5*2))*SHIRES_PIXEL_FACTOR,d0 ; X-Koord.
-			MOVEF.W	\4,d1	; Y-Koord.
+			move.w	#(\3+(\5*2))*SHIRES_PIXEL_FACTOR,d0 ; x
+			MOVEF.W	\4,d1	; y
 			MOVEF.W	SPRCTLF_ATT,d3
 		ENDC
-		move.l	(a5)+,a0	; Sprite5-Struktur
+		move.l	(a5)+,a0	; pointer sprite 5 structure
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(QUADWORD_SIZE*2)+(\1_image_plane_width*2),a1 ; Zeiger auf Hintergrundbild (3. Spalte 64 Pixel)
+			lea	\1_image_data+(QUADWORD_SIZE*2)+(\1_image_plane_width*2),a1 ; third column 64 pixel
 			bsr.s	\1_init_sprite_bitmap
 		ENDC
 	
-		move.l	(a5)+,a0	; Sprite6-Struktur
+		move.l	(a5)+,a0	; pointer sprite6 structure
 		IFNC "NOHEADER","\7"
-			move.w	#(\3+(\5*3))*SHIRES_PIXEL_FACTOR,d0 ; X-Koord.
-			MOVEF.W \4,d1	; Y-Koord.
+			move.w	#(\3+(\5*3))*SHIRES_PIXEL_FACTOR,d0 ; x
+			MOVEF.W \4,d1	; y
 			moveq	#0,d3
 		ENDC
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(QUADWORD_SIZE*3),a1 ; Zeiger auf Hintergrundbild (4. Spalte 64 Pixel)
+			lea	\1_image_data+(QUADWORD_SIZE*3),a1 ; fourth column 64 pixel
 			bsr.s	\1_init_sprite_bitmap
 		ENDC
 		IFNC "NOHEADER","\7"
-			move.w	#(\3+(\5*3))*SHIRES_PIXEL_FACTOR,d0 ; X-Koord.
-			MOVEF.W \4,d1	; Y-Koord.
+			move.w	#(\3+(\5*3))*SHIRES_PIXEL_FACTOR,d0 ; x
+			MOVEF.W \4,d1	; y
 			MOVEF.W SPRCTLF_ATT,d3
 		ENDC
-		move.l	(a5),a0		; Sprite7-Struktur
+		move.l	(a5),a0		; pointer sprite7 structure
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(QUADWORD_SIZE*3)+(\1_image_plane_width*2),a1 ; Zeiger auf Hintergrundbild (4. Spalte 64 Pixel)
+			lea	\1_image_data+(QUADWORD_SIZE*3)+(\1_image_plane_width*2),a1 ; fourth column 64 pixel
 			bsr.s	\1_init_sprite_bitmap
 		ENDC
 		movem.l (a7)+,a4-a5
@@ -269,95 +281,95 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 	ELSE
 		movem.l	a4-a5,-(a7)
 		IFNC "NOHEADER","\7"
-			move.w	#(\3+(\5*0))*SHIRES_PIXEL_FACTOR,d0 ; X-Koord.
-			MOVEF.W	\4,d1	; Y-Koord.
+			move.w	#(\3+(\5*0))*SHIRES_PIXEL_FACTOR,d0 ; x
+			MOVEF.W	\4,d1	; y
 			moveq	#0,d3
 		ENDC
-		lea	\2(pc),a5	; Zeiger auf Sprite-Strukturen
-		move.l	(a5)+,a0	; Sprite0-Struktur
+		lea	\2(pc),a5	; pointer table sprite structures pointers
+		move.l	(a5)+,a0	; pointer sprite0 structure
 		bsr	\1_init_sprite_header
 		IFNC "NOHEADER","\7"
-			move.w	#(\3+(\5*0))*SHIRES_PIXEL_FACTOR,d0 ; X-Koord.
-			move.w	#\4,d1	; Y-Koord.
+			move.w	#(\3+(\5*0))*SHIRES_PIXEL_FACTOR,d0 ; x
+			move.w	#\4,d1	; y
 			MOVEF.W	SPRCTLF_ATT,d3
 		ENDC
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(QUADWORD_SIZE*2),a1 ; Zeiger auf Playfield (3. Spalte 64 Pixel)
+			lea	\1_image_data+(QUADWORD_SIZE*2),a1 ; third column 64 pixel
 			bsr	\1_init_sprite_bitmap
 		ENDC
-		move.l	(a5)+,a0	; Sprite1-Struktur
+		move.l	(a5)+,a0	; pointer sprite1 structure
 		bsr	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(QUADWORD_SIZE*2)+(\1_image_plane_width*2),a1 ; Zeiger auf Hintergrundbild (3. Spalte 64 Pixel)
+			lea	\1_image_data+(QUADWORD_SIZE*2)+(\1_image_plane_width*2),a1 ; third column 64 pixel
 			bsr	\1_init_sprite_bitmap
 		ENDC
 
 		IFNC "NOHEADER","\7"
-			move.w	#(\3+(\5*1))*SHIRES_PIXEL_FACTOR,d0 ; X-Koord.
-			MOVEF.W \4,d1	; Y-Koord.
+			move.w	#(\3+(\5*1))*SHIRES_PIXEL_FACTOR,d0 ; x
+			MOVEF.W \4,d1	; y
 			moveq	#0,d3
 		ENDC
-		move.l	(a5)+,a0	; Sprite2-Struktur
+		move.l	(a5)+,a0	; pointer sprite2 structure
 		bsr		\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(QUADWORD_SIZE*3),a1 ; Zeiger auf Hintergrundbild (4. Spalte 64 Pixel)
+			lea	\1_image_data+(QUADWORD_SIZE*3),a1 ; fourth column 64 pixel
 			bsr	\1_init_sprite_bitmap
 		ENDC
 		IFNC "NOHEADER","\7"
-			move.w	#(\3+(\5*1))*SHIRES_PIXEL_FACTOR,d0 ; X-Koord.
-			MOVEF.W	\4,d1	; Y-Koord.
+			move.w	#(\3+(\5*1))*SHIRES_PIXEL_FACTOR,d0 ; x
+			MOVEF.W	\4,d1	; y
 			MOVEF.W	SPRCTLF_ATT,d3
 		ENDC
-		move.l	(a5)+,a0	; Sprite3-Struktur
+		move.l	(a5)+,a0	; pointer sprite3 structure
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(QUADWORD_SIZE*3)+(\1_image_plane_width*2),a1 ; Zeiger auf Hintergrundbild (4. Spalte 64 Pixel)
+			lea	\1_image_data+(QUADWORD_SIZE*3)+(\1_image_plane_width*2),a1 ; fourth column 64 pixel
 			bsr	\1_init_sprite_bitmap
 		ENDC
 
 		IFNC "NOHEADER","\7"
-			move.w	#(\3+(\5*2))*SHIRES_PIXEL_FACTOR,d0 ; X-Koord.
-			MOVEF.W	\4,d1	; Y-Koord.
+			move.w	#(\3+(\5*2))*SHIRES_PIXEL_FACTOR,d0 ; x
+			MOVEF.W	\4,d1	; y
 			moveq	#0,d3
 		ENDC
-		move.l	(a5)+,a0	; Sprite4-Struktur
+		move.l	(a5)+,a0	; pointer sprite4 structure
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data,a1 ; Zeiger auf Hintergrundbild (1. Spalte 64 Pixel)
+			lea	\1_image_data,a1 ; first column 64 pixel
 			bsr	\1_init_sprite_bitmap
 		ENDC
 		IFNC "NOHEADER","\7"
-			move.w	#(\3+(\5*2))*SHIRES_PIXEL_FACTOR,d0 ; X-Koord.
-			MOVEF.W	\4,d1	; Y-Koord.
+			move.w	#(\3+(\5*2))*SHIRES_PIXEL_FACTOR,d0 ; x
+			MOVEF.W	\4,d1	; y
 			MOVEF.W	SPRCTLF_ATT,d3
 		ENDC
 		move.l	(a5)+,a0	; Sprite5-Struktur
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(\1_image_plane_width*2),a1 ; Zeiger auf Hintergrundbild (1. Spalte 64 Pixel)
+			lea	\1_image_data+(\1_image_plane_width*2),a1 ; first column 64 pixel
 			bsr.s	\1_init_sprite_bitmap
 		ENDC
 	
-		move.l	(a5)+,a0	; Sprite6-Struktur
+		move.l	(a5)+,a0	; pointer sprite6 structure
 		IFNC "NOHEADER","\7"
-			move.w	#(\3+(\5*3))*SHIRES_PIXEL_FACTOR,d0 ; X-Koord.
-			MOVEF.W \4,d1	; Y-Koord.
+			move.w	#(\3+(\5*3))*SHIRES_PIXEL_FACTOR,d0 ; x
+			MOVEF.W \4,d1	; y
 			moveq	#0,d3
 		ENDC
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+QUADWORD_SIZE,a1 ; Zeiger auf Hintergrundbild (2. Spalte 64 Pixel)
+			lea	\1_image_data+QUADWORD_SIZE,a1 ; second column 64 pixel
 			bsr.s	\1_init_sprite_bitmap
 		ENDC
 		IFNC "NOHEADER","\7"
-			move.w	#(\3+(\5*3))*SHIRES_PIXEL_FACTOR,d0 ; X-Koord.
-			MOVEF.W	\4,d1		; Y-Koord.
+			move.w	#(\3+(\5*3))*SHIRES_PIXEL_FACTOR,d0 ; x
+			MOVEF.W	\4,d1		; y
 			MOVEF.W	SPRCTLF_ATT,d3
 		ENDC
-		move.l	(a5),a0		; Sprite7-Struktur
+		move.l	(a5),a0		; pointer sprite7 structure
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+QUADWORD_SIZE+(\1_image_plane_width*2),a1 ; Zeiger auf Hintergrundbild (2. Spalte 64 Pixel)
+			lea	\1_image_data+QUADWORD_SIZE+(\1_image_plane_width*2),a1 ; second column 64 pixel
 			bsr.s	\1_init_sprite_bitmap
 		ENDC
 		movem.l (a7)+,a4-a5
@@ -367,21 +379,20 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 	CNOP 0,4
 \1_init_sprite_header
 ; Input
-; d0	... X-Koordinate
-; d1	... Y-Koordinate
-; d3	... Attached-Bit
-; a0	... Zeiger auf Sprite-Struktur
+; d0.w	... X
+; d1.w	... Y
+; d3.b	... Attached bit
+; a0	... Pointer sprite structure
 ; Result
-; d0.l	... Kein Rückgabewert
 	IFNC "NOHEADER","\7"
-		MOVEF.W \6,d2		; Höhe
+		MOVEF.W \6,d2		; Height
 		add.w	d1,d2		; VSTOP
 		SET_SPRITE_POSITION d0,d1,d2
 		move.w	d1,(a0)		; SPRxPOS
-		or.b	d3,d2		; ATT-Bit setzen
+		or.b	d3,d2		; set attached bit
 		move.w	d2,spr_pixel_per_datafetch/8(a0) ; SPRxCTL
 	ENDC
-	ADDF.W	(spr_pixel_per_datafetch/4),a0 ; Sprite-Header überspringen
+	ADDF.W	(spr_pixel_per_datafetch/4),a0 ; skip sprite header
 	rts
 
 	IFNC "BLANK","\8"
@@ -389,33 +400,31 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 \1_init_sprite_bitmap
 		move.w	#\1_image_plane_width-QUADWORD_SIZE,a2
 		move.w	#(\1_image_plane_width*3)-QUADWORD_SIZE,a4
-		MOVEF.W	\1_image_y_size-1,d7 ;Anzahl der Zeilen
+		MOVEF.W	\1_image_y_size-1,d7
 \1_init_sprite_bitmap_loop
-		move.l	(a1)+,(a0)+	; BP1 64 Bits
+		move.l	(a1)+,(a0)+	; Bitplane1 64 Bits
 		move.l	(a1)+,(a0)+
-		add.l	a2,a1		; Restliche Zeile in Quelle überspringen
-		move.l	(a1)+,(a0)+	; BP2 64 Bits
+		add.l	a2,a1		; skip remaining lines
+		move.l	(a1)+,(a0)+	; Bitplane2 64 Bits
 		move.l	(a1)+,(a0)+
-		add.l	a4,a1		; Restliche Zeile + zwei Folgeplanes in Quelle überspringen
+		add.l	a4,a1		; skip remaining lines
 		dbf	d7,\1_init_sprite_bitmap_loop
 	ENDC
 	rts
 	ENDM
 
 
-; -- Raster routines --
-
 SWAP_SPRITES		MACRO
 ; Input
-; \1 STRING:		Labels-Prefix der Routine
-; \2 BYTE SIGNED:	Anzahl der Sprites
-; \3 NUMBER:		[1,2,3,4,6,7] Index, ab welchem Sprite (optional)
+; \1 STRING:		Labels prefix
+; \2 BYTE SIGNED:	Number of sprites
+; \3 NUMBER:		Sprite structure pointer index [1,2,3,4,6,7] (optional)
 ; Result
 	IFC "","\1"
-		FAIL Macro SWAP_SPRITE_STRUCTURES: Labels-Prefix der Routine fehlt
+		FAIL Macro SWAP_SPRITE_STRUCTURES: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro SWAP_SPRITE_STRUCTURES: Anzahl der Sprites fehlt
+		FAIL Macro SWAP_SPRITE_STRUCTURES: Number of sprites missing
 	ENDC
 	CNOP 0,4
 \1_swap_structures
@@ -426,7 +435,7 @@ SWAP_SPRITES		MACRO
 		lea	spr_ptrs_construction+(\3*LONGWORD_SIZE)(pc),a0
 		lea	spr_ptrs_display+(\3*LONGWORD_SIZE)(pc),a1
 	ENDC
-	moveq	#\2-1,d7		; Anzahl der Sprites
+	moveq	#\2-1,d7		; number of sprites
 \1_swap_structures_loop
 	move.l	(a0),d0
 	move.l	(a1),(a0)+
@@ -437,9 +446,11 @@ SWAP_SPRITES		MACRO
 
 
 SET_SPRITES			MACRO
-; \1 STRING:		Labels-Prefix der Routine
-; \2 BYTE SIGNED:	Anzahl der Sprites
-; \3 NUMBER:		[1,2,3,4,6,7] Index, ab welchem Sprite (optional)
+; Input
+; \1 STRING:		Labels prefix der Routine
+; \2 BYTE SIGNED:	Number of sprites
+; \3 NUMBER:		Sprite structure pointer index [1,2,3,4,6,7] (optional)
+; Result
 	CNOP 0,4
 \1_set_sprite_ptrs
 	move.l	cl1_display(a3),a0 
@@ -450,10 +461,10 @@ SET_SPRITES			MACRO
 		lea	spr_ptrs_display+(\3*LONGWORD_SIZE)(pc),a1
 		ADDF.W	cl1_SPR\3PTH+WORD_SIZE,a0
 	ENDC
-	moveq	#\2-1,d7		; Anzahl der Sprites
+	moveq	#\2-1,d7		; number of sprites
 \1_set_sprite_ptrs_loop
 	move.w	(a1)+,(a0)		; SPRxPTH
-	addq.w	#QUADWORD_SIZE,a0	; nächter Spritezeiger
+	addq.w	#QUADWORD_SIZE,a0
 	move.w	(a1)+,LONGWORD_SIZE-QUADWORD_SIZE(a0) ; SPRxPTL
 	dbf	d7,\1_set_sprite_ptrs_loop
 	rts
