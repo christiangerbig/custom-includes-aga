@@ -1,4 +1,3 @@
-; "Arpeggio/Tone Portamento/Finetune"
 	CNOP 0,2
 pt_PeriodTable
 ; Tuning 0, Normal

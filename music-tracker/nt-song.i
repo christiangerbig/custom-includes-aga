@@ -1,4 +1,3 @@
-; NT SampleInfo structure
 	RSRESET
 
 nt_sampleinfo			RS.B 0
@@ -12,23 +11,21 @@ nt_si_repeatlength 		RS.W 1	; length of sample repeat in words
 nt_sampleinfo_size		RS.B 0
 
 
-; NT SongData structure
 	RSRESET
 
 nt_songdata			RS.B 0
 
 nt_sd_songname			RS.B 20	; name padded with null bytes
-nt_sd_sampleinfo		RS.B nt_sampleinfo_size*nt_samplesnum ; pointer 1st sampleinfo structure, repeated for each sample 1-31
+nt_sd_sampleinfo		RS.B nt_sampleinfo_size*nt_samplesnum ; pointer 1st sampleinfo structure repeated 31 times
 nt_sd_numofpatt		 	RS.B 1	; number of song positions [1..128]
 nt_sd_restartpos		RS.B 1	; song restart position in pattern positions table [0..126]
 nt_sd_pattpos			RS.B 128 ; pattern positions table [0..127]
-nt_sd_id			RS.B 4	; string "M.K." (4 channels, 31 samples, 64 patterns)
+nt_sd_id			RS.B 4	; string "M.K." = 4 channels, 31 samples, 64 patterns
 nt_sd_patterndata		RS.B 0	; pointer 1st pattern structure, repeated for each pattern [1..64] times
 
 nt_songdata_size		RS.B 0
 
 
-; NT NoteInfo structure
 	RSRESET
 
 nt_noteinfo			RS.B 0
@@ -40,7 +37,6 @@ nt_ni_cmdlo			RS.B 1	; bits 0-3 effect e-command data, bits 4-7 effect e-command
 nt_noteinfo_size		RS.B 0
 
 
-; NT PatternPositionData structure
 	RSRESET
 
 nt_pattposdata			RS.B 0
@@ -53,7 +49,6 @@ nt_ppd_chan4noteinfo		RS.B nt_noteinfo_size
 nt_pattposdata_size		RS.B 0
 
 
-; NT PatternData structure
 	RSRESET
 
 nt_patterndata			RS.B 0

@@ -1,4 +1,3 @@
-; 4 "Vibrato" or 6 "Vibrato + Volume Slide" or 7 "Tremolo"
 	IFNE pt_usedfx&(pt_cmdbitvibrato|pt_cmdbittremolo)
 pt_VibTreSineTable	
 		DC.B 0,24,49,74,97,120,141,161

@@ -1,4 +1,3 @@
-; Temporary audio channel structure
 	RSRESET
 
 n_audchantemp			RS.B 0
@@ -32,18 +31,18 @@ n_reallength			RS.W 1
 n_rtnsetchandma			RS.B 1
 n_rtninitchanloop		RS.B 1
 
-	IFEQ pt_track_periods_enabled
+	IFEQ pt_track_data_enabled
 		RS_ALIGN_LONGWORD
 n_currentstart			RS.L 1
 n_currentlength			RS.W 1
-n_currentperiod			RS.W 1
 n_chandatapos			RS.W 1
 	ENDC
-
+	IFEQ pt_track_periods_enabled
+n_currentperiod			RS.W 1
+	ENDC
 	IFEQ pt_track_volumes_enabled
 n_currentvolume			RS.W 1
 	ENDC
-
 	IFEQ pt_track_notes_played_enabled
 n_notetrigger			RS.B 1
 	ENDC

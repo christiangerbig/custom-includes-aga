@@ -1,5 +1,4 @@
-; PT SampleInfo structure
-  RSRESET
+	RSRESET
 
 pt_sampleinfo			RS.B 0
 
@@ -13,13 +12,12 @@ pt_si_repeatlength		RS.W 1	; length of sample repeat in words
 pt_sampleinfo_size		RS.B 0
 
 
-; PT SongData structure
 	RSRESET
 
 pt_songdata			RS.B 0
 
 pt_sd_songname			RS.B 20	; name padded with null bytes
-pt_sd_sampleinfo		RS.B pt_sampleinfo_size*pt_samplesnum ; pointer 1st sampleinfo structure repeated for each sample 1-31
+pt_sd_sampleinfo		RS.B pt_sampleinfo_size*pt_samplesnum ; pointer 1st sampleinfo structure repeated 31 times
 pt_sd_numofpatt			RS.B 1	; number of song positions [1..128]
 pt_sd_restartpos		RS.B 1	; restart position for Noisetracker and Startrekker not used by Protracker, set to 127
 pt_sd_pattpos			RS.B 128 ; pattern positions table [0..127]
@@ -29,7 +27,6 @@ pt_sd_patterndata		RS.B 0	; pointer 1st pattern structure, repeated for each pat
 pt_songdata_size		RS.B 0
 
 
-; PT NoteInfo structure
 	RSRESET
 
 pt_noteinfo	RS.B 0
@@ -41,7 +38,6 @@ pt_ni_cmdlo	RS.B 1			; bits 0-3 effect e-command data, bits 4-7 effect e-command
 pt_noteinfo_size RS.B 0
 
 
-; PT PatternPositionData structure
 	RSRESET
 
 pt_pattposdata			RS.B 0
@@ -54,7 +50,6 @@ pt_ppd_chan4noteinfo		RS.B pt_noteinfo_size
 pt_pattposdata_size		RS.B 0
 
 
-; PT PatternData structure
 	RSRESET
 
 pt_patterndata			RS.B 0

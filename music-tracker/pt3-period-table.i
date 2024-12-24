@@ -1,4 +1,3 @@
-; "Arpeggio/Tone Portamento"
 	CNOP 0,2
 pt_PeriodTable
 ; Tuning 0
@@ -6,7 +5,7 @@ pt_PeriodTable
 	DC.W 856,808,762,720,678,640,604,570,538,508,480,453 ; octave 1
 	DC.W 428,404,381,360,339,320,302,285,269,254,240,226 ; octave 2
 	DC.W 214,202,190,180,170,160,151,143,135,127,120,113 ; octave 3
-	DC.W 000			; Period no-op
+	DC.W 000			; period no-op
 pt_PeriodTableEnd
 	IFEQ pt_finetune_enabled
 ; Tuning 1

@@ -1,4 +1,3 @@
-; DST SampleInfo structure
 	RSRESET
 
 dst_sampleinfo			RS.B 0
@@ -12,22 +11,20 @@ dst_si_repeatlength		RS.W 1	; length of sample repeat in words
 dst_sampleinfo_size		RS.B 0
 
 
-; DST SongData structure
 	RSRESET
 
 dst_songdata			RS.B 0
 
 dst_sd_songname			RS.B 20	; name padded with null bytes
-dst_sd_sampleinfo		RS.B dst_sampleinfo_size*dst_samplesnumber ; pointer 1st sampleinfo structure (repeated for each sample 1-15)
+dst_sd_sampleinfo		RS.B dst_sampleinfo_size*dst_samplesnumber ; pointer 1st sampleinfo structure repeated 15 times
 dst_sd_numofpatt		RS.B 1	; number of song positions [1..128]
 dst_sd_songspeed		RS.B 1	; song speed [0..220] BPM, default 120 BPM
 dst_sd_pattpos			RS.B 128 ; pattern positions table [0..127]
-dst_sd_patterndata		RS.B 0	; pointer 1st pattern structure (repeated for each pattern [1..64] times)
+dst_sd_patterndata		RS.B 0	; pointer 1st pattern structure repeated for each pattern [1..64] times
 
 dst_songdata_size		RS.B 0
 
 
-; DST NoteInfo structure
 	RSRESET
 
 dst_noteinfo			RS.B 0
@@ -39,7 +36,6 @@ dst_ni_cmdlo			RS.B 1	; bits 0-7 effect command data
 dst_noteinfo_size		RS.B 0
 
 
-; DST PatternPositionData structure
 	RSRESET
 
 dst_pattposdata			RS.B 0
@@ -52,7 +48,6 @@ dst_ppd_chan4noteinfo		RS.B dst_noteinfo_size
 dst_pattposdata_size		RS.B 0
 
 
-; DST PatternData structure
 	RSRESET
 
 dst_patterndata			RS.B 0

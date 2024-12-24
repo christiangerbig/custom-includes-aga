@@ -1,4 +1,3 @@
-; PT3-Replay
 pt_maxsongpos			EQU 128
 pt_maxpattpos			EQU 64
 pt_pattsize			EQU 1024
@@ -85,6 +84,7 @@ pt_cmdbitsetvolume		EQU %0001000000000000
 pt_cmdbitpattbreak		EQU %0010000000000000
 pt_cmdbitextended		EQU %0100000000000000
 pt_cmdbitsetspeed		EQU %1000000000000000
+
 pt_ecmdbitsetfilter		EQU %0000000000000001
 pt_ecmdbitfineportup		EQU %0000000000000010
 pt_ecmdbitfineportdown		EQU %0000000000000100

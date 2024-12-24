@@ -1,4 +1,3 @@
-; ST SampleInfo structure
  	RSRESET
 
 st_sampleinfo			RS.B 0
@@ -12,23 +11,21 @@ st_si_repeatlength		RS.W 1	; length of sample repeat in words
 st_sampleinfo_size RS.B 0
 
 
-; ST SongData structure
 	RSRESET
 
 st_songdata			RS.B 0
 
 st_sd_songname			RS.B 20	; name padded with null bytes
-st_sd_sampleinfo		RS.B st_sampleinfo_size*st_samplesnum ; pointer 1st sampleinfo, structure repeated for each sample 1-31
+st_sd_sampleinfo		RS.B st_sampleinfo_size*st_samplesnum ; pointer 1st sampleinfo structure repeated 31 times
 st_sd_numofpatt			RS.B 1	; number of song positions 1..128
 st_sd_songspeed			RS.B 1	; default songspeed 120 BPM is ignored
 st_sd_pattpos			RS.B 128 ; pattern positions table 0..127
 st_sd_id			RS.B 4	; string "M.K." = 4 channels, 31 samples, 64 patterns
-st_sd_patterndata		RS.B 0  ; pointer 1st pattern structure, repeated for each pattern [1..64] times
+st_sd_patterndata		RS.B 0  ; pointer 1st pattern structure repeated for each pattern [1..64] times
 
 st_songdata_size		RS.B 0
 
 
-; ST NoteInfo structure
 	RSRESET
 
 st_noteinfo			RS.B 0
@@ -40,8 +37,7 @@ st_ni_cmdlo			RS.B 1	; bits 0-3 effect e-command data, bits 4-7 effect e-command
 st_noteinfo_size		RS.B 0
 
 
-; ST PatternPositionData structure
-				RSRESET
+	RSRESET
 
 st_pattposdata			RS.B 0
 
@@ -53,7 +49,6 @@ st_ppd_chan4noteinfo		RS.B st_noteinfo_size
 st_pattposdata_size		RS.B 0
 
 
-; ST PatternData structure
 	RSRESET
 
 st_patterndata			RS.B 0
