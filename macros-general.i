@@ -26,6 +26,8 @@ wait_right_button_loop\@
 
 
 WAIT_MOUSE			MACRO	; ONLY for testing purposes
+; Input
+; Result
 wm_loop\@
 	move.w	$dff006,$dff180
 	btst	#2,$dff016
@@ -89,8 +91,8 @@ AUDIO_TEST			MACRO
 MOVEF				MACRO
 ; Input
 ; \0 STRING:	Size [B/W/L]
-; \1 NUMBER:	source value
-; \2 STRING:	target
+; \1 NUMBER:	Source value
+; \2 STRING:	Target
 ; Result
 	IFC "","\0"
 		FAIL Macro MOVEF: Size [B/W/L] missing
@@ -151,7 +153,7 @@ ADDF				MACRO
 ; Input
 ; \0 STRING:	Size [B/W/L]
 ; \1 NUMBER:	8/16 bit source value
-; \2 STRING:	target
+; \2 STRING:	Target
 ; Result
 	IFC "","\0"
 		FAIL Macro ADDF: Size [B/W/L] missing
@@ -223,7 +225,7 @@ SUBF				MACRO
 ; Input
 ; \0 STRING:	Size [B/W/L]
 ; \1 NUMBER:	8/16 bit source value
-; \2 STRING:	target
+; \2 STRING:	Target
 ; Result
 	IFC "","\0"
 		FAIL Macro SUBF: Size [B/W/L] missing
@@ -280,7 +282,7 @@ MULUF				MACRO
 ; Input
 ; \0 STRING:	Size [B/W/L]
 ; \1 NUMBER:	16/32 bit factor
-; \2 NUMBER:	product
+; \2 NUMBER:	Product
 ; \3 STRING:	Scratch register
 ; Result
 	IFC "","\0"
@@ -1204,13 +1206,13 @@ MULSF				MACRO
 
 DIVUF				MACRO
 ; Input
-; \0 STRING:	Size W
+; \0 STRING:	Size [W]
 ; \1 NUMBER:	Divisor
 ; \2 NUMBER:	Divident
 ; \3 STRING:	Scratch register, result
 ; Result
 	IFC "","\0"
-		FAIL Macro DIVUF: Size missing
+		FAIL Macro DIVUF: Size [W] missing
 	ENDC
 	IFC "","\1"
 		FAIL Macro DIVUF: Divsor missing
@@ -1485,13 +1487,13 @@ INIT_CHARACTERS_Y_POSITIONS		MACRO
 	IFC "","\1"
 		FAIL Macro INIT_CHARACTERS_Y_POSITIONS: Labels prefix missing
 	ENDC
-	moveq	#0,d0			; First y
+	moveq	#0,d0			; first y
 	moveq	#\1_text_character_y_size,d1 ; next chracter image
 	lea	\1_characters_y_positions(pc),a0
 	IFC "","\2"
 		moveq	#(\1_text_characters_number)-1,d7
 	ELSE
-		moveq	#(\1_\2)-1,d7	; Number of characters
+		moveq	#(\1_\2)-1,d7	; number of characters
 	ENDC
 \1_init_characters_y_positions_loop
 	move.w	d0,(a0)+		; y position
@@ -1514,7 +1516,7 @@ INIT_CHARACTERS_IMAGES		MACRO
 	MOVEF.W	(\1_text_characters_number)-1,d7
 \1_init_characters_images_loop
 	bsr	\1_get_new_character_image
-	move.l	d0,(a2)+		; Character image
+	move.l	d0,(a2)+		; character image
 	dbf	d7,\1_init_characters_images_loop
 	rts
 	ENDM
@@ -1711,9 +1713,9 @@ CPU_SELECT_COLOR_LOW_BANK	MACRO
 DISABLE_060_STORE_BUFFER	MACRO
 ; Input
 ; Result
-; d0.l	... CACR old content
+; d0.l	...	CACR old content
 	move.l	_SysBase(pc),a6
-	tst.b	AttnFlags+BYTESZE(a6)	; 68060 ?
+	tst.b	AttnFlags+BYTESZE(a6)	; MC68060 ?
 	bpl.s	disable_060_store_buffer_skip
 	lea	do_disable_060_store_buffer(pc),a5
 	CALLLIBS Supervisor
@@ -1739,10 +1741,10 @@ do_disable_060_store_buffer
 
 ENABLE_060_STORE_BUFFER		MACRO
 ; Input
-; d1.l	... CACR old content
+; d1.l	...	CACR old content
 ; Result
 	move.l	_SysBase(pc),a6
-	tst.b	AttnFlags+BYTE_SIZE(a6)	; 68060 ?
+	tst.b	AttnFlags+BYTE_SIZE(a6)	; MC68060 ?
 	bpl.s	enable_060_store_buffer_skip
 	lea	do_enable_060_store_buffer(pc),a5
 	move.l	os_cacr(a3),d1
@@ -1804,7 +1806,7 @@ INIT_MIRROR_BPLAM_TABLE	MACRO
 	ENDC
 	IFC "B","\0"
 		IFNC "","\8"
-			add.l	#\8*BYTE_SIZE,a0 ; Offset table start
+			add.l	#\8*BYTE_SIZE,a0 ; offset table start
 		ENDC
 		IFNC "","\2"
 			moveq	#\2,d0	; first BPLAM value
@@ -1833,7 +1835,7 @@ INIT_MIRROR_BPLAM_TABLE	MACRO
 	ENDC
 	IFC "W","\0"
 		IFNC "","\8"
-			add.l	#\8*WORD_SIZE,a0 ; Offset table start
+			add.l	#\8*WORD_SIZE,a0 ; offset table start
 		ENDC
 		IFNC "","\2"
 			move.l	#(\2<<8)|bplcon4_bits,d0 ; first BPLAM value
@@ -1910,7 +1912,7 @@ INIT_NESTED_MIRROR_BPLAM_TABLE	MACRO
 		move.l	\6(\7),a1	; pointer BPLAM table
 	ENDC
 	IFNC "","\8"
-		add.l	#\8,a1		; Offset table start
+		add.l	#\8,a1		; offset table start
 	ENDC
 	IFC "B","\0"
 		moveq	#\2,d0		; first BPLAM value
@@ -1980,7 +1982,7 @@ INIT_BPLAM_TABLE		MACRO
 ; \7 WORD:		Offset table start (optional)
 ; \8 LONGWORD:		Offset next BPLAM value (optional)
 ; Result
-; d0.w			Return value: Last BPLAM value
+; d0.w			Last BPLAM value
 	CNOP 0,4
 \1_init_bplam_table
 	IFC "","\0"
@@ -2017,7 +2019,7 @@ INIT_BPLAM_TABLE		MACRO
 		IFNC "","\3"
 			moveq	#\3,d2		; next BPLAM value
 		ENDC
-		MOVEF.W	\4-1,d7			; Number of sections per color gradient
+		MOVEF.W	\4-1,d7			; number of sections per color gradient
 \1_init_bplam_table_loop
 		IFC "","\8"
 			move.b	d0,(a0)+
@@ -2066,9 +2068,9 @@ INIT_COLOR_GRADIENT_RGB8	MACRO
 ; Input
 ; \1 HEXNUMBER:		RGB8 start
 ; \2 HEXNUMBER:		RGB8 end
-; \3 BYTE SIGNED:	number of color values
-; \4 NUMBER:		color step RGB8 (optional)
-; \5 POINTER:		color table (optional)
+; \3 BYTE SIGNED:	Number of color values
+; \4 NUMBER:		Color step RGB8 (optional)
+; \5 POINTER:		Color table (optional)
 ; \6 STRING:		Pointer base [pc, a3] (optional)
 ; \7 LONGWORD:		Offset next color value(optional)
 ; \8 LONGWORD:		Offset table start (optional)
@@ -2513,7 +2515,9 @@ GET_TWISTED_BARS_YZ_COORDINATES MACRO
 
 
 RGB8_COLOR_FADER			MACRO
-; \1 STRING: Labels prefix
+; Input
+; \1 STRING:	Labels prefix
+; Result
 	IFC "","\1"
 		FAIL Macro RGB8_COLOR_FADER: Labels prefix missing
 	ENDC
@@ -2545,14 +2549,14 @@ RGB8_COLOR_FADER			MACRO
 	bgt.s	\1_rgb8_decrease_green
 	blt.s	\1_rgb8_increase_green
 \1_rgb8_matched_green
-	subq.w	#1,d6			; arget value reached
+	subq.w	#1,d6			; target value reached
 ; Blauwert
 \1_rgb8_check_blue
 	cmp.w	d5,d2
 	bgt.s	\1_rgb8_decrease_blue
 	blt.s	\1_rgb8_increase_blue
 \1_rgb8_matched_blue
-	subq.w	#1,d6			; arget value reached
+	subq.w	#1,d6			; target value reached
 \1_merge_rgb8
 	move.l	d0,d3			; updated red
 	move.w	d1,d3			; updated green
@@ -2608,11 +2612,11 @@ RGB8_COLOR_FADER			MACRO
 
 ROTATE_X_AXIS			MACRO
 ; Input
-; d1.w	y
-; d2.w	z
+; d1.w	... y
+; d2.w	... z
 ; Result
-; d1.w	y position
-; d2.w	z position
+; d1.w	... y position
+; d2.w	... z position
 	move.w	d1,d3			; save y
 	muls.w	d4,d1			; y*cos(a)
 	swap	d4			; sin(w)

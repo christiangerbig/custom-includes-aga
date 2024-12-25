@@ -1,16 +1,16 @@
 SET_SPRITE_POSITION		MACRO
 ; Input
-; \1 WORD:	X
-; \2 WORD:	Y
+; \1 WORD:	x position
+; \2 WORD:	y position
 ; \3 WORD:	Height
 ; Result
 ; \2 WORD:	SPRxPOS
 ; \3 WORD:	SPRxCTL
 	IFC "","\1"
-		FAIL Macro SET_SPRITE_POSITION: X missing
+		FAIL Macro SET_SPRITE_POSITION: x position missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro SET_SPRITE_POSITION: Y missing
+		FAIL Macro SET_SPRITE_POSITION: y position missing
 	ENDC
 	IFC "","\3"
 		FAIL Macro SET_SPRITE_POSITION: Height missing
@@ -31,16 +31,16 @@ SET_SPRITE_POSITION		MACRO
 
 SET_SPRITE_POSITION_1X		MACRO
 ; Input
-; \1 WORD:	X
-; \2 WORD:	Y
+; \1 WORD:	x position
+; \2 WORD:	y position
 ; \3 WORD:	Height
 ; Result
 ; \2 LONGWORD:	bits 0..15 SPRxCTL, bits 16..31 SPRxPOS
 	IFC "","\1"
-		FAIL Macro SET_SPRITE_POSITION_1X: X missing
+		FAIL Macro SET_SPRITE_POSITION_1X: x position missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro SET_SPRITE_POSITION_1X: Y missing
+		FAIL Macro SET_SPRITE_POSITION_1X: y position missing
 	ENDC
 	IFC "","\3"
 		FAIL Macro SET_SPRITE_POSITION_1X: Height missing
@@ -53,18 +53,18 @@ SET_SPRITE_POSITION_1X		MACRO
 
 SET_SPRITE_POSITION_V9		MACRO
 ; Input
-; \1 WORD:	X
-; \2 WORD:	Y
+; \1 WORD:	x position
+; \2 WORD:	y position
 ; \3 WORD:	Height
 ; \4 BYTE:	Scratch register
 ; Result
 ; \2 WORD: SPRxPOS
 ; \3 WORD: SPRxCTL
 	IFC "","\1"
-		FAIL Macro SET_SPRITE_POSITION_V9: X missing
+		FAIL Macro SET_SPRITE_POSITION_V9: x position missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro SET_SPRITE_POSITION_V9: Y missing
+		FAIL Macro SET_SPRITE_POSITION_V9: y position missing
 	ENDC
 	IFC "","\3"
 		FAIL Macro SET_SPRITE_POSITION_V9: Height missing
@@ -159,8 +159,8 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 ; Input
 ; \1 STRING:	Labels prefix
 ; \2 POINTER:	Table sprite structures pointers
-; \3 WORD:	X (optional)
-; \4 WORD:	Y (optional)
+; \3 WORD:	x position (optional)
+; \4 WORD:	y position (optional)
 ; \5 WORD:	Width
 ; \6 WORD:	Height
 ; \7 STRING:	"NOHEADER" (optional)
@@ -379,13 +379,13 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 	CNOP 0,4
 \1_init_sprite_header
 ; Input
-; d0.w	... X
-; d1.w	... Y
+; d0.w	... x position
+; d1.w	... y position
 ; d3.b	... Attached bit
 ; a0	... Pointer sprite structure
 ; Result
 	IFNC "NOHEADER","\7"
-		MOVEF.W \6,d2		; Height
+		MOVEF.W \6,d2		; height
 		add.w	d1,d2		; VSTOP
 		SET_SPRITE_POSITION d0,d1,d2
 		move.w	d1,(a0)		; SPRxPOS
@@ -402,10 +402,10 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		move.w	#(\1_image_plane_width*3)-QUADWORD_SIZE,a4
 		MOVEF.W	\1_image_y_size-1,d7
 \1_init_sprite_bitmap_loop
-		move.l	(a1)+,(a0)+	; Bitplane1 64 Bits
+		move.l	(a1)+,(a0)+	; bitplane1 64 Bits
 		move.l	(a1)+,(a0)+
 		add.l	a2,a1		; skip remaining lines
-		move.l	(a1)+,(a0)+	; Bitplane2 64 Bits
+		move.l	(a1)+,(a0)+	; bitplane2 64 Bits
 		move.l	(a1)+,(a0)+
 		add.l	a4,a1		; skip remaining lines
 		dbf	d7,\1_init_sprite_bitmap_loop

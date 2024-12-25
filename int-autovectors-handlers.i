@@ -51,7 +51,7 @@ level_2_int_handler
 		and.w	INTREQR-DMACONR(a6),d0
 		IFNE ciaa_icr_bits&(CIAICRF_TA|CIAICRF_TB|CIAICRB_ALRM|CIAICRB_SP|CIAICRB_FLG)
 			moveq	#ciaa_icr_bits&(~CIAICRF_SETCLR),d1
-			and.b	CIAICR(a4),d1	; CIA-A interrupts ?
+			and.b	CIAICR(a4),d1	; any CIA-A interrupts ?
 			bne.s	level_2_int_handler_skip1
                 ENDC
 		movem.l	d0-d1,-(a7)
@@ -246,7 +246,7 @@ level_6_int_handler
 		and.w	#INTF_EXTER,d0
 		IFNE ciab_icr_bits&(CIAICRF_TA|CIAICRF_TB|CIAICRF_ALRM|CIAICRF_SP|CIAICRF_FLG)
 			moveq	#ciab_icr_bits&(~CIAICRF_SETCLR),d1
-			and.b	CIAICR(a5),d1 ; CIA-B interrupts ?
+			and.b	CIAICR(a5),d1 ; any CIA-B interrupts ?
 			bne.s	level_6_int_handler_skip1
 		ENDC
 		movem.l	d0-d1,-(a7)

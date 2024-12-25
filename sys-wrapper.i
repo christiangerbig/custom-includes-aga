@@ -1132,6 +1132,7 @@ spr_init_structure
 		rts
 	ENDC
 
+
 	IFND SYS_TAKEN_OVER
 		IFEQ workbench_start_enabled
 ; Input
@@ -2864,11 +2865,11 @@ turn_off_drive_motors
 		move.b	CIAPRB(a5),d0
 		moveq	#CIAF_DSKSEL0|CIAF_DSKSEL1|CIAF_DSKSEL2|CIAF_DSKSEL3,d1
 		or.b	d1,d0
-		move.b	d0,CIAPRB(a5)	; df0: - df3:
+		move.b	d0,CIAPRB(a5)	; df0: .. df3:
 		or.b	#CIAF_DSKMOTOR,d0
 		move.b	d0,CIAPRB(a5)	; motor off
 		eor.b	d1,d0
-		move.b	d0,CIAPRB(a5)	; df0: - df3:
+		move.b	d0,CIAPRB(a5)	; df0: .. df3:
 		or.b	d1,d0
 		move.b	d0,CIAPRB(a5)	; disable
 		rts
@@ -2924,19 +2925,19 @@ start_own_interrupts
 start_cia_timers
 		IFEQ ciaa_ta_continuous_enabled
 			moveq	#CIACRAF_START,d0
-			or.b	d0,CIACRA(a4)
+			or.b	d0,CIACRA(a4) ; start CIA-A timer a
 		ENDC
 		IFEQ ciaa_tb_continuous_enabled
 			moveq	#CIACRBF_START,d0
-			or.b	d0,CIACRB(a4)
+			or.b	d0,CIACRB(a4) ; start CIA-A timer b
 		ENDC
 		IFEQ ciab_ta_continuous_enabled
 			moveq	#CIACRAF_START,d0
-			or.b	d0,CIACRA(a5)
+			or.b	d0,CIACRA(a5) ; start CIA-B timer a
 		ENDC
 		IFEQ ciab_tb_continuous_enabled
 			moveq	#CIACRBF_START,d0
-			or.b	d0,CIACRB(a5)
+			or.b	d0,CIACRB(a5) ; start CIA-B timer b
 		ENDC
 		rts
 	ENDC
@@ -2949,19 +2950,19 @@ start_cia_timers
 stop_CIA_timers
 		IFNE ciaa_ta_time
 			moveq	#~(CIACRAF_START),d0
-			and.b	d0,CIACRA(a4) ; stop timer a
+			and.b	d0,CIACRA(a4) ; stop CIA-A timer a
 		ENDC
 		IFNE ciaa_tb_time
 			moveq	#~(CIACRBF_START),d0
-			and.b	d0,CIACRB(a4) ; stop timer b
+			and.b	d0,CIACRB(a4) ; stop CIA-A timer b
 		ENDC
 		IFNE ciab_ta_time
 			moveq	#~(CIACRAF_START),d0
-			and.b	d0,CIACRA(a5) ; stop timer a
+			and.b	d0,CIACRA(a5) ; stop CIA-B timer a
 		ENDC
 		IFNE ciab_tb_time
 			moveq	#~(CIACRBF_START),d0
-			and.b	d0,CIACRB(a5) ; stop timer b
+			and.b	d0,CIACRB(a5) ; stop CIA-B timer b
 		ENDC
 		rts
 	ENDC
@@ -3047,18 +3048,18 @@ restore_chips_registers
 		move.b	old_ciaa_tbhi(a3),CIATBHI(a4)
 	
 		move.b	old_ciaa_icr(a3),d0
-		or.b		#CIAICRF_SETCLR,d0
+		or.b	#CIAICRF_SETCLR,d0
 		move.b	d0,CIAICR(a4)
 	
 		move.b	old_ciaa_cra(a3),d0
-		btst	#CIACRAB_RUNMODE,d0 ; continuous mode ?
+		btst	#CIACRAB_RUNMODE,d0 ; CIA-A timer a continuous mode ?
 		bne.s	restore_chips_registers_skip1
 		or.b	#CIACRAF_START,d0
 restore_chips_registers_skip1
 		move.b	d0,CIACRA(a4)
 	
 		move.b	old_ciaa_crb(a3),d0
-		btst	#CIACRBB_RUNMODE,d0 ; continuous mode ?
+		btst	#CIACRBB_RUNMODE,d0 ; CIA-A timer b continuous mode ?
 		bne.s	restore_chips_registers_skip2
 		or.b	#CIACRBF_START,d0
 restore_chips_registers_skip2
@@ -3079,14 +3080,14 @@ restore_chips_registers_skip2
 		move.b	d0,CIAICR(a5)
 	
 		move.b	old_ciab_cra(a3),d0
-		btst	#CIACRAB_RUNMODE,d0 ; continuous mode ?
+		btst	#CIACRAB_RUNMODE,d0 ; CIA-B timer a  continuous mode ?
 		bne.s	restore_chips_registers_skip3
 		or.b	#CIACRAF_START,d0
 restore_chips_registers_skip3
 		move.b	d0,CIACRA(a5)
 	
 		move.b	old_ciab_crb(a3),d0
-		btst	#CIACRBB_RUNMODE,d0 ; continuous mode ?
+		btst	#CIACRBB_RUNMODE,d0 ; CIA-B timer b  continuous mode ?
 		bne.s restore_chips_registers_skip4
 		or.b	#CIACRBF_START,d0
 restore_chips_registers_skip4
@@ -3120,7 +3121,6 @@ restore_chips_registers_skip4
 
 ; Input
 ; Result
-; d0.l	... Kein Rückgabewert
 		CNOP 0,4
 get_tod_duration	
 		move.l	tod_time(a3),d0 ; program start time

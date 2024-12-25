@@ -1,7 +1,9 @@
 INIT_BPLCON0_BITS		MACRO
+; Input
 ; \1 STRING:	Label
 ; \2 NUMBER:	Playfield depth
-; \3 STRING: Zusätzliche Bits (optiona)
+; \3 STRING:	Additional BPLCON0 bits (optional)
+; Result
 	IFC "","\1"
 		FAIL Macro INIT_BPLCON0_BITS: Label missing
 	ENDC
@@ -17,10 +19,12 @@ INIT_BPLCON0_BITS		MACRO
 
 
 INIT_BPLCON4_BITS		MACRO
+; Input
 ; \1 STRING:	Label
 ; \2 NUMBER:	BPLAM value
 ; \3 NUMBER:	OSPRM value
 ; \4 NUMBER:	ESPRM value
+; Result
 	IFC "","\1"
 		FAIL Macro INIT_BPLCON4_BITS: Label missing
 	ENDC
@@ -38,7 +42,9 @@ INIT_BPLCON4_BITS		MACRO
 
 
 INIT_DIWSTRT_BITS		MACRO
+; Input
 ; \1 STRING:	Label
+; Result
 	IFC "","\1"
 		FAIL Macro INIT_DIWSTRT_BITS: Label missing
 	ENDC
@@ -47,7 +53,9 @@ INIT_DIWSTRT_BITS		MACRO
 
 
 INIT_DIWSTOP_BITS		MACRO
+; Input
 ; \1 STRING:	Label
+; Result
 	IFC "","\1"
 		FAIL Macro INIT_DIWSTOP_BITS: Label missing
 	ENDC
@@ -56,8 +64,10 @@ INIT_DIWSTOP_BITS		MACRO
 
 
 INIT_DIWHIGH_BITS		MACRO
+; Input
 ; \1 STRING:	Label
 ; \2 STRING:	additional bits (optional)
+; Result
 	IFC "","\1"
 		FAIL Macro INIT_DIWHIGH_BITS: Label missing
 	ENDC
@@ -75,7 +85,7 @@ DUALPF_SOFTSCROLL_64PIXEL_LORES	MACRO
 ; \2 WORD:	PF2 x shift
 ; \3 WORD:	H0-H7 mask (optional)
 ; Result
-; [\1 WORD]	BPLCON1 soft scroll
+; \1 WORD:	BPLCON1 soft scroll
 	IFC "","\1"
 		FAIL Macro DUALPF_SOFTSCROLL_64PIXEL_LORES: PF1 x shift missing
 	ENDC
@@ -111,7 +121,7 @@ PF_SOFTSCROLL_8PIXEL_LORES	MACRO
 ; \2 WORD:	Scratch register
 ; \3 WORD:	H0-H7 mask (optional)
 ; Result
-; \1 WORD	BPLCON1 soft scroll
+; \1 WORD:	BPLCON1 soft scroll
 	IFC "","\1"
 		FAIL Macro PF_SOFTSCROLL_8PIXEL_LORES: X shift missing
 	ENDC
@@ -165,7 +175,7 @@ ODDPF_SOFTSCROLL_16PIXEL_LORES	MACRO
 ; \1 WORD:	X shift
 ; \2 WORD:	H0-H5 mask (optional)
 ; Result
-; \1 WORD: BPLCON1 Softscrollwert
+; \1 WORD:	BPLCON1 soft scroll
 	IFC "","\1"
 		FAIL Macro ODDPF_SOFTSCROLL_16PIXEL_LORES: PF1 X shift missing
 	ENDC
@@ -261,7 +271,7 @@ PF_SOFTSCROLL_64PIXEL_LORES	MACRO
 ; \2 WORD:	Scratch register
 ; \3 WORD:	H0-H7 mask (optional)
 ; Result
-; \1 WORD:	BPLCON1 softscroll
+; \1 WORD:	BPLCON1 soft scroll
 	IFC "","\1"
 		FAIL Macro PF_SOFTSCROLL_64PIXEL_LORES: X shift missing
 	ENDC

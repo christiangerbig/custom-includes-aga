@@ -1,4 +1,6 @@
 WAITBLIT			MACRO
+; Input
+; Result
 wait_blitter_loop\@
 	btst	#DMAB_BLTDONE-8,(a6)
 	bne.s	wait_blitter_loop\@
@@ -6,7 +8,9 @@ wait_blitter_loop\@
 
 
 WAITBLITQ			MACRO
-; \1 ...	data register for BBUSY bit
+; Input
+; \1 STRING:	data register for BBUSY bit
+; Result
 wait_blitter_quick_loop\@
 	btst	\1,(a6)
 	bne.s	wait_blitter_quick_loop\@
@@ -14,11 +18,13 @@ wait_blitter_quick_loop\@
 
 
 GET_LINE_PARAMETERS		MACRO
-; \1 STRING:	labels prefix
+; Input
+; \1 STRING:	Labels prefix
 ; \2 STRING:	"AREAFILL" (optional)
 ; \3 STRING:	"COPPERUSE" (optional)
 ; \4 WORD:	Multiplicator Y offset in playfield (optional)
-; \5 STRING:	hook label for "AREAFILL" mode (optional)
+; \5 STRING:	Hook label for "AREAFILL" mode (optional)
+; Result
 	IFC "","\1"
 		FAIL Macro GET_LINE_PARAMETERS: labels prefix missing
 	ENDC

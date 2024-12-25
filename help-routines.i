@@ -6,7 +6,7 @@
 ; Input
 ; d0.l	... memory block size
 ; Result
-; d0.l	... return value: pointer memory block or RETURN_FALSE
+; d0.l	... Pointer memory block or RETURN_FALSE
 	CNOP 0,4
 do_alloc_memory
 	move.l	#MEMF_CLEAR|MEMF_PUBLIC,d1
@@ -16,7 +16,7 @@ do_alloc_memory
 ; Input
 ; d0.l	... memory block size
 ; Result
-; d0.l	... return value: pointer memory block or RETURN_FALSE
+; d0.l	... Pointer memory block or RETURN_FALSE
 	CNOP 0,4
 do_alloc_chip_memory
 	move.l	#MEMF_CLEAR|MEMF_CHIP|MEMF_PUBLIC,d1
@@ -26,7 +26,7 @@ do_alloc_chip_memory
 ; Input
 ; d0.l	... memory block size
 ; Result
-; d0.l	... return value: pointer memory block or RETURN_FALSE
+; d0.l	... Pointer memory block or RETURN_FALSE
 	CNOP 0,4
 do_alloc_fast_memory
 	move.l	#MEMF_CLEAR|MEMF_FAST|MEMF_PUBLIC,d1
@@ -38,7 +38,7 @@ do_alloc_fast_memory
 ; d1.l	... playfield height
 ; d2.l	... playfield depth
 ; Result
-; d0.l	... return value: pointer playfield or RETURN_FALSE
+; d0.l	... Pointer playfield or RETURN_FALSE
 	CNOP 0,4
 do_alloc_bitmap_memory
 	moveq	#BMF_CLEAR|BMF_DISPLAYABLE|BMF_INTERLEAVED,d3 ; flags
@@ -50,7 +50,7 @@ do_alloc_bitmap_memory
 		IFNE intena_bits&(~INTF_SETCLR)
 ; Input
 ; Result
-; d0.l	... return value: content VBR
+; d0.l	... Content VBR
 			CNOP 0,4
 read_VBR
 			or.w	#SRF_I0|SRF_I1|SRF_I2,SR ; highest interrupt level
@@ -62,7 +62,7 @@ read_VBR
 	ELSE
 ; Input
 ; Result
-; d0.l	 ... return value: content VBR
+; d0.l	 ... Content VBR
 		CNOP 0,4
 read_VBR
 		or.w	#SRF_I0|SRF_I1|SRF_I2,SR ; highest interrupt level
@@ -73,9 +73,8 @@ read_VBR
 
 
 ; Input
-; d0.l	... new content VBR
+; d0.l	... New content VBR
 ; Result
-; d0.l	... no return value
 		CNOP 0,4
 write_VBR
 		or.w	#SRF_I0|SRF_I1|SRF_I2,SR ; highest interrupt level
@@ -88,7 +87,6 @@ write_VBR
 
 ; Input
 ; Result
-; d0.l	... no return value
 	CNOP 0,4
 wait_beam_position
 	move.l	#$0003ff00,d1		; mask vertical beam position
@@ -107,7 +105,6 @@ wait_beam_position_loop
 
 ; Input
 ; Result
-; d0.l	... no return value
 	CNOP 0,4
 wait_vbi
 	lea	INTREQR-DMACONR(a6),a0
@@ -121,7 +118,6 @@ wait_vbi_loop
 
 ; Input
 ; Result
-; d0.l	... no return value
 	CNOP 0,4
 wait_copint
 	lea	INTREQR-DMACONR(a6),a0
@@ -134,12 +130,11 @@ wait_copint_loop
 
 
 ; Input
-; a0	... pointer copperlist
-; a1	... pointer color table
-; d3.w	... offset first color register
-; d7.w	... number of colors
+; a0	... Pointer copperlist
+; a1	... Pointer color table
+; d3.w	... Offset first color register
+; d7.w	... Number of colors
 ; Result
-; d0.l	... no return value
 	CNOP 0,4
 cop_init_high_colors
 	move.w	#RB_NIBBLES_MASK,d2
@@ -154,12 +149,11 @@ cop_init_high_colors_loop
 
 
 ; Input
-; a0	... pointer copperlist
-; a1	... pointer color table
-; d3.w	... offset first color register
-; d7.w	... number of colors
+; a0	... Pointer copperlist
+; a1	... Pointer color table
+; d3.w	... Offset first color register
+; d7.w	... Number of colors
 ; Result
-; d0.l	... no return value
 	CNOP 0,4
 cop_init_low_colors
 	move.w	#RB_NIBBLES_MASK,d2
@@ -174,11 +168,10 @@ cop_init_low_colors_loop
 
 
 ; Input
-; a0	... color register address
-; a1	... pointer color table
-; d7.w	... number of colors
+; a0	... Color register address
+; a1	... Pointer color table
+; d7.w	... Number of colors
 ; Result
-; d0.l	... no return value
 	CNOP 0,4
 cpu_init_high_colors
 	move.w	#RB_NIBBLES_MASK,d2
@@ -191,11 +184,10 @@ cpu_init_high_colors_loop
 
 
 ; Input
-; a0	... color register address
-; a1	... pointer color table
-; d7.w	... number of colors
+; a0	... Color register address
+; a1	... Pointer color table
+; d7.w	... Number of colors
 ; Result
-; d0.l	... no return value
 	CNOP 0,4
 cpu_init_low_colors
 	move.w	#RB_NIBBLES_MASK,d2
@@ -211,14 +203,13 @@ cpu_init_low_colors_loop
 ; Input
 ; d0.l	... RGB8 current value
 ; d6.l	... RGB8 tartget value
-; d7.w	... number of colors
-; a0	... pointer color table
-; a1.l	... decrement/increment red
-; a2.l	... decrement/increment green
-; a4.w	... decrement/increment blue
-; a5.l	... offset next RGB8 value
+; d7.w	... Number of colors
+; a0	... Pointer color table
+; a1.l	... Decrement/increment red
+; a2.l	... Decrement/increment green
+; a4.w	... Decrement/increment blue
+; a5.l	... Offset next RGB8 value
 ; Result
-; d0.l	... no return value
 		CNOP 0,4
 init_color_gradient_rgb8_loop
 		move.l	d0,(a0)		; RGB8 value
