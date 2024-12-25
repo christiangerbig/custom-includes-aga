@@ -1,10 +1,10 @@
 ; Global labels
-; SYS_TAKEN_OVER
-; COLOR_GRADIENT_RGB8
+; 	SYS_TAKEN_OVER
+; 	COLOR_GRADIENT_RGB8
 
 
 ; Input
-; d0.l	... memory block size
+; d0.l	... Memory block size
 ; Result
 ; d0.l	... Pointer memory block or RETURN_FALSE
 	CNOP 0,4
@@ -14,7 +14,7 @@ do_alloc_memory
 
 
 ; Input
-; d0.l	... memory block size
+; d0.l	... Memory block size
 ; Result
 ; d0.l	... Pointer memory block or RETURN_FALSE
 	CNOP 0,4
@@ -24,7 +24,7 @@ do_alloc_chip_memory
 
 
 ; Input
-; d0.l	... memory block size
+; d0.l	... Memory block size
 ; Result
 ; d0.l	... Pointer memory block or RETURN_FALSE
 	CNOP 0,4
@@ -34,9 +34,9 @@ do_alloc_fast_memory
 
 
 ; Input
-; d0.l	... playfield width
-; d1.l	... playfield height
-; d2.l	... playfield depth
+; d0.l	... Playfield width
+; d1.l	... Playfield height
+; d2.l	... Playfield depth
 ; Result
 ; d0.l	... Pointer playfield or RETURN_FALSE
 	CNOP 0,4
