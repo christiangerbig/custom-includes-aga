@@ -203,7 +203,7 @@ COP_INIT_BITPLANE_POINTERS	MACRO
 
 
 COP_SET_BITPLANE_POINTERS	MACRO
-: Input
+; Input
 ; \1 STRING:		Labels prefix
 ; \2 STRING:		["construction1","construction2","display"]
 ; \3 BYTE SIGNED:	Number of bitplanes playfield1
