@@ -349,7 +349,7 @@ pt_CheckMetronome
 		move.w	pt_PatternPosition(a3),d0
 		lsr.w	#2,d0		; /(pt_pattposdata_size/4)
 		divu.w	d2,d0		; pattern position / metronome speed
-		swap	d0		; get remainder
+		swap	d0		; remainder
 		tst.w	d0		; remainder = 0 ?
 		bne.s	pt_ChkMetroEnd
 		move.l	(a2),d0		; note data from pattern
@@ -507,10 +507,19 @@ pt_VibNoC
 		move.b	d5,n_tremolopos(a2) ; clear tremolo position
 pt_TreNoC
 	ENDC
+	move.w	n_length(a2),d3
+	move.l	n_start(a2),d2
+	bne.s	pt_sdmaskp
+	move.l	audio_data(a3),d2	; pointer dummy audio data
+	move.l	d2,n_loopstart(a2)
+	moveq	#1,d3			; length = 1 word
+	move.w	d3,n_replen(a2)
+pt_sdmaskp
 	IFEQ pt_track_notes_played_enabled
  		move.b	d5,n_notetrigger(a2) ; set note trigger flag
 	ENDC
-	move.w	n_length(a2),4(a6) ; AUDxLEN
+	move.l	d2,(a6)			; AUDxLCH
+	move.w	d3,4(a6)		; AUDxLEN
 	IFEQ pt_track_periods_enabled
 		move.w	n_period(a2),d2
 		move.w	d2,6(a6)	; AUDxPER
@@ -518,9 +527,6 @@ pt_TreNoC
 	ELSE
 		move.w	n_period(a2),6(a6) ; AUDxPER
 	ENDC
-	move.l	n_start(a2),d2
-	beq.s	pt_NoSampleStart
-	move.l	d2,(a6)			; AUDxLCH
 	bra.s	pt_CheckMoreEffects
 
 ; E5x "Set Sample Finetune"
@@ -547,7 +553,7 @@ pt_SetTonePorta
 			move.b	n_finetune(a2),d0
 			beq.s	pt_StpNoFinetune
 			lea	pt_FtuPeriodTableStarts(pc),a1
-			move.l	(a1,d0.w*4),a1 ; get period table address
+			move.l	(a1,d0.w*4),a1 ; period table address
 			move.l	a1,d2	; period table address
 			moveq	#((pt_PeriodTableEnd-pt_PeriodTable)/2)-1,d7 ; number of periods
 pt_StpLoop
@@ -583,17 +589,9 @@ pt_ClearTonePorta
 		rts
 	ENDC
 
-; First note data in first pattern has a period but no sample number and sample start
-	CNOP 0,4
-pt_NoSampleStart
-	move.l	audio_data(a3),d2	; pointer dummy audio data
-	move.l	d2,(a6)			; AUDxLCH
-	move.l	d2,n_loopstart(a2)
-	moveq	#1,d2
-	move.w	d2,4(a6)		; AUDxLEN
-	move.w	d2,n_replen(a2)
 
 ; Check more effect commands at tick #1
+	CNOP 0,4
 pt_CheckMoreEffects
 	IFNE pt_usedfx&(pt_cmdbitnotused|pt_cmdbitsetsampleoffset|pt_cmdbitposjump|pt_cmdbitsetvolume|pt_cmdbitpattbreak|pt_cmdbitextended|pt_cmdbitsetspeed)
 		moveq	#pt_cmdmask,d0
@@ -1104,9 +1102,8 @@ pt_TonePortaSetPer
 pt_GlissLoop
 	cmp.w	(a1)+,d3		; note period >= table note period ?
 	dbhs	d7,pt_GlissLoop
-	subq.w	#WORD_SIZE,a1		; last note period in table
 pt_GlissFound
-	move.w	-WORD_SIZE(a1),d3	; get note period from period table
+	move.w	-WORD_SIZE(a1),d3	; note period from period table
 pt_GlissSkip
 	move.w	d3,6(a6)		; AUDxPER
 	IFEQ pt_track_periods_enabled
@@ -1283,7 +1280,7 @@ pt_TremoloOk
 			move.w	d0,n_currentvolume(a2)
 		ENDC
 	ENDC
-	move.b	n_tremolocmd(a2),d2	; get tremolo command data
+	move.b	n_tremolocmd(a2),d2	; tremolo command data
 	lsr.b	#2,d2
 	and.b	#$3c,d2			; remove tremolo position overflow
 	add.b	d2,n_tremolopos(a2)	; next tremolo position

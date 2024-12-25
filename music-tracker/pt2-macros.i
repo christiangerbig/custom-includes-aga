@@ -1037,7 +1037,7 @@ pt_GlissLoop
 	cmp.w	(a1)+,d3		; note period >= table note period ?
 	dbhs	d7,pt_GlissLoop 
 pt_GlissFound
-	move.w	-WORD_SIZE(a1),d3	; get note period from period table
+	move.w	-WORD_SIZE(a1),d3	; note period from period table
 pt_GlissSkip
 	move.w	d3,6(a6)		; AUDxPER
 	IFEQ pt_track_periods_enabled
