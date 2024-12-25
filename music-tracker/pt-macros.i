@@ -101,7 +101,7 @@ pt_InitRegisters
 	move.w	d0,AUD2VOL-DMACONR(a6)
 	move.w	d0,AUD3VOL-DMACONR(a6)
 	IFD SYS_TAKEN_OVER
-		move.w	#DMAF_AUD0+DMAF_AUD1+DMAF_AUD2+DMAF_AUD3,DMACON-DMACONR(a6) ; channel DMA off
+		move.w	#DMAF_AUD0+DMAF_AUD1+DMAF_AUD2+DMAF_AUD3,DMACON-DMACONR(a6) ; disable channels DMA
 	ENDC
 	rts
 	ENDM
@@ -116,9 +116,9 @@ pt_InitAudTempStrucs
 	lea	pt_audchan1temp(pc),a0
 	move.w	#DMAF_AUD0,n_dmabit(a0)
 	IFEQ pt_track_volumes_enabled
-		move.b	d1,n_notetrigger(a0) ; disable note trigger flag
+		move.b	d1,n_notetrigger(a0)
 	ENDC
-	move.b	d1,n_rtnsetchandma(a0)	; deactivate set & init routine
+	move.b	d1,n_rtnsetchandma(a0)	; deactivate routines
 	move.b	d1,n_rtninitchanloop(a0)
 
 	lea	pt_audchan2temp(pc),a0
@@ -160,7 +160,7 @@ pt_ExamineSongStruc
 	lea	pt_sd_pattpos(a0),a1	; pointer table with pattern positions in song
 	MOVEF.W pt_maxsongpos-1,d7
 pt_InitLoop
-	move.b	(a1)+,d0		; get patterm number from song position table
+	move.b	(a1)+,d0		; patterm number from song position table
 	cmp.b	d1,d0
 	ble.s	pt_InitSkip
 	move.l	d0,d1		 	; save higher pattern number
@@ -187,12 +187,12 @@ pt_InitLoop2
 	move.l	a2,(a1)+		; pointer sample data
 	move.w	pt_si_samplelength(a0),d0
 	beq.s	pt_NoSample
-	MULUF.W	2,d0			; samplelength in bytes
+	MULUF.W	2,d0			; sample length in bytes
 	move.w	d2,(a2)		 	; clear first word in sample data
 	add.l	d0,a2		 	; next sample data
-	move.w	pt_si_repeatlength(a0),d0 ; Fasttracker module with repeat length 0 ?
+	move.w	pt_si_repeatlength(a0),d0 ; Fasttracker module with repeat length = 0 ?
 	bne.s	pt_NoSample
-	move.w	d3,pt_si_repeatlength-pt_si_samplelength(a0) ; for PT compability
+	move.w	d3,pt_si_repeatlength-pt_si_samplelength(a0) ; for Protracker compability
 pt_NoSample
 	add.l	d1,a0		 	; next sample info structure
 	dbf	d7,pt_InitLoop2
@@ -210,8 +210,8 @@ pt_InitFtuPeriodTableStarts
 	lea	pt_FtuPeriodTableStarts(pc),a1
 	moveq	#pt_finetunenum-1,d7
 pt_InitFtuPeriodTableStartsLoop
-	move.l	a0,(a1)+		 		 		 		;Save pointer
-	add.l	d0,a0		 		 		 		 		;Pointer to next period table, finetune + n
+	move.l	a0,(a1)+		; period table pointer
+	add.l	d0,a0		 	; next period table pointer
 	dbf	d7,pt_InitFtuPeriodTableStartsLoop
 	rts
 	ENDM
@@ -223,7 +223,7 @@ PT_TIMER_INTERRUPT_SERVER	MACRO
 
 ; E9 "Retrig Note" or ED "Note Delay"used
 	IFNE pt_usedefx&(pt_ecmdbitretrignote+pt_ecmdbitnotedelay)
-		tst.w	pt_RtnDMACONtemp(a3) ; Any retrig/delay fx for a channel ?
+		tst.w	pt_RtnDMACONtemp(a3) ; any retrig/delay fx for a channel ?
 		beq.s	pt_RtnChannelsSkip
 		move.b	pt_audchan1temp+n_rtnsetchandma(pc),d0
 		beq	pt_RtnSetChan1DMA
@@ -297,7 +297,7 @@ pt_RtnSetChan3DMA
 		CNOP 0,4
 pt_RtnInitChan3Loop
 		lea	pt_audchan3temp(pc),a0
-		move.b	#FALSE,n_rtninitchanloop(a0) ;deactivate routine
+		move.b	#FALSE,n_rtninitchanloop(a0) ; deactivate routine
 		ADDF.W	n_period,a0
 		move.w	(a0)+,AUD2PER-DMACONR(a6)
 		move.l	(a0)+,AUD2LCH-DMACONR(a6)
