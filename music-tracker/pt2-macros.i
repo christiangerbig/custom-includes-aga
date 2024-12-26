@@ -419,24 +419,13 @@ pt_SetRegisters
 	ENDC
  
 pt_SetPeriod
-	IFEQ pt_finetune_enabled
-		moveq	#0,d0
-		move.b	n_finetune(a2),d0
-		beq.s	pt_NoFinetune
-		lea	pt_PeriodTable(pc),a1
-		moveq	#((pt_PeriodTableEnd-pt_PeriodTable)/2)-1,d7 ; number of periods
+	lea	pt_PeriodTable(pc),a1
+	moveq	#((pt_PeriodTableEnd-pt_PeriodTable)/WORD_SIZE)-1,d7 ; number of periods
 pt_FtuLoop
-		cmp.w	(a1)+,d3	; note period >= table note period ?
-		dbhs	d7,pt_FtuLoop
+	cmp.w	(a1)+,d3		; note period >= table note period ?
+	dbhs	d7,pt_FtuLoop
 pt_FtuFound
-		lea	pt_FtuPeriodTableStarts(pc),a1
-		move.l	(a1,d0.w*4),a1	; period table address for given finetune value
-		moveq	#((pt_PeriodTableEnd-pt_PeriodTable)/2)-1,d0
-		sub.w	d7,d0		; number of periods - loopcounter = offset in periods table
-		move.w	(a1,d0.w*2),d3	; new note period from table
-pt_NoFinetune
-	ENDC
-	move.w	d3,n_period(a2)
+	move.w	-WORD_SIZE(a1),n_period(a2) ; note period from table
 
 ; EDx "Note Delay"
 	IFNE pt_usedefx&pt_ecmdbitnotedelay
@@ -760,32 +749,29 @@ pt_ChkTonePorta
 	IFNE pt_usedfx&(pt_cmdbittoneport|pt_cmdbittoneportvolslide)
 		CNOP 0,4
 pt_SetTonePorta
-		IFEQ pt_finetune_enabled
-	 		move.b	n_finetune(a2),d0
-	 		beq.s	pt_StpNoFinetune
-	 		lea	pt_FtuPeriodTableStarts(pc),a1
-	 		move.l	(a1,d0.w*4),a1 ; gperiod table address
-	 		move.l	a1,d2
-	 		moveq	#((pt_PeriodTableEnd-pt_PeriodTable)/2)-1,d7 ; number of periods
+ 		move.b	n_finetune(a2),d0
+ 		lea	pt_FtuPeriodTableStarts(pc),a1
+ 		move.l	(a1,d0.w*4),a1	; period table address
+ 		move.l	a1,d2
+ 		moveq	#((pt_PeriodTableEnd-pt_PeriodTable)/WORD_SIZE)-1,d7 ; number of periods
 pt_StpLoop
-	 		cmp.w	(a1)+,d3 ; note period >= table note period ?
-	 		dbhs	d7,pt_StpLoop
-	 		bhs.s	pt_StpFound
-	 		moveq	#0,d7	; last note period in table
+ 		cmp.w	(a1)+,d3 	; note period >= table note period ?
+ 		dbhs	d7,pt_StpLoop
+ 		bpl.s	pt_StpFound
+ 		moveq	#0,d7		; last note period in table
 pt_StpFound
-	 		moveq	#((pt_PeriodTableEnd-pt_PeriodTable)/2)-1,d0 ; number of periods
-	 		sub.w	d7,d0	; offset in period table
-	 		move.l	d2,a1	; period table address
-	 		moveq	#NIBBLE_SIGN_MASK,d2
-	 		and.b	n_finetune(a2),d2 ; negative value ?
-	 		beq.s	pt_StpGoss
-	 		tst.w	d0	; counter = 0 ?
-	 		beq.s	pt_StpGoss
-	 		subq.w	#1,d0
+ 		moveq	#((pt_PeriodTableEnd-pt_PeriodTable)/WORD_SIZE)-1,d0 ; number of periods
+ 		sub.b	d7,d0		; offset in period table
+ 		move.l	d2,a1		; period table address
+ 		moveq	#NIBBLE_SIGN_MASK,d2
+ 		and.b	n_finetune(a2),d2 ; negative value ?
+ 		beq.s	pt_StpGoss
+ 		tst.w	d0		; counter = 0 ?
+ 		beq.s	pt_StpGoss
+ 		subq.w	#1,d0
 pt_StpGoss
-	 		move.w	(a1,d0.w*2),d3 ; note period
-pt_StpNoFinetune
-		ENDC
+ 		move.w	(a1,d0.w*2),d3 ; note period
+
 		move.w	d3,n_wantedperiod(a2)
 		move.b	d5,n_toneportdirec(a2) ; clear tone portamento direction
 		cmp.w	n_period(a2),d3	; wanted note period reached ?
@@ -878,7 +864,7 @@ pt_ArpDivLoop
 	beq.s	pt_Arpeggio2
 ; 000 "Normal Play" 1st note
 pt_Arpeggio0
-	move.w	n_period(a2),d2		; play note period at tick #1
+	move.w	n_period(a2),d2		; play original note period at tick #1
 pt_ArpeggioSet
 	move.w	d2,6(a6)		; AUDxPER
 	IFEQ pt_track_periods_enabled
@@ -898,27 +884,26 @@ pt_Arpeggio2
 	and.b	n_cmdlo(a2),d0		; command data: y-second halftone
 pt_ArpeggioFind
 	move.w	n_period(a2),d2
-	moveq	#-1,d3			; period table entries counter
-	IFEQ pt_finetune_enabled
-		moveq	#0,d7
-		move.b	n_finetune(a2),d7
-		lea	pt_FtuPeriodTableStarts(pc),a1
-		move.l	(a1,d7.w*4),a1	; period table address for given finetune value
-	ELSE
-		lea	pt_PeriodTable(pc),a1
-	ENDC
+	moveq	#0,d7
+	move.b	n_finetune(a2),d7
+	lea	pt_FtuPeriodTableStarts(pc),a1
+	move.l	(a1,d7.w*4),a1	; period table address for given finetune value
 	moveq	#((pt_PeriodTableEnd-pt_PeriodTable)/WORD_SIZE)-1,d7 ; number of periods
 pt_ArpLoop
-	addq.b	#1,d3
 	cmp.w	(a1)+,d2		; note period >= table note period ?
 	dbhs	d7,pt_ArpLoop
+	bpl.s	pt_ArpFound
+	rts
+	CNOP 0,4
 pt_ArpFound
-	add.b	d0,d3
+	moveq	#((pt_PeriodTableEnd-pt_PeriodTable)/WORD_SIZE)-1,d3
+	sub.b	d7,d3			; number of periods - loopcounter = offset in periods table
+	add.b	d0,d3			; + first or second halftone
 	cmp.b	#(pt_PeriodTableEnd-pt_PeriodTable)/WORD_SIZE,d3
 	blt.s	pt_ArpNoClip
-	moveq	#0,d0			; clip halftone
+	moveq	#0,d0			; clip first or second halftone
 pt_ArpNoClip
-	move.w	-WORD_SIZE(a1,d0.w*2),d2 ; note period + first or second halftone addition
+	move.w	-WORD_SIZE(a1,d0.w*2),d2 ; original note period + first or second halftone offset
 	bra.s	pt_ArpeggioSet
 	ENDM
 
@@ -1025,19 +1010,21 @@ pt_TonePortaSetPer
 	move.w	d3,n_period(a2)
 	and.b	n_glissinvert(a2),d0	; glissando state
 	beq.s	pt_GlissSkip
-	IFEQ pt_finetune_enabled
-		move.b	n_finetune(a2),d0
-		lea	pt_FtuPeriodTableStarts(pc),a1
-		move.l	(a1,d0.w*4),a1	; period table address for given finetune value
-	ELSE
-		lea	pt_PeriodTable(pc),a1
-	ENDC
+	move.b	n_finetune(a2),d0
+	lea	pt_FtuPeriodTableStarts(pc),a1
+	move.l	(a1,d0.w*4),a1	; period table address for given finetune value
+	move.l	a1,d2
 	moveq	#((pt_PeriodTableEnd-pt_PeriodTable)/2)-1,d7 ; number of periods
 pt_GlissLoop
 	cmp.w	(a1)+,d3		; note period >= table note period ?
 	dbhs	d7,pt_GlissLoop 
+	bpl.s	pt_GlissFound
+	moveq	#0,d7			; last note period in table
 pt_GlissFound
-	move.w	-WORD_SIZE(a1),d3	; note period from period table
+	moveq	#((pt_PeriodTableEnd-pt_PeriodTable)/WORD_SIZE)-1,d0 ; number of periods
+	sub.w	d7,d0			; offset in period table
+	move.l	d2,a1			; period table address
+	move.w	(a1,d0.w*2),d3 		; note period from period table
 pt_GlissSkip
 	move.w	d3,6(a6)		; AUDxPER
 	IFEQ pt_track_periods_enabled
