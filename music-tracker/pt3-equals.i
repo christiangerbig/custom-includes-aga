@@ -18,8 +18,8 @@ pt_ntsc125bpmrate		EQU 1789773 ; = 0,715909 MHz * [(20000 µs * 125 BPM)]
 
 pt_arpdiv			EQU 3
 pt_periodsnum			EQU 36
-pt_portminper			EQU 113 ; Note period "B-3"
-pt_portmaxper			EQU 856 ; Note period "C-1"
+pt_portminper			EQU 113 ; note period "B-3"
+pt_portmaxper			EQU 856 ; note period "C-1"
 pt_finetunenum			EQU 16
 pt_minvol			EQU 0
 pt_maxvol			EQU 64
@@ -31,9 +31,14 @@ pt_wavenoretrig			EQU 4
 pt_vibnoretrigbit		EQU 2
 pt_trenoretrigbit		EQU 6
 pt_maxloopcount			EQU $7fff
-pt_metronote			EQU 214 ; Note period "C-3"
+
+pt_metronote			EQU 214 ; note period "C-3"
 pt_metrosamplenum		EQU 31
 pt_metronoteinfo		EQU ((pt_metrosamplenum&NIBBLE_MASK_HIGH)<<24)+(pt_metronote<<16)+((pt_metrosamplenum&NIBBLE_MASK_LOW)<<8*NIBBLE_SHIFT)
+pt_metrochan1			EQU 1
+pt_metrochan2			EQU 2
+pt_metrochan3			EQU 3
+pt_metrochan4			EQU 4
 
 pt_cmdarpeggio			EQU 0
 pt_cmdportup			EQU 1

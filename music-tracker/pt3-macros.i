@@ -20,7 +20,7 @@ PT3_INIT_VARIABLES		MACRO
 	move.w	d0,pt_PatternPosition(a3)
 	move.w	d0,pt_SongPosition(a3)
 
-; E9 "Retrig Note" or ED "Note Delay"
+; E9x "Retrig Note" or EDx "Note Delay"
 	IFNE pt_usedefx&(pt_ecmdbitretrignote|pt_ecmdbitnotedelay)
 		move.w d0,pt_RtnDMACONtemp(a3)
 	ENDC
@@ -43,7 +43,7 @@ PT3_INIT_VARIABLES		MACRO
 		move.b	d0,pt_PosJumpFlag(a3)
 	ENDC
 
-; E1 "Fine Portamento Up" or E2 "Fine Portamento Down"
+; E1x "Fine Portamento Up" or E2x "Fine Portamento Down"
 	IFNE pt_usedefx&(pt_ecmdbitfineportup|pt_ecmdbitfineportdown)
 		move.b	d0,pt_LowMask(a3)
 	ENDC
@@ -106,10 +106,10 @@ pt_NoNewAllChannels
 	lea	pt_audchan4temp(pc),a2
 	bsr.s	pt_CheckEffects
 
-; E9 "Retrig Note" or ED "Note Delay"
+; E9x "Retrig Note" or EDx "Note Delay"
 	IFNE pt_usedefx&(pt_ecmdbitretrignote|pt_ecmdbitnotedelay)
 pt_RtnChkAllChannels
-		tst.w	pt_RtnDMACONtemp(a3) ; "Retrig Note" or "Note Delay"used by one of the channels ?
+		tst.w	pt_RtnDMACONtemp(a3) ; "Retrig Note" or "Note Delay" ?
 		beq.s	pt_NoRtnSetTimer
 		moveq	#CIACRBF_START,d0
 		or.b	d0,CIACRB(a5)	; start DMA wait counter
@@ -141,11 +141,11 @@ pt_CheckEffects
 	CNOP 0,4
 pt_CheckEffects2
 
-;EFx" InvertLoop" used
+; EFx" InvertLoop"
 	IFNE pt_usedefx&pt_ecmdbitinvertloop
 		bsr	pt_UpdateInvert
 	ENDC
-	move.w	n_cmd(a2),d0		; channel effect command
+	move.w	n_cmd(a2),d0
 	and.w	d6,d0
 	beq.s	pt_CheckEffects2End
 	lsr.w	#BYTE_SHIFT_BITS,d0	; adjust bits
@@ -189,7 +189,7 @@ pt_CheckEffects2
 		beq	pt_VibratoPlusVolSlide
 	ENDC
 
-; E "Extended commands"
+; Exy "Extended commands"
 	IFNE pt_usedfx&pt_cmdbitextended
 		cmp.b	#pt_cmdextended,d0
 		beq	pt_ExtCommands
@@ -293,7 +293,7 @@ pt_ExtCommandsEnd
 		rts
 	ENDC
 
-; 7xy"Tremolo"
+; 7xy "Tremolo"
 	IFNE pt_usedfx&pt_cmdbittremolo
 		PT3_EFFECT_TREMOLO
 	ENDC
@@ -315,7 +315,6 @@ pt_ExtCommandsEnd
 	CNOP 0,4
 pt_GetNewNote
 	move.l	pt_SongDataPointer(a3),a0
-	moveq	#1,d2			; channel 1
 	move.w	pt_SongPosition(a3),d0
 	moveq	#0,d1
 	move.b	(pt_sd_pattpos,a0,d0.w),d1 ; pattern number in song position table
@@ -323,18 +322,27 @@ pt_GetNewNote
 	add.w	pt_PatternPosition(a3),d1 ; add pattern position
 	move.w	d5,pt_DMACONtemp(a3)	; clear DMA bits
 	lea	pt_audchan1temp(pc),a2
+	IFEQ pt_metronome_enabled
+		moveq	#pt_metrochan1,d2
+        ENDC
 	bsr.s	pt_Plv2
 	lea	pt_audchan2temp(pc),a2
 	ADDF.W	16,a6			; next channel
-	moveq	#2,d2			; channel 2
+	IFEQ pt_metronome_enabled
+		moveq	#pt_metrochan2,d2
+	ENDC
 	bsr.s	pt_Plv2
 	lea	pt_audchan3temp(pc),a2
 	ADDF.W	16,a6
-	moveq	#3,d2			; channel 3
+	IFEQ pt_metronome_enabled
+		moveq	#pt_metrochan3,d2
+	ENDC
 	bsr.s	pt_Plv2
 	lea	pt_audchan4temp(pc),a2
 	ADDF.W	16,a6
-	moveq	#4,d2			; channel 4
+	IFEQ pt_metronome_enabled
+		moveq	#pt_metrochan4,d2
+        ENDC
 	bsr.s	pt_Plv2
 	bra	pt_SetDMA
 
@@ -386,14 +394,14 @@ pt_PlayVoice
 	tst.l	(a2)			; new note ?
 	bne.s	pt_PlvSkip
 	IFEQ pt_track_periods_enabled
-		move.w	n_period(a2),d2
-		move.w	d2,6(a6)	; AUDxPER
-		move.w	d2,n_currentperiod(a2)
+		move.w	n_period(a2),d3
+		move.w	d3,6(a6)	; AUDxPER
+		move.w	d3,n_currentperiod(a2)
 	ELSE
 		move.w	n_period(a2),6(a6) ; AUDxPER
 	ENDC
 pt_PlvSkip
-	move.l	(pt_sd_patterndata,a0,d1.l*4),(a2) ; new note data from pattern
+	move.l	(pt_sd_patterndata,a0,d1.l*4),(a2) ; new note data
 	IFEQ pt_metronome_enabled
 		bsr.s	pt_CheckMetronome
 	ENDC
@@ -532,7 +540,7 @@ pt_DoSetSampleFinetune
 		bra	pt_SetPeriod
 	ENDC
 
-; 3 "Tone Portamento" or 5 "Tone Portamento + Volume Slide"
+; 3xx "Tone Portamento" or 5xy "Tone Portamento + Volume Slide"
 	IFNE pt_usedfx&(pt_cmdbittoneport|pt_cmdbittoneportvolslide)
 		CNOP 0,4
 pt_ChkTonePorta
@@ -540,7 +548,7 @@ pt_ChkTonePorta
 		bra.s	pt_CheckMoreEffects
 	ENDC
 
-; 3 "Tone Portamento" or 5 "Tone Portamento + Volume Slide"
+; 3xx "Tone Portamento" or 5xy "Tone Portamento + Volume Slide"
 	IFNE pt_usedfx&(pt_cmdbittoneport|pt_cmdbittoneportvolslide)
 		CNOP 0,4
 pt_SetTonePorta
@@ -550,18 +558,18 @@ pt_SetTonePorta
 		move.l	a1,d2	; period table address
 		moveq	#((pt_PeriodTableEnd-pt_PeriodTable)/WORD_SIZE)-1,d7 ; number of periods
 pt_StpLoop
-		cmp.w	(a1)+,d3 ; note period >= table note period ?
+		cmp.w	(a1)+,d3 	; note period >= table note period ?
 		dbhs	d7,pt_StpLoop
 		bpl.s	pt_StpFound
-		moveq	#1,d7	; penultimate note period in table
+		moveq	#1,d7		; penultimate note period in table
 pt_StpFound
 		moveq	#((pt_PeriodTableEnd-pt_PeriodTable)/WORD_SIZE)-1,d0 ; number of periods
-		sub.b	d7,d0	; offset in period table
-		move.l	d2,a1	; period table address
+		sub.b	d7,d0		; offset in period table
+		move.l	d2,a1		; period table address
 		moveq	#NIBBLE_SIGN_MASK,d2
 		and.b	n_finetune(a2),d2 ; negative value ?
 		beq.s	pt_StpGoss
-		tst.w	d0	; Counter = 0 ?
+		tst.w	d0		; Counter = 0 ?
 		beq.s	pt_StpGoss
 		subq.w	#1,d0
 pt_StpGoss
@@ -577,10 +585,9 @@ pt_StpEnd
 		rts
 		CNOP 0,4
 pt_ClearTonePorta
-		move.w	d5,n_wantedperiod(a2)	; clear wanted note period
+		move.w	d5,n_wantedperiod(a2) ; clear wanted note period
 		rts
 	ENDC
-
 
 ; Check more effect commands at tick #1
 	CNOP 0,4
@@ -623,7 +630,7 @@ pt_CheckMoreEffects
 		beq	pt_PatternBreak
 	ENDC
 
-; E "Extended commands"
+; Exy "Extended commands"
 	IFNE pt_usedfx&pt_cmdbitextended
 		cmp.b	#pt_cmdextended,d0
 		beq	pt_MoreExtCommands
@@ -738,7 +745,7 @@ pt_MoreExtCommands
 		beq	pt_FineVolumeSlideUp
 	ENDC
 
-; EBy "Fine Volume Slide Down"
+; EBx "Fine Volume Slide Down"
 	IFNE pt_usedefx&pt_ecmdbitfinevolslidedown
 	cmp.b	#pt_ecmdfinevolslidedown,d0
 	beq	pt_FineVolumeSlideDown
@@ -824,7 +831,7 @@ pt_MoreExtCommands
 		PT3_EFFECT_FINE_VOL_SLIDE_UP
 	ENDC 
 
-; EBy "Fine Volume Slide Down"
+; EBx "Fine Volume Slide Down"
 	IFNE pt_usedefx&pt_ecmdbitfinevolslidedown
 		PT3_EFFECT_FINE_VOL_SLIDE_DOWN
 	ENDC 
@@ -878,7 +885,7 @@ pt_DskipC
 pt_DskipA
 	ENDC
 
-; E6 "Jump to Loop"
+; E6x "Jump to Loop"
 	IFNE pt_usedefx&pt_ecmdbitjumptoloop
 		tst.b	pt_PBreakFlag(a3)
 		beq.s	pt_Nnpysk
@@ -943,7 +950,7 @@ pt_Arpeggio1
 	move.b	n_cmdlo(a2),d0
 	lsr.b	#NIBBLE_SHIFT_BITS,d0	; command data: x-first halftone
 	bra.s	pt_ArpeggioFind
-;00y "Arpeggio" 3rd note
+; 00y "Arpeggio" 3rd note
 	CNOP 0,4
 pt_Arpeggio2
 	moveq	#NIBBLE_MASK_LOW,d0
@@ -1457,12 +1464,12 @@ pt_SetGlissandoControl
 
 PT3_EFFECT_SET_VIB_WAVEFORM	MACRO
 ; Vibrato waveform types
-; 0 - sine (default)
-; 4   (without retrigger)
-; 1 - ramp down
-; 5   (without retrigger)
-; 2 - square
-; 6   (without retrigger)
+; 	0 - sine (default)
+; 	4   (without retrigger)
+; 	1 - ramp down
+; 	5   (without retrigger)
+; 	2 - square
+; 	6   (without retrigger)
 ; Input
 ; Result
 	CNOP 0,4
@@ -1470,7 +1477,7 @@ pt_SetVibratoWaveform
 	MOVEF.B	NIBBLE_MASK_HIGH,d2
 	and.b	n_wavecontrol(a2),d2	; clear old vibrato waveform
 	moveq	#NIBBLE_MASK_LOW,d0
-	and.b	n_cmdlo(a2),d0		; command data: vibrato waveform 0-sine 1-ramp down 2-square
+	and.b	n_cmdlo(a2),d0		; command data: vibrato waveform
 	or.b	d0,d2			; set new vibrato waveform
 	move.b	d2,n_wavecontrol(a2)
 	rts
@@ -1521,17 +1528,17 @@ pt_SetLoop
 
 PT3_EFFECT_SET_TRE_WAVEFORM MACRO
 ; Tremolo waveform types
-; 0 - sine (default)
-; 4   (without retrigger)
-; 1 - ramp down
-; 5   (without retrigger)
-; 2 - square
-; 6   (without retrigger)
+; 	0 - sine (default)
+; 	4   (without retrigger)
+; 	1 - ramp down
+; 	5   (without retrigger)
+; 	2 - square
+; 	6   (without retrigger)
 ; Input
 ; Result
 	CNOP 0,4
 pt_SetTremoloWaveform
-	move.b	n_cmdlo(a2),d0		; command data: tremolo waveform 0-sine 1-ramp down 2-square
+	move.b	n_cmdlo(a2),d0		; command data: tremolo waveform
 	moveq	#NIBBLE_MASK_LOW,d2
 	and.b	n_wavecontrol(a2),d2	; clear old tremolo waveform
 	lsl.b	#NIBBLE_SHIFT_BITS,d0	; adjust bits
@@ -1593,14 +1600,14 @@ pt_RtnSkip
 	add.w	d0,d2			; adjust division remainder
 	bne.s	pt_RtnEnd
 	move.w	n_dmabit(a2),d0
-	or.w	d0,pt_RtnDMACONtemp(a3) ; set effect "Retrig Note" or "Note Delay" for audio channel
+	or.w	d0,pt_RtnDMACONtemp(a3)
 	move.b	d5,n_rtnsetchandma(a2)	; activate routine
 	move.w	d0,_CUSTOM+DMACON	; disable audio channel DMA
 	IFEQ pt_track_notes_played_enabled
 		move.b	d5,n_notetrigger(a2) ; set note trigger flag
 	ENDC
-	move.l	n_start(a2),(a6) ; AUDxLCH
-	move.w	n_length(a2),4(a6) ; AUDxLEN
+	move.l	n_start(a2),(a6)	; AUDxLCH
+	move.w	n_length(a2),4(a6)	; AUDxLEN
 pt_RtnEnd
 	rts
 	ENDM
@@ -1654,7 +1661,7 @@ pt_NoteDelay
 	and.w	d6,d0
 	beq.s	pt_NoteDelayEnd
 	move.w	n_dmabit(a2),d0
-	or.w	d0,pt_RtnDMACONtemp(a3) ; "Retrig Note" or "Note Delay" for audio channel
+	or.w	d0,pt_RtnDMACONtemp(a3)
 	move.b	d5,n_rtnsetchandma(a2)	; activate routine
 	move.w	d0,_CUSTOM+DMACON	; disable audio channel DMA
 	IFEQ pt_track_notes_played_enabled
