@@ -2437,10 +2437,10 @@ sfo_set_rgb32
 			move.b	d2,(a0)+
 			dbf	d7,rgb32_screen_fader_out_loop
 			tst.w   d6	; fading finished ?
-			bne.s   sfo_rgb32_flush_caches
+			bne.s   sfo_rgb32_quit
 			move.w  #FALSE,sfo_rgb32_active(a3)
-sfo_rgb32_flush_caches
-			CALLEXECQ CacheClearU
+sfo_rgb32_quit
+			rts
 			CNOP 0,4
 sfo_rgb32_decrease_red
 			sub.w	a4,d0
@@ -3329,10 +3329,10 @@ sfi_set_rgb32
 			move.b	d2,(a0)+
 			dbf	d7,rgb32_screen_fader_in_loop
 			tst.w	d6	; Fading finished ?
-			bne.s	sfi_rgb32_flush_caches
+			bne.s	sfi_rgb32_quit
 			move.w	#FALSE,sfi_rgb32_active(a3)
-sfi_rgb32_flush_caches
-			CALLEXECQ CacheClearU
+sfi_rgb32_quit
+			rts
 			CNOP 0,4
 sfi_rgb32_decrease_red
 			sub.w	a4,d0
