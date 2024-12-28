@@ -91,7 +91,6 @@ old_ciab_crb			RS.B 1
 		RS_ALIGN_LONGWORD
 tod_time			RS.L 1
 
-vbr_save			RS.L 1
 	ENDC
 
 	IFNE cl1_size1

@@ -401,6 +401,8 @@
 		bsr	restore_chips_registers
 		bsr	get_tod_duration
 
+		bsr	restore_exception_vectors
+
 		bsr	restore_vbr
 
 		IFD ALL_CACHES
@@ -411,8 +413,6 @@
 			bsr	restore_store_buffer
 		ENDC
 	
-		bsr	restore_exception_vectors
-
 		bsr	enable_system
 
 		bsr	update_system_time
@@ -2166,9 +2166,9 @@ alloc_vectors_base_memory
 		move.l	d0,a1
 		CALLLIBS TypeOfMem
 		and.b	#MEMF_FAST,d0
-		bne.s	alloc_vectors_base_memory_skip
+		bne.s	alloc_vectors_base_memory_ok
 		tst.w	fast_memory_available(a3)
-		bne.s	alloc_vectors_base_memory_skip
+		bne.s	alloc_vectors_base_memory_ok
 		move.l	#exception_vectors_size,d0
 		bsr	do_alloc_fast_memory
 		move.l	d0,exception_vectors_base(a3)
@@ -2177,8 +2177,6 @@ alloc_vectors_base_memory
 		moveq	#ERROR_NO_FREE_STORE,d0
 		rts
 		CNOP 0,4
-alloc_vectors_base_memory_skip
-		move.l	old_vbr(a3),vbr_save(a3)
 alloc_vectors_base_memory_ok
 		moveq	#RETURN_OK,d0
 		rts
@@ -2508,7 +2506,7 @@ sf_rgb32_set_new_colors_skip
 ; Input
 ; Result
 ; d0.l	... Return code
-	CNOP 0,4
+		CNOP 0,4
 open_pal_screen
 		lea	pal_screen_tags(pc),a1
 		IFEQ screen_fader_enabled
@@ -2559,9 +2557,9 @@ check_pal_screen_mode_ok
 ; d0.l	... Return code
 		CNOP 0,4
 open_invisible_window
-		sub.l	a0,a0		; no NewWindow structure
 		lea	invisible_window_tags(pc),a1
 		move.l	pal_screen(a3),wtl_WA_CustomScreen+ti_data(a1)
+		sub.l	a0,a0		; no NewWindow structure
 		CALLINT OpenWindowTagList
 		move.l	d0,invisible_window(a3)
 		bne.s	open_invisible_window_ok
@@ -2683,13 +2681,7 @@ copy_exception_vectors_loop
 ; Result
 	CNOP 0,4
 init_exception_vectors
-	IFD SYS_TAKEN_OVER
-		IFNE intena_bits&(~INTF_SETCLR)
-			lea	read_vbr(pc),a5
-			CALLEXEC Supervisor
-			move.l	d0,a0
-		ENDC
-	ELSE
+	IFNE intena_bits&(~INTF_SETCLR)
 		lea	read_vbr(pc),a5
 		CALLEXEC Supervisor
 		move.l	d0,a0
@@ -2754,7 +2746,6 @@ move_exception_vectors_loop
 		dbf	d7,move_exception_vectors_loop
 		CALLEXEC CacheClearU
 		move.l	exception_vectors_base(a3),d0
-		move.l	d0,vbr_save(a3)
 		lea	write_vbr(pc),a5
 		CALLLIBS Supervisor
 move_exception_vectors_quit
@@ -3080,14 +3071,14 @@ restore_chips_registers_skip2
 		move.b	d0,CIAICR(a5)
 	
 		move.b	old_ciab_cra(a3),d0
-		btst	#CIACRAB_RUNMODE,d0 ; CIA-B timer a  continuous mode ?
+		btst	#CIACRAB_RUNMODE,d0 ; CIA-B timer a continuous mode ?
 		bne.s	restore_chips_registers_skip3
 		or.b	#CIACRAF_START,d0
 restore_chips_registers_skip3
 		move.b	d0,CIACRA(a5)
 	
 		move.b	old_ciab_crb(a3),d0
-		btst	#CIACRBB_RUNMODE,d0 ; CIA-B timer b  continuous mode ?
+		btst	#CIACRBB_RUNMODE,d0 ; CIA-B timer b continuous mode ?
 		bne.s restore_chips_registers_skip4
 		or.b	#CIACRBF_START,d0
 restore_chips_registers_skip4
@@ -3147,6 +3138,19 @@ get_tod_duration_skip2
 ; Input
 ; Result
 		CNOP 0,4
+restore_exception_vectors
+		lea	exception_vecs_save(pc),a0 ; source
+		move.l	old_vbr(a3),a1	; target
+		MOVEF.W	(exception_vectors_size/LONGWORD_SIZE)-1,d7 ; number of vectors
+restore_exception_vectors_loop
+		move.l	(a0)+,(a1)+
+		dbf	d7,restore_exception_vectors_loop
+		CALLEXECQ CacheClearU
+
+
+; Input
+; Result
+		CNOP 0,4
 restore_vbr
 		move.l	old_vbr(a3),d0
 		lea	write_VBR(pc),a5
@@ -3171,19 +3175,6 @@ restore_caches
 restore_store_buffer
 			ENABLE_060_STORE_BUFFER
 		ENDC
-
-
-; Input
-; Result
-		CNOP 0,4
-restore_exception_vectors
-		lea	exception_vecs_save(pc),a0 ; source
-		move.l	old_vbr(a3),a1	; target
-		MOVEF.W	(exception_vectors_size/LONGWORD_SIZE)-1,d7 ; number of vectors
-restore_exception_vectors_loop
-		move.l	(a0)+,(a1)+
-		dbf	d7,restore_exception_vectors_loop
-		CALLEXECQ CacheClearU
 
 
 ; Input
