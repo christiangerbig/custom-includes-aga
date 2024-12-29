@@ -147,7 +147,7 @@ pt_CheckEffects2
 	ENDC
 	move.w	n_cmd(a2),d0
 	and.w	d6,d0
-	beq.s	pt_CheckEffects2End
+	beq	pt_CheckEffects2End
 	lsr.w	#BYTE_SHIFT_BITS,d0	; adjust bits
 	IFNE pt_usedfx&pt_cmdbitarpeggio
 		beq.s	pt_Arpeggio
@@ -269,7 +269,7 @@ pt_ExtCommands
 			move.b	n_cmdlo(a2),d0
 			lsr.b	#NIBBLE_SHIFT_BITS,d0 ; extended effect command number
 			cmp.b	#8,d0
-			ble.s	pt_ExtCommandsEnd
+			ble	pt_ExtCommandsEnd
 		ENDC
 
 ; E9x "Retrig Note"
@@ -530,7 +530,7 @@ pt_sdmaskp
 	ELSE
 		move.w	n_period(a2),6(a6) ; AUDxPER
 	ENDC
-	bra.s	pt_CheckMoreEffects
+	bra	pt_CheckMoreEffects
 
 ; E5x "Set Sample Finetune"
 	IFNE pt_usedefx&pt_ecmdbitsetsamplefinetune
@@ -545,7 +545,7 @@ pt_DoSetSampleFinetune
 		CNOP 0,4
 pt_ChkTonePorta
 		bsr.s	pt_SetTonePorta
-		bra.s	pt_CheckMoreEffects
+		bra	pt_CheckMoreEffects
 	ENDC
 
 ; 3xx "Tone Portamento" or 5xy "Tone Portamento + Volume Slide"
@@ -599,9 +599,9 @@ pt_CheckMoreEffects
 
 ; 8xy "Not used/custom"
 	IFEQ pt_usedfx&pt_cmdbitnotused
-		ble.s	pt_ChkMoreEfxPerNop
+		ble	pt_ChkMoreEfxPerNop
 	ELSE
-		blt.s	pt_ChkMoreEfxPerNop
+		blt	pt_ChkMoreEfxPerNop
 		beq	\1
 	ENDC
 	ENDC
@@ -1189,7 +1189,7 @@ PT3_EFFECT_VIB_VOL_SLIDE	MACRO
 ; Result
 	CNOP 0,4
 pt_VibratoPlusVolSlide
-	bsr.s	pt_Vibrato2
+	bsr	pt_Vibrato2
 	bra	pt_VolumeSlide
 	ENDM
 

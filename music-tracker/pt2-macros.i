@@ -122,13 +122,13 @@ pt_CheckEffects
 	IFNE pt_usedfx
 		move.w	n_cmd(a2),d0	; channel effect command
 		and.w	d6,d0		; without lower nibble of sample number
-		beq.s	pt_ChkEfxPerNop
+		beq	pt_ChkEfxPerNop
 		lsr.w	#BYTE_SHIFT_BITS,d0 ; adjust command number
 	ENDC
 
 ; 0xy "Normal play" or "Arpeggio"
 	IFNE pt_usedfx&pt_cmdbitarpeggio
-		beq.s	pt_Arpeggio
+		beq	pt_Arpeggio
 	ENDC
 
 ; 1xx "Portamento Up"
@@ -259,7 +259,7 @@ pt_ExtCommands
 			move.b	n_cmdlo(a2),d0
 			lsr.b	#NIBBLE_SHIFT_BITS,d0 ; extended effect command 
 			cmp.b	#pt_ecmdnotused,d0
-			ble.s	pt_ExtCommandsEnd
+			ble	pt_ExtCommandsEnd
 		ENDC
 
 ; E9x "Retrig Note"
@@ -479,9 +479,9 @@ pt_CheckMoreEffects
 
 ; 8xy "Not used/custom"
 		IFEQ pt_usedfx&pt_cmdbitnotused
-			ble.s	pt_ChkMoreEfxPerNop
+			ble	pt_ChkMoreEfxPerNop
 		ELSE
-			blt.s	pt_ChkMoreEfxPerNop
+			blt	pt_ChkMoreEfxPerNop
 			beq	\1
 		ENDC
 	ENDC
@@ -562,7 +562,7 @@ pt_MoreExtCommands
 
 ; E0x "Set Filter"
 	IFNE pt_usedefx&pt_ecmdbitsetfilter
-		beq.s	pt_SetFilter
+		beq	pt_SetFilter
 	ENDC
 
 ; E1x "Fine Portamento Up"
@@ -1115,7 +1115,7 @@ PT2_EFFECT_TONE_PORTA_VOL_SLIDE	MACRO
 ; Result
 	CNOP 0,4
 pt_TonePortaPlusVolSlide
-	bsr.s	pt_TonePortaNoChange
+	bsr	pt_TonePortaNoChange
 	bra	pt_VolumeSlide
 	ENDM
 
@@ -1125,7 +1125,7 @@ PT2_EFFECT_VIB_VOL_SLIDE	MACRO
 ; Result
 	CNOP 0,4
 pt_VibratoPlusVolSlide
-	bsr.s	pt_Vibrato2
+	bsr	pt_Vibrato2
 	bra	pt_VolumeSlide
 	ENDM
 
@@ -1260,7 +1260,7 @@ pt_VolSlideDown
 	moveq	#0,d2
 	move.b	n_volume(a2),d2
 	sub.b	d0,d2		 	; volume - downspeed
-	bpl.s	 pt_VsdSkip
+	bpl.s	pt_VsdSkip
 	moveq	#pt_minvol,d2
 pt_VsdSkip
 	move.b	d2,n_volume(a2)

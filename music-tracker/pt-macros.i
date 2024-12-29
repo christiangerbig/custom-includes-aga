@@ -1,10 +1,15 @@
 PT_FADE_OUT_VOLUME		MACRO
 ; Input
-; \1 STRING:	pointer additional variable that is set to TRUE if volume fading out is finished
+; \1 STRING:	Label of additional variable set to TRUE if fader is finished (optional)
+; \2 STRING:	"GLOBALVAR" if variables are pc relative (optional)
 ; Result
 	CNOP 0,4
 pt_music_fader
-	tst.w	pt_music_fader_active(a3)
+	IFC "GLOBALVAR","\2"
+		move.w	pt_global_music_fader_active(pc),d0
+	ELSE
+		tst.w	pt_music_fader_active(a3)
+	ENDC
 	bne.s	pt_music_fader_quit
 	lea	pt_audchan1temp(pc),a0
 	lea	AUD0VOL-DMACONR(a6),a1
@@ -29,9 +34,19 @@ pt_music_fader_quit
 	rts
 	CNOP 0,4
 pt_music_fader_skip2
-	move.w	#FALSE,pt_music_fader_active(a3)
+	IFC "GLOBALVAR","\2"
+		lea	pt_global_music_fader_active(pc),a0
+		move.w	#FALSE,(a0)
+	ELSE
+		move.w	#FALSE,pt_music_fader_active(a3)
+	ENDC
 	IFNC "","\1"
-		clr.w	\1(a3)		; set additional variable to TRUE
+		IFC "GLOBALVAR","\2"
+			lea	\1(pc),a0
+			clr.w	(a0)	; set additional global variable
+		ELSE
+			clr.w	\1(a3)	; set additional variable
+		ENDC
 	ENDC
 	bra.s	pt_music_fader_quit
 
