@@ -3116,14 +3116,14 @@ restore_chips_registers_skip4
 get_tod_duration	
 		move.l	tod_time(a3),d0 ; program start time
 		moveq	#0,d1
-		move.b	CIATODHI(a4),d1	; TOD bits 23-16
+		move.b	CIATODHI(a4),d1	; TOD bits 16-23
 		swap	d1		; adjust bits
-		move.b	CIATODMID(a4),d1 ; TOD bits 15-8
+		move.b	CIATODMID(a4),d1 ; TOD bits 8-15
 		lsl.w	#8,d1		; adjust bits
-		move.b	CIATODLOW(a4),d1 ; TOD bits 7-0
+		move.b	CIATODLOW(a4),d1 ; TOD bits 0-7
 		cmp.l	d0,d1		; TOD overflow ?
 		bge.s	get_tod_duration_skip1
-		move.l	#$ffffff,d2	; TOD max
+		move.l	#TOD_MAX,d2
 		sub.l	d0,d2
 		add.l	d2,d1           ; correct time
 		bra.s	get_tod_duration_skip2

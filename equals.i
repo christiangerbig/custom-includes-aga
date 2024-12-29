@@ -42,6 +42,8 @@ ALIGN_64KB			EQU $ffff
 PAL_FPS				EQU 50
 NTSC_FPS			EQU 60
                                       
+TOD_MAX				EQU $ffffff
+
 PAL_CLOCK_CONSTANT		EQU 3524210
 NTSC_CLOCK_CONSTANT		EQU 3492064
 
