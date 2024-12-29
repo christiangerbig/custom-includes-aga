@@ -412,7 +412,7 @@
 		IFD NO_060_STORE_BUFFER
 			bsr	restore_store_buffer
 		ENDC
-	
+
 		bsr	enable_system
 
 		bsr	update_system_time
