@@ -51,7 +51,7 @@ pt_music_fader_skip2
 	bra.s	pt_music_fader_quit
 
 ; Input
-; a0	... Pointer temporary audio data
+; a0.l	Pointer temporary audio data
 ; Result
 	CNOP 0,4
 pt_decrease_channel_volume
@@ -60,7 +60,7 @@ pt_decrease_channel_volume
 	mulu.w	pt_master_volume(a3),d0
 	lsr.w	#6,d0
 	move.w	d0,(a1)			; AUDVOL
-	ADDF.W	16,a1			; next audio channel		 		 		;nächstes Volume-Register
+	ADDF.W	16,a1			; next audio channel
 	rts
 	ENDM
 
@@ -130,7 +130,7 @@ pt_InitAudTempStrucs
 	moveq	#FALSE,d1
 	lea	pt_audchan1temp(pc),a0
 	move.w	#DMAF_AUD0,n_dmabit(a0)
-	IFEQ pt_track_volumes_enabled
+	IFEQ pt_track_notes_played_enabled
 		move.b	d1,n_notetrigger(a0)
 	ENDC
 	move.b	d1,n_rtnsetchandma(a0)	; deactivate routines
@@ -138,7 +138,7 @@ pt_InitAudTempStrucs
 
 	lea	pt_audchan2temp(pc),a0
 	move.w	#DMAF_AUD1,n_dmabit(a0)
-	IFEQ pt_track_volumes_enabled
+	IFEQ pt_track_notes_played_enabled
 		move.b	d1,n_notetrigger(a0)
 	ENDC
 	move.b	d1,n_rtnsetchandma(a0)
@@ -146,7 +146,7 @@ pt_InitAudTempStrucs
 
 	lea	pt_audchan3temp(pc),a0
 	move.w	#DMAF_AUD2,n_dmabit(a0)
-	IFEQ pt_track_volumes_enabled
+	IFEQ pt_track_notes_played_enabled
 		move.b	d1,n_notetrigger(a0)
 	ENDC
 	move.b	d1,n_rtnsetchandma(a0)
@@ -154,7 +154,7 @@ pt_InitAudTempStrucs
 
 	lea	pt_audchan4temp(pc),a0
 	move.w	#DMAF_AUD3,n_dmabit(a0)
-	IFEQ pt_track_volumes_enabled
+	IFEQ pt_track_notes_played_enabled
 		move.b	d1,n_notetrigger(a0)
 	ENDC
 	move.b	d1,n_rtnsetchandma(a0)
@@ -168,8 +168,8 @@ PT_EXAMINE_SONG_STRUCTURE	MACRO
 ; Result
 	CNOP 0,4
 pt_ExamineSongStruc
-	moveq	#0,d0		 	; first pattern number
-	moveq	#0,d1			; highest pattern number
+	moveq	#0,d0		 	; first pattern number (count starts at 0)
+	moveq	#0,d1			; counter highest pattern number
 	move.l	pt_SongDataPointer(a3),a0
 	move.b	pt_sd_numofpatt(a0),pt_SongLength(a3)
 	lea	pt_sd_pattpos(a0),a1	; pointer table with pattern positions in song
@@ -184,12 +184,12 @@ pt_InitSkip
 	IFNE pt_split_module_enabled
 		addq.w	#1,d1
 	ENDC
-	ADDF.W	pt_sd_sampleinfo,a0
+	ADDF.W	pt_sd_sampleinfo,a0	; pointer 1st sample info structure
 	IFNE pt_split_module_enabled
-		MULUF.W	pt_pattsize/8,d1 ; offset points to end of last pattern
+		MULUF.W	pt_pattsize/8,d1,d0 ; end of last pattern
 	ENDC
-	moveq	#TRUE,d2
-	moveq	#1,d3		 	; length in words for oneshot sample
+	moveq	#0,d2
+	moveq	#pt_oneshotlen,d3 	; length in words
 	IFNE pt_split_module_enabled
 		lea	pt_sd_patterndata-pt_sd_id(a1,d1.w*8),a2 ; pointer first sample data in module
 	ELSE
@@ -201,14 +201,14 @@ pt_InitSkip
 pt_InitLoop2
 	move.l	a2,(a1)+		; pointer sample data
 	move.w	pt_si_samplelength(a0),d0
-	beq.s	pt_NoSample
-	MULUF.W	2,d0			; sample length in bytes
+	beq.s	pt_InitSkip2
+	MULUF.W	WORD_SIZE,d0,d4		; sample length in bytes
 	move.w	d2,(a2)		 	; clear first word in sample data
 	add.l	d0,a2		 	; next sample data
-	move.w	pt_si_repeatlength(a0),d0 ; Fasttracker module with repeat length = 0 ?
-	bne.s	pt_NoSample
-	move.w	d3,pt_si_repeatlength-pt_si_samplelength(a0) ; for Protracker compability
-pt_NoSample
+	move.w	pt_si_repeatlength(a0),d0 ; Fasttracker module with repeat length 0 ?
+	bne.s	pt_InitSkip2
+	move.w	d3,pt_si_repeatlength(a0) ; repeat length 1 for Protracker compability
+pt_InitSkip2
 	add.l	d1,a0		 	; next sample info structure
 	dbf	d7,pt_InitLoop2
 	rts
@@ -236,7 +236,7 @@ PT_TIMER_INTERRUPT_SERVER	MACRO
 ; Input
 ; Result
 
-; E9 "Retrig Note" or ED "Note Delay"used
+; E9 "Retrig Note" or ED "Note Delay"
 	IFNE pt_usedefx&(pt_ecmdbitretrignote+pt_ecmdbitnotedelay)
 		tst.w	pt_RtnDMACONtemp(a3) ; any retrig/delay fx for a channel ?
 		beq.s	pt_RtnChannelsSkip
@@ -280,8 +280,8 @@ pt_RtnInitChan1Loop
 		ADDF.W	n_period,a0
 		move.w	(a0)+,AUD0PER-DMACONR(a6)
 		move.l	(a0)+,AUD0LCH-DMACONR(a6)
-		move.w	(a0),AUD0LEN-DMACONR(a6)
 		moveq	#~DMAF_AUD0,d0
+		move.w	(a0),AUD0LEN-DMACONR(a6)
 		bra	pt_RtnChkNextChan
 
 
@@ -298,8 +298,8 @@ pt_RtnInitChan2Loop
 		ADDF.W	n_period,a0
 		move.w	(a0)+,AUD1PER-DMACONR(a6)
 		move.l	(a0)+,AUD1LCH-DMACONR(a6)
-		move.w	(a0),AUD1LEN-DMACONR(a6)
 		moveq	#~DMAF_AUD1,d0
+		move.w	(a0),AUD1LEN-DMACONR(a6)
 		bra	pt_RtnChkNextChan
 
 
@@ -316,8 +316,8 @@ pt_RtnInitChan3Loop
 		ADDF.W	n_period,a0
 		move.w	(a0)+,AUD2PER-DMACONR(a6)
 		move.l	(a0)+,AUD2LCH-DMACONR(a6)
-		move.w	(a0),AUD2LEN-DMACONR(a6)
 		moveq	#~DMAF_AUD2,d0
+		move.w	(a0),AUD2LEN-DMACONR(a6)
 		bra.s	pt_RtnChkNextChan
 
 
@@ -334,14 +334,14 @@ pt_RtnInitChan4Loop
 		ADDF.W	n_period,a0
 		move.w	(a0)+,AUD3PER-DMACONR(a6)
 		move.l	(a0)+,AUD3LCH-DMACONR(a6)
-		move.w	(a0),AUD3LEN-DMACONR(a6)
 		moveq	#~DMAF_AUD3,d0
+		move.w	(a0),AUD3LEN-DMACONR(a6)
 		bra.s	pt_RtnChkNextChan
 
 
 ; Input
-; a0	... Pointer temporary audio data
-; d0.w	... DMACON bit number for channel [0,2,4,8]
+; a0.l	Pointer temporary audio data
+; d0.w	DMACON bit audio channel [0,2,4,8]
 ; Result
 		CNOP 0,4
 pt_RtnSetChanDMA
@@ -349,12 +349,12 @@ pt_RtnSetChanDMA
 		or.w	#DMAF_SETCLR,d0
 		move.w	d0,DMACON-DMACONR(a6)
 		addq.b	#CIACRBF_START,CIACRB(a5) ; start DMA delay counter
-		clr.b	n_rtninitchanloop(a0) ; activate routine
+		clr.b	n_rtninitchanloop(a0) ; activate follow up routine
 		rts
 
 
 ; Input
-; d0.w	... mask for Retrig DMACONtemp
+; d0.w	Mask for Retrig DMACONtemp
 ; Result
 		CNOP 0,4
 pt_RtnChkNextChan
@@ -370,7 +370,6 @@ pt_RtnChkNextChanQuit
 
 	CNOP 0,4
 pt_InitAllChanLoop
-	move.b	#FALSE,pt_InitAllChanLoopFlag(a3) ; deactivate routine
 	move.l	pt_audchan1temp+n_loopstart(pc),AUD0LCH-DMACONR(a6)
 	move.w	pt_audchan1temp+n_replen(pc),AUD0LEN-DMACONR(a6)
 	move.l	pt_audchan2temp+n_loopstart(pc),AUD1LCH-DMACONR(a6)
@@ -379,6 +378,7 @@ pt_InitAllChanLoop
 	move.w	pt_audchan3temp+n_replen(pc),AUD2LEN-DMACONR(a6)
 	move.l	pt_audchan4temp+n_loopstart(pc),AUD3LCH-DMACONR(a6)
 	move.w	pt_audchan4temp+n_replen(pc),AUD3LEN-DMACONR(a6)
+	move.b	#FALSE,pt_InitAllChanLoopFlag(a3) ; deactivate routine
 	rts
 
 	CNOP 0,4
@@ -388,6 +388,6 @@ pt_SetAllChanDMA
 	or.w	#DMAF_SETCLR,d0
 	move.w	d0,DMACON-DMACONR(a6)
 	addq.b	#CIACRBF_START,CIACRB(a5) ; start DMA delay counter
-	clr.b	pt_InitAllChanLoopFlag(a3) ; activate routine
+	clr.b	pt_InitAllChanLoopFlag(a3) ; activate follow up routine
 	rts
 	ENDM

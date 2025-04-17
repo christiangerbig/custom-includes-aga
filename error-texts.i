@@ -262,7 +262,6 @@ error_text_screen_fader
 error_text_screen_fader_end
 	 		EVEN
 		ELSE
-
 error_text_screen1
 			DC.B "Couldn't allocate memory for degrade screen color table !",ASCII_LINE_FEED,ASCII_LINE_FEED
 			DC.B "Press any key.",ASCII_LINE_FEED

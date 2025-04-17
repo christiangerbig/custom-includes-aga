@@ -4,9 +4,9 @@
 
 
 ; Input
-; d0.l	... Memory block size
+; d0.l	Memory block size
 ; Result
-; d0.l	... Pointer memory block or RETURN_FALSE
+; d0.l	Pointer memory block or 0
 	CNOP 0,4
 do_alloc_memory
 	move.l	#MEMF_CLEAR|MEMF_PUBLIC,d1
@@ -14,9 +14,9 @@ do_alloc_memory
 
 
 ; Input
-; d0.l	... Memory block size
+; d0.l	Memory block size
 ; Result
-; d0.l	... Pointer memory block or RETURN_FALSE
+; d0.l	Pointer memory block or 0
 	CNOP 0,4
 do_alloc_chip_memory
 	move.l	#MEMF_CLEAR|MEMF_CHIP|MEMF_PUBLIC,d1
@@ -24,9 +24,9 @@ do_alloc_chip_memory
 
 
 ; Input
-; d0.l	... Memory block size
+; d0.l	Memory block size
 ; Result
-; d0.l	... Pointer memory block or RETURN_FALSE
+; d0.l	Pointer memory block or 0
 	CNOP 0,4
 do_alloc_fast_memory
 	move.l	#MEMF_CLEAR|MEMF_FAST|MEMF_PUBLIC,d1
@@ -34,11 +34,11 @@ do_alloc_fast_memory
 
 
 ; Input
-; d0.l	... Playfield width
-; d1.l	... Playfield height
-; d2.l	... Playfield depth
+; d0.l	Playfield width
+; d1.l	Playfield height
+; d2.l	Playfield depth
 ; Result
-; d0.l	... Pointer playfield or RETURN_FALSE
+; d0.l	Pointer playfield or 0
 	CNOP 0,4
 do_alloc_bitmap_memory
 	moveq	#BMF_CLEAR|BMF_DISPLAYABLE|BMF_INTERLEAVED,d3 ; flags
@@ -50,7 +50,7 @@ do_alloc_bitmap_memory
 		IFNE intena_bits&(~INTF_SETCLR)
 ; Input
 ; Result
-; d0.l	... Content VBR
+; d0.l	Content VBR
 			CNOP 0,4
 read_VBR
 			or.w	#SRF_I0|SRF_I1|SRF_I2,SR ; highest interrupt level
@@ -62,7 +62,7 @@ read_VBR
 	ELSE
 ; Input
 ; Result
-; d0.l	 ... Content VBR
+; d0.l	 Content VBR
 		CNOP 0,4
 read_VBR
 		or.w	#SRF_I0|SRF_I1|SRF_I2,SR ; highest interrupt level
@@ -73,7 +73,7 @@ read_VBR
 
 
 ; Input
-; d0.l	... New content VBR
+; d0.l	Content VBR
 ; Result
 		CNOP 0,4
 write_VBR
@@ -89,8 +89,8 @@ write_VBR
 ; Result
 	CNOP 0,4
 wait_beam_position
-	move.l	#$0003ff00,d1		; mask vertical beam position
-	move.l	#beam_position<<8,d2	; adjust V0-V8
+	move.l	#$0003ff00,d1		; mask vertical beam position V0..V9
+	move.l	#beam_position<<8,d2	; adjust vertical position
 	lea	VPOSR-DMACONR(a6),a0
 	lea	VHPOSR-DMACONR(a6),a1
 wait_beam_position_loop
@@ -98,7 +98,7 @@ wait_beam_position_loop
 	swap	d0			; adjust bits
 	move.w	(a1),d0			; VHPOSR
 	and.l	d1,d0			; only vertical position
-	cmp.l	d2,d0
+	cmp.l	d2,d0			; wait beam position
 	blt.s	wait_beam_position_loop
 	rts
 
@@ -112,7 +112,7 @@ wait_vbi_loop
 	moveq	#INTF_VERTB,d0
 	and.w	(a0),d0
 	beq.s	wait_vbi_loop
-	move.w	d0,INTREQ-DMACONR(a6)	; clear VERTB interrupt
+	move.w	d0,INTREQ-DMACONR(a6)	; clear interrupt
 	rts
 
 
@@ -125,15 +125,15 @@ wait_copint_loop
 	moveq	#INTF_COPER,d0
 	and.w	(a0),d0
 	beq.s	wait_copint_loop
-	move.w	d0,INTREQ-DMACONR(a6)	; clear COPER interrupt
+	move.w	d0,INTREQ-DMACONR(a6)	; clear interrupt
 	rts
 
 
 ; Input
-; a0	... Pointer copperlist
-; a1	... Pointer color table
-; d3.w	... Offset first color register
-; d7.w	... Number of colors
+; a0	Pointer copperlist
+; a1	Pointer color table
+; d3.w	Offset first color register
+; d7.w	Number of colors
 ; Result
 	CNOP 0,4
 cop_init_high_colors
@@ -149,10 +149,10 @@ cop_init_high_colors_loop
 
 
 ; Input
-; a0	... Pointer copperlist
-; a1	... Pointer color table
-; d3.w	... Offset first color register
-; d7.w	... Number of colors
+; a0	Pointer copperlist
+; a1	Pointer color table
+; d3.w	Offset first color register
+; d7.w	Number of colors
 ; Result
 	CNOP 0,4
 cop_init_low_colors
@@ -168,9 +168,9 @@ cop_init_low_colors_loop
 
 
 ; Input
-; a0	... Color register address
-; a1	... Pointer color table
-; d7.w	... Number of colors
+; a0	Color register address
+; a1	Pointer color table
+; d7.w	Number of colors
 ; Result
 	CNOP 0,4
 cpu_init_high_colors
@@ -184,9 +184,9 @@ cpu_init_high_colors_loop
 
 
 ; Input
-; a0	... Color register address
-; a1	... Pointer color table
-; d7.w	... Number of colors
+; a0	Color register address
+; a1	Pointer color table
+; d7.w	Number of colors
 ; Result
 	CNOP 0,4
 cpu_init_low_colors
@@ -201,32 +201,32 @@ cpu_init_low_colors_loop
 
 	IFD COLOR_GRADIENT_RGB8
 ; Input
-; d0.l	... RGB8 current value
-; d6.l	... RGB8 tartget value
-; d7.w	... Number of colors
-; a0	... Pointer color table
-; a1.l	... Decrement/increment red
-; a2.l	... Decrement/increment green
-; a4.w	... Decrement/increment blue
-; a5.l	... Offset next RGB8 value
+; d0.l	RGB8 current value
+; d6.l	RGB8 tartget value
+; d7.w	Number of colors
+; a0	Pointer color table
+; a1.l	Decrement/increment red
+; a2.l	Decrement/increment green
+; a4.w	Decrement/increment blue
+; a5.l	Offset next RGB8 value
 ; Result
 		CNOP 0,4
 init_color_gradient_rgb8_loop
 		move.l	d0,(a0)		; RGB8 value
-		add.l	a5,a0		; next RGB8 value
+		add.l	a5,a0		; next entry
 		moveq	#0,d1
 		move.w	d0,d1
 		moveq	#0,d2
-		clr.b	d1		; current G8
-		move.b	d0,d2		; current B8
-		clr.w	d0		; current R8
-		move.l	d6,d3		; target RGB8
+		clr.b	d1		; G8
+		move.b	d0,d2		; B8
+		clr.w	d0		; R8
+		move.l	d6,d3
 		moveq	#0,d4
 		move.w	d3,d4
 		moveq	#0,d5
-		move.b	d3,d5		; target B8
-		clr.w	d3		; target R8
-		clr.b	d4		; target G8
+		move.b	d3,d5		; B8 target
+		clr.w	d3		; R8 target
+		clr.b	d4		; G8 target
 		cmp.l	d3,d0
 		bgt.s	decrease_red_rgb8
 		blt.s	increase_red_rgb8

@@ -3,6 +3,7 @@ pt_maxpattpos			EQU 64
 pt_pattsize			EQU 1024
 pt_chansnum			EQU 4
 pt_samplesnum			EQU 31
+pt_oneshotlen			EQU 1
 pt_cmdpermask			EQU $0fff
 pt_cmdmask			EQU $0f
 pt_ecmdmask			EQU $0ff0

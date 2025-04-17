@@ -1,4 +1,4 @@
-; header for PrintFault()
+; Header PrintFault()
 error_header
 	DC.B " ",0
 	EVEN

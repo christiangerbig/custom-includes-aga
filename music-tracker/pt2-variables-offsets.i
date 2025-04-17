@@ -22,7 +22,7 @@ pt_SetAllChanDMAFlag		RS.B 1
 pt_InitAllChanLoopFlag		RS.B 1
 pt_PBreakPosition		RS.B 1
 pt_PosJumpFlag			RS.B 1
-; E1 "Fine Portamento Up" or E2 "Fine Portamento Down" used
+; E1 "Fine Portamento Up" or E2 "Fine Portamento Down"
 	IFNE pt_usedefx&(pt_ecmdbitfineportup|pt_ecmdbitfineportdown)
 pt_LowMask 			RS.B 1
 	ENDC
