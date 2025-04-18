@@ -40,6 +40,9 @@ pt_metrochan1			EQU 1
 pt_metrochan2			EQU 2
 pt_metrochan3			EQU 3
 pt_metrochan4			EQU 4
+pt_metrospeed16th		EQU 1
+pt_metrospeed8th		EQU 2
+pt_metrospeed4th		EQU 4
 
 pt_cmdarpeggio			EQU 0
 pt_cmdportup			EQU 1

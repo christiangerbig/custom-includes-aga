@@ -30,8 +30,8 @@ PT3_INIT_VARIABLES		MACRO
 		move.w	#pt_maxvol,pt_master_volume(a3)
 	ENDC
 	IFEQ pt_metronome_enabled
-		move.b	d0,pt_MetroSpeed(a3) ; pattern position step size
-		move.b	d0,pt_MetroChannel(a3) ; 0 = no metronome channel, enable metronome channel with value 1,2,3 or 4
+		move.b	#pt_metrospeedbits,pt_MetroSpeed(a3)
+		move.b	#pt_metrochanbits,pt_MetroChannel(a3)
 	ENDC
 	move.b	d1,pt_SetAllChanDMAFlag(a3) ; deactivate routines
 	move.b	d1,pt_InitAllChanLoopFlag(a3)
@@ -356,7 +356,7 @@ pt_GetNewNote
 		CNOP 0,4
 pt_CheckMetronome
 ; Input
-; d2	... Channel number [1..4]
+; d2.l	... Channel number [1..4]
 ; Result
 		cmp.b	pt_MetroChannel(a3),d2 ; channel number = metronome channel number ?
 		bne.s	pt_ChkMetroEnd

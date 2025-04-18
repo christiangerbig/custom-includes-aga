@@ -32,7 +32,7 @@ dos_return_code			RS.L 1
 
 	IFND SYS_TAKEN_OVER
 active_screen			RS.L 1
-active_screen_mode		RS.L 1
+screen_mode			RS.L 1
 pal_screen			RS.L 1
 invisible_window		RS.L 1
 mouse_pointer_data		RS.L 1

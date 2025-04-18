@@ -295,14 +295,13 @@
 		ENDC
 
 		bsr	get_sprite_resolution
-		bsr	get_active_screen_mode
+		bsr	get_screen_mode
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_all_memory
 
 		IFEQ screen_fader_enabled
 			bsr	sf_get_screen_colors
-			bsr	sf_copy_screen_colors
-
+			bsr	sf_copy_screen_color_table
 			bsr	sf_fade_out_screen
 		ENDC
 
@@ -2309,22 +2308,22 @@ get_sprite_resolution_quit
 ; Result
 ; d0.l	... Return code
 		CNOP 0,4
-get_active_screen_mode
+get_screen_mode
 		move.l	active_screen(a3),d0
-		beq.s	get_active_screen_mode_ok
+		beq.s	get_screen_mode_ok
 		move.l	d0,a0
 		ADDF.W	sc_ViewPort,a0
 		CALLGRAF GetVPModeID
 		cmp.l	#INVALID_ID,d0
-		bne.s	get_active_screen_mode_skip
+		bne.s	get_screen_mode_skip
 		move.w	#VIEWPORT_MONITOR_ID_NOT_FOUND,custom_error_code(a3)
 		moveq	#RETURN_FAIL,d0
 		rts
 		CNOP 0,4
-get_active_screen_mode_skip
+get_screen_mode_skip
 		and.l	#MONITOR_ID_MASK,d0	; without resolution
-		move.l	d0,active_screen_mode(a3)
-get_active_screen_mode_ok
+		move.l	d0,screen_mode(a3)
+get_screen_mode_ok
 		moveq	#RETURN_OK,d0
 		rts
 
@@ -2352,18 +2351,18 @@ sf_get_screen_colors_skip
 ; Input
 ; Result
 	CNOP 0,4
-sf_copy_screen_colors
+sf_copy_screen_color_table
 			move.l	sf_screen_color_table(a3),a0 ; source
 			move.l	sf_screen_color_cache(a3),a1 ; destination
 			move.w	#sf_rgb32_colors_number,(a1)+
 			moveq	#0,d0
 			move.w	d0,(a1)+ ; COLOR00
 			MOVEF.W	sf_rgb32_colors_number-1,d7
-sf_copy_screen_colors_loop
+sf_copy_screen_color_table_loop
 			move.l	(a0)+,(a1)+ ; 32-bit red
 			move.l	(a0)+,(a1)+ ; 32-bit green
 			move.l	(a0)+,(a1)+ ; 32-bit blue
-			dbf	d7,sf_copy_screen_colors_loop
+			dbf	d7,sf_copy_screen_color_table_loop
 			move.l	d0,(a1)	; Listenende
 			rts
 
@@ -2601,7 +2600,7 @@ blank_display
 ; Result
 		CNOP 0,4
 wait_monitor_switch
-		move.l	active_screen_mode(a3),d0
+		move.l	screen_mode(a3),d0
 		beq.s	wait_monitor_switch_quit
 		cmp.l	#DEFAULT_MONITOR_ID,d0
 		beq.s	wait_monitor_switch_quit
