@@ -72,6 +72,8 @@
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_graphics_library
 
+		bsr	get_active_screen
+		move.l	d0,active_screen(a3)
 		bsr	check_system_props
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_error_message
@@ -292,8 +294,6 @@
 			bsr	save_beamcon0_register
 		ENDC
 
-		bsr	get_active_screen
-		move.l	d0,active_screen(a3)
 		bsr	get_sprite_resolution
 		bsr	get_active_screen_mode
 		move.l	d0,dos_return_code(a3)
@@ -308,10 +308,10 @@
 
 		bsr	open_pal_screen
 		move.l	d0,dos_return_code(a3)
-		bne	cleanup_active_screen
+		bne	cleanup_original_screen
 		bsr	check_pal_screen_mode
 		move.l	d0,dos_return_code(a3)
-		bne	cleanup_active_screen
+		bne	cleanup_original_screen
 		bsr	open_invisible_window
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_pal_screen
@@ -424,9 +424,8 @@
 		bsr	close_invisible_window
 cleanup_pal_screen
 		bsr	close_pal_screen
-cleanup_active_screen
-		bsr	active_screen_to_front
 
+cleanup_original_screen
 		IFEQ screen_fader_enabled
 			bsr	sf_fade_in_screen
 		ENDC
@@ -1236,6 +1235,20 @@ open_intuition_library
 		CNOP 0,4
 open_intuition_library_ok
 		moveq	#RETURN_OK,d0
+		rts
+
+
+; Input
+; Result
+; d0.l	... pointer screen structure active screen
+	CNOP 0,4
+get_active_screen
+		moveq	#0,d0		; all locks
+		CALLINT LockIBase
+		move.l	d0,a0
+		move.l	ib_ActiveScreen(a6),a2
+		CALLLIBS UnlockIBase
+		move.l	a2,d0
 		rts
 
 
@@ -2276,20 +2289,6 @@ save_beamcon0_register
 
 ; Input
 ; Result
-; d0.l	... pointer screen structure active screen
-	CNOP 0,4
-get_active_screen
-		moveq	#0,d0		; all locks
-		CALLINT LockIBase
-		move.l	d0,a0
-		move.l	ib_ActiveScreen(a6),a2
-		CALLLIBS UnlockIBase
-		move.l	a2,d0
-		rts
-
-
-; Input
-; Result
 		CNOP 0,4
 get_sprite_resolution
 		move.l	active_screen(a3),d0
@@ -3242,21 +3241,6 @@ close_pal_screen
 		CALLINTQ CloseScreen
 
 
-; Input
-; Result
-	CNOP 0,4
-active_screen_to_front
-	tst.l	active_screen(a3)
-	beq.s	active_screen_to_front_quit
-	bsr	get_active_screen
-	move.l	active_screen(a3),a0
-	cmp.l	d0,a0
-	beq.s	active_screen_to_front_quit
-	CALLINT ScreenToFront
-active_screen_to_front_quit
-	rts
-
-
 		IFEQ screen_fader_enabled
 ; Input
 ; Result
@@ -3807,8 +3791,6 @@ close_graphics_library
 print_error_message
 		move.w	custom_error_code(a3),d4
 		beq.s	print_error_message_ok
-		bsr	get_active_screen
-		move.l	d0,active_screen(a3)
 		CALLINT WBenchToFront
 		lea	raw_name(pc),a0
 		move.l	a0,d1
@@ -3834,9 +3816,38 @@ print_error_message_skip
 		CALLLIBS Read
 		move.l	raw_handle(a3),d1
 		CALLLIBS Close
-		bsr	active_screen_to_front
+		bsr.s	original_screen_to_front
 print_error_message_ok
 		moveq	#RETURN_OK,d0
+		rts
+
+
+; Input
+; Result
+		CNOP 0,4
+original_screen_to_front
+		tst.l	active_screen(a3)
+		beq.s	original_screen_to_front_quit
+		bsr.s	get_first_screen
+		move.l	active_screen(a3),a0
+		cmp.l	d0,a0
+		beq.s	original_screen_to_front_quit
+		CALLINT ScreenToFront
+original_screen_to_front_quit
+		rts
+
+
+; Input
+; Result
+; d0.l	... pointer screen structure first screen
+		CNOP 0,4
+get_first_screen
+		moveq	#0,d0		; all locks
+		CALLINT LockIBase
+		move.l	d0,a0
+		move.l	ib_FirstScreen(a6),a2
+		CALLLIBS UnlockIBase
+		move.l	a2,d0
 		rts
 
 
