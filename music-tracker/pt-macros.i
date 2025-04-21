@@ -11,15 +11,17 @@ pt_music_fader
 		tst.w	pt_music_fader_active(a3)
 	ENDC
 	bne.s	pt_music_fader_quit
-	lea	pt_audchan1temp(pc),a0
-	lea	AUD0VOL-DMACONR(a6),a1
-	bsr.s	pt_decrease_channel_volume
-	lea	pt_audchan2temp(pc),a0
-	bsr.s	pt_decrease_channel_volume
-	lea	pt_audchan3temp(pc),a0
-	bsr.s	pt_decrease_channel_volume
-	lea	pt_audchan4temp(pc),a0
-	bsr.s	pt_decrease_channel_volume
+	IFD PROTRACKER_VERSION_2
+		lea	pt_audchan1temp(pc),a0
+		lea	AUD0VOL-DMACONR(a6),a1
+		bsr.s	pt_decrease_channel_volume
+		lea	pt_audchan2temp(pc),a0
+		bsr.s	pt_decrease_channel_volume
+		lea	pt_audchan3temp(pc),a0
+		bsr.s	pt_decrease_channel_volume
+		lea	pt_audchan4temp(pc),a0
+		bsr.s	pt_decrease_channel_volume
+	ENDC
 	move.w	pt_fade_out_delay_counter(a3),d0
 	subq.w	#1,d0
 	bne.s	pt_music_fader_skip1
@@ -50,18 +52,20 @@ pt_music_fader_skip2
 	ENDC
 	bra.s	pt_music_fader_quit
 
+	IFD PROTRACKER_VERSION_2
 ; Input
 ; a0.l	Pointer temporary audio data
 ; Result
-	CNOP 0,4
+		CNOP 0,4
 pt_decrease_channel_volume
-	moveq	#0,d0
-	move.b	n_volume(a0),d0
-	mulu.w	pt_master_volume(a3),d0
-	lsr.w	#6,d0
-	move.w	d0,(a1)			; AUDVOL
-	ADDF.W	16,a1			; next audio channel
-	rts
+		moveq	#0,d0
+		move.b	n_volume(a0),d0
+		mulu.w	pt_master_volume(a3),d0
+		lsr.w	#6,d0
+		move.w	d0,(a1)		; AUDVOL
+		ADDF.W	16,a1		; next audio channel
+		rts
+	ENDC
 	ENDM
 
 
