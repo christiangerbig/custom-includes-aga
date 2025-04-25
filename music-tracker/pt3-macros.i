@@ -65,11 +65,12 @@ PT3_REPLAY			MACRO
 ; \1 LABEL:	subroutine for effect command 8 called at tick #1 (optional)
 ; Result
 pt_PlayMusic
-	move.l	a6,-(a7)
+	movem.l	a5-a6,-(a7)
 	moveq	#0,d5			; for all clear operations
 	addq.w	#1,pt_Counter(a3)
 	move.l	#pt_cmdpermask,d6
 	move.w	pt_Counter(a3),d0
+	ADDF.W	CIACRB,a5
 	ADDF.W	AUD0LCH-DMACONR,a6
 	cmp.w	pt_CurrSpeed(a3),d0	; ticks < speed ticks ?
 	blo.s	pt_NoNewNote
@@ -111,7 +112,7 @@ pt_RtnChkAllChannels
 		tst.w	pt_RtnDMACONtemp(a3) ; "Retrig Note" or "Note Delay" ?
 		beq.s	pt_NoRtnSetTimer
 		moveq	#CIACRBF_START,d0
-		or.b	d0,CIACRB(a5)	; start DMA wait counter
+		or.b	d0,(a5)		; start DMA wait counter
 pt_NoRtnSetTimer
 	ENDC
 	rts
@@ -879,7 +880,7 @@ pt_MoreExtCommands
 pt_SetDMA
 	move.b	d5,pt_SetAllChanDMAFlag(a3) ; activate DMA interrupt routine
 	moveq	#CIACRBF_START,d0
-	or.b	d0,CIACRB(a5)		; start DMA wait counter
+	or.b	d0,(a5)			; start DMA wait counter
 pt_Dskip
 	addq.w	#pt_pattposdata_size/4,pt_PatternPosition(a3) ; next pattern position
 
@@ -929,7 +930,7 @@ pt_NextPosition
 pt_NoNewPositionYet
 	tst.b	pt_PosJumpFlag(a3)
 	bne.s	pt_NextPosition
-	move.l	(a7)+,a6
+	movem.l	(a7)+,a5-a6
 	rts
 	ENDM
 
@@ -1792,9 +1793,9 @@ pt_SetSpeed
 pt_SetTempo
 		move.l	pt_125bpmrate(a3),d2
 		divu.w	d0,d2		; /tempo = counter value
-		move.b	d2,CIATALO(a5)
+		move.b	d2,CIATALO-CIACRB(a5)
 		lsr.w	#BYTE_SHIFT_BITS,d2 ; adjust bits
-		move.b	d2,CIATAHI(a5)
+		move.b	d2,CIATAHI-CIACRB(a5)
 		rts
 		CNOP 0,4
 pt_StopReplay
