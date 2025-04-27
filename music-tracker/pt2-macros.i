@@ -352,12 +352,15 @@ pt_PlvSkip
 	move.l	a1,n_start(a2)
 	MULUF.W	pt_sampleinfo_size/2,d2,d0
 	movem.w	pt_sd_sampleinfo+pt_si_samplelength(a0,d2.w*2),d0/d2-d4 ; fetch length, finetune, volume, repeat point, repeat length
-	move.w	d0,n_reallength(a2)
 	move.w	d2,n_finetune(a2)	; finetune and volume
 	ext.w	d2			; only volume
+	move.w	d0,n_reallength(a2)	
 	IFEQ pt_music_fader_enabled
+		cmp.w	#pt_maxvol,pt_master_volume(a3)
+		beq.s	pt_DecVolSkip1
 		mulu.w	pt_master_volume(a3),d2
 		lsr.w	#6,d2
+pt_DecVolSkip1
 	ENDC
 	IFEQ pt_mute_enabled
 		move.w	d5,8(a6)	; AUDxVOL muted
@@ -369,7 +372,6 @@ pt_PlvSkip
 	ENDC
 	cmp.w	#pt_oneshotlen,d4
 	beq.s	pt_NoLoopSample
-pt_LoopSample
 	move.w	d3,d0			; repeat point
 	MULUF.W	WORD_SIZE,d3,d2		; in bytes
 	add.w	d4,d0			; repeat length
@@ -1209,8 +1211,12 @@ pt_TremoloSkip
 	moveq	#pt_maxvol,d0
 pt_TremoloOk
 	IFEQ pt_music_fader_enabled
-		mulu.w	pt_master_volume(a3),d0
+		move.w	pt_master_volume(a3),d2
+		cmp.w	#pt_maxvol,d2
+		beq.s	pt_DecVolSkip2
+		mulu.w	d2,d0
 		lsr.w	#6,d0
+pt_DecVolSkip2
 	ENDC
 	IFEQ pt_mute_enabled
 		move.w	d5,8(a6)	; AUDxVOL muted
@@ -1248,8 +1254,12 @@ pt_VolSlideUp
 pt_VsuSkip
 	move.b	d2,n_volume(a2)
 	IFEQ pt_music_fader_enabled
-		mulu.w	pt_master_volume(a3),d2
+		move.w	pt_master_volume(a3),d0
+		cmp.w	#pt_maxvol,d0
+		beq.s	pt_DecVolSkip3
+		mulu.w	d0,d2
 		lsr.w	#6,d2
+pt_DecVolSkip3
 	ENDC
 	IFEQ pt_mute_enabled
 		move.w	d5,8(a6) 	; AUDxVOL muted
@@ -1274,8 +1284,12 @@ pt_VolSlideDown
 pt_VsdSkip
 	move.b	d2,n_volume(a2)
 	IFEQ pt_music_fader_enabled
-		mulu.w	pt_master_volume(a3),d2
+		move.w	pt_master_volume(a3),d0
+		cmp.w	#pt_maxvol,d0
+		beq.s	pt_DecVolSkip4
+		mulu.w	d0,d2
 		lsr.w	#6,d2
+pt_DecVolSkip4
 	ENDC
 	IFEQ pt_mute_enabled
 		move.w	d5,8(a6)	; AUDxVOL muted
@@ -1343,8 +1357,12 @@ pt_SetVolume
 pt_MaxVolOk
 	move.b	d0,n_volume(a2)
 	IFEQ pt_music_fader_enabled
-		mulu.w	pt_master_volume(a3),d0
+		move.w	pt_master_volume(a3),d2
+		cmp.w	#pt_maxvol,d2
+		beq.s	pt_DecVolSkip5
+		mulu.w	d2,d0
 		lsr.w	#6,d0
+pt_DecVolSkip5
 	ENDC
 	IFEQ pt_mute_enabled
 		move.w	d5,8(a6)	; AUDxVOL muted

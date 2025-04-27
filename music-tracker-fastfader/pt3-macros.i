@@ -27,7 +27,7 @@ PT3_INIT_VARIABLES		MACRO
 	IFEQ pt_music_fader_enabled
 		move.w	d1,pt_music_fader_active(a3) ; deactivate volume fader
 		move.w	#pt_fade_out_delay,pt_fade_out_delay_counter(a3)
-		move.w	#pt_maxvol,pt_master_volume(a3)
+		move.w	d0,pt_fade_out_shift(a3)
 	ENDC
 	IFEQ pt_metronome_enabled
 		move.b	#pt_metrospeedbits,pt_MetroSpeed(a3)
@@ -124,12 +124,8 @@ pt_CheckEffects
 	moveq	#0,d0
 	move.b	n_volume(a2),d0
 	IFEQ pt_music_fader_enabled
-		move.w	pt_master_volume(a3),d2
-		cmp.w	#pt_maxvol,d2
-		beq.s	pt_DecVolSkip1
-		mulu.w	d2,d0
-		lsr.w	#6,d0
-pt_DecVolSkip1
+		move.w	pt_fade_out_shift(a3),d2
+		lsr.w	d2,d0
 	ENDC
 	IFEQ pt_mute_enabled
 		move.w	d5,8(a6)	; AUDxVOL muted
@@ -389,12 +385,8 @@ pt_Plv2
 	moveq	#0,d0
 	move.b	n_volume(a2),d0
 	IFEQ pt_music_fader_enabled
-		move.w	pt_master_volume(a3),d2
-		cmp.w	#pt_maxvol,d2
-		beq.s	pt_DecVolSkip2
-		mulu.w	d2,d0
-		lsr.w	#6,d0
-pt_DecVolSkip2
+		move.w	pt_fade_out_shift(a3),d2
+		lsr.w	d2,d0
 	ENDC
 	IFEQ pt_mute_enabled
 		move.w	d5,8(a6)	; AUDxVOL muted
@@ -1296,12 +1288,8 @@ pt_TremoloSkip
 	moveq	#pt_maxvol,d0
 pt_TremoloOk
 	IFEQ pt_music_fader_enabled
-		move.w	pt_master_volume(a3),d2
-		cmp.w	#pt_maxvol,d2
-		beq.s	pt_DecVolSkip3
-		mulu.w	d2,d0
-		lsr.w	#6,d0
-pt_DecVolSkip3
+		move.w	pt_fade_out_shift(a3),d2
+		lsr.w	d2,d0
 	ENDC
 	IFEQ pt_mute_enabled
 		move.w	d5,8(a6)	; AUDxVOL muted

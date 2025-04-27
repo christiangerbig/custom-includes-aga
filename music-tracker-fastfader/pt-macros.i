@@ -25,10 +25,11 @@ pt_music_fader
 	move.w	pt_fade_out_delay_counter(a3),d0
 	subq.w	#1,d0
 	bne.s	pt_music_fader_skip1
-	move.w	pt_master_volume(a3),d1
+	move.w	pt_fade_out_shift(a3),d1
+	cmp.w	#7,d1
 	beq.s	pt_music_fader_skip2
-	subq.w	#1,d1
-	move.w	d1,pt_master_volume(a3)
+	addq.w	#1,d1
+	move.w	d1,pt_fade_out_shift(a3)
 	moveq	#pt_fade_out_delay,d0
 pt_music_fader_skip1
 	move.w	d0,pt_fade_out_delay_counter(a3)
@@ -60,13 +61,9 @@ pt_music_fader_skip2
 pt_decrease_channel_volume
 		moveq	#0,d0
 		move.b	n_volume(a0),d0
-		move.w	pt_master_volume(a3),d1
-		cmp.w	#pt_maxvol,d1
-		beq.s	pt_decrease_channel_volume_skip
-		mulu.w	d1,d0
+		mulu.w	pt_master_volume(a3),d0
 		lsr.w	#6,d0
-pt_decrease_channel_volume_skip
-		move.w	d0,(a1)		; AUDxVOL
+		move.w	d0,(a1)		; AUDVOL
 		ADDF.W	16,a1		; next audio channel
 		rts
 	ENDC
