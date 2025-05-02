@@ -26,13 +26,13 @@
 
 		INCLUDE "custom-error-entry.i"
 
-		INCLUDE "taglists-offsets.i"
+		INCLUDE "taglists.i"
 
 		INCLUDE "screen-colors.i"
 	ENDC
 
 	IFD PASS_GLOBAL_REFERENCES
-		INCLUDE "global-references-offsets.i"
+		INCLUDE "global-references.i"
 	ENDC
 
 

@@ -1,5 +1,3 @@
-	RSRESET
-
 	IFND SYS_TAKEN_OVER
 shell_parameters		RS.L 1
 shell_parameters_length		RS.L 1

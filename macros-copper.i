@@ -1351,7 +1351,7 @@ CLEAR_COLOR00_CHUNKY_SCREEN	MACRO
 			MOVEF.L	\2_\4_size*16,d2
 			move.l	\2_\3(a3),a0
 			ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+WORD_SIZE,a0
-			moveq	#(\2_display_y_size/16)-1,d7
+			moveq	#(\2_display_y_size/WORD_BITS)-1,d7
 \1_clear_first_copperlist_loop
 			move.w	d0,(a0)	; COLOR00 high
 			move.w	d1,\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high(a0) ; COLOR00 low
@@ -1476,7 +1476,7 @@ CLEAR_COLOR00_CHUNKY_SCREEN	MACRO
 			MOVEF.L	\2_\4_size*16,d2
 			move.l	\2_\3(a3),a0
 			ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+WORD_SIZE,a0
-			moveq	#(\2_display_y_size/16)-1,d7
+			moveq	#(\2_display_y_size/WORD_BITS)-1,d7
 \1_clear_second_copperlist_loop
 			move.w	d0,(a0)	; COLOR00 high
 			move.w	d1,\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high(a0) ; COLOR00 low
@@ -1640,7 +1640,7 @@ CLEAR_BPLCON4_CHUNKY_SCREEN	MACRO
 				move.w	#bplcon4_bits,BLTADAT-DMACONR(a6) ; source BPLCON4 bits
                 	ENDC
 		ENDC
-		move.l	#(\1_clear_blit_y_size<<16)|(\1_clear_blit_x_size/16),BLTSIZV-DMACONR(a6) ; start blit
+		move.l	#(\1_clear_blit_y_size<<16)|(\1_clear_blit_x_size/WORD_BITS),BLTSIZV-DMACONR(a6) ; start blit
 		rts
 	ENDC
 	IFC "cl2","\2"
@@ -1663,7 +1663,7 @@ CLEAR_BPLCON4_CHUNKY_SCREEN	MACRO
 				move.w	#bplcon4_bits,BLTADAT-DMACONR(a6) ; source BPLCON4 bits
                 	ENDC
 		ENDC
-		move.l	#(\1_clear_blit_y_size<<16)|(\1_clear_blit_x_size/16),BLTSIZV-DMACONR(a6) ; start blit
+		move.l	#(\1_clear_blit_y_size<<16)|(\1_clear_blit_x_size/WORD_BITS),BLTSIZV-DMACONR(a6) ; start blit
 		rts
 	ENDC
 	ENDM
@@ -1704,7 +1704,7 @@ restore_first_copperlist
 					MOVEF.L	\2_\4_size*16,d1
 					move.l	\2_\3(a3),a0
 					ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
-					moveq	#(\2_display_y_size/16)-1,d7
+					moveq	#(\2_display_y_size/WORD_BITS)-1,d7
 restore_first_copperlist_loop
 					move.w	d0,(a0)	; restore CWAIT 2nd word
 					move.w	d0,\2_\4_size*1(a0)
@@ -1781,7 +1781,7 @@ restore_first_copperlist_loop
 				move.w	#\2_\4_size-\1_restore_blit_width,BLTDMOD-DMACONR(a6)
 				moveq	#-2,d0 ; 2nd word CWAIT
 				move.w	d0,BLTADAT-DMACONR(a6) ; source 2nd word CWAIT
-				move.w	#(\1_restore_blit_y_size*64)|(\1_restore_blit_x_size/16),BLTSIZE-DMACONR(a6) ; start blit
+				move.w	#(\1_restore_blit_y_size*64)|(\1_restore_blit_x_size/WORD_BITS),BLTSIZE-DMACONR(a6) ; start blit
 				rts
 			ENDC
 		ENDC
@@ -1795,7 +1795,7 @@ restore_second_copperlist
 					MOVEF.L	\2_\4_size*16,d1
 					move.l	\2_\3(a3),a0
 					ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
-					moveq	#(\2_display_y_size/16)-1,d7
+					moveq	#(\2_display_y_size/WORD_BITS)-1,d7
 restore_second_copperlist_loop
 					move.w	d0,(a0) ; restore 2nd word CWAIT
 					move.w	d0,\2_\4_size*1(a0)
@@ -1871,7 +1871,7 @@ restore_second_copperlist_loop
 				move.l	a0,BLTDPT-DMACONR(a6) ; target
 				move.w	#\2_\4_size-\1_restore_blit_width,BLTDMOD-DMACONR(a6)
 				move.w	#-2,BLTADAT-DMACONR(a6) ; source 2nd word CWAIT
-				move.w	#(\1_restore_blit_y_size*64)|(\1_restore_blit_x_size/16),BLTSIZE-DMACONR(a6) ; start blit
+				move.w	#(\1_restore_blit_y_size*64)|(\1_restore_blit_x_size/WORD_BITS),BLTSIZE-DMACONR(a6) ; start blit
 				rts
 			ENDC
 		ENDC

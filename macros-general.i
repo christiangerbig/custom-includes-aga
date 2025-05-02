@@ -1389,12 +1389,12 @@ INIT_CHARACTERS_OFFSETS MACRO
 		moveq	#0,d0		; first character image x offset
 		moveq	#\1_image_plane_width,d1 ; last character image x offset
 		move.w	d1,d2		; x offset reset
-		MOVEF.W \1_image_plane_width*\1_image_depth*(\1_origin_character_y_size+1),d3 ; next character images line
+		MOVEF.W \1_image_plane_width*\1_image_depth*(\1_origin_char_y_size+1),d3 ; next character images line
 		lea	\1_characters_offsets(pc),a0
 		moveq	#\1_ascii_end-\1_ascii-1,d7
 \1_init_characters_offsets_loop
 		move.w	d0,(a0)+	; character image offset
-		addq.w	#\1_origin_character_x_size/8,d0 ; next character image
+		addq.w	#\1_origin_char_x_size/8,d0 ; next character image
 		cmp.w	d1,d0		; last character image in line ?
 		bne.s	\1_init_characters_offsets_skip
 		sub.w	d2,d0		; reset x offset
@@ -1408,12 +1408,12 @@ INIT_CHARACTERS_OFFSETS MACRO
 		moveq	#0,d0		; first character image x offset
 		moveq	#\1_image_plane_width,d1 ; last character image x offset
 		move.l	d1,d2		; x offset reset
-		move.l	#\1_image_plane_width*\1_image_depth*(\1_origin_character_y_size),d3 ; next character images line
+		move.l	#\1_image_plane_width*\1_image_depth*(\1_origin_char_y_size),d3 ; next character images line
 		lea	\1_characters_offsets(pc),a0
 		moveq	#\1_ascii_end-\1_ascii-1,d7
 \1_init_characters_offsets_loop
 		move.l	d0,(a0)+	; character image offset
-		add.l	#\1_origin_character_x_size/8,d0 ; next character image
+		add.l	#\1_origin_char_x_size/8,d0 ; next character image
 		cmp.l	d1,d0		; last character image in line ?
 		bne.s	\1_init_characters_offsets_skip
 		sub.l	d2,d0		; reset x offset
@@ -1443,13 +1443,13 @@ INIT_CHARACTERS_X_POSITIONS	MACRO
 	ENDC
 	moveq	#0,d0			; first x
 	IFC "LORES","\2"
-		moveq	#\1_text_character_x_size,d1 ; next character image
+		moveq	#\1_text_char_x_size,d1 ; next character image
 	ENDC
 	IFC "HIRES","\2"
-		moveq	#\1_text_character_x_size*HIRES_PIXEL_FACTOR,d1 ; next character image
+		moveq	#\1_text_char_x_size*HIRES_PIXEL_FACTOR,d1 ; next character image
 	ENDC
 	IFC "SHIRES","\2"
-		MOVEF.W	\1_text_character_x_size*SHIRES_PIXEL_FACTOR,d1 ; next character image
+		MOVEF.W	\1_text_char_x_size*SHIRES_PIXEL_FACTOR,d1 ; next character image
 	ENDC
 	IFNC "BACKWARDS","\3"
 		lea	\1_characters_x_positions(pc),a0
@@ -1488,7 +1488,7 @@ INIT_CHARACTERS_Y_POSITIONS		MACRO
 		FAIL Macro INIT_CHARACTERS_Y_POSITIONS: Labels prefix missing
 	ENDC
 	moveq	#0,d0			; first y
-	moveq	#\1_text_character_y_size,d1 ; next chracter image
+	moveq	#\1_text_char_y_size,d1 ; next chracter image
 	lea	\1_characters_y_positions(pc),a0
 	IFC "","\2"
 		moveq	#(\1_text_characters_number)-1,d7
@@ -1515,14 +1515,14 @@ INIT_CHARACTERS_IMAGES		MACRO
 	lea	\1_characters_image_ptrs(pc),a2
 	MOVEF.W	(\1_text_characters_number)-1,d7
 \1_init_characters_images_loop
-	bsr	\1_get_new_character_image
+	bsr	\1_get_new_char_image
 	move.l	d0,(a2)+		; character image
 	dbf	d7,\1_init_characters_images_loop
 	rts
 	ENDM
 
 
-GET_NEW_CHARACTER_IMAGE		MACRO
+GET_NEW_char_IMAGE		MACRO
 ; Input
 ; \0 STRING:	Size [W/L]
 ; \1 STRING:	Labels prefix
@@ -1533,38 +1533,38 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 ; Result
 ; d0.l		Return value: pointer character image
 	IFC "","\0"
-		FAIL Macro GET_NEW_CHARACTER_IMAGE: Size [W/L] missing
+		FAIL Macro GET_NEW_char_IMAGE: Size [W/L] missing
 	ENDC
 	IFC "","\1"
-		FAIL Macro GET_NEW_CHARACTER_IMAGE: Labels prefix missing
+		FAIL Macro GET_NEW_char_IMAGE: Labels prefix missing
 	ENDC
 	CNOP 0,4
-\1_get_new_character_image
+\1_get_new_char_image
 	move.w	\1_text_table_start(a3),d1
 	IFC "BACKWARDS","\4"
-		bpl.s	\1_get_new_character_image_skip1
+		bpl.s	\1_get_new_char_image_skip1
 		move.w	#\1_text_end-\1_text-1,d1 ; restart text
-\1_get_new_character_image_skip1
+\1_get_new_char_image_skip1
 	ENDC
 	lea	\1_text(pc),a0
-\1_get_new_character_image_skip2
+\1_get_new_char_image_skip2
 	move.b	(a0,d1.w),d0		; ASCII code
 	IFNC "","\2"
 		bsr.s	\2
 		tst.l	d0
-		beq.s	\1_get_new_character_image_skip5
+		beq.s	\1_get_new_char_image_skip5
 	ENDC
 	IFNC "BACKWARDS","\4"
 		IFNC "NORESTART","\3"
 			cmp.b	#FALSE,d0 ; End of text reached ?
-			beq.s	\1_get_new_character_image_skip6
+			beq.s	\1_get_new_char_image_skip6
 		ENDC
 	ENDC
 	lea	\1_ascii(pc),a0
 	moveq	#\1_ascii_end-\1_ascii-1,d6
-\1_get_new_character_image_loop
+\1_get_new_char_image_loop
 	cmp.b	(a0)+,d0		; character found ?
-	dbeq	d6,\1_get_new_character_image_loop
+	dbeq	d6,\1_get_new_char_image_loop
 	IFC "BACKWARDS","\4"
 		IFC "","\5"
 			subq.w	#BYTE_SIZE,d1 ; next character
@@ -1572,14 +1572,14 @@ GET_NEW_CHARACTER_IMAGE		MACRO
  			SUBF.W	\1_\5,d1 ; next character
 		ENDC
 	ELSE
-		IFLT \1_origin_character_x_size-32
+		IFLT \1_origin_char_x_size-32
 			IFC "","\5"
 				addq.w	#BYTE_SIZE,d1 ; next character
 			ELSE
  				ADDF.W	\1_\5,d1 ; next character
 			ENDC
 		ELSE
-		IFNE \1_text_character_x_size-16
+		IFNE \1_text_char_x_size-16
 			IFC "","\5"
 				addq.w	#BYTE_SIZE,d1 ; next character
 			ELSE
@@ -1590,10 +1590,10 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 	ENDC
 
 	moveq	#\1_ascii_end-\1_ascii-1,d0
-	IFLT \1_origin_character_x_size-32
+	IFLT \1_origin_char_x_size-32
 		move.w	d1,\1_text_table_start(a3)
 	ELSE
-		IFNE \1_text_character_x_size-16
+		IFNE \1_text_char_x_size-16
 			move.w	d1,\1_text_table_start(a3)
 		ENDC
 	ENDC
@@ -1607,10 +1607,10 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 	ENDC
 	add.l	\1_image(a3),d0
 	IFNC "BACKWARDS","\4"
-		IFEQ \1_origin_character_x_size-32
-			IFEQ \1_text_character_x_size-16
-				not.w	\1_character_toggle_image(a3) ; new character image ?
-				bne.s	\1_get_new_character_image_skip3
+		IFEQ \1_origin_char_x_size-32
+			IFEQ \1_text_char_x_size-16
+				not.w	\1_char_toggle_image(a3) ; new character image ?
+				bne.s	\1_get_new_char_image_skip3
 				IFC "","\5"
 					addq.w	#BYTE_SIZE,d1 ; next character
 				ELSE
@@ -1618,19 +1618,19 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 				ENDC
 				addq.l	#WORD_SIZE,d0 ; 2nd part of character image
 				move.w	d1,\1_text_table_start(a3)
-\1_get_new_character_image_skip3
+\1_get_new_char_image_skip3
 			ENDC
 		ENDC
-		IFGT \1_origin_character_x_size-32
-			IFEQ \1_text_character_x_size-16
+		IFGT \1_origin_char_x_size-32
+			IFEQ \1_text_char_x_size-16
 				moveq	#0,d3
-				move.w	\1_character_words_counter(a3),d3
+				move.w	\1_char_words_counter(a3),d3
 				move.l	d3,d4
 				MULUF.W	WORD_SIZE,d4
 				addq.w	#1,d3
 				add.l	d4,d0 ; offset in character image
-				cmp.w	#\1_origin_character_x_size/16,d3 ; new character image ?
-				bne.s	\1_get_new_character_image_skip4
+				cmp.w	#\1_origin_char_x_size/16,d3 ; new character image ?
+				bne.s	\1_get_new_char_image_skip4
 				IFC "","\5"
 					addq.w	#BYTE_SIZE,d1 ; next character
 				ELSE
@@ -1638,32 +1638,32 @@ GET_NEW_CHARACTER_IMAGE		MACRO
 				ENDC
 				move.w	d1,\1_text_table_start(a3)
 				moveq	#0,d3 ; reset words counter
-\1_get_new_character_image_skip4
-				move.w	d3,\1_character_words_counter(a3)
+\1_get_new_char_image_skip4
+				move.w	d3,\1_char_words_counter(a3)
 			ENDC
 		ENDC
 	ENDC
 	rts
 	IFNC "BACKWARDS","\4"
 		IFNC "","\2"
-\1_get_new_character_image_skip5
+\1_get_new_char_image_skip5
 			IFC "","\5"
 				addq.w	#BYTE_SIZE,d1 ; next character
 			ELSE
 				ADDF.W	\1_\5,d1 ; next character
 			ENDC
-			IFGE \1_origin_character_x_size-32
-				IFEQ \1_text_character_x_size-16
+			IFGE \1_origin_char_x_size-32
+				IFEQ \1_text_char_x_size-16
 					move.w	d1,\1_text_table_start(a3)
 				ENDC
 			ENDC
-		bra.s	\1_get_new_character_image_skip2
+		bra.s	\1_get_new_char_image_skip2
 		ENDC
 		IFNC "NORESTART","\3"
 			CNOP 0,4
-\1_get_new_character_image_skip6
+\1_get_new_char_image_skip6
 			moveq	#0,d1
-			bra.s	\1_get_new_character_image_skip2
+			bra.s	\1_get_new_char_image_skip2
 		ENDC
 	ENDC
 	ENDM
@@ -2218,7 +2218,7 @@ COPY_IMAGE_TO_BITPLANE		MACRO
 	ENDC
 	MOVEF.W	\1_image_y_size-1,d6
 \1_copy_image_data_loop1
-	moveq	#(\1_image_x_size/16)-1,d5
+	moveq	#(\1_image_x_size/WORD_BITS)-1,d5
 \1_copy_image_data_loop2
 	move.w	(a0)+,(a2)+
 	dbf	d5,\1_copy_image_data_loop2
