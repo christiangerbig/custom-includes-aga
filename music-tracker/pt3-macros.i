@@ -361,7 +361,7 @@ pt_GetNewNote
 		CNOP 0,4
 pt_CheckMetronome
 ; Input
-; d2.l	... Channel number [1..4]
+; d2.l	Channel number [1..4]
 ; Result
 		cmp.b	pt_MetroChannel(a3),d2 ; channel number = metronome channel number ?
 		bne.s	pt_ChkMetroEnd
