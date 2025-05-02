@@ -6,7 +6,7 @@ nt_si_samplename		RS.B 22	; name padded with null bytes
 nt_si_samplelength		RS.W 1	; length in bytes or words
 nt_si_volume			RS.W 1	; bits 0-6 sample volume [0..64]
 nt_si_repeatpoint		RS.W 1	; start of sample repeat offset in words
-nt_si_repeatlength 		RS.W 1	; length of sample repeat in words
+nt_si_repeatlength		RS.W 1	; length of sample repeat in words
 
 nt_sampleinfo_size		RS.B 0
 
@@ -17,7 +17,7 @@ nt_songdata			RS.B 0
 
 nt_sd_songname			RS.B 20	; name padded with null bytes
 nt_sd_sampleinfo		RS.B nt_sampleinfo_size*nt_samplesnum ; pointer 1st sampleinfo structure repeated 31 times
-nt_sd_numofpatt		 	RS.B 1	; number of song positions [1..128]
+nt_sd_numofpatt			RS.B 1	; number of song positions [1..128]
 nt_sd_restartpos		RS.B 1	; song restart position in pattern positions table [0..126]
 nt_sd_pattpos			RS.B 128 ; pattern positions table [0..127]
 nt_sd_id			RS.B 4	; string "M.K." = 4 channels, 31 samples, 64 patterns

@@ -31,32 +31,32 @@ error_text_config_end
 
 		IFEQ requires_030_cpu
 error_text_cpu_2
-	 		DC.B "This programm needs a 68030 cpu or better !",ASCII_LINE_FEED,ASCII_LINE_FEED
-	 		DC.B "Press any key.",ASCII_LINE_FEED
+			DC.B "This programm needs a 68030 cpu or better !",ASCII_LINE_FEED,ASCII_LINE_FEED
+			DC.B "Press any key.",ASCII_LINE_FEED
 error_text_cpu_2_end
-	 		EVEN
+			EVEN
 		ENDC
 		IFEQ requires_040_cpu
 error_text_cpu_2
-	 		DC.B "This programm needs a 68040 cpu or better !",ASCII_LINE_FEED,ASCII_LINE_FEED
-	 		DC.B "Press any key.",ASCII_LINE_FEED
+			DC.B "This programm needs a 68040 cpu or better !",ASCII_LINE_FEED,ASCII_LINE_FEED
+			DC.B "Press any key.",ASCII_LINE_FEED
 error_text_cpu_2_end
-	 		EVEN
+			EVEN
 		ENDC
 		IFEQ requires_060_cpu
 error_text_cpu_2
-	 		DC.B "This programm needs a 68060 cpu or better !",ASCII_LINE_FEED,ASCII_LINE_FEED
-	 		DC.B "Press any key.",ASCII_LINE_FEED
+			DC.B "This programm needs a 68060 cpu or better !",ASCII_LINE_FEED,ASCII_LINE_FEED
+			DC.B "Press any key.",ASCII_LINE_FEED
 error_text_cpu_2_end
-	 		EVEN
+			EVEN
 		ENDC
 
 		IFEQ requires_fast_memory
 error_text_fast_memory
-	 		DC.B "This programm needs fast memory !",ASCII_LINE_FEED,ASCII_LINE_FEED
-	 		DC.B "Press any key.",ASCII_LINE_FEED
+			DC.B "This programm needs fast memory !",ASCII_LINE_FEED,ASCII_LINE_FEED
+			DC.B "Press any key.",ASCII_LINE_FEED
 error_text_fast_memory_end
-	 		EVEN
+			EVEN
 		ENDC
 
 error_text_ciaa_resource
@@ -257,10 +257,10 @@ error_text_viewport_end
 
 		IFEQ screen_fader_enabled
 error_text_screen_fader
-		 	DC.B "Couldn't allocate memory for colors-buffers !",ASCII_LINE_FEED,ASCII_LINE_FEED
-		 	DC.B "Press any key.",ASCII_LINE_FEED
+			DC.B "Couldn't allocate memory for colors-buffers !",ASCII_LINE_FEED,ASCII_LINE_FEED
+			DC.B "Press any key.",ASCII_LINE_FEED
 error_text_screen_fader_end
-	 		EVEN
+			EVEN
 		ELSE
 error_text_screen1
 			DC.B "Couldn't allocate memory for degrade screen color table !",ASCII_LINE_FEED,ASCII_LINE_FEED

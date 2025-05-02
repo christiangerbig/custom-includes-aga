@@ -37,7 +37,7 @@ pt_cmdportup			EQU 1
 pt_cmdportdown			EQU 2
 pt_cmdtoneport			EQU 3
 pt_cmdvibrato			EQU 4
-pt_cmdtoneportvolslide 		EQU 5
+pt_cmdtoneportvolslide		EQU 5
 pt_cmdvibratovolslide		EQU 6
 pt_cmdtremolo			EQU 7
 pt_cmdnotused			EQU 8

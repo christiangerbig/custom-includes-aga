@@ -90,7 +90,7 @@ open_dos_library
 	rts
 	CNOP 0,4
 open_dos_library_ok
-	moveq 	#RETURN_OK,d0
+	moveq	#RETURN_OK,d0
 	rts
 
 

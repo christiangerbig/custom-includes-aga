@@ -1,6 +1,6 @@
 ; Global labels
-; 	SYS_TAKEN_OVER
-; 	COLOR_GRADIENT_RGB8
+;	SYS_TAKEN_OVER
+;	COLOR_GRADIENT_RGB8
 
 
 ; Input
@@ -62,7 +62,7 @@ read_VBR
 	ELSE
 ; Input
 ; Result
-; d0.l	 Content VBR
+; d0.l	Content VBR
 		CNOP 0,4
 read_VBR
 		or.w	#SRF_I0|SRF_I1|SRF_I2,SR ; highest interrupt level

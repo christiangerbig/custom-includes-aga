@@ -1,10 +1,10 @@
- 	RSRESET
+	RSRESET
 
 st_sampleinfo			RS.B 0
 
 st_si_samplename		RS.B 22	; name padded with null bytes
 st_si_samplelength		RS.W 1	; length in bytes or words
-st_si_volume			RS.W 1 	; bits 0-6 sample volume [0..64]
+st_si_volume			RS.W 1	; bits 0-6 sample volume [0..64]
 st_si_repeatpoint		RS.W 1	; start of sample repeat offset in bytes
 st_si_repeatlength		RS.W 1	; length of sample repeat in words
 

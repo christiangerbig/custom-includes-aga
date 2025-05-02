@@ -173,7 +173,7 @@ PT_EXAMINE_SONG_STRUCTURE	MACRO
 ; Result
 	CNOP 0,4
 pt_ExamineSongStruc
-	moveq	#0,d0		 	; first pattern number (count starts at 0)
+	moveq	#0,d0			; first pattern number (count starts at 0)
 	moveq	#0,d1			; counter highest pattern number
 	move.l	pt_SongDataPointer(a3),a0
 	move.b	pt_sd_numofpatt(a0),pt_SongLength(a3)
@@ -183,7 +183,7 @@ pt_InitLoop
 	move.b	(a1)+,d0		; patterm number from song position table
 	cmp.b	d1,d0
 	ble.s	pt_InitSkip
-	move.l	d0,d1		 	; save higher pattern number
+	move.l	d0,d1			; save higher pattern number
 pt_InitSkip
 	dbf	d7,pt_InitLoop
 	IFNE pt_split_module_enabled
@@ -194,7 +194,7 @@ pt_InitSkip
 		MULUF.W	pt_pattsize/8,d1,d0 ; end of last pattern
 	ENDC
 	moveq	#0,d2
-	moveq	#pt_oneshotlen,d3 	; length in words
+	moveq	#pt_oneshotlen,d3	; length in words
 	IFNE pt_split_module_enabled
 		lea	pt_sd_patterndata-pt_sd_id(a1,d1.w*8),a2 ; pointer first sample data in module
 	ELSE
@@ -208,13 +208,13 @@ pt_InitLoop2
 	move.w	pt_si_samplelength(a0),d0
 	beq.s	pt_InitSkip2
 	MULUF.W	WORD_SIZE,d0,d4		; sample length in bytes
-	move.w	d2,(a2)		 	; clear first word in sample data
-	add.l	d0,a2		 	; next sample data
+	move.w	d2,(a2)			; clear first word in sample data
+	add.l	d0,a2			; next sample data
 	move.w	pt_si_repeatlength(a0),d0 ; Fasttracker module with repeat length 0 ?
 	bne.s	pt_InitSkip2
 	move.w	d3,pt_si_repeatlength(a0) ; repeat length 1 for Protracker compability
 pt_InitSkip2
-	add.l	d1,a0		 	; next sample info structure
+	add.l	d1,a0			; next sample info structure
 	dbf	d7,pt_InitLoop2
 	rts
 	ENDM
@@ -231,7 +231,7 @@ pt_InitFtuPeriodTableStarts
 	moveq	#pt_finetunenum-1,d7
 pt_InitFtuPeriodTableStartsLoop
 	move.l	a0,(a1)+		; period table pointer
-	add.l	d0,a0		 	; next period table pointer
+	add.l	d0,a0			; next period table pointer
 	dbf	d7,pt_InitFtuPeriodTableStartsLoop
 	rts
 	ENDM

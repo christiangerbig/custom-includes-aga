@@ -1569,21 +1569,21 @@ GET_NEW_char_IMAGE		MACRO
 		IFC "","\5"
 			subq.w	#BYTE_SIZE,d1 ; next character
 		ELSE
- 			SUBF.W	\1_\5,d1 ; next character
+			SUBF.W	\1_\5,d1 ; next character
 		ENDC
 	ELSE
 		IFLT \1_origin_char_x_size-32
 			IFC "","\5"
 				addq.w	#BYTE_SIZE,d1 ; next character
 			ELSE
- 				ADDF.W	\1_\5,d1 ; next character
+				ADDF.W	\1_\5,d1 ; next character
 			ENDC
 		ELSE
 		IFNE \1_text_char_x_size-16
 			IFC "","\5"
 				addq.w	#BYTE_SIZE,d1 ; next character
 			ELSE
- 				ADDF.W	\1_\5,d1 ; next character
+				ADDF.W	\1_\5,d1 ; next character
 			ENDC
 		ENDC
 		ENDC
@@ -1614,7 +1614,7 @@ GET_NEW_char_IMAGE		MACRO
 				IFC "","\5"
 					addq.w	#BYTE_SIZE,d1 ; next character
 				ELSE
- 					ADDF.W	\1_\5,d1 ; next character
+					ADDF.W	\1_\5,d1 ; next character
 				ENDC
 				addq.l	#WORD_SIZE,d0 ; 2nd part of character image
 				move.w	d1,\1_text_table_start(a3)
@@ -1634,7 +1634,7 @@ GET_NEW_char_IMAGE		MACRO
 				IFC "","\5"
 					addq.w	#BYTE_SIZE,d1 ; next character
 				ELSE
- 					ADDF.W	\1_\5,d1 ; next chataczer
+					ADDF.W	\1_\5,d1 ; next chataczer
 				ENDC
 				move.w	d1,\1_text_table_start(a3)
 				moveq	#0,d3 ; reset words counter

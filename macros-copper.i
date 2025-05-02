@@ -296,7 +296,7 @@ COP_INIT_SPRITE_POINTERS	MACRO
 COP_SET_SPRITE_POINTERS		MACRO
 ; Input
 ; \1 STRING:		Labels prefix
-; \2 STRING: 		["construction1", "construction2", "display"]
+; \2 STRING:		["construction1", "construction2", "display"]
 ; \3 BYTE SIGNED:	Number of sprites
 ; \4 NUMBER:		Sprite index [1,2,3,4,5,6,7] (optional)
 ; Result
@@ -1638,7 +1638,7 @@ CLEAR_BPLCON4_CHUNKY_SCREEN	MACRO
 				move.w	d0,BLTADAT-DMACONR(a6) ; source BPLCON4 bits
 			ELSE
 				move.w	#bplcon4_bits,BLTADAT-DMACONR(a6) ; source BPLCON4 bits
-                	ENDC
+               	ENDC
 		ENDC
 		move.l	#(\1_clear_blit_y_size<<16)|(\1_clear_blit_x_size/WORD_BITS),BLTSIZV-DMACONR(a6) ; start blit
 		rts
@@ -1661,7 +1661,7 @@ CLEAR_BPLCON4_CHUNKY_SCREEN	MACRO
 				move.w	d0,BLTADAT-DMACONR(a6) ; source BPLCON4 bits
 			ELSE
 				move.w	#bplcon4_bits,BLTADAT-DMACONR(a6) ; source BPLCON4 bits
-                	ENDC
+               	ENDC
 		ENDC
 		move.l	#(\1_clear_blit_y_size<<16)|(\1_clear_blit_x_size/WORD_BITS),BLTSIZV-DMACONR(a6) ; start blit
 		rts
@@ -1889,7 +1889,7 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 ; \5 NUMBER:	Bar height [32,48]
 ; \6 POINTER:	BPLAM table
 ; \7 STRING:	Pointer- base [pc,a3]
-; \8 WORD: 	Offset table start (optional)
+; \8 WORD:	Offset table start (optional)
 ; \9 STRING:	"45" (optional)
 ; Result
 	IFC "","\0"

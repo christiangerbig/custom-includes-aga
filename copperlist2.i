@@ -59,11 +59,11 @@ cl2_SPR7PTL			RS.L 1
 
 COLOR_PALETTE_HIGH		MACRO
 ; \1:	color number base in 32 steps 0/32/../224
-; \2: 	playfield palette number 1..8
+; \2:	playfield palette number 1..8
 ; \3:	sprite palette number $00/$22/$44,$66,$88,$aa,$cc,$ee
-; \4: 	sprite palette number $11/$33/$55,$77,$99,$bb,$dd,$ff
+; \4:	sprite palette number $11/$33/$55,$77,$99,$bb,$dd,$ff
 	IFGE pf_colors_number-(1+\1)	; number of playfield colors >= 1
-		IFGT \2-1	 	; playfield palette number > 1
+		IFGT \2-1		; playfield palette number > 1
 cl2_BPLCON3_high\2		RS.L 1
 		ENDC
 cl2_COLOR00_high\2		RS.L 1
@@ -163,10 +163,10 @@ cl2_COLOR31_high\2		RS.L 1
 	ENDC
 	IFNE spr_colors_number		; number of sprite colors > 0
 		IFEQ ((bplcon4_bits&$000f)-(\3&$000f)) & ((bplcon4_bits&$00f0)-(\3&$00f0)) ; sprite color table
-	 		IFLT pf_colors_number-(16+\1) ; number of playfield colors < 16
-	 	 		IFGT \2-1 ; playfield palette number > 1
+			IFLT pf_colors_number-(16+\1) ; number of playfield colors < 16
+				IFGT \2-1 ; playfield palette number > 1
 cl2_BPLCON3_high\2		RS.L 1
-	 	 		ENDC
+				ENDC
 cl2_COLOR00_high\2		RS.L 1
 cl2_COLOR01_high\2		RS.L 1
 cl2_COLOR02_high\2		RS.L 1
@@ -187,11 +187,11 @@ cl2_COLOR15_high\2		RS.L 1
 		ENDC
 		IFEQ ((bplcon4_bits&$000f)-(\4&$000f)) & ((bplcon4_bits&$00f0)-(\4&$00f0)) ; sprite color table 1
 			IFLT pf_colors_number-(32+\1) ; number of playfield colors < 32
-	 			IFGT \2-1 ; playfield palette number > 1
-	 				IFLT pf_colors_number-(1+\1) ; number of playfield colors < 1
+				IFGT \2-1 ; playfield palette number > 1
+					IFLT pf_colors_number-(1+\1) ; number of playfield colors < 1
 cl2_BPLCON3_high\2		RS.L 1
-	 				ENDC
-	 			ENDC
+					ENDC
+				ENDC
 cl2_COLOR16_high\2		RS.L 1
 cl2_COLOR17_high\2		RS.L 1
 cl2_COLOR18_high\2		RS.L 1
@@ -208,7 +208,7 @@ cl2_COLOR28_high\2		RS.L 1
 cl2_COLOR29_high\2		RS.L 1
 cl2_COLOR30_high\2		RS.L 1
 cl2_COLOR31_high\2		RS.L 1
-	 		ENDC
+			ENDC
 		ENDC
 	ENDC
 	ENDM
@@ -326,7 +326,7 @@ cl2_COLOR31_low\2		RS.L 1
 	ENDC
 	IFNE spr_colors_number		; number of sprite colors > 0
 		IFEQ ((bplcon4_bits&$000f)-(\3&$000f)) & ((bplcon4_bits&$00f0)-(\3&$00f0)) ; sprite color table
-	 		IFLT pf_colors_number-(16+\1) ; number of playfield colors < 16
+			IFLT pf_colors_number-(16+\1) ; number of playfield colors < 16
 cl2_BPLCON3_low\2		RS.L 1
 cl2_COLOR00_low\2		RS.L 1
 cl2_COLOR01_low\2		RS.L 1
@@ -344,13 +344,13 @@ cl2_COLOR12_low\2		RS.L 1
 cl2_COLOR13_low\2		RS.L 1
 cl2_COLOR14_low\2		RS.L 1
 cl2_COLOR15_low\2		RS.L 1
-	 		ENDC
+			ENDC
 		ENDC
 		IFEQ ((bplcon4_bits&$000f)-(\4&$000f)) & ((bplcon4_bits&$00f0)-(\4&$00f0)) ; sprite color table 1
-	 		IFLT pf_colors_number-(32+\1) ; number of playfield colors < 32
-	 	 		IFLT pf_colors_number-(1+\1) ; number of playfield colors < 1
+			IFLT pf_colors_number-(32+\1) ; number of playfield colors < 32
+				IFLT pf_colors_number-(1+\1) ; number of playfield colors < 1
 cl2_BPLCON3_low\2		RS.L 1
-	 	 		ENDC
+				ENDC
 cl2_COLOR16_low\2		RS.L 1
 cl2_COLOR17_low\2		RS.L 1
 cl2_COLOR18_low\2		RS.L 1
@@ -367,7 +367,7 @@ cl2_COLOR28_low\2		RS.L 1
 cl2_COLOR29_low\2		RS.L 1
 cl2_COLOR30_low\2		RS.L 1
 cl2_COLOR31_low\2		RS.L 1
-	 		ENDC
+			ENDC
 		ENDC
 	ENDC
 	ENDM

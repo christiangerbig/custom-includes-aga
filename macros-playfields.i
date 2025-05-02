@@ -129,7 +129,7 @@ PF_SOFTSCROLL_8PIXEL_LORES	MACRO
 		FAIL Macro PF_SOFTSCROLL_8PIXEL_LORES: Scratch register missing
 	ENDC
 	IFC "","\3"
-		and.w	#$001f,\1 	; %-- -- -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0
+		and.w	#$001f,\1	; %-- -- -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0
 	ELSE
 		and.w	\3,\1		; %-- -- -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0
 	ENDC
@@ -149,7 +149,7 @@ PF_SOFTSCROLL_16PIXEL_LORES	MACRO
 ; \2 WORD:	Scratch register
 ; \3 WORD:	H0-H5 mask (optional)
 ; Result
-; \1 WORD: 	BPLCON1 soft scroll
+; \1 WORD:	BPLCON1 soft scroll
 	IFC "","\1"
 		FAIL Macro PF_SOFTSCROLL_16PIXEL_LORES: X shift missing
 	ENDC
@@ -225,7 +225,7 @@ PF_SOFTSCROLL_8PIXEL_HIRES	MACRO
 		FAIL Macro PF_SOFTSCROLL_8PIXEL_HIRES: Scratch register missing
 	ENDC
 	IFC "","\3"
-		and.w	#$000f,\1 	; %-- -- -- -- -- -- -- -- -- -- -- -- H3 H2 H1 H0
+		and.w	#$000f,\1	; %-- -- -- -- -- -- -- -- -- -- -- -- H3 H2 H1 H0
 	ELSE
 		and.w	\3,\1		; %-- -- -- -- -- -- -- -- -- -- -- -- H3 H2 H1 H0
 	ENDC

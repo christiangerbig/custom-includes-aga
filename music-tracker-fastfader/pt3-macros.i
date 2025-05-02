@@ -532,7 +532,7 @@ pt_TreNoC
 	move.w	d3,n_replen(a2)
 pt_sdmaskp
 	IFEQ pt_track_notes_played_enabled
- 		move.b	d5,n_notetrigger(a2)
+		move.b	d5,n_notetrigger(a2)
 	ENDC
 	move.l	d2,(a6)			; AUDxLCH
 	IFEQ pt_track_periods_enabled
@@ -571,7 +571,7 @@ pt_SetTonePorta
 		move.l	a1,d2
 		moveq	#((pt_PeriodTableEnd-pt_PeriodTable)/WORD_SIZE)-1,d7 ; number of periods
 pt_StpLoop
-		cmp.w	(a1)+,d3 	; wanted note period ?
+		cmp.w	(a1)+,d3	; wanted note period ?
 		dbhs	d7,pt_StpLoop
 		bpl.s	pt_StpFound
 		moveq	#1,d7		; penultimate note period in table
@@ -948,7 +948,7 @@ pt_ArpDivLoop
 	addq.w	#pt_ArpDiv,d0		; adjust division remainder
 	subq.w	#1,d0			; remainder = $0001: add first halftone at tick #2 ?
 	beq.s	pt_Arpeggio1
-	subq.w	#1,d0		 	; remainder = $0002: add second halftone at tick #3 ?
+	subq.w	#1,d0			; remainder = $0002: add second halftone at tick #3 ?
 	beq.s	pt_Arpeggio2
 ; 000 "Normal Play" 1st note
 pt_Arpeggio0
@@ -1417,10 +1417,10 @@ pt_PatternBreak
 	move.b	n_cmdlo(a2),d0		; command data: xx-break position (decimal)
 	moveq	#NIBBLE_MASK_LOW,d2
 	and.b	d0,d2			; lower nibble: digits 0..9
-	lsr.b	#NIBBLE_SHIFT_BITS,d0 	; adjust bits
+	lsr.b	#NIBBLE_SHIFT_BITS,d0	; adjust bits
 	MULUF.B	10,d0,d7		; upper nibble:  digits 10..60
 	add.b	d2,d0			; decimal number
-	cmp.b	#pt_maxpattpos-1,d0 	; break position > last position in pattern ?
+	cmp.b	#pt_maxpattpos-1,d0	; break position > last position in pattern ?
 	bhi.s	pt_PB2
 	move.b	d0,pt_PBreakPosition(a3)
 	move.b	d6,pt_PosJumpFlag(a3)
@@ -1497,12 +1497,12 @@ pt_SetGlissandoControl
 ; E4x "Set Vibrato Waveform"
 PT3_EFFECT_SET_VIB_WAVEFORM	MACRO
 ; Vibrato waveform types
-; 	0 - sine (default)
-; 	4   (without retrigger)
-; 	1 - ramp down
-; 	5   (without retrigger)
-; 	2 - square
-; 	6   (without retrigger)
+;	0 - sine (default)
+;	4   (without retrigger)
+;	1 - ramp down
+;	5   (without retrigger)
+;	2 - square
+;	6   (without retrigger)
 ; Input
 ; Result
 	CNOP 0,4
@@ -1564,12 +1564,12 @@ pt_SetLoop
 ; E7x "Set Tremolo Waveform"	
 PT3_EFFECT_SET_TRE_WAVEFORM MACRO
 ; Tremolo waveform types
-; 	0 - sine (default)
-; 	4   (without retrigger)
-; 	1 - ramp down
-; 	5   (without retrigger)
-; 	2 - square
-; 	6   (without retrigger)
+;	0 - sine (default)
+;	4   (without retrigger)
+;	1 - ramp down
+;	5   (without retrigger)
+;	2 - square
+;	6   (without retrigger)
 ; Input
 ; Result
 	CNOP 0,4
@@ -1752,10 +1752,10 @@ pt_InvertLoop
 pt_UpdateInvert
 	moveq	#0,d0
 	move.b	n_glissinvert(a2),d0
-	lsr.b	#NIBBLE_SHIFT_BITS,d0 	; speed
+	lsr.b	#NIBBLE_SHIFT_BITS,d0	; speed
 	beq.s	pt_InvertEnd
 	lea	pt_InvertTable(pc),a1
-	move.b	(a1,d0.w),d0 		; invert value
+	move.b	(a1,d0.w),d0		; invert value
 	add.b	d0,n_invertoffset(a2)	; decrease invert offset by invert value
 	bpl.s	pt_InvertEnd
 	move.l	n_wavestart(a2),a1

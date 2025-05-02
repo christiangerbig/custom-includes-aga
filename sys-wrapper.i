@@ -5,20 +5,20 @@
 
 
 ; Global labels
-; 	SYS_TAKEN_OVER
-; 	PASS_RETURN_CODE
-; 	PASS_GLOBAL_REFERENCES
-; 	WRAPPER
-; 	CUSTOM_MEMORY_USED
-; 	SAVE_BEAMCON0
-; 	AGA_CHECK_BY_HARDWARE
-; 	ALL_CACHES
-; 	NO_060_STORE_BUFFER
-; 	TRAP0
-; 	TRAP1
-; 	TRAP2
-; 	SET_SECOND_COPPERLIST
-; 	MEASURE_RASTERTIME
+;	SYS_TAKEN_OVER
+;	PASS_RETURN_CODE
+;	PASS_GLOBAL_REFERENCES
+;	WRAPPER
+;	CUSTOM_MEMORY_USED
+;	SAVE_BEAMCON0
+;	AGA_CHECK_BY_HARDWARE
+;	ALL_CACHES
+;	NO_060_STORE_BUFFER
+;	TRAP0
+;	TRAP1
+;	TRAP2
+;	SET_SECOND_COPPERLIST
+;	MEASURE_RASTERTIME
 
 
 	IFND SYS_TAKEN_OVER
@@ -64,7 +64,7 @@
 			bsr	get_output
 			move.l	d0,dos_return_code(a3)
 			bne	cleanup_dos_library
-     		ENDC
+    		ENDC
 		bsr	open_graphics_library
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_dos_library
@@ -626,7 +626,7 @@ init_structures
 		bsr	init_video_control_tags
 		IFNE screen_fader_enabled
 			bsr	init_pal_screen_rgb32_colors
-        	ENDC
+       	ENDC
 		bsr	init_pal_screen_tags
 		bsr	init_invisible_window_tags
 	ENDC
@@ -718,7 +718,7 @@ init_custom_error_table
 
 		IFEQ screen_fader_enabled
 			INIT_CUSTOM_ERROR_ENTRY SCREEN_FADER_NO_MEMORY,error_text_screen_fader,error_text_screen_fader_end-error_text_screen_fader
-        	ELSE
+       	ELSE
 			INIT_CUSTOM_ERROR_ENTRY SCREEN_NO_MEMORY,error_text_screen1,error_text_screen1_end-error_text_screen1
 		ENDC
 
@@ -836,10 +836,10 @@ init_pal_screen_rgb32_colors_loop
 init_pal_screen_tags
 		lea	pal_screen_tags(pc),a0
 		move.l	#SA_Left,(a0)+
-     		moveq	#pal_screen_left,d2
+    		moveq	#pal_screen_left,d2
 		move.l	d2,(a0)+
 		move.l	#SA_Top,(a0)+
- 		moveq	#pal_screen_top,d2
+		moveq	#pal_screen_top,d2
 		move.l	d2,(a0)+
 		move.l	#SA_Width,(a0)+
 		moveq	#pal_screen_x_size,d2
@@ -2508,11 +2508,11 @@ sf_rgb32_set_new_colors_skip
 open_pal_screen
 		lea	pal_screen_tags(pc),a1
 		IFEQ screen_fader_enabled
-                	move.l	sf_screen_color_cache(a3),sctl_SA_Colors32+ti_data(a1)
+               	move.l	sf_screen_color_cache(a3),sctl_SA_Colors32+ti_data(a1)
 		ELSE
 			lea	pal_screen_rgb32_colors(pc),a0
 			move.l	a0,sctl_SA_Colors32+ti_data(a1)
- 		ENDC
+		ENDC
 		sub.l	a0,a0		; Keine NewScreen-Struktur
 		CALLINT OpenScreenTagList
 		move.l	d0,pal_screen(a3)
@@ -3673,7 +3673,7 @@ free_cl1_memory3_skip
 		move.l	d0,a1
 		MOVEF.L	cl1_size3,d0
 		CALLEXEC FreeMem
-		bra.s 	free_cl1_memory3_quit
+		bra.s	free_cl1_memory3_quit
 	ENDC
 	IFNE cl1_size2
 ; Input
