@@ -77,7 +77,7 @@ init_variables
 
 ; Input
 ; Result
-; d0.l	... Return code
+; d0.l	Return code
 	CNOP 0,4
 open_dos_library
 	lea     dos_library_name(pc),a1
@@ -96,7 +96,7 @@ open_dos_library_ok
 
 ; Input
 ; Result
-; d0.l	... Return code/Error code
+; d0.l	Return code/Error code
 	CNOP 0,4
 get_output
 	CALLDOS Output
@@ -112,7 +112,7 @@ get_output_ok
 	IFNE memory_size
 ; Input
 ; Result
-; d0.l	... Return code
+; d0.l	Return code
 		CNOP 0,4
 alloc_memory
 		MOVEF.L	memory_size,d0
@@ -185,8 +185,8 @@ print_error_text_skip
 
 
 ; Input
-; d0.l	... Error text length
-; a0	... Error text
+; d0.l	Error text length
+; a0.l	Error text
 ; Result
 	CNOP 0,4
 print_text
