@@ -209,7 +209,7 @@ ADDF				MACRO
 				IFLE (\1)-16 ; number <= $0010
 					addq.l	#8,\2
 					addq.l	#\1-8,\2
-				ELSE						;number > $0010
+				ELSE	; number > $0010
 					add.l	#\1,\2
 				ENDC
 			ENDC
