@@ -379,10 +379,10 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 	CNOP 0,4
 \1_init_sprite_header
 ; Input
-; d0.w	... x position
-; d1.w	... y position
-; d3.b	... Attached bit
-; a0	... Pointer sprite structure
+; d0.w	x position
+; d1.w	y position
+; d3.b	Attached bit
+; a0	Pointer sprite structure
 ; Result
 	IFNC "NOHEADER","\7"
 		MOVEF.W \6,d2		; height

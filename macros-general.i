@@ -2612,11 +2612,11 @@ RGB8_COLOR_FADER			MACRO
 
 ROTATE_X_AXIS			MACRO
 ; Input
-; d1.w	... y
-; d2.w	... z
+; d1.w	y
+; d2.w	z
 ; Result
-; d1.w	... y position
-; d2.w	... z position
+; d1.w	y position
+; d2.w	z position
 	move.w	d1,d3			; save y
 	muls.w	d4,d1			; y*cos(a)
 	swap	d4			; sin(w)

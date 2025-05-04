@@ -1135,7 +1135,7 @@ spr_init_structure
 		IFEQ workbench_start_enabled
 ; Input
 ; Result
-; d0.l	... Return code
+; d0.l	Return code
 			CNOP 0,4
 check_workbench_start
 			sub.l	a1,a1	; own task
@@ -1165,7 +1165,7 @@ check_workbench_start_skip2
 
 ; Input
 ; Result
-; d0.l	... Return code
+; d0.l	Return code
 		CNOP 0,4
 open_dos_library
 		lea	dos_name(pc),a1
@@ -1185,7 +1185,7 @@ open_dos_library_ok
 		IFEQ text_output_enabled
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 		CNOP 0,4
 get_output
 			CALLDOS Output
@@ -1201,7 +1201,7 @@ get_output_ok
 
 ; Input
 ; Result
-; d0.l	... Return code
+; d0.l	Return code
 		CNOP 0,4
 open_graphics_library
 		lea	graphics_name(pc),a1
@@ -1220,7 +1220,7 @@ open_graphics_library_ok
 
 ; Input
 ; Result
-; d0.l	... Return code	
+; d0.l	Return code	
 		CNOP 0,4
 open_intuition_library
 		lea	intuition_name(pc),a1
@@ -1239,7 +1239,7 @@ open_intuition_library_ok
 
 ; Input
 ; Result
-; d0.l	... pointer screen structure active screen
+; d0.l	pointer screen structure active screen
 	CNOP 0,4
 get_active_screen
 		moveq	#0,d0		; all locks
@@ -1253,7 +1253,7 @@ get_active_screen
 
 ; Input
 ; Result
-; d0.l	... Return code	
+; d0.l	Return code	
 		CNOP 0,4
 check_system_props
 		move.l	_SysBase(pc),a6
@@ -1346,7 +1346,7 @@ check_system_props_ok
 		IFEQ requires_030_cpu
 ; Input
 ; Result
-; d0.l	... Return code	
+; d0.l	Return code	
 			CNOP 0,4
 check_cpu_requirements
 			btst	#AFB_68030,cpu_flags+BYTE_SIZE(a3)
@@ -1362,7 +1362,7 @@ check_cpu_requirements_ok
 		IFEQ requires_040_cpu
 ; Input
 ; Result
-; d0.l	... Return code	
+; d0.l	Return code	
 			CNOP 0,4
 check_cpu_requirements
 			btst	#AFB_68040,cpu_flags+BYTE_SIZE(a3)
@@ -1378,7 +1378,7 @@ check_cpu_requirements_ok
 		IFEQ requires_060_cpu
 ; Input
 ; Result
-; d0.l	... Return code	
+; d0.l	Return code	
 			CNOP 0,4
 check_cpu_requirements
 			tst.b	cpu_flags+BYTE_SIZE(a3)
@@ -1396,7 +1396,7 @@ check_cpu_requirements_ok
 		IFEQ requires_fast_memory
 ; Input
 ; Result
-; d0.l	... Return code	
+; d0.l	Return code	
 			CNOP 0,4
 check_memory_requirements
 			tst.w	fast_memory_available(a3)
@@ -1414,7 +1414,7 @@ check_memory_requirements_ok
 		IFEQ requires_multiscan_monitor
 ; Input
 ; Result
-; d0.l	... Return code	
+; d0.l	Return code	
 			CNOP 0,4
 do_monitor_request
 			sub.l	a0,a0	; requester on workbench/public screen
@@ -1438,7 +1438,7 @@ do_monitor_request_ok
 		IFNE intena_bits&INTF_PORTS
 ; Input
 ; Result
-; d0.l	... Return code	
+; d0.l	Return code	
 			CNOP 0,4
 check_tcp_stack
 			CALLEXEC Forbid
@@ -1477,7 +1477,7 @@ do_tcp_stack_request_ok
 
 ; Input
 ; Result
-; d0.l	... Return code	
+; d0.l	Return code	
 		CNOP 0,4
 open_ciaa_resource
 		lea	CIAA_name(pc),a1
@@ -1499,7 +1499,7 @@ open_ciaa_resource_save
 
 ; Input
 ; Result
-; d0.l	... Return code
+; d0.l	Return code
 		CNOP 0,4
 open_ciab_resource	
 		lea	CIAB_name(pc),a1
@@ -1521,7 +1521,7 @@ open_ciab_resource_save
 
 ; Input
 ; Result
-; d0.l	... Return code	
+; d0.l	Return code	
 		CNOP 0,4
 open_timer_device
 		lea	timer_device_name(pc),a0
@@ -1544,7 +1544,7 @@ open_timer_device_ok
 	IFNE cl1_size1
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 		CNOP 0,4
 alloc_cl1_memory1
 		MOVEF.L	cl1_size1,d0
@@ -1562,7 +1562,7 @@ alloc_cl1_memory1_ok
 	IFNE cl1_size2
 ; Input
 ; Result
-; d0.l	... Return code/Error code
+; d0.l	Return code/Error code
 		CNOP 0,4
 alloc_cl1_memory2
 		MOVEF.L	cl1_size2,d0
@@ -1580,7 +1580,7 @@ alloc_cl1_memory2_ok
 	IFNE cl1_size3
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 		CNOP 0,4
 alloc_cl1_memory3
 		MOVEF.L	cl1_size3,d0
@@ -1600,7 +1600,7 @@ alloc_cl1_memory3_ok
 	IFNE cl2_size1
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 		CNOP 0,4
 alloc_cl2_memory1
 		MOVEF.L	cl2_size1,d0
@@ -1618,7 +1618,7 @@ alloc_cl2_memory1_ok
 	IFNE cl2_size2
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 		CNOP 0,4
 alloc_cl2_memory2
 		MOVEF.L	cl2_size2,d0
@@ -1636,7 +1636,7 @@ alloc_cl2_memory2_ok
 	IFNE cl2_size3
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 		CNOP 0,4
 alloc_cl2_memory3
 		MOVEF.L	cl2_size3,d0
@@ -1656,7 +1656,7 @@ alloc_cl2_memory3_ok
 	IFNE pf1_x_size1
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 		CNOP 0,4
 alloc_pf1_memory1
 		MOVEF.L	pf1_x_size1,d0
@@ -1676,7 +1676,7 @@ alloc_pf1_memory1_ok
 		rts
 ; Input
 ; Result
-; d0.l	... Return code	
+; d0.l	Return code	
 		CNOP 0,4
 check_pf1_memory1
 		move.l	pf1_bitmap1(a3),a0
@@ -1700,7 +1700,7 @@ check_pf1_memory1_ok
 	IFNE pf1_x_size2
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 		CNOP 0,4
 alloc_pf1_memory2
 		MOVEF.L	pf1_x_size2,d0
@@ -1720,7 +1720,7 @@ alloc_pf1_memory2_ok
 		rts
 ; Input
 ; Result
-; d0.l	... Return code	
+; d0.l	Return code	
 		CNOP 0,4
 check_pf1_memory2
 		move.l	pf1_bitmap2(a3),a0
@@ -1744,7 +1744,7 @@ check_pf1_memory2_ok
 	IFNE pf1_x_size3
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 		CNOP 0,4
 alloc_pf1_memory3
 		MOVEF.L	pf1_x_size3,d0
@@ -1764,7 +1764,7 @@ alloc_pf1_memory3_ok
 		rts
 ; Input
 ; Result
-; d0.l	... Return code	
+; d0.l	Return code	
 		CNOP 0,4
 check_pf1_memory3
 		move.l	pf1_bitmap3(a3),a0
@@ -1790,7 +1790,7 @@ check_pf1_memory3_ok
 	IFNE pf2_x_size1
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 		CNOP 0,4
 alloc_pf2_memory1
 		MOVEF.L	pf2_x_size1,d0
@@ -1810,7 +1810,7 @@ alloc_pf2_memory1_ok
 		rts
 ; Input
 ; Result
-; d0.l	... Return code	
+; d0.l	Return code	
 		CNOP 0,4
 check_pf2_memory1
 		move.l	pf2_bitmap1(a3),a0
@@ -1834,7 +1834,7 @@ check_pf2_memory1_ok
 	IFNE pf2_x_size2
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 		CNOP 0,4
 alloc_pf2_memory2
 		MOVEF.L	pf2_x_size2,d0
@@ -1854,7 +1854,7 @@ alloc_pf2_memory2_ok
 		rts
 ; Input
 ; Result
-; d0.l	... Return code	
+; d0.l	Return code	
 		CNOP 0,4
 check_pf2_memory2
 		move.l	pf2_bitmap2(a3),a0
@@ -1878,7 +1878,7 @@ check_pf2_memory2_ok
 	IFNE pf2_x_size3
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 		CNOP 0,4
 alloc_pf2_memory3
 		MOVEF.L	pf2_x_size3,d0
@@ -1898,7 +1898,7 @@ alloc_pf2_memory3_ok
 		rts
 ; Input
 ; Result
-; d0.l	... Return code	
+; d0.l	Return code	
 		CNOP 0,4
 check_pf2_memory3
 		move.l	pf2_bitmap3(a3),a0
@@ -1924,7 +1924,7 @@ check_pf2_memory3_ok
 	IFNE pf_extra_number
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 		CNOP 0,4
 alloc_pf_extra_memory
 		lea	pf_extra_bitmap1(a3),a2
@@ -1950,7 +1950,7 @@ alloc_pf_extra_memory_fail
 		rts
 ; Input
 ; Result
-; d0.l	... Return code	
+; d0.l	Return code	
 		CNOP 0,4
 check_pf_extra_memory
 		lea	pf_extra_bitmap1(a3),a2
@@ -1982,7 +1982,7 @@ check_pf_extra_memory_skip
 	IFNE spr_x_size1
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 		CNOP 0,4
 alloc_sprite_memory1
 		lea	spr0_bitmap1(a3),a2
@@ -2008,7 +2008,7 @@ alloc_sprite_memory1_fail
 		rts
 ; Input
 ; Result
-; d0.l	... Return code	
+; d0.l	Return code	
 		CNOP 0,4
 check_sprite_memory1
 		lea	spr0_bitmap1(a3),a2
@@ -2036,7 +2036,7 @@ check_sprite_memory1_skip
 	IFNE spr_x_size2
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 		CNOP 0,4
 alloc_sprite_memory2
 		lea	spr0_bitmap2(a3),a2
@@ -2062,7 +2062,7 @@ alloc_sprite_memory2_fail
 		rts
 ; Input
 ; Result
-; d0.l	... Return code
+; d0.l	Return code
 		CNOP 0,4
 check_sprite_memory2
 		lea	spr0_bitmap2(a3),a2
@@ -2090,7 +2090,7 @@ check_sprite_memory2_skip
 	IFNE audio_memory_size
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 		CNOP 0,4
 alloc_audio_memory
 		MOVEF.L	audio_memory_size,d0
@@ -2110,7 +2110,7 @@ alloc_audio_memory_ok
 	IFNE disk_memory_size
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 		CNOP 0,4
 alloc_disk_memory
 		MOVEF.L disk_memory_size,d0
@@ -2130,7 +2130,7 @@ alloc_disk_memory_ok
 	IFNE extra_memory_size
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 		CNOP 0,4
 alloc_extra_memory
 		MOVEF.L	extra_memory_size,d0
@@ -2150,7 +2150,7 @@ alloc_extra_memory_ok
 	IFNE chip_memory_size
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 		CNOP 0,4
 alloc_chip_memory
 		MOVEF.L	chip_memory_size,d0
@@ -2169,7 +2169,7 @@ alloc_chip_memory_ok
 	IFND SYS_TAKEN_OVER
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 		CNOP 0,4
 alloc_vectors_base_memory
 		lea	read_vbr(pc),a5
@@ -2196,7 +2196,7 @@ alloc_vectors_base_memory_ok
 
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 		CNOP 0,4
 alloc_mouse_pointer_data
 		moveq	#cleared_pointer_data_size,d0
@@ -2216,7 +2216,7 @@ alloc_mouse_pointer_data_ok
 		IFEQ screen_fader_enabled
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 			CNOP 0,4
 sf_alloc_screen_color_table
 			MOVEF.L	sf_rgb32_colors_number*3*LONGWORD_SIZE,d0
@@ -2234,7 +2234,7 @@ sf_alloc_screen_color_table_ok
 
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 			CNOP 0,4
 sf_alloc_screen_color_cache
 			MOVEF.L	(1+(sf_rgb32_colors_number*3)+1)*LONGWORD_SIZE,d0
@@ -2254,7 +2254,7 @@ sf_alloc_screen_color_cache_ok
 		IFD PASS_GLOBAL_REFERENCES
 ; Input
 ; Result
-; d0.l	... Return code/error code
+; d0.l	Return code/error code
 			CNOP 0,4
 init_global_references_table
 			lea	global_references_table(pc),a0
@@ -2306,7 +2306,7 @@ get_sprite_resolution_quit
 
 ; Input
 ; Result
-; d0.l	... Return code
+; d0.l	Return code
 		CNOP 0,4
 get_screen_mode
 		move.l	active_screen(a3),d0
@@ -2503,7 +2503,7 @@ sf_rgb32_set_new_colors_skip
 
 ; Input
 ; Result
-; d0.l	... Return code
+; d0.l	Return code
 		CNOP 0,4
 open_pal_screen
 		lea	pal_screen_tags(pc),a1
@@ -2528,7 +2528,7 @@ open_pal_screen_ok
 
 ; Input
 ; Result
-; d0.l	... Return code
+; d0.l	Return code
 		CNOP 0,4
 check_pal_screen_mode
 		move.l	pal_screen(a3),d0
@@ -2552,7 +2552,7 @@ check_pal_screen_mode_ok
 
 ; Input
 ; Result
-; d0.l	... Return code
+; d0.l	Return code
 		CNOP 0,4
 open_invisible_window
 		lea	invisible_window_tags(pc),a1
@@ -2752,7 +2752,7 @@ move_exception_vectors_quit
 
 ; Input
 ; Result
-; d0.l	... Return code
+; d0.l	Return code
 save_copperlist_ptrs
 		move.l	_GfxBase(pc),a0
 		IFNE cl1_size3
@@ -3838,7 +3838,7 @@ original_screen_to_front_quit
 
 ; Input
 ; Result
-; d0.l	... pointer screen structure first screen
+; d0.l	pointer screen structure first screen
 		CNOP 0,4
 get_first_screen
 		moveq	#0,d0		; all locks
