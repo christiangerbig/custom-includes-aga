@@ -1129,6 +1129,7 @@ pt_TonePortaPlusVolSlide
 	ENDM
 
 
+; 6xy "Vibrato + Volume Slide"
 PT2_EFFECT_VIB_VOL_SLIDE	MACRO
 ; Input
 ; Result
@@ -1139,7 +1140,7 @@ pt_VibratoPlusVolSlide
 	ENDM
 
 
-; 6xy "Vibrato + Volume Slide"
+; 7xy "Tremolo"
 PT2_EFFECT_TREMOLO		MACRO
 ; Input
 ; Result

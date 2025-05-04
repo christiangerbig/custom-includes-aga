@@ -130,8 +130,8 @@ wait_copint_loop
 
 
 ; Input
-; a0	Pointer copperlist
-; a1	Pointer color table
+; a0.l	Pointer copperlist
+; a1.l	Pointer color table
 ; d3.w	Offset first color register
 ; d7.w	Number of colors
 ; Result
@@ -149,8 +149,8 @@ cop_init_high_colors_loop
 
 
 ; Input
-; a0	Pointer copperlist
-; a1	Pointer color table
+; a0.l	Pointer copperlist
+; a1.l	Pointer color table
 ; d3.w	Offset first color register
 ; d7.w	Number of colors
 ; Result
@@ -168,8 +168,8 @@ cop_init_low_colors_loop
 
 
 ; Input
-; a0	Color register address
-; a1	Pointer color table
+; a0.l	Color register address
+; a1.l	Pointer color table
 ; d7.w	Number of colors
 ; Result
 	CNOP 0,4
@@ -184,8 +184,8 @@ cpu_init_high_colors_loop
 
 
 ; Input
-; a0	Color register address
-; a1	Pointer color table
+; a0.l	Color register address
+; a1.l	Pointer color table
 ; d7.w	Number of colors
 ; Result
 	CNOP 0,4
@@ -204,7 +204,7 @@ cpu_init_low_colors_loop
 ; d0.l	RGB8 current value
 ; d6.l	RGB8 tartget value
 ; d7.w	Number of colors
-; a0	Pointer color table
+; a0.l	Pointer color table
 ; a1.l	Decrement/increment red
 ; a2.l	Decrement/increment green
 ; a4.w	Decrement/increment blue
@@ -212,7 +212,7 @@ cpu_init_low_colors_loop
 ; Result
 		CNOP 0,4
 init_color_gradient_rgb8_loop
-		move.l	d0,(a0)		; RGB8 value
+		move.l	d0,(a0)		; RGB8
 		add.l	a5,a0		; next entry
 		moveq	#0,d1
 		move.w	d0,d1

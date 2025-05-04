@@ -358,11 +358,11 @@ pt_GetNewNote
 	bra	pt_SetDMA
 
 	IFEQ pt_metronome_enabled
-		CNOP 0,4
-pt_CheckMetronome
 ; Input
 ; d2.l	Channel number [1..4]
 ; Result
+		CNOP 0,4
+pt_CheckMetronome
 		cmp.b	pt_MetroChannel(a3),d2 ; channel number = metronome channel number ?
 		bne.s	pt_ChkMetroEnd
 		move.b	pt_MetroSpeed(a3),d2
@@ -408,12 +408,6 @@ pt_DecVolSkip2
 
 	CNOP 0,4
 pt_PlayVoice
-; Input
-; d1.l	offset current note data
-; a0.l	pointer pattern
-; a2.l	pointer temporary channel data structure
-; a6.l	pointer base channel registers
-; Result
 	tst.l	(a2)			; check current channel data in pattern
 	bne.s	pt_PlvSkip
 	IFEQ pt_track_periods_enabled

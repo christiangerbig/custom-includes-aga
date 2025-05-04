@@ -376,6 +376,8 @@ pt_RtnChkNextChanQuit
 		rts
 	ENDC
 
+; Input
+; Result
 	CNOP 0,4
 pt_InitAllChanLoop
 	move.l	pt_audchan1temp+n_loopstart(pc),AUD0LCH-DMACONR(a6)
@@ -389,6 +391,8 @@ pt_InitAllChanLoop
 	move.b	#FALSE,pt_InitAllChanLoopFlag(a3) ; deactivate routine
 	rts
 
+; Input
+; Result
 	CNOP 0,4
 pt_SetAllChanDMA
 	move.w	pt_DMACONtemp(a3),d0
