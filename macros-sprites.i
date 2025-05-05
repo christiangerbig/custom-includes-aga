@@ -35,7 +35,7 @@ SET_SPRITE_POSITION_1X		MACRO
 ; \2 WORD:	y position
 ; \3 WORD:	Height
 ; Result
-; \2 LONGWORD:	bits 0..15 SPRxCTL, bits 16..31 SPRxPOS
+; \2 LONGWORD:	low word SPRxCTL, high word SPRxPOS
 	IFC "","\1"
 		FAIL Macro SET_SPRITE_POSITION_1X: x position missing
 	ENDC
