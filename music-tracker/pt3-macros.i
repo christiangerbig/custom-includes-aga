@@ -14,7 +14,7 @@ PT3_INIT_VARIABLES		MACRO
 	move.w	d0,pt_Counter(a3)
 	move.w	#pt_defaultticks,pt_CurrSpeed(a3)
 	move.w	d0,pt_DMACONtemp(a3)
-	move.w	#DMAF_AUD0|DMAF_AUD1|DMAF_AUD2|DMAF_AUD3,pt_ActiveChannels(a3) ; all audio channels are active
+	move.w	#DMAF_AUD0|DMAF_AUD1|DMAF_AUD2|DMAF_AUD3,pt_ActiveChannels(a3) ; all audio channels enabled
 	move.l	d0,pt_PatternPointer(a3)
 	move.w	d0,pt_PatternPosition(a3)
 	move.w	d0,pt_SongPosition(a3)
