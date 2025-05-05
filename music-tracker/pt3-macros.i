@@ -461,7 +461,7 @@ pt_SetRegisters
 
 ; E5x "Set Sample Finetune"
 	IFNE pt_usedefx&pt_ecmdbitsetsamplefinetune
-		cmp.w	#$0e50,d4	; E50 "Set Sample Finetune" ?
+		cmp.w	#$0e50,d4	; E5 "Set Sample Finetune" ?
 		beq	pt_DoSetSampleFinetune
 	ENDC
 	moveq	#NIBBLE_MASK_LOW,d0
@@ -490,7 +490,7 @@ pt_SetPeriod
 	lea	pt_PeriodTable(pc),a1
 	moveq	#((pt_PeriodTableEnd-pt_PeriodTable)/WORD_SIZE)-1,d7 ; number of periods
 pt_FtuLoop
-	cmp.w	(a1)+,d3		; note period >= table note period ?
+	cmp.w	(a1)+,d3		; note period found ?
 	dbhs	d7,pt_FtuLoop
 pt_FtuFound
 	moveq	#0,d0
@@ -503,7 +503,7 @@ pt_FtuFound
 
 ; EDx "Note Delay"
 	IFNE pt_usedefx&pt_ecmdbitnotedelay
-		cmp.w	#$0ed0,d4	; ED0 "Note Delay" ?
+		cmp.w	#$0ed0,d4	; ED "Note Delay" ?
 		beq	pt_CheckMoreEffects
 	ENDC
 	move.w	n_dmabit(a2),d0
