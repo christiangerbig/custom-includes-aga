@@ -90,7 +90,7 @@ pt_NoNewNote
 pt_NoNewAllChannels
 	lea	pt_audchan1temp(pc),a2
 	bsr.s	pt_CheckEffects
-	ADDF.W	16,a6			; next channel										; next audio channel
+	ADDF.W	16,a6			; next audio channel
 	lea	pt_audchan2temp(pc),a2
 	bsr.s	pt_CheckEffects
 	ADDF.W	16,a6
@@ -314,7 +314,7 @@ pt_GetNewNote
 	move.w	d5,pt_DMACONtemp(a3)	; clear DMA bits
 	lea	pt_audchan1temp(pc),a2
 	bsr.s	pt_PlayVoice
-	ADDF.W	16,a6			; next channel										;Next audio channel
+	ADDF.W	16,a6			; next audio channel
 	lea	pt_audchan2temp(pc),a2
 	bsr.s	pt_PlayVoice
 	ADDF.W	16,a6

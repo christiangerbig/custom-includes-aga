@@ -96,7 +96,7 @@ pt_NoNewNote
 pt_NoNewAllChannels
 	lea	pt_audchan1temp(pc),a2
 	bsr.s	pt_CheckEffects
-	ADDF.W	16,a6			; next audio channel										; next audio chann
+	ADDF.W	16,a6			; next audio channel
 	lea	pt_audchan2temp(pc),a2
 	bsr.s	pt_CheckEffects
 	ADDF.W	16,a6
