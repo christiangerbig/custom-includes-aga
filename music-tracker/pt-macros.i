@@ -176,11 +176,11 @@ PT_EXAMINE_SONG_STRUCTURE	MACRO
 ; Result
 	CNOP 0,4
 pt_ExamineSongStruc
-	moveq	#0,d0			; first pattern number (count starts at 0)
+	moveq	#0,d0			; 1st pattern number (count starts at 0)
 	moveq	#0,d1			; counter highest pattern number
 	move.l	pt_SongDataPointer(a3),a0
 	move.b	pt_sd_numofpatt(a0),pt_SongLength(a3)
-	lea	pt_sd_pattpos(a0),a1	; pointer table with pattern positions in song
+	lea	pt_sd_pattpos(a0),a1	; table with pattern positions in song
 	MOVEF.W pt_maxsongpos-1,d7
 pt_InitLoop
 	move.b	(a1)+,d0		; patterm number from song position table
@@ -192,14 +192,14 @@ pt_InitSkip
 	IFNE pt_split_module_enabled
 		addq.w	#1,d1
 	ENDC
-	ADDF.W	pt_sd_sampleinfo,a0	; pointer 1st sample info structure
+	ADDF.W	pt_sd_sampleinfo,a0	; 1st sample info structure
 	IFNE pt_split_module_enabled
 		MULUF.W	pt_pattsize/8,d1,d0 ; end of last pattern
 	ENDC
 	moveq	#0,d2
 	moveq	#pt_oneshotlen,d3	; length in words
 	IFNE pt_split_module_enabled
-		lea	pt_sd_patterndata-pt_sd_id(a1,d1.w*8),a2 ; pointer first sample data in module
+		lea	pt_sd_patterndata-pt_sd_id(a1,d1.w*8),a2 ; 1st sample data in module
 	ELSE
 		move.l	pt_SamplesDataPointer(a3),a2
 	ENDC
@@ -207,11 +207,11 @@ pt_InitSkip
 	moveq	#pt_sampleinfo_size,d1
 	moveq	#pt_samplesnum-1,d7
 pt_InitLoop2
-	move.l	a2,(a1)+		; pointer sample data
+	move.l	a2,(a1)+		; sample data
 	move.w	pt_si_samplelength(a0),d0
 	beq.s	pt_InitSkip2
 	MULUF.W	WORD_SIZE,d0,d4		; sample length in bytes
-	move.w	d2,(a2)			; clear first word in sample data
+	move.w	d2,(a2)			; clear 1st word in sample data
 	add.l	d0,a2			; next sample data
 	move.w	pt_si_repeatlength(a0),d0 ; Fasttracker module with repeat length 0 ?
 	bne.s	pt_InitSkip2

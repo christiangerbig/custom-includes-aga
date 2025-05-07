@@ -102,7 +102,7 @@ spr_init_ptrs_table
 		moveq	#spr_number-1,d7
 spr_init_ptrs_table_loop1
 		move.l	(a0)+,a2
-		move.l	(a2),(a1)+	; pointer sprite structure
+		move.l	(a2),(a1)+	; sprite structure
 		dbf	d7,spr_init_ptrs_table_loop1
 	ENDC
 	IFNE spr_x_size2
@@ -111,7 +111,7 @@ spr_init_ptrs_table_loop1
 		moveq	#spr_number-1,d7
 spr_init_ptrs_table_loop2
 		move.l	(a0)+,a2
-		move.l	(a2),(a1)+	; pointer sprite structure
+		move.l	(a2),(a1)+	; sprite structure
 		dbf	d7,spr_init_ptrs_table_loop2
 	ENDC
 	rts
@@ -188,8 +188,8 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 			MOVEF.W \4,d1	; y
 			moveq	#0,d3
 		ENDC
-		lea	\2(pc),a5	; pointer table sprite structures pointers
-		move.l	(a5)+,a0	; pointer sprite0 structure
+		lea	\2(pc),a5	; table sprite structures pointers
+		move.l	(a5)+,a0	; sprite0 structure
 		bsr	\1_init_sprite_header
 		IFNC "NOHEADER","\7"
 			move.w	#(\3+(\5*0))*SHIRES_PIXEL_FACTOR,d0 ; x
@@ -198,13 +198,13 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		ENDC
 
 		IFNC "BLANK","\8"
-			lea	\1_image_data,a1 ; first column 64 pixel
+			lea	\1_image_data,a1 ; 1st column 64 pixel
 			bsr	\1_init_sprite_bitmap
 		ENDC
-		move.l	(a5)+,a0	; pointer sprite1 structure
+		move.l	(a5)+,a0	; sprite1 structure
 		bsr	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(\1_image_plane_width*2),a1 ; first column 64 pixel
+			lea	\1_image_data+(\1_image_plane_width*2),a1 ; 1st column 64 pixel
 			bsr	\1_init_sprite_bitmap
 		ENDC
 
@@ -213,10 +213,10 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 			MOVEF.W	\4,d1	; y
 			moveq	#0,d3
 		ENDC
-		move.l	(a5)+,a0	; pointer sprite2 structure
+		move.l	(a5)+,a0	; sprite2 structure
 		bsr	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+QUADWORD_SIZE,a1 ; second column 64 pixel
+			lea	\1_image_data+QUADWORD_SIZE,a1 ; 2nd column 64 pixel
 			bsr	\1_init_sprite_bitmap
 		ENDC
 		IFNC "NOHEADER","\7"
@@ -224,10 +224,10 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 			MOVEF.W	\4,d1	; y
 			MOVEF.W	SPRCTLF_ATT,d3
 		ENDC
-		move.l	(a5)+,a0	; pointer sprite3 structure
+		move.l	(a5)+,a0	; sprite3 structure
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+QUADWORD_SIZE+(\1_image_plane_width*2),a1 ; second column 64 pixel
+			lea	\1_image_data+QUADWORD_SIZE+(\1_image_plane_width*2),a1 ; 2nd column 64 pixel
 			bsr	\1_init_sprite_bitmap
 		ENDC
 
@@ -236,10 +236,10 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 			MOVEF.W \4,d1	; y
 			moveq	#0,d3
 		ENDC
-		move.l	(a5)+,a0	; pointer sprite4 structure
+		move.l	(a5)+,a0	; sprite4 structure
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(QUADWORD_SIZE*2),a1 ; third column 64 pixel
+			lea	\1_image_data+(QUADWORD_SIZE*2),a1 ; 3rd column 64 pixel
 			bsr	\1_init_sprite_bitmap
 		ENDC
 		IFNC "NOHEADER","\7"
@@ -247,14 +247,14 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 			MOVEF.W	\4,d1	; y
 			MOVEF.W	SPRCTLF_ATT,d3
 		ENDC
-		move.l	(a5)+,a0	; pointer sprite 5 structure
+		move.l	(a5)+,a0	; sprite 5 structure
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(QUADWORD_SIZE*2)+(\1_image_plane_width*2),a1 ; third column 64 pixel
+			lea	\1_image_data+(QUADWORD_SIZE*2)+(\1_image_plane_width*2),a1 ; 3rd column 64 pixel
 			bsr.s	\1_init_sprite_bitmap
 		ENDC
 	
-		move.l	(a5)+,a0	; pointer sprite6 structure
+		move.l	(a5)+,a0	; sprite6 structure
 		IFNC "NOHEADER","\7"
 			move.w	#(\3+(\5*3))*SHIRES_PIXEL_FACTOR,d0 ; x
 			MOVEF.W \4,d1	; y
@@ -262,7 +262,7 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		ENDC
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(QUADWORD_SIZE*3),a1 ; fourth column 64 pixel
+			lea	\1_image_data+(QUADWORD_SIZE*3),a1 ; 4th column 64 pixel
 			bsr.s	\1_init_sprite_bitmap
 		ENDC
 		IFNC "NOHEADER","\7"
@@ -270,10 +270,10 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 			MOVEF.W \4,d1	; y
 			MOVEF.W SPRCTLF_ATT,d3
 		ENDC
-		move.l	(a5),a0		; pointer sprite7 structure
+		move.l	(a5),a0		; sprite7 structure
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(QUADWORD_SIZE*3)+(\1_image_plane_width*2),a1 ; fourth column 64 pixel
+			lea	\1_image_data+(QUADWORD_SIZE*3)+(\1_image_plane_width*2),a1 ; 4th column 64 pixel
 			bsr.s	\1_init_sprite_bitmap
 		ENDC
 		movem.l (a7)+,a4-a5
@@ -285,8 +285,8 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 			MOVEF.W	\4,d1	; y
 			moveq	#0,d3
 		ENDC
-		lea	\2(pc),a5	; pointer table sprite structures pointers
-		move.l	(a5)+,a0	; pointer sprite0 structure
+		lea	\2(pc),a5	; table sprite structures pointers
+		move.l	(a5)+,a0	; sprite0 structure
 		bsr	\1_init_sprite_header
 		IFNC "NOHEADER","\7"
 			move.w	#(\3+(\5*0))*SHIRES_PIXEL_FACTOR,d0 ; x
@@ -294,13 +294,13 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 			MOVEF.W	SPRCTLF_ATT,d3
 		ENDC
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(QUADWORD_SIZE*2),a1 ; third column 64 pixel
+			lea	\1_image_data+(QUADWORD_SIZE*2),a1 ; 3rd column 64 pixel
 			bsr	\1_init_sprite_bitmap
 		ENDC
-		move.l	(a5)+,a0	; pointer sprite1 structure
+		move.l	(a5)+,a0	; sprite1 structure
 		bsr	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(QUADWORD_SIZE*2)+(\1_image_plane_width*2),a1 ; third column 64 pixel
+			lea	\1_image_data+(QUADWORD_SIZE*2)+(\1_image_plane_width*2),a1 ; 3rd column 64 pixel
 			bsr	\1_init_sprite_bitmap
 		ENDC
 
@@ -309,10 +309,10 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 			MOVEF.W \4,d1	; y
 			moveq	#0,d3
 		ENDC
-		move.l	(a5)+,a0	; pointer sprite2 structure
+		move.l	(a5)+,a0	; sprite2 structure
 		bsr		\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(QUADWORD_SIZE*3),a1 ; fourth column 64 pixel
+			lea	\1_image_data+(QUADWORD_SIZE*3),a1 ; 4th column 64 pixel
 			bsr	\1_init_sprite_bitmap
 		ENDC
 		IFNC "NOHEADER","\7"
@@ -320,10 +320,10 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 			MOVEF.W	\4,d1	; y
 			MOVEF.W	SPRCTLF_ATT,d3
 		ENDC
-		move.l	(a5)+,a0	; pointer sprite3 structure
+		move.l	(a5)+,a0	; sprite3 structure
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(QUADWORD_SIZE*3)+(\1_image_plane_width*2),a1 ; fourth column 64 pixel
+			lea	\1_image_data+(QUADWORD_SIZE*3)+(\1_image_plane_width*2),a1 ; 4th column 64 pixel
 			bsr	\1_init_sprite_bitmap
 		ENDC
 
@@ -332,10 +332,10 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 			MOVEF.W	\4,d1	; y
 			moveq	#0,d3
 		ENDC
-		move.l	(a5)+,a0	; pointer sprite4 structure
+		move.l	(a5)+,a0	; sprite4 structure
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data,a1 ; first column 64 pixel
+			lea	\1_image_data,a1 ; 1st column 64 pixel
 			bsr	\1_init_sprite_bitmap
 		ENDC
 		IFNC "NOHEADER","\7"
@@ -346,11 +346,11 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		move.l	(a5)+,a0	; Sprite5-Struktur
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(\1_image_plane_width*2),a1 ; first column 64 pixel
+			lea	\1_image_data+(\1_image_plane_width*2),a1 ; 1st column 64 pixel
 			bsr.s	\1_init_sprite_bitmap
 		ENDC
 	
-		move.l	(a5)+,a0	; pointer sprite6 structure
+		move.l	(a5)+,a0	; sprite6 structure
 		IFNC "NOHEADER","\7"
 			move.w	#(\3+(\5*3))*SHIRES_PIXEL_FACTOR,d0 ; x
 			MOVEF.W \4,d1	; y
@@ -358,7 +358,7 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		ENDC
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+QUADWORD_SIZE,a1 ; second column 64 pixel
+			lea	\1_image_data+QUADWORD_SIZE,a1 ; 2nd column 64 pixel
 			bsr.s	\1_init_sprite_bitmap
 		ENDC
 		IFNC "NOHEADER","\7"
@@ -366,10 +366,10 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 			MOVEF.W	\4,d1		; y
 			MOVEF.W	SPRCTLF_ATT,d3
 		ENDC
-		move.l	(a5),a0		; pointer sprite7 structure
+		move.l	(a5),a0		; sprite7 structure
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+QUADWORD_SIZE+(\1_image_plane_width*2),a1 ; second column 64 pixel
+			lea	\1_image_data+QUADWORD_SIZE+(\1_image_plane_width*2),a1 ; 2nd column 64 pixel
 			bsr.s	\1_init_sprite_bitmap
 		ENDC
 		movem.l (a7)+,a4-a5

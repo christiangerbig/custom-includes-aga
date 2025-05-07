@@ -371,10 +371,10 @@ COP_INIT_COLOR_HIGH		MACRO
 	IFC "","\2"
 		FAIL Macro COP_INIT_COLOR_HIGH: Number of colors missing
 	ENDC
-	move.w	#\1,d3			; first color register offset
+	move.w	#\1,d3			; 1st color register offset
 	moveq	#\2-1,d7		; number of colors
 	IFNC "","\3"
-		lea	\3(pc),a1	; pointer color table
+		lea	\3(pc),a1	; color table
 	ENDC
 	bsr	cop_init_high_colors
 	ENDM
@@ -392,10 +392,10 @@ COP_INIT_COLOR_LOW		MACRO
 	IFC "","\2"
 		FAIL Macro COP_INIT_COLOR_LOW: Number of colors missing
 	ENDC
-	move.w	#\1,d3			; first color register offset
+	move.w	#\1,d3			; 1st color register offset
 	moveq	#\2-1,d7		; number of colors
 	IFNC "","\3"
-		lea	\3(pc),a1	; pointer color table
+		lea	\3(pc),a1	; color table
 	ENDC
 	bsr	cop_init_low_colors
 	ENDM
@@ -696,7 +696,7 @@ COPY_COPPERLIST			MACRO
 copy_first_copperlist
 		IFEQ \2-2
 			move.l	\1_construction2(a3),a0 ; source
-			move.l	\1_display(a3),a1 ; target
+			move.l	\1_display(a3),a1 ; destination
 			MOVEF.W	(copperlist1_size/LONGWORD_SIZE)-1,d7
 copy_first_copperlist_loop
 			move.l	(a0)+,(a1)+
@@ -705,8 +705,8 @@ copy_first_copperlist_loop
 		ENDC
 		IFEQ \2-3
 			move.l	\1_construction1(a3),a0 ; source
-			move.l	\1_construction2(a3),a1 ; first target
-			move.l	\1_display(a3),a2 ; second target
+			move.l	\1_construction2(a3),a1 ; 1st destination
+			move.l	\1_display(a3),a2 ; 2nd destination
 			MOVEF.W	(copperlist1_size/LONGWORD_SIZE)-1,d7
 copy_first_copperlist_loop
 			move.l	(a0),(a1)+
@@ -719,7 +719,7 @@ copy_first_copperlist_loop
 copy_second_copperlist
 		IFEQ \2-2
 			move.l	\1_construction2(a3),a0 ; source
-			move.l	\1_display(a3),a1 ; target
+			move.l	\1_display(a3),a1 ; destination
 			MOVEF.W	(copperlist2_size/LONGWORD_SIZE)-1,d7
 copy_second_copperlist_loop
 			move.l	(a0)+,(a1)+
@@ -728,8 +728,8 @@ copy_second_copperlist_loop
 		ENDC
 		IFEQ \2-3
 			move.l	\1_construction1(a3),a0 ; source
-			move.l	\1_construction2(a3),a1 ; first target
-			move.l	\1_display(a3),a2 ; second target
+			move.l	\1_construction2(a3),a1 ; 1st destination
+			move.l	\1_display(a3),a2 ; 2nd destination
 			MOVEF.W	(copperlist2_size/LONGWORD_SIZE)-1,d7
 copy_second_copperlist_loop
 			move.l	(a0),(a1)+
@@ -1628,7 +1628,7 @@ CLEAR_BPLCON4_CHUNKY_SCREEN	MACRO
 		moveq	#FALSE,d0
 		move.l	d0,BLTAFWM-DMACONR(a6)
 		ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
-		move.l	a0,BLTDPT-DMACONR(a6) ; target
+		move.l	a0,BLTDPT-DMACONR(a6) ; destination
 		move.w	#WORD_SIZE,BLTDMOD-DMACONR(a6)
 		IFEQ \1_\5
 			move.w	#-2,BLTADAT-DMACONR(a6) ; source 2nd word CWAIT
@@ -1651,7 +1651,7 @@ CLEAR_BPLCON4_CHUNKY_SCREEN	MACRO
 		moveq	#FALSE,d0
 		move.l	d0,BLTAFWM-DMACONR(a6)
 		ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
-		move.l	a0,BLTDPT-DMACONR(a6) ; target
+		move.l	a0,BLTDPT-DMACONR(a6) ; destination
 		move.w	#WORD_SIZE,BLTDMOD-DMACONR(a6)
 		IFEQ \1_\5
 			move.w	#-2,BLTADAT-DMACONR(a6) ; source 2nd word CWAIT
@@ -1777,7 +1777,7 @@ restore_first_copperlist_loop
 				move.l	\2_\3(a3),a0
 				WAITBLIT
 				ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
-				move.l	a0,BLTDPT-DMACONR(a6) ; target
+				move.l	a0,BLTDPT-DMACONR(a6) ; destination
 				move.w	#\2_\4_size-\1_restore_blit_width,BLTDMOD-DMACONR(a6)
 				moveq	#-2,d0 ; 2nd word CWAIT
 				move.w	d0,BLTADAT-DMACONR(a6) ; source 2nd word CWAIT
@@ -1868,7 +1868,7 @@ restore_second_copperlist_loop
 				move.l	\2_\3(a3),a0	
 				WAITBLIT
 				ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
-				move.l	a0,BLTDPT-DMACONR(a6) ; target
+				move.l	a0,BLTDPT-DMACONR(a6) ; destination
 				move.w	#\2_\4_size-\1_restore_blit_width,BLTDMOD-DMACONR(a6)
 				move.w	#-2,BLTADAT-DMACONR(a6) ; source 2nd word CWAIT
 				move.w	#(\1_restore_blit_y_size*64)|(\1_restore_blit_x_size/WORD_BITS),BLTSIZE-DMACONR(a6) ; start blit
@@ -1926,10 +1926,10 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 	move.l	\2_\3(a3),a2
 	ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_BPLCON4_1+WORD_SIZE,a2
 	IFC "pc","\7"
-		lea	\1_\6(\7),a5	; pointer BPLAM table
+		lea	\1_\6(\7),a5	; BPLAM table
 	ENDC
 	IFC "a3","\7"
-		move.l \6(\7),a5	; pointer BPLAM table
+		move.l \6(\7),a5	; BPLAM table
 	ENDC
 	IFNC "","\8"
 		add.l	#\8*BYTE_SIZE,a5 ; offset table start
@@ -1940,7 +1940,7 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 		moveq	#\2_display_width-1,d7
 	ENDC
 \1_set_background_bars_loop1
-	move.l	a5,a1			; pointer BPLAM table
+	move.l	a5,a1			; BPLAM table
 	moveq	#\1_bars_number-1,d6
 \1_set_background_bars_loop2
 	move.l	(a0)+,d0		; low word: y position, high word: z vector
@@ -2017,10 +2017,10 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 	move.l	\2_\3(a3),a2
 	ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_BPLCON4_1+WORD_SIZE,a2
 	IFC "pc","\7"
-		lea	\1_\6(\7),a5	; pointer BPLAM table
+		lea	\1_\6(\7),a5	; BPLAM table
 	ENDC
 	IFC "a3","\7"
-		move.l	\6(\7),a5	; pointer BPLAM table
+		move.l	\6(\7),a5	; BPLAM table
 	ENDC
 	IFNC "","\8"
 		add.l	#\8,a5		; offset table start
@@ -2031,7 +2031,7 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 		moveq	#\2_display_width-1,d7
 	ENDC
 \1_set_foreground_bars_loop1
-	move.l	a5,a1			; pointer BPLAM table
+	move.l	a5,a1			; BPLAM table
 	moveq	#\1_bars_number-1,d6
 \1_set_foreground_bars_loop2
 	move.l	(a0)+,d0		; low word: y position, high word: z vector

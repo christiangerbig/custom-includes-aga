@@ -191,7 +191,7 @@ print_error_text_skip
 	CNOP 0,4
 print_text
 	move.l	output_handle(a3),d1
-	move.l	a0,d2			; pointer error text
+	move.l	a0,d2			; error text
 	move.l	d0,d3			; error text length
 	CALLDOSQ Write
 

@@ -425,9 +425,9 @@ pt_PlvSkip
 	moveq	#0,d2
 	MOVEF.B	NIBBLE_MASK_HIGH,d0
 	move.b	n_cmd(a2),d2
-	lsr.b	#NIBBLE_SHIFT_BITS,d2	; lower nibble of sample number
+	lsr.b	#NIBBLE_SHIFT_BITS,d2	; low nibble of sample number
 	MOVEF.B	NIBBLE_MASK_HIGH,d0	
-	and.b	(a2),d0			; upper nibble of sample number
+	and.b	(a2),d0			; high nibble of sample number
 	addq.w	#pt_noteinfo_size/4,d1	; next channel data
 	or.b	d0,d2			; sample number
 	beq.s	pt_SetRegisters
@@ -528,7 +528,7 @@ pt_TreNoC
 	move.w	n_length(a2),d3
 	move.l	n_start(a2),d2
 	bne.s	pt_sdmaskp
-	move.l	audio_data(a3),d2	; pointer dummy audio data
+	move.l	audio_data(a3),d2	; dummy audio data
 	move.l	d2,n_loopstart(a2)
 	moveq	#pt_oneshotlen,d3
 	move.w	d3,n_replen(a2)
@@ -948,9 +948,9 @@ pt_ArpDivLoop
 	subq.w	#pt_ArpDiv,d0		; substract divisor from dividend
 	bge.s	pt_ArpDivLoop		; until dividend < divisor
 	addq.w	#pt_ArpDiv,d0		; adjust division remainder
-	subq.w	#1,d0			; remainder = $0001: add first halftone at tick #2 ?
+	subq.w	#1,d0			; remainder = $0001: add 1st halftone at tick #2 ?
 	beq.s	pt_Arpeggio1
-	subq.w	#1,d0			; remainder = $0002: add second halftone at tick #3 ?
+	subq.w	#1,d0			; remainder = $0002: add 2nd halftone at tick #3 ?
 	beq.s	pt_Arpeggio2
 ; 000 "Normal Play" 1st note
 pt_Arpeggio0
@@ -988,12 +988,12 @@ pt_ArpLoop
 pt_ArpFound
 	moveq	#((pt_PeriodTableEnd-pt_PeriodTable)/WORD_SIZE)-1,d3
 	sub.b	d7,d3			; number of periods - loopcounter = offset in periods table
-	add.b	d0,d3			; + first or second halftone
+	add.b	d0,d3			; + 1st or 2nd halftone
 	cmp.b	#(pt_PeriodTableEnd-pt_PeriodTable)/WORD_SIZE,d3
 	blt.s	pt_ArpNoClip
-	moveq	#0,d0			; clip first or second halftone
+	moveq	#0,d0			; clip 1st or 2nd halftone
 pt_ArpNoClip
-	move.w	-WORD_SIZE(a1,d0.w*2),d2 ; original note period + first or second halftone offset
+	move.w	-WORD_SIZE(a1,d0.w*2),d2 ; original note period + 1st or 2nd halftone offset
 	bra.s	pt_ArpeggioSet
 	ENDM
 
@@ -1422,9 +1422,9 @@ PT3_EFFECT_PATTERN_BREAK	MACRO
 pt_PatternBreak
 	move.b	n_cmdlo(a2),d0		; command data: xx-break position (decimal)
 	moveq	#NIBBLE_MASK_LOW,d2
-	and.b	d0,d2			; lower nibble: digits 0..9
+	and.b	d0,d2			; low nibble: digits 0..9
 	lsr.b	#NIBBLE_SHIFT_BITS,d0	; adjust bits
-	MULUF.B	10,d0,d7		; upper nibble:  digits 10..60
+	MULUF.B	10,d0,d7		; high nibble:  digits 10..60
 	add.b	d2,d0			; decimal number
 	cmp.b	#pt_maxpattpos-1,d0	; break position > last position in pattern ?
 	bhi.s	pt_PB2
@@ -1614,7 +1614,7 @@ pt_KarpLoop
 	dbf	d7,pt_KarpLoop
 	move.b	(a1),d0			; last sample byte
 	ext.w	d0
-	move.b	(a0),d2			; first sample byte
+	move.b	(a0),d2			; 1st sample byte
 	ext.w	d2
 	move.l	(a7)+,a0
 	add.w	d0,d2

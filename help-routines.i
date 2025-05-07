@@ -132,7 +132,7 @@ wait_copint_loop
 ; Input
 ; a0.l	Pointer copperlist
 ; a1.l	Pointer color table
-; d3.w	Offset first color register
+; d3.w	Offset 1st color register
 ; d7.w	Number of colors
 ; Result
 	CNOP 0,4
@@ -151,7 +151,7 @@ cop_init_high_colors_loop
 ; Input
 ; a0.l	Pointer copperlist
 ; a1.l	Pointer color table
-; d3.w	Offset first color register
+; d3.w	Offset 1st color register
 ; d7.w	Number of colors
 ; Result
 	CNOP 0,4
@@ -224,9 +224,9 @@ init_color_gradient_rgb8_loop
 		moveq	#0,d4
 		move.w	d3,d4
 		moveq	#0,d5
-		move.b	d3,d5		; B8 target
-		clr.w	d3		; R8 target
-		clr.b	d4		; G8 target
+		move.b	d3,d5		; B8 destination
+		clr.w	d3		; R8 destination
+		clr.b	d4		; G8 destination
 		cmp.l	d3,d0
 		bgt.s	decrease_red_rgb8
 		blt.s	increase_red_rgb8

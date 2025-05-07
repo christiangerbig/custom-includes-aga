@@ -77,95 +77,95 @@ error_text_timer_device_end
 		EVEN
 
 error_text_cl1_constr1
-		DC.B "Couldn't allocate memory for first copperlist1-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Couldn't allocate memory for 1st copperlist1-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_cl1_constr1_end
 		EVEN
 error_text_cl1_constr2
-		DC.B "Couldn't allocate memory for second copperlist1-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Couldn't allocate memory for 2nd copperlist1-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_cl1_constr2_end
 		EVEN
 error_text_cl1_display
-		DC.B "Couldn't allocate memory for third copperlist1-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Couldn't allocate memory for 3rd copperlist1-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_cl1_display_end
 		EVEN
 
 error_text_cl2_constr1
-		DC.B "Couldn't allocate memory for first copperlist2-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Couldn't allocate memory for 1st copperlist2-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_cl2_constr1_end
 		EVEN
 error_text_cl2_constr2
-		DC.B "Couldn't allocate memory for second copperlist2-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Couldn't allocate memory for 2nd copperlist2-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_cl2_constr2_end
 		EVEN
 error_text_cl2_display
-		DC.B "Couldn't allocate memory for third copperlist2-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Couldn't allocate memory for 3rd copperlist2-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_cl2_display_end
 		EVEN
 
 error_text_pf1_constr1_1
-		DC.B "Couldn't allocate memory for first playfield1-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Couldn't allocate memory for 1st playfield1-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_pf1_constr1_1_end
 		EVEN
 error_text_pf1_constr1_2
-		DC.B "Check of first playfieled1-buffer failed !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Check of 1st playfieled1-buffer failed !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_pf1_constr1_2_end
 		EVEN
 error_text_pf1_constr2_1
-		DC.B "Couldn't allocate memory for second playfield1-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Couldn't allocate memory for 2nd playfield1-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_pf1_constr2_1_end
 		EVEN
 error_text_pf1_constr2_2
-		DC.B "Check of second playfieled1-buffer failed !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Check of 2nd playfieled1-buffer failed !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_pf1_constr2_2_end
 		EVEN
 error_text_pf1_display_1
-		DC.B "Couldn't allocate memory for third playfield1-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Couldn't allocate memory for 3rd playfield1-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_pf1_display_1_end
 		EVEN
 error_text_pf1_display_2
-		DC.B "Check of third playfield1-buffer failed !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Check of 3rd playfield1-buffer failed !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_pf1_display_2_end
 		EVEN
 
 error_text_pf2_constr1_1
-		DC.B "Couldn't allocate memory for first playfield2-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Couldn't allocate memory for 1st playfield2-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_pf2_constr1_1_end
 		EVEN
 error_text_pf2_constr1_2
-		DC.B "Check of first playfield2-buffer failed !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Check of 1st playfield2-buffer failed !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_pf2_constr1_2_end
 		EVEN
 error_text_pf2_constr2_1
-		DC.B "Couldn't allocate memory for second playfield2-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Couldn't allocate memory for 2nd playfield2-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_pf2_constr2_1_end
 		EVEN
 error_text_pf2_constr2_2
-		DC.B "Check of second playfield2-buffer failed !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Check of 2nd playfield2-buffer failed !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_pf2_constr2_2_end
 		EVEN
 error_text_pf2_display_1
-		DC.B "Couldn't allocate memory for third playfield2-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Couldn't allocate memory for 3rd playfield2-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_pf2_display_1_end
 		EVEN
 error_text_pf2_display_2
-		DC.B "Check of third playfield2-buffer failed !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Check of 3rd playfield2-buffer failed !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_pf2_display_2_end
 		EVEN
@@ -182,22 +182,22 @@ error_text_pf_extra_2_end
 		EVEN
 
 error_text_spr_constr_1
-		DC.B "Couldn't allocate memory for first sprites-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Couldn't allocate memory for 1st sprites-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_spr_constr_1_end
 		EVEN
 error_text_spr_constr_2
-		DC.B "Check of first sprites-buffer failed !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Check of 1st sprites-buffer failed !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_spr_constr_2_end
 		EVEN
 error_text_spr_display_1
-		DC.B "Couldn't allocate memory for second sprites-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Couldn't allocate memory for 2nd sprites-buffer !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_spr_display_1_end
 		EVEN
 error_text_spr_display_2
-		DC.B "Check of second sprites-buffer failed !",ASCII_LINE_FEED,ASCII_LINE_FEED
+		DC.B "Check of 2nd sprites-buffer failed !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
 error_text_spr_display_2_end
 		EVEN

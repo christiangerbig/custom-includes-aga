@@ -1936,7 +1936,7 @@ alloc_pf_extra_memory_loop
 		move.l	(a5)+,d1	; height
 		move.l	(a5)+,d2	; depth
 		bsr	do_alloc_bitmap_memory
-		move.l	d0,(a2)+	; pointer bitmap structure
+		move.l	d0,(a2)+	; bitmap structure
 		beq.s	alloc_pf_extra_memory_fail
 		addq.l	#bm_Planes,d0
 		move.l	d0,(a4)+	; offset bitplane1
@@ -1957,7 +1957,7 @@ check_pf_extra_memory
 		lea	pf_extra_attributes(pc),a4
 		moveq	#pf_extra_number-1,d7
 check_pf_extra_memory_loop
-		move.l	(a2)+,a0	; pointer bitmap structure
+		move.l	(a2)+,a0	; bitmap structure
 		moveq	#BMA_FLAGS,d1
 		CALLGRAF GetBitmapAttr
 		btst	#BMB_DISPLAYABLE,d0
@@ -1994,7 +1994,7 @@ alloc_sprite_memory1_loop
 		move.l	(a5)+,d1	; height
 		move.l	(a5)+,d2	; depth
 		bsr	do_alloc_bitmap_memory
-		move.l	d0,(a2)+	; pointer bitmap structure
+		move.l	d0,(a2)+	; bitmap structure
 		beq.s	alloc_sprite_memory1_fail
 		addq.l	#bm_Planes,d0
 		move.l	d0,(a4)+	; offset bitplane1
@@ -2014,7 +2014,7 @@ check_sprite_memory1
 		lea	spr0_bitmap1(a3),a2
 		moveq	#spr_number-1,d7
 check_sprite_memory1_loop
-		move.l	(a2)+,a0	; pointer bitmap structure
+		move.l	(a2)+,a0	; bitmap structure
 		moveq	#BMA_FLAGS,d1
 		CALLGRAF GetBitmapAttr
 		btst	#BMB_DISPLAYABLE,d0
@@ -2048,7 +2048,7 @@ alloc_sprite_memory2_loop
 		move.l	(a5)+,d1	; height
 		move.l	(a5)+,d2	; depth
 		bsr	do_alloc_bitmap_memory
-		move.l	d0,(a2)+	; pointer bitmap structure
+		move.l	d0,(a2)+	; bitmap structure
 		beq.s	alloc_sprite_memory2_fail
 		addq.l	#bm_Planes,d0
 		move.l	d0,(a4)+	; offset bitplane1
@@ -2068,7 +2068,7 @@ check_sprite_memory2
 		lea	spr0_bitmap2(a3),a2
 		moveq	#spr_number-1,d7
 check_sprite_memory2_loop
-		move.l	(a2)+,a0	; pointer bitmap structure
+		move.l	(a2)+,a0	; bitmap structure
 		moveq	#BMA_FLAGS,d1
 		CALLGRAF GetBitmapAttr
 		btst	#BMB_DISPLAYABLE,d0
@@ -2279,7 +2279,7 @@ save_beamcon0_register
 			CALLINT ViewAddress
 			move.l	d0,a0
 			CALLGRAF GfxLookUp
-			move.l	d0,a0	; pointer view extra structure
+			move.l	d0,a0	; view extra structure
 			move.l	ve_monitor(a0),a0
 			move.w	ms_BeamCon0(a0),old_beamcon0(a3)
 			rts
@@ -2384,7 +2384,7 @@ sf_fade_out_screen
       CNOP 0,4
 rgb32_screen_fader_out
 			MOVEF.W	sf_rgb32_colors_number*3,d6 ; RGB counter
-			move.l	sf_screen_color_cache(a3),a0 ; target calues
+			move.l	sf_screen_color_cache(a3),a0 ; destination calues
 			addq.w  #4,a0	; Offset überspringen
 			move.l	pf1_rgb8_color_table(pc),a1 ; destination COLOR00
 			move.w  #sfo_fader_speed,a4 ; increase/decrease RGB values
@@ -2736,7 +2736,7 @@ init_exception_vectors
 move_exception_vectors
 		move.l	exception_vectors_base(a3),d0
 		beq.s	move_exception_vectors_quit
-		move.l	d0,a1		; target
+		move.l	d0,a1		; destination
 		move.l	old_vbr(a3),a0	; source
 		MOVEF.W	(exception_vectors_size/LONGWORD_SIZE)-1,d7 ; number of vectors
 move_exception_vectors_loop
@@ -3138,7 +3138,7 @@ get_tod_duration_skip2
 		CNOP 0,4
 restore_exception_vectors
 		lea	exception_vecs_save(pc),a0 ; source
-		move.l	old_vbr(a3),a1	; target
+		move.l	old_vbr(a3),a1	; destination
 		MOVEF.W	(exception_vectors_size/LONGWORD_SIZE)-1,d7 ; number of vectors
 restore_exception_vectors_loop
 		move.l	(a0)+,(a1)+
@@ -3219,7 +3219,7 @@ restore_sprite_resolution
 		move.l	#VTAG_SPRITERESN_SET,vctl_VTAG_SPRITERESN+ti_tag(a1)
 		move.l	old_sprite_resolution(a3),vctl_VTAG_SPRITERESN+ti_data(a1)
 		CALLGRAF VideoControl
-		move.l	a2,a0			; pointer screen structure
+		move.l	a2,a0			; screen structure
 		CALLINT MakeScreen
 		CALLLIBQ RethinkDisplay
 
@@ -3369,14 +3369,14 @@ print_formatted_text
 
 			lea	format_string(pc),a0
 			lea	data_stream(pc),a1 ; data format string
-			lea	put_ch_process(pc),a2 ; pointer copy routine
+			lea	put_ch_process(pc),a2 ; copy routine
 			move.l	a3,-(a7)
-			lea	put_ch_data(pc),a3 ; pointer output string
+			lea	put_ch_data(pc),a3 ; output string
 			CALLEXEC RawDoFmt
 			move.l	(a7)+,a3
 			move.l	output_handle(a3),d1
 			lea	put_ch_data(pc),a0 
-			move.l	a0,d2	; pointer text
+			move.l	a0,d2	; text
 			moveq	#-1,d3	; characters counter
 print_formatted_text_loop
 			addq.w	#1,d3
@@ -3804,7 +3804,7 @@ print_error_message_skip
 		subq.w	#1,d4		; count starts at 0
 		MULUF.W	8,d4,d1
 		lea	custom_error_table(pc),a0
-		move.l	(a0,d4.w),d2	; pointer error text
+		move.l	(a0,d4.w),d2	; error text
 		move.l	4(a0,d4.w),d3	; error text length
 		move.l	d0,d1		; file handle
 		CALLLIBS Write
@@ -3838,7 +3838,7 @@ original_screen_to_front_quit
 
 ; Input
 ; Result
-; d0.l	pointer screen structure first screen
+; d0.l	pointer screen structure 1st screen
 		CNOP 0,4
 get_first_screen
 		moveq	#0,d0		; all locks

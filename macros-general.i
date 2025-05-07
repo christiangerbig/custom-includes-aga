@@ -162,7 +162,7 @@ ADDF				MACRO
 		FAIL Macro ADDF: 8/16 bit source value missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro ADDF: target missing
+		FAIL Macro ADDF: destination missing
 	ENDC
 	IFEQ \1
 		MEXIT
@@ -1265,7 +1265,7 @@ CPU_INIT_COLOR_HIGH		MACRO
 	ENDC
 	lea		(\1)-DMACONR(a6),a0 ;first color register
 	IFNC "","\3"
-		lea	\3(pc),a1	; pointer color table
+		lea	\3(pc),a1	; color table
 	ENDC
 	moveq	#\2-1,d7		; number of colors
 	bsr	cpu_init_high_colors
@@ -1286,7 +1286,7 @@ CPU_INIT_COLOR_LOW		MACRO
 	ENDC
 	lea		(\1)-DMACONR(a6),a0 ; erstes Farbregister
 	IFNC "","\3"
-		lea	\3(pc),a1	; pointer color table
+		lea	\3(pc),a1	; color table
 	ENDC
 	moveq	#\2-1,d7		; number of colors
 	bsr	cpu_init_low_colors
@@ -1312,10 +1312,10 @@ RGB8_TO_RGB4_HIGH		MACRO
 	lsr.l	#4,\1			; RrGgB
 	and.w	\3,\1			; RrG0B
 	move.l	\1,\2			; RrG0B
-	lsr.l	#4,\1			;  RrGB
-	or.b	\1,\2			;  RrGB
-	lsr.w	#4,\1			;   RrG
-	move.b	\2,\1			;   RGB
+	lsr.l	#4,\1			; RrGB
+	or.b	\1,\2			; RrGB
+	lsr.w	#4,\1			; RrG
+	move.b	\2,\1			; RGB
 	ENDM
 
 
@@ -1335,12 +1335,12 @@ RGB8_TO_RGB4_LOW		MACRO
 	IFC "","\3"
 		FAIL Macro RGB8_TO_RGB4_LOW: Color low bits mask missing
 	ENDC
-	and.w	\3,\1			;   g0b
-	move.b	\1,\2			;    0b
+	and.w	\3,\1			; g0b
+	move.b	\1,\2			;  0b
 	lsr.l	#4,\1			; Rr0g0
-	or.b	\1,\2			;    gb
-	lsr.w	#4,\1			;   r0g
-	move.b	\2,\1			;   rgb
+	or.b	\1,\2			;  gb
+	lsr.w	#4,\1			; r0g
+	move.b	\2,\1			; rgb
 	ENDM
 
 
@@ -1386,7 +1386,7 @@ INIT_CHARACTERS_OFFSETS MACRO
 		FAIL Macro INIT_CHARACTERS_OFFSETS: Labels prefix missing
 	ENDC
 	IFC "W","\0"
-		moveq	#0,d0		; first character image x offset
+		moveq	#0,d0		; 1st character image x offset
 		moveq	#\1_image_plane_width,d1 ; last character image x offset
 		move.w	d1,d2		; x offset reset
 		MOVEF.W \1_image_plane_width*\1_image_depth*(\1_origin_char_y_size+1),d3 ; next character images line
@@ -1405,7 +1405,7 @@ INIT_CHARACTERS_OFFSETS MACRO
 		rts
 	ENDC
 	IFC "L","\0"
-		moveq	#0,d0		; first character image x offset
+		moveq	#0,d0		; 1st character image x offset
 		moveq	#\1_image_plane_width,d1 ; last character image x offset
 		move.l	d1,d2		; x offset reset
 		move.l	#\1_image_plane_width*\1_image_depth*(\1_origin_char_y_size),d3 ; next character images line
@@ -1441,7 +1441,7 @@ INIT_CHARACTERS_X_POSITIONS	MACRO
 	IFC "","\2"
 		FAIL Macro INIT_CHARACTERS_X_POSITIONS: Pixel resolution ["LORES", "HIRES", "SHIRES"] missing
 	ENDC
-	moveq	#0,d0			; first x
+	moveq	#0,d0			; 1st x
 	IFC "LORES","\2"
 		moveq	#\1_text_char_x_size,d1 ; next character image
 	ENDC
@@ -1487,7 +1487,7 @@ INIT_CHARACTERS_Y_POSITIONS		MACRO
 	IFC "","\1"
 		FAIL Macro INIT_CHARACTERS_Y_POSITIONS: Labels prefix missing
 	ENDC
-	moveq	#0,d0			; first y
+	moveq	#0,d0			; 1st y
 	moveq	#\1_text_char_y_size,d1 ; next chracter image
 	lea	\1_characters_y_positions(pc),a0
 	IFC "","\2"
@@ -1799,17 +1799,17 @@ INIT_MIRROR_BPLAM_TABLE	MACRO
 		FAIL Macro INIT_MIRROR_bplam_table: Pointer base [pc, a3] missing
 	ENDC
 	IFC "pc","\7"
-		lea	\1_\6(\7),a0	; pointer BPLAM table
+		lea	\1_\6(\7),a0	; BPLAM table
 	ENDC
 	IFC "a3","\7"
-		move.l	\6(\7),a0	; pointer BPLAM table
+		move.l	\6(\7),a0	; BPLAM table
 	ENDC
 	IFC "B","\0"
 		IFNC "","\8"
 			add.l	#\8*BYTE_SIZE,a0 ; offset table start
 		ENDC
 		IFNC "","\2"
-			moveq	#\2,d0	; first BPLAM value
+			moveq	#\2,d0	; 1st BPLAM value
 		ENDC
 		IFNC "","\3"
 			moveq	#\3,d2	; next BPLAM value
@@ -1838,7 +1838,7 @@ INIT_MIRROR_BPLAM_TABLE	MACRO
 			add.l	#\8*WORD_SIZE,a0 ; offset table start
 		ENDC
 		IFNC "","\2"
-			move.l	#(\2<<8)|bplcon4_bits,d0 ; first BPLAM value
+			move.l	#(\2<<8)|bplcon4_bits,d0 ; 1st BPLAM value
 		ENDC
 		IFNC "","\3"
 			move.l	#\3<<8,d2 ; next BPLAM value
@@ -1906,20 +1906,20 @@ INIT_NESTED_MIRROR_BPLAM_TABLE	MACRO
 		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Pointer base [pc, a3] missing
 	ENDC
 	IFC "pc","\7"
-		lea	\1_\6(\7),a1	; pointer BPLAM table
+		lea	\1_\6(\7),a1	; BPLAM table
 	ENDC
 	IFC "a3","\7"
-		move.l	\6(\7),a1	; pointer BPLAM table
+		move.l	\6(\7),a1	; BPLAM table
 	ENDC
 	IFNC "","\8"
 		add.l	#\8,a1		; offset table start
 	ENDC
 	IFC "B","\0"
-		moveq	#\2,d0		; first BPLAM value
+		moveq	#\2,d0		; 1st BPLAM value
 		moveq	#\3,d2		; next BPLAM value
 		moveq	#\4-1,d7	; number of color gradients
 \1_init_nested_mirror_bplam_table_loop1
-		move.l	a1,a0		; pointer BPLAM table
+		move.l	a1,a0		; BPLAM table
 		moveq	#\5-1,d6	; number of sections per color gradient
 \1_init_nested_mirror_bplam_table_loop2_1
 		move.b	d0,(a0)
@@ -1941,11 +1941,11 @@ INIT_NESTED_MIRROR_BPLAM_TABLE	MACRO
 		dbf	d7,\1_init_nested_mirror_bplam_table_loop1
 	ENDC
 	IFC "W","\0"
-		move.l	#(\2<<8)|bplcon4_bits,d0 ; first BPLAM value
+		move.l	#(\2<<8)|bplcon4_bits,d0 ; 1st BPLAM value
 		move.l	#\3<<8,d2	; next BPLAM value
 		moveq	#\4-1,d7	; number of color gradients
 \1_init_nested_mirror_bplam_table_loop1
-		move.l	a1,a0		; pointer BPLAM table
+		move.l	a1,a0		; BPLAM table
 		moveq	#\5-1,d6	; number of sections per color gradient
 \1_init_nested_mirror_bplam_table_loop2_1
 		move.w	d0,(a0)
@@ -2002,10 +2002,10 @@ INIT_BPLAM_TABLE		MACRO
 	ENDC
 	IFC "B","\0"
 		IFC "pc","\6"
-			lea	\1_\5(\6),a0 ; pointer BPLAM table
+			lea	\1_\5(\6),a0 ; BPLAM table
 		ENDC
 		IFC "a3","\6"
-			move.l	\5(\6),a0 ; pointer BPLAM table
+			move.l	\5(\6),a0 ; BPLAM table
 		ENDC
 		IFNC "","\7"
 			add.l	#(\7)*BYTE_SIZE,a0 ; offset table start
@@ -2014,7 +2014,7 @@ INIT_BPLAM_TABLE		MACRO
 			move.l	#(\8)*BYTE_SIZE,a1 ; offset next BPLAM value
 		ENDC
 		IFNC "","\2"
-			MOVEF.W	\2,d0		; first BPLAM value
+			MOVEF.W	\2,d0		; 1st BPLAM value
 		ENDC
 		IFNC "","\3"
 			moveq	#\3,d2		; next BPLAM value
@@ -2032,10 +2032,10 @@ INIT_BPLAM_TABLE		MACRO
 	ENDC
 	IFC "W","\0"
 		IFC "pc","\6"
-			lea	\1_\5(\6),a0	; pointer BPLAM table
+			lea	\1_\5(\6),a0	; BPLAM table
 		ENDC
 		IFC "a3","\6"
-			move.l	\5(\6),a0	; pointer BPLAM table
+			move.l	\5(\6),a0	; BPLAM table
 		ENDC
 		IFNC "","\7"
 			add.l	#(\7)*WORD_SIZE,a0 ; offset table start
@@ -2044,7 +2044,7 @@ INIT_BPLAM_TABLE		MACRO
 			move.l	#(\8)*WORD_SIZE,a1 ; offset next BPLAM value
 		ENDC
 		IFNC "","\2"
-			move.l	#\2<<8,d0	; first BPLAM value
+			move.l	#\2<<8,d0	; 1st BPLAM value
 		ENDC
 		IFNC "","\3"
 			move.l	#\3<<8,d2	; next BPLAM value
@@ -2088,10 +2088,10 @@ INIT_COLOR_GRADIENT_RGB8	MACRO
 	move.l	#\2,d6			; RGB8 end
 	IFNC "","\5"
 		IFC "pc","\6"
-			lea	\5(\6),a0 ; pointer color table
+			lea	\5(\6),a0 ; color table
 		ENDC
 		IFC "a3","\6"
-			move.l	\5(\6),a0 ; pointer color table
+			move.l	\5(\6),a0 ; color table
 		ENDC
 	ENDC
 	IFNC "","\8"
@@ -2132,10 +2132,10 @@ INIT_COLOR_GRADIENTS_RGB8	MACRO
 	ENDC
 	IFNC "","\5"
 		IFC "pc","\6"
-			lea	\5(\6),a0 ; pointer color table
+			lea	\5(\6),a0 ; color table
 		ENDC
 		IFC "a3","\6"
-			move.l	\5(\6),a0 ; pointer color table
+			move.l	\5(\6),a0 ; color table
 		ENDC
 		IFNC "","\7"
 			add.l	#(\7)*LONGWORD_SIZE,a0 ; add offset
@@ -2155,7 +2155,7 @@ init_color_gradients_rgb8_loop2\@
 	move.l	(\1)*LONGWORD_SIZE(a0),d6 ; RGB8 end
 	tst.w	d5			; last loop in section ?
 	bne.s	init_color_gradients_rgb8_skip\@
-	move.l	-((\1)*LONGWORD_SIZE*(\3-1))(a0),d6 ; RGB8 end = first value in section 1
+	move.l	-((\1)*LONGWORD_SIZE*(\3-1))(a0),d6 ; RGB8 end = 1st value in section 1
 init_color_gradients_rgb8_skip\@
 	movem.l d5/d7,-(a7)
 	MOVEF.L	\1-1,d7			; number of color values
@@ -2188,9 +2188,9 @@ COPY_IMAGE_TO_BITPLANE		MACRO
 	ENDC
 	lea	\1_image_data,a1	; source
 	IFC "","\4"
-		move.l	pf1_display(a3),a4 ; target
+		move.l	pf1_display(a3),a4 ; destination
 	ELSE
-		move.l	\4(a3),a4	; target
+		move.l	\4(a3),a4	; destination
 	ENDC
 	move.w	#(\1_image_plane_width*\1_image_depth)-\1_image_plane_width,a5
 	IFC "","\4"
@@ -2212,7 +2212,7 @@ COPY_IMAGE_TO_BITPLANE		MACRO
 	CNOP 0,4
 \1_copy_image_data
 	move.l	a1,a0			; source
-	move.l	(a4)+,a2		; target
+	move.l	(a4)+,a2		; destination
 	IFNC "","\2"
 		add.l	d4,a2		; + xy offset
 	ENDC
@@ -2223,7 +2223,7 @@ COPY_IMAGE_TO_BITPLANE		MACRO
 	move.w	(a0)+,(a2)+
 	dbf	d5,\1_copy_image_data_loop2
 	add.l	a5,a0			; next line in source
-	add.l	a6,a2			; next line in target
+	add.l	a6,a2			; next line in destination
 	dbf	d6,\1_copy_image_data_loop1
 	rts
 	ENDM
@@ -2244,7 +2244,7 @@ INIT_DISPLAY_PATTERN		MACRO
 \1_init_display_pattern
 	moveq	#0,d0			; columns counter
 	moveq	#0,d1
-	moveq	#1,d3			; first color number
+	moveq	#1,d3			; 1st color number
 	move.l	pf1_display(a3),a0
 	move.l	(a0),a0
 	moveq	#(cl2_display_width)-1,d7 ; number of columns
@@ -2530,7 +2530,7 @@ RGB8_COLOR_FADER			MACRO
 	clr.b	d1			; Gg
 	move.b	d0,d2			; Bb
 	clr.w	d0			; Rr
-	move.l	(a1)+,d3		; RGB8 target
+	move.l	(a1)+,d3		; RGB8 destination
 	moveq	#0,d4
 	move.w	d3,d4			; GgBb
 	moveq	#0,d5
@@ -2542,21 +2542,21 @@ RGB8_COLOR_FADER			MACRO
 	bgt.s	\1_rgb8_decrease_red
 	blt.s	\1_rgb8_increase_red
 \1_rgb8_matched_red
-	subq.w	#1,d6			; target value reached
+	subq.w	#1,d6			; destination value reached
 ; Grünwert
 \1_rgb8_check_green
 	cmp.l	d4,d1
 	bgt.s	\1_rgb8_decrease_green
 	blt.s	\1_rgb8_increase_green
 \1_rgb8_matched_green
-	subq.w	#1,d6			; target value reached
+	subq.w	#1,d6			; destination value reached
 ; Blauwert
 \1_rgb8_check_blue
 	cmp.w	d5,d2
 	bgt.s	\1_rgb8_decrease_blue
 	blt.s	\1_rgb8_increase_blue
 \1_rgb8_matched_blue
-	subq.w	#1,d6			; target value reached
+	subq.w	#1,d6			; destination value reached
 \1_merge_rgb8
 	move.l	d0,d3			; updated red
 	move.w	d1,d3			; updated green
@@ -2570,42 +2570,42 @@ RGB8_COLOR_FADER			MACRO
 	sub.l	a2,d0			; decrease red
 	cmp.l	d3,d0
 	bgt.s	\1_rgb8_check_green
-	move.l	d3,d0			; target value red
+	move.l	d3,d0			; destination value red
 	bra.s	\1_rgb8_matched_red
 	CNOP 0,4
 \1_rgb8_increase_red
 	add.l	a2,d0			; increase red
 	cmp.l	d3,d0
 	blt.s	\1_rgb8_check_green
-	move.l	d3,d0			; target value red
+	move.l	d3,d0			; destination value red
 	bra.s	\1_rgb8_matched_red
 	CNOP 0,4
 \1_rgb8_decrease_green
 	sub.l	a4,d1			; decrease green
 	cmp.l	d4,d1
 	bgt.s	\1_rgb8_check_blue
-	move.l	d4,d1			; target value green
+	move.l	d4,d1			; destination value green
 	bra.s	\1_rgb8_matched_green
 	CNOP 0,4
 \1_rgb8_increase_green
 	add.l	a4,d1			; increase green
 	cmp.l	d4,d1
 	blt.s	\1_rgb8_check_blue
-	move.l	d4,d1			; target value green
+	move.l	d4,d1			; destination value green
 	bra.s	\1_rgb8_matched_green
 	CNOP 0,4
 \1_rgb8_decrease_blue
 	sub.w	a5,d2			; decrease blue
 	cmp.w	d5,d2
 	bgt.s	\1_merge_rgb8
-	move.w	d5,d2			; target value blue
+	move.w	d5,d2			; destination value blue
 	bra.s	\1_rgb8_matched_blue
 	CNOP 0,4
 \1_rgb8_increase_blue
 	add.w	a5,d2			; increase blue
 	cmp.w	d5,d2
 	blt.s	\1_merge_rgb8
-	move.w	d5,d2			; target value blue
+	move.w	d5,d2			; destination value blue
 	bra.s	\1_rgb8_matched_blue
 	ENDM
 
