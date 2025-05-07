@@ -4,7 +4,7 @@ dst_sampleinfo			RS.B 0
 
 dst_si_samplename		RS.B 22	; name padded with null bytes
 dst_si_samplelength		RS.W 1	; length in words
-dst_si_volume			RS.W 1	; bits 0-6 sample volume [0..64]
+dst_si_volume			RS.W 1	; bits 0..6 sample volume [0..64]
 dst_si_repeatpoint		RS.W 1	; start of sample repeat offset in bytes
 dst_si_repeatlength		RS.W 1	; length of sample repeat in words
 
@@ -29,9 +29,9 @@ dst_songdata_size		RS.B 0
 
 dst_noteinfo			RS.B 0
 
-dst_ni_note			RS.W 1	; bits 0-11 note period
-dst_ni_cmd			RS.B 1	; bits 0-3 effect command number, bits 4-7 sample number
-dst_ni_cmdlo			RS.B 1	; bits 0-7 effect command data
+dst_ni_note			RS.W 1	; bits 0..11 note period
+dst_ni_cmd			RS.B 1	; bits 0..3 effect command number, bits 4-7 sample number
+dst_ni_cmdlo			RS.B 1	; bits 0..7 effect command data
 
 dst_noteinfo_size		RS.B 0
 

@@ -4,7 +4,7 @@ ost_sampleinfo			RS.B 0
 
 ost_si_samplename		RS.B 22	; name padded with null bytes
 ost_si_samplelength		RS.W 1	; sample length in words
-ost_si_volume			RS.W 1	; bits 0-6 sample volume [0..64]
+ost_si_volume			RS.W 1	; bits 0..6 sample volume [0..64]
 ost_si_repeatpoint		RS.W 1	; start of sample repeat offset in bytes
 ost_si_repeatlength		RS.W 1	; length of sample repeat in words
 
@@ -29,9 +29,9 @@ ost_songdata_size		RS.B 0
 
 ost_noteinfo			RS.B 0
 
-ost_ni_note			RS.W 1	; bits 0-11 noteperiod
-ost_ni_cmd			RS.B 1	; bits 0-3 effect command number, bits 4-7 sample number
-ost_ni_cmdlo			RS.B 1	; bits 0-7 effect command data
+ost_ni_note			RS.W 1	; bits 0..11 noteperiod
+ost_ni_cmd			RS.B 1	; bits 0..3 effect command number, bits 4-7 sample number
+ost_ni_cmdlo			RS.B 1	; bits 0..7 effect command data
 
 ost_noteinfo_size		RS.B 0
 

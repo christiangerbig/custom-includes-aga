@@ -31,8 +31,8 @@ COP_MOVEQ			MACRO
 
 COP_WAIT			MACRO
 ; Input
-; \1 ...	x position (bits 2-8)
-; \2 ...	y Position (bits 0-7)
+; \1 	X position (bits 2..8)
+; \2 	Y Position (bits 0..7)
 ; Result
 	IFC "","\1"
 		FAIL Macro COP_WAIT: x position missing
@@ -53,8 +53,8 @@ COP_WAITBLIT			MACRO
 
 COP_WAITBLIT2			MACRO
 ; Input
-; \1 ...	x position (bits 2-8)
-; \2 ...	y Position (bits 0-7)
+; \1 	X position (bits 2..8)
+; \2 	Y Position (bits 0..7)
 ; Result
 	IFC "","\1"
 		FAIL Macro COP_WAITBLIT2: x position missing
@@ -68,8 +68,8 @@ COP_WAITBLIT2			MACRO
 
 COP_SKIP			MACRO
 ; Input
-; \1 ...	x position (bits 2-8)
-; \2 ...	y Position (bits 0-7)
+; \1 	X position (bits 2..8)
+; \2 	Y Position (bits 0..7)
 ; Result
 	IFC "","\1"
 		FAIL Macro COP_SKIP: x position missing

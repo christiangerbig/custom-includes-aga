@@ -1713,7 +1713,7 @@ CPU_SELECT_COLOR_LOW_BANK	MACRO
 DISABLE_060_STORE_BUFFER	MACRO
 ; Input
 ; Result
-; d0.l	...	CACR old content
+; d0.l		CACR old content
 	move.l	_SysBase(pc),a6
 	tst.b	AttnFlags+BYTESZE(a6)	; MC68060 ?
 	bpl.s	disable_060_store_buffer_skip
@@ -1741,7 +1741,7 @@ do_disable_060_store_buffer
 
 ENABLE_060_STORE_BUFFER		MACRO
 ; Input
-; d1.l	...	CACR old content
+; d1.l		CACR old content
 ; Result
 	move.l	_SysBase(pc),a6
 	tst.b	AttnFlags+BYTE_SIZE(a6)	; MC68060 ?
