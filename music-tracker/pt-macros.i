@@ -124,7 +124,7 @@ pt_InitRegisters
 	move.w	d0,AUD2VOL-DMACONR(a6)
 	move.w	d0,AUD3VOL-DMACONR(a6)
 	IFD SYS_TAKEN_OVER
-		move.w	#DMAF_AUD0+DMAF_AUD1+DMAF_AUD2+DMAF_AUD3,DMACON-DMACONR(a6) ; disable channels DMA
+		move.w	#DMAF_AUD0|DMAF_AUD1|DMAF_AUD2|DMAF_AUD3,DMACON-DMACONR(a6) ; disable channels DMA
 	ENDC
 	rts
 	ENDM

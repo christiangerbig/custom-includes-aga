@@ -31,8 +31,8 @@ COP_MOVEQ			MACRO
 
 COP_WAIT			MACRO
 ; Input
-; \1 	X position (bits 2..8)
-; \2 	Y Position (bits 0..7)
+; \1	X position (bits 2..8)
+; \2	Y Position (bits 0..7)
 ; Result
 	IFC "","\1"
 		FAIL Macro COP_WAIT: x position missing
@@ -53,8 +53,8 @@ COP_WAITBLIT			MACRO
 
 COP_WAITBLIT2			MACRO
 ; Input
-; \1 	X position (bits 2..8)
-; \2 	Y Position (bits 0..7)
+; \1	X position (bits 2..8)
+; \2	Y Position (bits 0..7)
 ; Result
 	IFC "","\1"
 		FAIL Macro COP_WAITBLIT2: x position missing
@@ -68,8 +68,8 @@ COP_WAITBLIT2			MACRO
 
 COP_SKIP			MACRO
 ; Input
-; \1 	X position (bits 2..8)
-; \2 	Y Position (bits 0..7)
+; \1	X position (bits 2..8)
+; \2	Y Position (bits 0..7)
 ; Result
 	IFC "","\1"
 		FAIL Macro COP_SKIP: x position missing
@@ -225,7 +225,7 @@ COP_SET_BITPLANE_POINTERS	MACRO
 	IFC "","\4"
 		IFC "","\5"
 			move.l	\1_\2(a3),a0
-			ADDF.W	\1_BPL1PTH+2,a0
+			ADDF.W	\1_BPL1PTH+WORD_SIZE,a0
 			move.l	pf1_display(a3),a1
 			moveq	#\3-1,d7 ; number of bitplanes
 \1_set_plane_ptrs_loop
@@ -235,7 +235,7 @@ COP_SET_BITPLANE_POINTERS	MACRO
 			dbf	d7,\1_set_plane_ptrs_loop
 		ELSE
 			move.l	\1_\2(a3),a0
-			ADDF.W	\1_BPL1PTH+2,a0
+			ADDF.W	\1_BPL1PTH+WORD_SIZE,a0
 			move.l	pf1_display(a3),a1
 			MOVEF.L	(\5/8)+(\6*pf1_plane_width*pf1_depth3),d1
 			moveq	#\3-1,d7 ; number of bitplanes
@@ -251,7 +251,7 @@ COP_SET_BITPLANE_POINTERS	MACRO
 	ELSE
 		move.l	\1_\2(a3),a0
 		lea	\1_BPL2PTH+2(a0),a1
-		ADDF.W	\1_BPL1PTH+2,a0
+		ADDF.W	\1_BPL1PTH+WORD_SIZE,a0
 		move.l	pf1_display(a3),a2
 ; Zeiger auf Playfield 1 eintragen
 		moveq	#\3-1,d7	; number of bitplanes
@@ -314,10 +314,10 @@ COP_SET_SPRITE_POINTERS		MACRO
 	move.l	\1_\2(a3),a0
 	IFC "","\4"
 		lea	spr_ptrs_display(pc),a1
-		ADDF.W	\1_SPR0PTH+2,a0
+		ADDF.W	\1_SPR0PTH+WORD_SIZE,a0
 	ELSE
 		lea	spr_ptrs_display+(\4*4)(pc),a1 ; with index
-		ADDF.W	\1_SPR\3PTH+2,a0
+		ADDF.W	\1_SPR\3PTH+WORD_SIZE,a0
 	ENDC
 	moveq	#\3-1,d7		; number of sprites
 \1_set_sprite_ptrs_loop
@@ -1125,9 +1125,9 @@ CONVERT_IMAGE_TO_HAM8_CHUNKY	MACRO
 \1_translate_image_data_skip12
 	move.l	d2,d0			; RGB8-Farbwert
 	RGB8_TO_RGB4_HIGH d0,d1,d4
-	move.w	d0,(a2)+		; RGB high bits
+	move.w	d0,(a2)+		; RGB high
 	RGB8_TO_RGB4_LOW d0,d1,d4
-	move.w	d0,(a2)+		; RGB low bits
+	move.w	d0,(a2)+		; RGB low
 	dbf	d5,\1_translate_image_data_loop3
 	addq.w	#1,a0			; next byte in source
 	dbf	d6,\1_translate_image_data_loop2
@@ -1638,7 +1638,7 @@ CLEAR_BPLCON4_CHUNKY_SCREEN	MACRO
 				move.w	d0,BLTADAT-DMACONR(a6) ; source BPLCON4 bits
 			ELSE
 				move.w	#bplcon4_bits,BLTADAT-DMACONR(a6) ; source BPLCON4 bits
-               	ENDC
+             	ENDC
 		ENDC
 		move.l	#(\1_clear_blit_y_size<<16)|(\1_clear_blit_x_size/WORD_BITS),BLTSIZV-DMACONR(a6) ; start blit
 		rts
@@ -1661,7 +1661,7 @@ CLEAR_BPLCON4_CHUNKY_SCREEN	MACRO
 				move.w	d0,BLTADAT-DMACONR(a6) ; source BPLCON4 bits
 			ELSE
 				move.w	#bplcon4_bits,BLTADAT-DMACONR(a6) ; source BPLCON4 bits
-               	ENDC
+             	ENDC
 		ENDC
 		move.l	#(\1_clear_blit_y_size<<16)|(\1_clear_blit_x_size/WORD_BITS),BLTSIZV-DMACONR(a6) ; start blit
 		rts
@@ -1943,7 +1943,7 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 	move.l	a5,a1			; BPLAM table
 	moveq	#\1_bars_number-1,d6
 \1_set_background_bars_loop2
-	move.l	(a0)+,d0		; low word: y position, high word: z vector
+	move.l	(a0)+,d0	 	; low word: y, high word: z vector
 	IFC "B","\0"
 		bpl.s	\1_set_background_bars_skip1
 		add.l	d4,a1		; skip BPLAM values
@@ -2034,7 +2034,7 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 	move.l	a5,a1			; BPLAM table
 	moveq	#\1_bars_number-1,d6
 \1_set_foreground_bars_loop2
-	move.l	(a0)+,d0		; low word: y position, high word: z vector
+	move.l	(a0)+,d0	 	; low word: y, high word: z vector
 	IFC "B","\0"
 		bmi.s	\1_set_foreground_bars_skip1
 		add.l	d4,a1		; skip BPLAM values

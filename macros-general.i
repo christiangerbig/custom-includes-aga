@@ -1297,9 +1297,9 @@ RGB8_TO_RGB4_HIGH		MACRO
 ; Input
 ; \1 LONGWORD:	RGB8 value
 ; \2 LONGWORD:	Scratch register
-; \3 STRING:	Color high bits mask
+; \3 STRING:	Color high mask
 ; Result
-; \1 WORD:	Return value:  RGB4 high bits
+; \1 WORD:	Return value:  RGB4 high
 	IFC "","\1"
 		FAIL Macro RGB8_TO_RGB4_HIGH: RGB8 value missing
 	ENDC
@@ -1307,7 +1307,7 @@ RGB8_TO_RGB4_HIGH		MACRO
 		FAIL Macro RGB8_TO_RGB4_HIGH: Scratch register missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro RGB8_TO_RGB4_HIGH: Color high bits mask missing
+		FAIL Macro RGB8_TO_RGB4_HIGH: Color high mask missing
 	ENDC
 	lsr.l	#4,\1			; RrGgB
 	and.w	\3,\1			; RrG0B
@@ -1323,9 +1323,9 @@ RGB8_TO_RGB4_LOW		MACRO
 ; Input
 ; \1 LONGWORD:	RGB8 value
 ; \2 BYTE:	Scratch register
-; \3 STRING:	Color low bits mask
+; \3 STRING:	Color low mask
 ; Result
-; \1 WORD:	Return value RGB4 low bits
+; \1 WORD:	Return value RGB4 low
 	IFC "","\1"
 		FAIL Macro RGB8_TO_RGB4_LOW: RGB8 value missing
 	ENDC
@@ -1333,7 +1333,7 @@ RGB8_TO_RGB4_LOW		MACRO
 		FAIL Macro RGB8_TO_RGB4_LOW: Scratch register missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro RGB8_TO_RGB4_LOW: Color low bits mask missing
+		FAIL Macro RGB8_TO_RGB4_LOW: Color low mask missing
 	ENDC
 	and.w	\3,\1			; g0b
 	move.b	\1,\2			;  0b
@@ -1372,36 +1372,36 @@ RGB8_TO_RGB8_HIGH_LOW		MACRO
 	ENDM
 
 
-INIT_CHARACTERS_OFFSETS MACRO
+INIT_CHARS_OFFSETS MACRO
 ; Input
 ; \0 STRING:	Size [W/L]
 ; \1 STRING:	Labels prefix
 ; Result
 	CNOP 0,4
-\1_init_characters_offsets
+\1_init_chars_offsets
 	IFC "","\0"
-		FAIL Macro INIT_CHARACTERS_OFFSETS: Size [W/L] missing
+		FAIL Macro INIT_CHARS_OFFSETS: Size [W/L] missing
 	ENDC
 	IFC "","\1"
-		FAIL Macro INIT_CHARACTERS_OFFSETS: Labels prefix missing
+		FAIL Macro INIT_CHARS_OFFSETS: Labels prefix missing
 	ENDC
 	IFC "W","\0"
 		moveq	#0,d0		; 1st character image x offset
 		moveq	#\1_image_plane_width,d1 ; last character image x offset
 		move.w	d1,d2		; x offset reset
 		MOVEF.W \1_image_plane_width*\1_image_depth*(\1_origin_char_y_size+1),d3 ; next character images line
-		lea	\1_characters_offsets(pc),a0
+		lea	\1_chars_offsets(pc),a0
 		moveq	#\1_ascii_end-\1_ascii-1,d7
-\1_init_characters_offsets_loop
+\1_init_chars_offsets_loop
 		move.w	d0,(a0)+	; character image offset
 		addq.w	#\1_origin_char_x_size/8,d0 ; next character image
 		cmp.w	d1,d0		; last character image in line ?
-		bne.s	\1_init_characters_offsets_skip
+		bne.s	\1_init_chars_offsets_skip
 		sub.w	d2,d0		; reset x offset
 		add.w	d3,d1		; + y offset
 		add.w	d3,d0		; next character images line
-\1_init_characters_offsets_skip
-		dbf	d7,\1_init_characters_offsets_loop
+\1_init_chars_offsets_skip
+		dbf	d7,\1_init_chars_offsets_loop
 		rts
 	ENDC
 	IFC "L","\0"
@@ -1409,24 +1409,24 @@ INIT_CHARACTERS_OFFSETS MACRO
 		moveq	#\1_image_plane_width,d1 ; last character image x offset
 		move.l	d1,d2		; x offset reset
 		move.l	#\1_image_plane_width*\1_image_depth*(\1_origin_char_y_size),d3 ; next character images line
-		lea	\1_characters_offsets(pc),a0
+		lea	\1_chars_offsets(pc),a0
 		moveq	#\1_ascii_end-\1_ascii-1,d7
-\1_init_characters_offsets_loop
+\1_init_chars_offsets_loop
 		move.l	d0,(a0)+	; character image offset
 		add.l	#\1_origin_char_x_size/8,d0 ; next character image
 		cmp.l	d1,d0		; last character image in line ?
-		bne.s	\1_init_characters_offsets_skip
+		bne.s	\1_init_chars_offsets_skip
 		sub.l	d2,d0		; reset x offset
 		add.l	d3,d1		; + y offset
 		add.l	d3,d0		; next character images line
-\1_init_characters_offsets_skip
-		dbf	d7,\1_init_characters_offsets_loop
+\1_init_chars_offsets_skip
+		dbf	d7,\1_init_chars_offsets_loop
 		rts
 	ENDC
 	ENDM
 
 
-INIT_CHARACTERS_X_POSITIONS	MACRO
+INIT_CHARS_X_POSITIONS	MACRO
 ; Input
 ; \1 STRING:	Labels prefix
 ; \2 STRING:	Pixel resolution ["LORES", "HIRES", "SHIRES"]
@@ -1434,12 +1434,12 @@ INIT_CHARACTERS_X_POSITIONS	MACRO
 ; \4 NUMBER:	Number of characters (optional)
 ; Result
 	CNOP 0,4
-\1_init_characters_x_positions
+\1_init_chars_x_positions
 	IFC "","\1"
-		FAIL Macro INIT_CHARACTERS_X_POSITIONS: Labels prefix missing
+		FAIL Macro INIT_CHARS_X_POSITIONS: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro INIT_CHARACTERS_X_POSITIONS: Pixel resolution ["LORES", "HIRES", "SHIRES"] missing
+		FAIL Macro INIT_CHARS_X_POSITIONS: Pixel resolution ["LORES", "HIRES", "SHIRES"] missing
 	ENDC
 	moveq	#0,d0			; 1st x
 	IFC "LORES","\2"
@@ -1452,72 +1452,72 @@ INIT_CHARACTERS_X_POSITIONS	MACRO
 		MOVEF.W	\1_text_char_x_size*SHIRES_PIXEL_FACTOR,d1 ; next character image
 	ENDC
 	IFNC "BACKWARDS","\3"
-		lea	\1_characters_x_positions(pc),a0
+		lea	\1_chars_x_positions(pc),a0
 	ELSE
 		IFC "","\4"
-			lea	\1_characters_x_positions+(\1_text_characters_number*WORD_SIZE)(pc),a0
+			lea	\1_chars_x_positions+(\1_text_chars_number*WORD_SIZE)(pc),a0
 		ELSE
-			lea	\1_characters_x_positions+((\1_\4)*WORD_SIZE)(pc),a0
+			lea	\1_chars_x_positions+((\1_\4)*WORD_SIZE)(pc),a0
 		ENDC
 	ENDC
 	IFC "","\4"
-		moveq	#(\1_text_characters_number)-1,d7
+		moveq	#(\1_text_chars_number)-1,d7
 	ELSE
 		moveq	#(\1_\4)-1,d7	; number of chracters
 	ENDC
-\1_init_characters_x_positions_loop
+\1_init_chars_x_positions_loop
 	IFNC "BACKWARDS","\3"
 		move.w	d0,(a0)+	; x position
 	ELSE
 		move.w	d0,-(a0)	; x position
 	ENDC
 	add.w	d1,d0			; next character image
-	dbf	d7,\1_init_characters_x_positions_loop
+	dbf	d7,\1_init_chars_x_positions_loop
 	rts
 	ENDM
 
 
-INIT_CHARACTERS_Y_POSITIONS		MACRO
+INIT_CHARS_Y_POSITIONS		MACRO
 ; Input
 ; \1 STRING:	Labels prefix
 ; \2 NUMBER:	Number of characters (optional)
 ; Result
 	CNOP 0,4
-\1_init_characters_y_positions
+\1_init_chars_y_positions
 	IFC "","\1"
-		FAIL Macro INIT_CHARACTERS_Y_POSITIONS: Labels prefix missing
+		FAIL Macro INIT_CHARS_Y_POSITIONS: Labels prefix missing
 	ENDC
 	moveq	#0,d0			; 1st y
 	moveq	#\1_text_char_y_size,d1 ; next chracter image
-	lea	\1_characters_y_positions(pc),a0
+	lea	\1_chars_y_positions(pc),a0
 	IFC "","\2"
-		moveq	#(\1_text_characters_number)-1,d7
+		moveq	#(\1_text_chars_number)-1,d7
 	ELSE
 		moveq	#(\1_\2)-1,d7	; number of characters
 	ENDC
-\1_init_characters_y_positions_loop
+\1_init_chars_y_positions_loop
 	move.w	d0,(a0)+		; y position
 	add.w	d1,d0			; next character image
-	dbf	d7,\1_init_characters_y_positions_loop
+	dbf	d7,\1_init_chars_y_positions_loop
 	rts
 	ENDM
 
 
-INIT_CHARACTERS_IMAGES		MACRO
+INIT_CHARS_IMAGES		MACRO
 ; Input
 ; \1 STRING:	Labels prefix
 ; Result
 	CNOP 0,4
-\1_init_characters_images
+\1_init_chars_images
 	IFC "","\1"
-		FAIL Macro INIT_CHARACTERS_IMAGES: Labels prefix missing
+		FAIL Macro INIT_CHARS_IMAGES: Labels prefix missing
 	ENDC
-	lea	\1_characters_image_ptrs(pc),a2
-	MOVEF.W	(\1_text_characters_number)-1,d7
-\1_init_characters_images_loop
+	lea	\1_chars_image_ptrs(pc),a2
+	MOVEF.W	(\1_text_chars_number)-1,d7
+\1_init_chars_images_loop
 	bsr	\1_get_new_char_image
 	move.l	d0,(a2)+		; character image
-	dbf	d7,\1_init_characters_images_loop
+	dbf	d7,\1_init_chars_images_loop
 	rts
 	ENDM
 
@@ -1598,7 +1598,7 @@ GET_NEW_char_IMAGE		MACRO
 		ENDC
 	ENDC
 	sub.w	d6,d0			; number of characters - loop counter
-	lea	\1_characters_offsets(pc),a0
+	lea	\1_chars_offsets(pc),a0
 	IFC "W","\0"
 		move.w	(a0,d0.w*2),d0	; offset character image
 	ENDC

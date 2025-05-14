@@ -300,7 +300,7 @@ level_6_int_handler_skip5
 				movem.l	(a7)+,d0-d1
 level_6_int_handler_skip6
 			ENDC
-                	bra.s	level_6_int_handler_quit
+              	bra.s	level_6_int_handler_quit
 		ENDC
 	ENDC
 

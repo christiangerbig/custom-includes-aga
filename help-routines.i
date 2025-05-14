@@ -143,7 +143,7 @@ cop_init_high_colors_loop
 	RGB8_TO_RGB4_HIGH d0,d1,d2
 	move.w	d3,(a0)+		; COLORxx
 	addq.w	#WORD_SIZE,d3		; next color register
-	move.w	d0,(a0)+		; high bits
+	move.w	d0,(a0)+
 	dbf	d7,cop_init_high_colors_loop
 	rts
 
@@ -162,7 +162,7 @@ cop_init_low_colors_loop
 	RGB8_TO_RGB4_LOW d0,d1,d2
 	move.w	d3,(a0)+		; COLORxx
 	addq.w	#WORD_SIZE,d3			; next color register
-	move.w	d0,(a0)+		; low bits
+	move.w	d0,(a0)+	 bits
 	dbf	d7,cop_init_low_colors_loop
 	rts
 

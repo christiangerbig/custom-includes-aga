@@ -5,7 +5,7 @@ PT2_INIT_VARIABLES		MACRO
 	IFC "","\1"
 		lea	pt_auddata,a0
 		move.l	a0,pt_SongDataPointer(a3)
-   		IFEQ pt_split_module_enabled
+ 		IFEQ pt_split_module_enabled
 			lea	pt_audsmps,a0
 			move.l	a0,pt_SamplesDataPointer(a3)
 		ENDC
@@ -340,9 +340,9 @@ pt_PlvSkip
 	moveq	#0,d2
 	move.l	(pt_sd_patterndata,a0,d1.l*4),(a2) ; fetch note data
 	move.b	n_cmd(a2),d2
-	lsr.b	#NIBBLE_SHIFT_BITS,d2	; low nibble of sample number
+	lsr.b	#NIBBLE_SHIFT_BITS,d2 nibble of sample number
 	MOVEF.B	NIBBLE_MASK_HIGH,d0
-	and.b	(a2),d0			; high nibble of sample number
+	and.b	(a2),d0 nibble of sample number
 	addq.w	#pt_noteinfo_size/4,d1	; next channel data
 	or.b	d0,d2			; sample number
 	beq.s	pt_SetRegisters
@@ -1385,9 +1385,9 @@ PT2_EFFECT_PATTERN_BREAK	MACRO
 pt_PatternBreak
 	move.b	n_cmdlo(a2),d0		; command data: xx-break position (decimal)
 	moveq	#NIBBLE_MASK_LOW,d2
-	and.b	d0,d2			; low nibble: digits 0..9
+	and.b	d0,d2		 nibble: digits 0..9
 	lsr.b	#NIBBLE_SHIFT_BITS,d0	; adjust bits
-	MULUF.B	10,d0,d7		; high nibble: digits 10..60
+	MULUF.B	10,d0,d7 nibble: digits 10..60
 	add.b	d2,d0			; decimal number
 	cmp.b	#pt_maxpattpos-1,d0	; break position > last position in pattern ?
 	bhi.s	pt_PB2
