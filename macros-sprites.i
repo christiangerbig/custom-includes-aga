@@ -15,17 +15,17 @@ SET_SPRITE_POSITION		MACRO
 	IFC "","\3"
 		FAIL Macro SET_SPRITE_POSITION: Height missing
 	ENDC
-	rol.w	#8,\2			; % SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 --- --- --- --- --- --- --- SV8
-	lsl.w	#5,\1			; %SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3 SH2 SH1 SH0 --- --- --- --- ---
-	lsl.w	#8,\3			; % EV7 EV6 EV5 EV4 EV3 EV2 EV1 EV0 --- --- --- --- --- --- --- ---
-	addx.b	\2,\2			; % --- --- --- --- --- --- SV8 EV8
-	add.b	\1,\1			; % SH1 SH0 --- --- --- --- --- ---
-	addx.b	\2,\2			; % --- --- --- --- --- SV8 EV8 SH2
-	lsr.b	#3,\1			; % --- --- --- SH1 SH0 --- --- ---
-	or.b	\1,\2			; % --- --- --- SH1 SH0 SV8 EV8 SH2
-	lsr.w	#8,\1			; % --- --- --- --- --- --- --- --- SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3
-	move.b	\2,\3			; % EV7 EV6 EV5 EV4 EV3 EV2 EV1 EV0	--- --- --- SH1 SH0 SV8 EV8 SH2
-	move.b	\1,\2			; % SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3
+	rol.w	#8,\2			;  SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 --- --- --- --- --- --- --- SV8
+	lsl.w	#5,\1			; SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3 SH2 SH1 SH0 --- --- --- --- ---
+	lsl.w	#8,\3			;  EV7 EV6 EV5 EV4 EV3 EV2 EV1 EV0 --- --- --- --- --- --- --- ---
+	addx.b	\2,\2			;  --- --- --- --- --- --- SV8 EV8
+	add.b	\1,\1			;  SH1 SH0 --- --- --- --- --- ---
+	addx.b	\2,\2			;  --- --- --- --- --- SV8 EV8 SH2
+	lsr.b	#3,\1			;  --- --- --- SH1 SH0 --- --- ---
+	or.b	\1,\2			;  --- --- --- SH1 SH0 SV8 EV8 SH2
+	lsr.w	#8,\1			;  --- --- --- --- --- --- --- --- SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3
+	move.b	\2,\3			;  EV7 EV6 EV5 EV4 EV3 EV2 EV1 EV0	--- --- --- SH1 SH0 SV8 EV8 SH2
+	move.b	\1,\2			;  SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3
 	ENDM
 
 
@@ -46,8 +46,8 @@ SET_SPRITE_POSITION_1X		MACRO
 		FAIL Macro SET_SPRITE_POSITION_1X: Height missing
 	ENDC
 	SET_SPRITE_POSITION \1,\2,\3
-	swap	\2			; % SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3 --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-	move.w	\3,\2			; % SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3 SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3 --- --- --- SH1 SH0 SV8 EV8 SH2
+	swap	\2			; SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3 --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+	move.w	\3,\2			; SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3 SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3 --- --- --- SH1 SH0 SV8 EV8 SH2
 	ENDM
 
 
@@ -72,22 +72,22 @@ SET_SPRITE_POSITION_V9		MACRO
 	IFC "","\4"
 		FAIL Macro SET_SPRITE_POSITION_V9: Scratch register missing
 	ENDC
-	rol.w	#7,\2			; % SV8 SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 --- --- --- --- --- --- SV9
-	move.b	\2,\4			; % SV0 --- --- --- --- --- --- SV9
-	lsl.w	#7,\3			; % EV8 EV7 EV6 EV5 EV4 EV3 EV2 EV1 EV0 --- --- --- --- --- --- ---
-	addx.b	\4,\4			; % --- --- --- --- --- --- SV9 EV9
-	ror.b	#2,\1			; % --- --- --- --- --- SH10 SH9 SH8 SH1 SH0 SH7 SH6 SH5 SH4 SH3 SH2
-	add.b	\1,\1			; % --- --- --- --- --- SH10 SH9 SH8 SH0
-	addx.b	\4,\4			; % --- --- --- --- --- SV9 EV9 SH1
-	add.b	\1,\1			; % --- --- --- --- --- SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3 SH2 --- ---
-	addx.b	\4,\4			; % --- --- --- --- SV9 EV9 SH1 SH0
-	or.b	\4,\3			; % EV8 EV7 EV6 EV5 EV4 EV3 EV2 EV1 EV0 --- --- --- SV9 EV9 SH1 SH0
-	add.w	\2,\2			; % SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 --- --- --- --- --- --- SV9 ---
-	addx.w	\3,\3			; % EV7 EV6 EV5 EV4 EV3 EV2 EV1 EV0 --- --- --- SV9 EV9 SH1 SH0 SV8
-	addx.b	\3,\3			; % EV7 EV6 EV5 EV4 EV3 EV2 EV1 EV0 --- --- SV9 EV9 SH1 SH0 SV8 EV8
-	lsr.w	#3,\1			; % --- --- --- --- --- --- --- --- SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3
-	addx.b	\3,\3			; % EV7 EV6 EV5 EV4 EV3 EV2 EV1 EV0 --- SV9 EV9 SH1 SH0 SV8 EV8 SH2
-	move.b	\1,\2			; % SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3
+	rol.w	#7,\2			; SV8 SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 --- --- --- --- --- --- SV9
+	move.b	\2,\4			; SV0 --- --- --- --- --- --- SV9
+	lsl.w	#7,\3			; EV8 EV7 EV6 EV5 EV4 EV3 EV2 EV1 EV0 --- --- --- --- --- --- ---
+	addx.b	\4,\4			; --- --- --- --- --- --- SV9 EV9
+	ror.b	#2,\1			; --- --- --- --- --- SH10 SH9 SH8 SH1 SH0 SH7 SH6 SH5 SH4 SH3 SH2
+	add.b	\1,\1			; --- --- --- --- --- SH10 SH9 SH8 SH0
+	addx.b	\4,\4			; --- --- --- --- --- SV9 EV9 SH1
+	add.b	\1,\1			; --- --- --- --- --- SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3 SH2 --- ---
+	addx.b	\4,\4			; --- --- --- --- SV9 EV9 SH1 SH0
+	or.b	\4,\3			; EV8 EV7 EV6 EV5 EV4 EV3 EV2 EV1 EV0 --- --- --- SV9 EV9 SH1 SH0
+	add.w	\2,\2			; SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 --- --- --- --- --- --- SV9 ---
+	addx.w	\3,\3			; EV7 EV6 EV5 EV4 EV3 EV2 EV1 EV0 --- --- --- SV9 EV9 SH1 SH0 SV8
+	addx.b	\3,\3			; EV7 EV6 EV5 EV4 EV3 EV2 EV1 EV0 --- --- SV9 EV9 SH1 SH0 SV8 EV8
+	lsr.w	#3,\1			; --- --- --- --- --- --- --- --- SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3
+	addx.b	\3,\3			; EV7 EV6 EV5 EV4 EV3 EV2 EV1 EV0 --- SV9 EV9 SH1 SH0 SV8 EV8 SH2
+	move.b	\1,\2			; SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3
 	ENDM
 
 
@@ -376,14 +376,14 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		rts
 	ENDC
 
-	CNOP 0,4
-\1_init_sprite_header
 ; Input
 ; d0.w	x position
 ; d1.w	y position
 ; d3.b	Attached bit
 ; a0	Pointer sprite structure
 ; Result
+	CNOP 0,4
+\1_init_sprite_header
 	IFNC "NOHEADER","\7"
 		MOVEF.W \6,d2		; height
 		add.w	d1,d2		; VSTOP

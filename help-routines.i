@@ -139,7 +139,7 @@ wait_copint_loop
 cop_init_high_colors
 	move.w	#RB_NIBBLES_MASK,d2
 cop_init_high_colors_loop
-	move.l	(a1)+,d0		; RGB8 value
+	move.l	(a1)+,d0		; RGB8
 	RGB8_TO_RGB4_HIGH d0,d1,d2
 	move.w	d3,(a0)+		; COLORxx
 	addq.w	#WORD_SIZE,d3		; next color register
@@ -158,10 +158,10 @@ cop_init_high_colors_loop
 cop_init_low_colors
 	move.w	#RB_NIBBLES_MASK,d2
 cop_init_low_colors_loop
-	move.l	(a1)+,d0		; RGB8 value
+	move.l	(a1)+,d0		; RGB8
 	RGB8_TO_RGB4_LOW d0,d1,d2
 	move.w	d3,(a0)+		; COLORxx
-	addq.w	#WORD_SIZE,d3			; next color register
+	addq.w	#WORD_SIZE,d3		; next color register
 	move.w	d0,(a0)+	 bits
 	dbf	d7,cop_init_low_colors_loop
 	rts
@@ -176,7 +176,7 @@ cop_init_low_colors_loop
 cpu_init_high_colors
 	move.w	#RB_NIBBLES_MASK,d2
 cpu_init_high_colors_loop
-	move.l	(a1)+,d0		; RGB8 value
+	move.l	(a1)+,d0		; RGB8
 	RGB8_TO_RGB4_HIGH d0,d1,d2
 	move.w	d0,(a0)+		; COLORxx
 	dbf	d7,cpu_init_high_colors_loop
@@ -192,7 +192,7 @@ cpu_init_high_colors_loop
 cpu_init_low_colors
 	move.w	#RB_NIBBLES_MASK,d2
 cpu_init_low_colors_loop
-	move.l	(a1)+,d0		; RGB8 value
+	move.l	(a1)+,d0		; RGB8
 	RGB8_TO_RGB4_LOW d0,d1,d2
 	move.w	d0,(a0)+		; COLORxx
 	dbf	d7,cpu_init_low_colors_loop

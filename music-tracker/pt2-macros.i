@@ -770,7 +770,7 @@ pt_StpFound
 		sub.b	d7,d0		; offset in period table
 		move.l	d2,a1		; period table address
 		moveq	#NIBBLE_SIGN_MASK,d2
-		and.b	n_finetune(a2),d2 ; negative value ?
+		and.b	n_finetune(a2),d2 ; negative ?
 		beq.s	pt_StpGoss
 		tst.w	d0		; counter = 0 ?
 		beq.s	pt_StpGoss

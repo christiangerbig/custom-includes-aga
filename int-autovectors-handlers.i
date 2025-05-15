@@ -32,7 +32,7 @@ level_1_int_handler_skip2
 			move.l	(a7)+,d0
 level_1_int_handler_skip3
 		ENDC
-		move.w	d0,INTREQ-DMACONR(a6) ; clear level-1 interrupts
+		move.w	d0,INTREQ-DMACONR(a6) ; clear level1 interrupts
 		movem.l	(a7)+,d0-d7/a0-a6
 		nop
 		rte
@@ -58,7 +58,7 @@ level_2_int_handler
 		bsr	ports_int_server
 		movem.l (a7)+,d0-d1
 level_2_int_handler_quit
-		move.w	d0,INTREQ-DMACONR(a6) ; clear level-2 interrupts
+		move.w	d0,INTREQ-DMACONR(a6) ; clear level2 interrupts
 		movem.l	(a7)+,d0-d7/a0-a6
 		nop
 		rte
@@ -144,7 +144,7 @@ level_3_int_handler_skip2
 			move.l	(a7)+,d0
 level_3_int_handler_skip3
 		ENDC
-		move.w	d0,INTREQ-DMACONR(a6) ; clear level-3 interrupts
+		move.w	d0,INTREQ-DMACONR(a6) ; clear level3 interrupts
 		movem.l (a7)+,d0-d7/a0-a6
 		nop
 		rte
@@ -194,7 +194,7 @@ level_4_int_handler_skip3
 			bra.s	rt_level_4_int4
 level_4_int_handler_skip4
 		ENDC
-		move.w	d0,INTREQ-DMACONR(a6) ; clear level-4 interrupts
+		move.w	d0,INTREQ-DMACONR(a6) ; clear level4 interrupts
 		movem.l	(a7)+,d0-d7/a0-a6
 		nop
 		rte
@@ -227,7 +227,7 @@ level_5_int_handler_skip1
 			move.l	(a7)+,d0
 level_5_int_handler_skip2
 		ENDC
-		move.w	d0,INTREQ-DMACONR(a6) ; clear level-5 interrupts
+		move.w	d0,INTREQ-DMACONR(a6) ; clear level5 interrupts
 		movem.l	(a7)+,d0-d7/a0-a6
 		nop
 		rte
@@ -253,7 +253,7 @@ level_6_int_handler
 		bsr	exter_int_server
 		movem.l	(a7)+,d0-d1
 level_6_int_handler_quit
-		move.w	d0,INTREQ-DMACONR(a6) ; clear level-6 interrupts
+		move.w	d0,INTREQ-DMACONR(a6) ; clear level6 interrupts
 		movem.l (a7)+,d0-d7/a0-a6
 		nop
 		rte

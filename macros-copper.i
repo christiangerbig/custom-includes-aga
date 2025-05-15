@@ -4,10 +4,10 @@ COP_MOVE			MACRO
 ; \2 WORD:	CUSTOM register offset
 ; Result
 	IFC "","\1"
-		FAIL Macro COPMOVE: 16-bit value missing
+		FAIL Macro COP_MOVE: 16-bit value missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro COPMOVE: CUSTOM register offset missing
+		FAIL Macro COP_MOVE: CUSTOM register offset missing
 	ENDC
 	move.w	#\2,(a0)+		; CUSTOM register offset
 	move.w	\1,(a0)+		; register value
@@ -546,9 +546,9 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN	MACRO
 		move.l	a4,-(a7)
 		move.l	#(((\3<<24)|(((\2/4)*2)<<16))|$10000)|$fffe,d0 ; CWAIT
 		IFEQ \7
-			move.l	#(BPLCON3<<16)+bplcon3_bits3,d1 ; high color values
+			move.l	#(BPLCON3<<16)+bplcon3_bits3,d1 ; high color
 		ELSE
-			move.l	#(BPLCON3<<16)+bplcon3_bits1,d1 ; high color values
+			move.l	#(BPLCON3<<16)+bplcon3_bits1,d1 ; high color
 		ENDC
 		IFEQ \7
 			move.l	#(COLOR31<<16)+color00_high_bits,a2
@@ -561,9 +561,9 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN	MACRO
 			move.l	#(COLOR00<<16)+color00_low_bits,a4
 		ENDC
 		IFEQ \7
-			move.l	#(BPLCON3<<16)+bplcon3_bits4,d3 ; low color values
+			move.l	#(BPLCON3<<16)+bplcon3_bits4,d3 ; low color
 		ELSE
-			move.l	#(BPLCON3<<16)+bplcon3_bits2,d3 ; low color values
+			move.l	#(BPLCON3<<16)+bplcon3_bits2,d3 ; low color
 		ENDC
 		move.l	#(BPLCON4<<16)+(bplcon4_bits&$00ff),d4
 		IFEQ \6
@@ -805,7 +805,7 @@ CONVERT_IMAGE_TO_RGB4_CHUNKY	MACRO
 		add.w	d1,d0		; COLOR16
 \1_convert_image_data_skip5
 	ENDC
-	move.w	(a1,d0.l*2),(a2)+	; RGB4 value
+	move.w	(a1,d0.l*2),(a2)+	; RGB4
 	dbf	d5,\1_convert_image_data_loop3
 	addq.w	#BYTE_SIZE,a0		; next byte in source
 	dbf	d6,\1_convert_image_data_loop2
@@ -909,7 +909,7 @@ CONVERT_IMAGE_TO_HAM6_CHUNKY	MACRO
 	lsl.b	#4,d0			; adjust bits
 	or.b	d0,d2			; updated green
 \1_convert_image_data_skip10
-	move.w	d2,(a2)+		; RGB4 value
+	move.w	d2,(a2)+		; RGB4
 	dbf	d5,\1_convert_image_data_loop3
 	addq.w	#BYTE_SIZE,a0		; next byte in source
 	dbf	d6,\1_convert_image_data_loop2
@@ -1005,12 +1005,12 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY	MACRO
 		add.w	a6,d0		; increase color number
 \1_convert_image_skip8
 	ENDC
-	move.l	(a1,d0.l*4),d0		; RGB8 value
+	move.l	(a1,d0.l*4),d0		; RGB8
 	move.l	d0,d2							
 	RGB8_TO_RGB4_HIGH d0,d1,d4
-	move.w	d0,(a2)+		; RGB high values
+	move.w	d0,(a2)+		; RGB high
 	RGB8_TO_RGB4_LOW d2,d1,d4
-	move.w	d2,(a2)+		; RGB low values
+	move.w	d2,(a2)+		; RGB low
 	dbf	5,\1_convert_image_loop3
 	addq.w	#BYTE_SIZE,a0		; next byte in source
 	dbf	6,\1_convert_image_loop2
@@ -1098,7 +1098,7 @@ CONVERT_IMAGE_TO_HAM8_CHUNKY	MACRO
 	move.l	d0,d1			; color number
 	and.b	d3,d1			; bit 6 or 7 set ?
 	bne.s	\1_translate_image_data_skip9
-	move.l	(a1,d0.l*4),d2		; get color value
+	move.l	(a1,d0.l*4),d2		; fetch RGB8
 	bra.s	\1_translate_image_data_skip12
 	CNOP 0,4
 \1_translate_image_data_skip9
@@ -1189,56 +1189,56 @@ CONVERT_IMAGE_TO_BPLCON4_CHUNKY	MACRO
 	moveq	#8-1,d5			; number of bits in byte
 \1_translate_image_data_loop3
 	IFC "","\4"
-		moveq	#0,d0		; start BPLAM value
+		moveq	#0,d0		; start BPLAM
 	ELSE
-		MOVEF.W	\4,d0		; start BPLAM value
+		MOVEF.W	\4,d0		; start BPLAM
 	ENDC
 	IFGE \1_image_depth-1
 		btst	d5,(a0)
 		beq.s	\1_translate_image_data_skip1
-		addq.w	#1,d0		; increase BPLAM value
+		addq.w	#1,d0		; increase BPLAM
 \1_translate_image_data_skip1
 	ENDC
 	IFGE \1_image_depth-2
 		btst	d5,\1_image_plane_width*1(a0)
 		beq.s	\1_translate_image_data_skip2
-		addq.w	#2,d0		; increase BPLAM value
+		addq.w	#2,d0		; increase BPLAM
 \1_translate_image_data_skip2
 	ENDC
 	IFGE \1_image_depth-3
 		btst	d5,\1_image_plane_width*2(a0)
 		beq.s	\1_translate_image_data_skip3
-		addq.w	#4,d0		; increase BPLAM value
+		addq.w	#4,d0		; increase BPLAM
 \1_translate_image_data_skip3
 	ENDC
 	IFGE \1_image_depth-4
 		btst	d5,\1_image_plane_width*3(a0)
 		beq.s	\1_translate_image_data_skip4
-		addq.w	#8,d0		; increase BPLAM value
+		addq.w	#8,d0		; increase BPLAM
 \1_translate_image_data_skip4
 	ENDC
 	IFGE \1_image_depth-5
 		btst	d5,\1_image_plane_width*4(a0)
 		beq.s	\1_translate_image_data_skip5
-		add.w	d1,d0		; increase BPLAM value
+		add.w	d1,d0		; increase BPLAM
 \1_translate_image_data_skip5
 	ENDC
 	IFGE \1_image_depth-6
 		btst	d5,\1_image_plane_width*5(a0)
 		beq.s	\1_translate_image_data_skip6
-		add.w	d2,d0		; increase BPLAM value
+		add.w	d2,d0		; increase BPLAM
 \1_translate_image_data_skip6
 	ENDC
 	IFGE \1_image_depth-7
 		btst	d5,\1_image_plane_width*6(a0)
 		beq.s	\1_translate_image_data_skip7
-		add.w	d3,d0		; increase BPLAM value
+		add.w	d3,d0		; increase BPLAM
 \1_translate_image_data_skip7
 	ENDC
 	IFEQ \1_image_depth-8
 		btst	d5,\1_image_plane_width*7(a0)
 		beq.s	\1_translate_image_data_skip8
-		add.w	d4,d0		; increase BPLAM value
+		add.w	d4,d0		; increase BPLAM
 \1_translate_image_data_skip8
 	ENDC
 	IFC "B","\0"
@@ -1261,7 +1261,7 @@ SWAP_COPPERLIST			MACRO
 ; Input
 ; \1 STRING:	Labels prefix
 ; \2 NUMBER:	Number of copperlists [2,3]
-; \3 STRING:	"NOSET" Don't set cl pointer (optional)
+; \3 STRING:	"NOSET" Do not set cl pointer (optional)
 ; Result
 	IFC "","\1"
 		FAIL Macro SWAP_COPPERLIST: Labels prefix missing
@@ -1946,7 +1946,7 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 	move.l	(a0)+,d0	 	; low word: y, high word: z vector
 	IFC "B","\0"
 		bpl.s	\1_set_background_bars_skip1
-		add.l	d4,a1		; skip BPLAM values
+		add.l	d4,a1		; skip BPLAMs
 		bra	\1_set_background_bars_skip2
 		CNOP 0,4
 \1_set_background_bars_skip1
@@ -2037,7 +2037,7 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 	move.l	(a0)+,d0	 	; low word: y, high word: z vector
 	IFC "B","\0"
 		bmi.s	\1_set_foreground_bars_skip1
-		add.l	d4,a1		; skip BPLAM values
+		add.l	d4,a1		; skip BPLAMs
 		bra	\1_set_foreground_bars_skip2
 		CNOP 0,4
 \1_set_foreground_bars_skip1
@@ -2081,7 +2081,7 @@ COPY_TWISTED_BAR		MACRO
 	ENDC
 	IFC "B","\0"
 		IFEQ \1_\4-15
-			movem.l	(a1),d0-d3 ; get 15 values
+			movem.l	(a1),d0-d3 ; fetch 15 values
 			move.b	d0,\2_\3_size*3(a4)
 			lsr.w	#8,d0
 			move.b	d0,\2_\3_size*2(a4)
@@ -2111,7 +2111,7 @@ COPY_TWISTED_BAR		MACRO
 			move.b	d3,\2_\3_size*12(a4)
 		ENDC
 		IFEQ \1_\4-32
-			movem.l	(a1)+,d0-d3 ; get 16 values
+			movem.l	(a1)+,d0-d3 ; fetch 16 values
 			move.b	d0,\2_\3_size*3(a4)
 			swap	d0
 			move.b	d0,\2_\3_size*1(a4)
@@ -2140,7 +2140,7 @@ COPY_TWISTED_BAR		MACRO
 			move.b	d3,\2_\3_size*12(a4)
 			swap	d3
 			move.b	d3,\2_\3_size*14(a4)
-			movem.l	(a1)+,d0-d3 ; get 16 values
+			movem.l	(a1)+,d0-d3 ; fetch 16 values
 			move.b	d0,\2_\3_size*19(a4)
 			swap	d0
 			move.b	d0,\2_\3_size*17(a4)
@@ -2171,7 +2171,7 @@ COPY_TWISTED_BAR		MACRO
 			move.b	d3,\2_\3_size*30(a4)
 		ENDC
 		IFEQ \1_\4-48
-			movem.l	(a1)+,d0-d3 ; get 16 values
+			movem.l	(a1)+,d0-d3 ; fetch 16 values
 			move.b	d0,\2_\3_size*3(a4)
 			swap	d0
 			move.b	d0,\2_\3_size*1(a4)
@@ -2200,7 +2200,7 @@ COPY_TWISTED_BAR		MACRO
 			move.b	d3,\2_\3_size*12(a4)
 			swap	d3
 			move.b	d3,\2_\3_size*14(a4)
-			movem.l	(a1)+,d0-d3 ; get 16 values
+			movem.l	(a1)+,d0-d3 ; fetch 16 values
 			move.b	d0,\2_\3_size*19(a4)
 			swap	d0
 			move.b	d0,\2_\3_size*17(a4)
@@ -2229,7 +2229,7 @@ COPY_TWISTED_BAR		MACRO
 			move.b	d3,\2_\3_size*28(a4)
 			swap	d3
 			move.b	d3,\2_\3_size*30(a4)
-			movem.l	(a1)+,d0-d3 ; get 16 values
+			movem.l	(a1)+,d0-d3 ; fetch 16 values
 			move.b	d0,\2_\3_size*35(a4)
 			swap	d0
 			move.b	d0,\2_\3_size*33(a4)
@@ -2262,7 +2262,7 @@ COPY_TWISTED_BAR		MACRO
 	ENDC
 	IFC "W","\0"
 		IFEQ \1_\4-14
-			movem.l	(a1)+,d0-d3 ; get 8 values
+			movem.l	(a1)+,d0-d3 ; fetch 8 values
 			move.w	d0,\2_\3_size*1(a4)
 			swap	d0
 			move.w	d0,(a4)
@@ -2275,7 +2275,7 @@ COPY_TWISTED_BAR		MACRO
 			move.w	d3,\2_\3_size*7(a4)
 			swap	d3
 			move.w	d3,\2_\3_size*6(a4)
-			movem.l	(a1),d0-d2 ; get 6 values
+			movem.l	(a1),d0-d2 ; fetch 6 values
 			move.w	d0,\2_\3_size*9(a4)
 			swap	d0
 			move.w	d0,\2_\3_size*8(a4)
@@ -2287,7 +2287,7 @@ COPY_TWISTED_BAR		MACRO
 			move.w	d2,\2_\3_size*12(a4)
 		ENDC
 		IFEQ \1_\4-15
-			movem.l	(a1)+,d0-d3 ; get 8 values
+			movem.l	(a1)+,d0-d3 ; fetch 8 values
 			move.w	d0,\2_\3_size*1(a4)
 			swap	d0
 			move.w	d0,(a4)
@@ -2300,7 +2300,7 @@ COPY_TWISTED_BAR		MACRO
 			move.w	d3,\2_\3_size*7(a4)
 			swap	d3
 			move.w	d3,\2_\3_size*6(a4)
-			movem.l	(a1),d0-d3 ; get 7 values
+			movem.l	(a1),d0-d3 ; fetch 7 values
 			move.w	d0,\2_\3_size*9(a4)
 			swap	d0
 			move.w	d0,\2_\3_size*8(a4)

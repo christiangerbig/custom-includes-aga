@@ -93,25 +93,25 @@ DUALPF_SOFTSCROLL_64PIXEL_LORES	MACRO
 		FAIL Macro DUALPF_SOFTSCROLL_64PIXEL_LORES: PF1 y shift missing
 	ENDC
 	IFC "","\3"
-		and.w	#$00ff,\1	; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
+		and.w	#$00ff,\1	; -- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
 	ELSE
-		and.w	\3,\1		; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
+		and.w	\3,\1		; -- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
 	ENDC
 	IFC "","\3"
-		and.w	#$00ff,\2	; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
+		and.w	#$00ff,\2	; -- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
 	ELSE
-		and.w	\3,\2		; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
+		and.w	\3,\2		; -- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
 	ENDC
-	lsl.w	#2,\1			; %-- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0 -- --
-	lsl.w	#2,\2			; %-- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0 -- --
-	ror.b	#4,\1			; %-- -- -- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2
-	ror.b	#4,\2			; %-- -- -- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2
-	lsl.w	#2,\1			; %-- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2 -- --
-	lsl.w	#2,\2			; %-- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2 -- --
-	lsr.b	#2,\1			; %-- -- -- -- H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2
-	lsr.b	#2,\2			; %-- -- -- -- H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2
-	lsl.b	#4,\2			; %H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2 -- -- -- --
-	or.w	\2,\1			; %H7 H6 H1 H0 H7 H6 H1 H0 H5 H4 H3 H2 H5 H4 H3 H2
+	lsl.w	#2,\1			; -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0 -- --
+	lsl.w	#2,\2			; -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0 -- --
+	ror.b	#4,\1			; -- -- -- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2
+	ror.b	#4,\2			; -- -- -- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2
+	lsl.w	#2,\1			; -- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2 -- --
+	lsl.w	#2,\2			; -- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2 -- --
+	lsr.b	#2,\1			; -- -- -- -- H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2
+	lsr.b	#2,\2			; -- -- -- -- H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2
+	lsl.b	#4,\2			; H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2 -- -- -- --
+	or.w	\2,\1			; H7 H6 H1 H0 H7 H6 H1 H0 H5 H4 H3 H2 H5 H4 H3 H2
 	ENDM
 
 
@@ -129,17 +129,17 @@ PF_SOFTSCROLL_8PIXEL_LORES	MACRO
 		FAIL Macro PF_SOFTSCROLL_8PIXEL_LORES: Scratch register missing
 	ENDC
 	IFC "","\3"
-		and.w	#$001f,\1	; %-- -- -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0
+		and.w	#$001f,\1	; -- -- -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0
 	ELSE
-		and.w	\3,\1		; %-- -- -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0
+		and.w	\3,\1		; -- -- -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0
 	ENDC
-	lsl.b	#2,\1			; %-- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0 -- --
-	ror.b	#4,\1			; %-- -- -- -- -- -- -- -- H1 H0 -- -- -- H4 H3 H2
-	lsl.w	#2,\1			; %-- -- -- -- -- -- H1 H0 -- -- -- H4 H3 H2 -- --
-	lsr.b	#2,\1			; %-- -- -- -- -- -- H1 H0 -- -- -- -- -- H4 H3 H2
-	move.w	\1,\2			; %-- -- -- -- -- -- H1 H0 -- -- -- -- -- H4 H3 H2
-	lsl.w	#4,\2			; %-- -- H1 H0 -- -- -- -- -- H4 H3 H2 -- -- -- --
-	or.w	\2,\1			; %-- -- H1 H0 -- -- H1 H0 -- H4 H3 H2 -- H4 H3 H2
+	lsl.b	#2,\1			; -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0 -- --
+	ror.b	#4,\1			; -- -- -- -- -- -- -- -- H1 H0 -- -- -- H4 H3 H2
+	lsl.w	#2,\1			; -- -- -- -- -- -- H1 H0 -- -- -- H4 H3 H2 -- --
+	lsr.b	#2,\1			; -- -- -- -- -- -- H1 H0 -- -- -- -- -- H4 H3 H2
+	move.w	\1,\2			; -- -- -- -- -- -- H1 H0 -- -- -- -- -- H4 H3 H2
+	lsl.w	#4,\2			; -- -- H1 H0 -- -- -- -- -- H4 H3 H2 -- -- -- --
+	or.w	\2,\1			; -- -- H1 H0 -- -- H1 H0 -- H4 H3 H2 -- H4 H3 H2
 	ENDM
 
 
@@ -157,16 +157,16 @@ PF_SOFTSCROLL_16PIXEL_LORES	MACRO
 		FAIL Macro PF_SOFTSCROLL_16PIXEL_LORES: Scratch register missing
 	ENDC
 	IFC "","\3"
-		and.w	#$003f,\1	; %-- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
+		and.w	#$003f,\1	; -- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
 	ELSE
-		and.w	\3,\1		; %-- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
+		and.w	\3,\1		; -- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
 	ENDC
-	ror.b	#2,\1			; %-- -- -- -- -- -- -- -- H1 H0 -- -- H5 H4 H3 H2
-	lsl.w	#2,\1			; %-- -- -- -- -- -- H1 H0 -- -- H5 H4 H3 H2 -- --
-	lsr.b	#2,\1			; %-- -- -- -- -- -- H1 H0 -- -- -- -- H5 H4 H3 H2
-	move.w	\1,\2			; %-- -- -- -- -- -- H1 H0 -- -- -- -- H5 H4 H3 H2
-	lsl.w	#4,\2			; %-- -- H1 H0 -- -- -- -- H5 H4 H3 H2 -- -- -- --
-	or.w	\2,\1			; %-- -- H1 H0 -- -- H1 H0 H5 H4 H3 H2 H5 H4 H3 H2
+	ror.b	#2,\1			; -- -- -- -- -- -- -- -- H1 H0 -- -- H5 H4 H3 H2
+	lsl.w	#2,\1			; -- -- -- -- -- -- H1 H0 -- -- H5 H4 H3 H2 -- --
+	lsr.b	#2,\1			; -- -- -- -- -- -- H1 H0 -- -- -- -- H5 H4 H3 H2
+	move.w	\1,\2			; -- -- -- -- -- -- H1 H0 -- -- -- -- H5 H4 H3 H2
+	lsl.w	#4,\2			; -- -- H1 H0 -- -- -- -- H5 H4 H3 H2 -- -- -- --
+	or.w	\2,\1			; -- -- H1 H0 -- -- H1 H0 H5 H4 H3 H2 H5 H4 H3 H2
 	ENDM
 
 
@@ -180,13 +180,13 @@ ODDPF_SOFTSCROLL_16PIXEL_LORES	MACRO
 		FAIL Macro ODDPF_SOFTSCROLL_16PIXEL_LORES: PF1 X shift missing
 	ENDC
 	IFC "","\2"
-		and.w	#$003f,\1	; %-- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
+		and.w	#$003f,\1	; -- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
 	ELSE
-		and.w	\2,\1		; %-- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
+		and.w	\2,\1		; -- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
 	ENDC
-	ror.b	#2,\1			; %-- -- -- -- -- -- -- -- H1 H0 -- -- H5 H4 H3 H2
-	lsl.w	#2,\1			; %-- -- -- -- -- -- H1 H0 -- -- H5 H4 H3 H2 -- --
-	lsr.b	#2,\1			; %-- -- -- -- -- -- H1 H0 -- -- -- -- H5 H4 H3 H2
+	ror.b	#2,\1			; -- -- -- -- -- -- -- -- H1 H0 -- -- H5 H4 H3 H2
+	lsl.w	#2,\1			; -- -- -- -- -- -- H1 H0 -- -- H5 H4 H3 H2 -- --
+	lsr.b	#2,\1			; -- -- -- -- -- -- H1 H0 -- -- -- -- H5 H4 H3 H2
 	ENDM
 
 
@@ -200,14 +200,14 @@ EVENPF_SOFTSCROLL_16PIXEL_LORES	MACRO
 		FAIL Macro EVENPF_SOFTSCROLL_16PIXEL_LORES: x shift missing
 	ENDC
 	IFC "","\2"
-		and.w	#$003f,\1	; %-- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
+		and.w	#$003f,\1	; -- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
 	ELSE
-		and.w	\2,\1		; %-- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
+		and.w	\2,\1		; -- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
 	ENDC
-	ror.b	#2,\1			; %-- -- -- -- -- -- -- -- H1 H0 -- -- H5 H4 H3 H2
-	lsl.w	#2,\1			; %-- -- -- -- -- -- H1 H0 -- -- H5 H4 H3 H2 -- --
-	lsr.b	#2,\1			; %-- -- -- -- -- -- H1 H0 -- -- -- -- H5 H4 H3 H2
-	lsl.w	#4,\1			; %-- -- H1 H0 -- -- -- -- H5 H4 H3 H2 -- -- -- --
+	ror.b	#2,\1			; -- -- -- -- -- -- -- -- H1 H0 -- -- H5 H4 H3 H2
+	lsl.w	#2,\1			; -- -- -- -- -- -- H1 H0 -- -- H5 H4 H3 H2 -- --
+	lsr.b	#2,\1			; -- -- -- -- -- -- H1 H0 -- -- -- -- H5 H4 H3 H2
+	lsl.w	#4,\1			; -- -- H1 H0 -- -- -- -- H5 H4 H3 H2 -- -- -- --
 	ENDM
 
 
@@ -225,17 +225,17 @@ PF_SOFTSCROLL_8PIXEL_HIRES	MACRO
 		FAIL Macro PF_SOFTSCROLL_8PIXEL_HIRES: Scratch register missing
 	ENDC
 	IFC "","\3"
-		and.w	#$000f,\1	; %-- -- -- -- -- -- -- -- -- -- -- -- H3 H2 H1 H0
+		and.w	#$000f,\1	; -- -- -- -- -- -- -- -- -- -- -- -- H3 H2 H1 H0
 	ELSE
-		and.w	\3,\1		; %-- -- -- -- -- -- -- -- -- -- -- -- H3 H2 H1 H0
+		and.w	\3,\1		; -- -- -- -- -- -- -- -- -- -- -- -- H3 H2 H1 H0
 	ENDC
-	lsl.b	#2,\1			; %-- -- -- -- -- -- -- -- -- -- H3 H2 H1 H0 -- --
-	ror.b	#4,\1			; %-- -- -- -- -- -- -- -- H1 H0 -- -- -- -- H3 H2
-	lsl.w	#2,\1			; %-- -- -- -- -- -- H1 H0 -- -- -- -- H3 H2 -- --
-	lsr.b	#2,\1			; %-- -- -- -- -- -- H1 H0 -- -- -- -- -- -- H3 H2
-	move.w	\1,\2			; %-- -- -- -- -- -- H1 H0 -- -- -- -- -- -- H3 H2
-	lsl.w	#4,\2			; %-- -- H1 H0 -- -- -- -- -- -- H3 H2 -- -- -- --
-	or.w	\2,\1			; %-- -- H1 H0 -- -- H1 H0 -- -- H3 H2 -- -- H3 H2
+	lsl.b	#2,\1			; -- -- -- -- -- -- -- -- -- -- H3 H2 H1 H0 -- --
+	ror.b	#4,\1			; -- -- -- -- -- -- -- -- H1 H0 -- -- -- -- H3 H2
+	lsl.w	#2,\1			; -- -- -- -- -- -- H1 H0 -- -- -- -- H3 H2 -- --
+	lsr.b	#2,\1			; -- -- -- -- -- -- H1 H0 -- -- -- -- -- -- H3 H2
+	move.w	\1,\2			; -- -- -- -- -- -- H1 H0 -- -- -- -- -- -- H3 H2
+	lsl.w	#4,\2			; -- -- H1 H0 -- -- -- -- -- -- H3 H2 -- -- -- --
+	or.w	\2,\1			; -- -- H1 H0 -- -- H1 H0 -- -- H3 H2 -- -- H3 H2
 	ENDM
 
 
@@ -253,16 +253,16 @@ PF_SOFTSCROLL_16PIXEL_HIRES	MACRO
 		FAIL Macro PF_SOFTSCROLL_16PIXEL_HIRES: Scratch register missing
 	ENDC
 	IFC "","\3"
-		and.w	#$001f,\1	; %-- -- -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0
+		and.w	#$001f,\1	; -- -- -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0
 	ELSE
-		and.w	\3,\1		; %-- -- -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0
+		and.w	\3,\1		; -- -- -- -- -- -- -- -- -- -- -- H4 H3 H2 H1 H0
 	ENDC
-	ror.b	#2,\1			; %-- -- -- -- -- -- -- -- H1 H0 -- -- -- H4 H3 H2
-	lsl.w	#2,\1			; %-- -- -- -- -- -- H1 H0 -- -- -- H4 H3 H2 -- --
-	lsr.b	#2,\1			; %-- -- -- -- -- -- H1 H0 -- -- -- -- -- H4 H3 H2
-	move.w	\1,\2			; %-- -- -- -- -- -- H1 H0 -- -- -- -- -- H4 H3 H2
-	lsl.w	#4,\2			; %-- -- H1 H0 -- -- -- -- -- H4 H3 H2 -- -- -- --
-	or.w	\2,\1			; %-- -- H1 H0 -- -- H1 H0 -- H4 H3 H2 -- H4 H3 H2
+	ror.b	#2,\1			; -- -- -- -- -- -- -- -- H1 H0 -- -- -- H4 H3 H2
+	lsl.w	#2,\1			; -- -- -- -- -- -- H1 H0 -- -- -- H4 H3 H2 -- --
+	lsr.b	#2,\1			; -- -- -- -- -- -- H1 H0 -- -- -- -- -- H4 H3 H2
+	move.w	\1,\2			; -- -- -- -- -- -- H1 H0 -- -- -- -- -- H4 H3 H2
+	lsl.w	#4,\2			; -- -- H1 H0 -- -- -- -- -- H4 H3 H2 -- -- -- --
+	or.w	\2,\1			; -- -- H1 H0 -- -- H1 H0 -- H4 H3 H2 -- H4 H3 H2
 	ENDM
 
 
@@ -279,17 +279,17 @@ PF_SOFTSCROLL_64PIXEL_LORES	MACRO
 		FAIL Macro PF_SOFTSCROLL_64PIXEL_LORES: Scratch register missing
 	ENDC
 	IFC "","\3"
-		and.w	#$00ff,\1	; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
+		and.w	#$00ff,\1	; -- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
 	ELSE
-		and.w	\3,\1		; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
+		and.w	\3,\1		; -- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
 	ENDC
-	lsl.w	#2,\1			; %-- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0 -- --
-	ror.b	#4,\1			; %-- -- -- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2
-	lsl.w	#2,\1			; %-- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2 -- --
-	lsr.b	#2,\1			; %-- -- -- -- H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2
-	move.w	\1,\2			; %-- -- -- -- H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2
-	lsl.w	#4,\2			; %H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2 -- -- -- --
-	or.w	\2,\1			; %H7 H6 H1 H0 H7 H6 H1 H0 H5 H4 H3 H2 H5 H4 H3 H2
+	lsl.w	#2,\1			; -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0 -- --
+	ror.b	#4,\1			; -- -- -- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2
+	lsl.w	#2,\1			; -- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2 -- --
+	lsr.b	#2,\1			; -- -- -- -- H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2
+	move.w	\1,\2			; -- -- -- -- H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2
+	lsl.w	#4,\2			; H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2 -- -- -- --
+	or.w	\2,\1			; H7 H6 H1 H0 H7 H6 H1 H0 H5 H4 H3 H2 H5 H4 H3 H2
 	ENDM
 
 
@@ -303,14 +303,14 @@ ODDPF_SOFTSCROLL_64PIXEL_LORES	MACRO
 		FAIL Macro ODDPF_SOFTSCROLL_64PIXEL_LORES: X shift missing
 	ENDC
 	IFC "","\2"
-		and.w	#$00ff,\1	; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
+		and.w	#$00ff,\1	; -- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
 	ELSE
-		and.w	\2,\1		; %-- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
+		and.w	\2,\1		; -- -- -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0
 	ENDC
-	lsl.w	#2,\1			; %-- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0 -- --
-	ror.b	#4,\1			; %-- -- -- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2
-	lsl.w	#2,\1			; %-- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2 -- --
-	lsr.b	#2,\1			; %-- -- -- -- H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2
+	lsl.w	#2,\1			; -- -- -- -- -- -- H7 H6 H5 H4 H3 H2 H1 H0 -- --
+	ror.b	#4,\1			; -- -- -- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2
+	lsl.w	#2,\1			; -- -- -- -- H7 H6 H1 H0 -- -- H5 H4 H3 H2 -- --
+	lsr.b	#2,\1			; -- -- -- -- H7 H6 H1 H0 -- -- -- -- H5 H4 H3 H2
 	ENDM
 
 

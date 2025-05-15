@@ -77,6 +77,6 @@ GET_LINE_PARAMETERS		MACRO
 		sub.w	d2,d4		; low word: (4*dy)-(4*dx)
 		addq.w	#1*4,d2		; (4*dx)+(1*4)
 		MULUF.W 16,d2		; ((4*dx)+(1*4))*16 = length
-		addq.w	#2,d2		; width = 1 word
+		addq.w	#WORD_SIZE,d2	; width
 	ENDC
 	ENDM

@@ -355,7 +355,7 @@
 	move.w	#dma_bits&(~(DMAF_SPRITE|DMAF_COPPER|DMAF_RASTER)),DMACON-DMACONR(a6) ; enable DMA and exclude sprite/copper/bitplane DMA
 	bsr	init_main		; external routine
 	bsr	start_own_display
-	IFNE (intena_bits-INTF_SETCLR)|(ciaa_icr_bits-CIAICRF_SETCLR)|(ciab_icr_bits-CIAICRF_SETCLR)
+	IFNE (intena_bits&(~INTF_SETCLR))|(ciaa_icr_bits&(~CIAICRF_SETCLR))|(ciab_icr_bits&(~CIAICRF_SETCLR))
 		bsr	start_own_interrupts
 	ENDC
 	IFEQ ciaa_ta_continuous_enabled&ciaa_tb_continuous_enabled&ciab_ta_continuous_enabled&ciab_tb_continuous_enabled
@@ -390,7 +390,7 @@
 	IFEQ ciaa_ta_continuous_enabled&ciaa_tb_continuous_enabled&ciab_ta_continuous_enabled&ciab_tb_continuous_enabled
 		bsr	stop_cia_timers
 	ENDC
-	IFNE (intena_bits-INTF_SETCLR)|(ciaa_icr_bits-CIAICRF_SETCLR)|(ciab_icr_bits-CIAICRF_SETCLR)
+	IFNE (intena_bits&(~INTF_SETCLR))|(ciaa_icr_bits&(~CIAICRF_SETCLR))|(ciab_icr_bits&(~CIAICRF_SETCLR))
 		bsr	stop_own_interrupts
 	ENDC
 	bsr	stop_own_display
@@ -821,9 +821,9 @@ init_pal_screen_rgb32_colors
 			move.b	3(a1),d3
 			MOVEF.W	pal_screen_colors_number-1,d7
 init_pal_screen_rgb32_colors_loop
-			move.l	d1,(a0)+ ; COLORxx 32-Bit red
-			move.l	d2,(a0)+ ; COLORxx 32-Bit green
-			move.l	d3,(a0)+ ; COLORxx 32-Bit blue
+			move.l	d1,(a0)+ ; 32-Bit red
+			move.l	d2,(a0)+ ; 32-Bit green
+			move.l	d3,(a0)+ ; 32-Bit blue
 			dbf	d7,init_pal_screen_rgb32_colors_loop
 			move.l	d0,(a0)	; end of list
 			rts
@@ -2407,19 +2407,19 @@ rgb32_screen_fader_out_loop
 			bgt.s	sfo_rgb32_decrease_red
 			blt.s	sfo_rgb32_increase_red
 sfo_rgb32_matched_red
-			subq.w  #1,d6	; destination value reached
+			subq.w  #1,d6	; destination red reached
 sfo_rgb32_check_green
 			cmp.w	d4,d1
 			bgt.s	sfo_rgb32_decrease_green
 			blt.s	sfo_rgb32_increase_green
 sfo_rgb32_matched_green
-			subq.w  #1,d6	; destination value reached
+			subq.w  #1,d6	; destination green reached
 sfo_rgb32_check_blue
 			cmp.w	d5,d2
 			bgt.s	sfo_rgb32_decrease_blue
 			blt.s	sfo_rgb32_increase_blue
 sfo_rgb32_matched_blue
-			subq.w	#1,d6	; destination value reached
+			subq.w	#1,d6	; destination blue reached
 sfo_set_rgb32
 			move.b	d0,(a0)+ ; 4x 8 bit red
 			move.b	d0,(a0)+
@@ -2644,7 +2644,7 @@ disable_system
 ; Result
 			CNOP 0,4
 enable_all_caches
-			move.l	#CACRF_EnableI|CACRF_IBE|CACRF_EnableD|CACRF_DBE|CACRF_WriteAllocate|CACRF_EnableE|CACRF_CopyBack,d0 ; Alle Caches einschalten
+			move.l	#CACRF_EnableI|CACRF_IBE|CACRF_EnableD|CACRF_DBE|CACRF_WriteAllocate|CACRF_EnableE|CACRF_CopyBack,d0 ; enable all caches
 			move.l	#CACRF_EnableI|CACRF_FreezeI|CACRF_ClearI|CACRF_IBE|CACRF_EnableD|CACRF_FreezeD|CACRF_ClearD|CACRF_DBE|CACRF_WriteAllocate|CACRF_EnableE|CACRF_CopyBack,d1 ; Alle Bits ändern
 			CALLEXEC CacheControl
 			move.l	d0,old_cacr(a3)
@@ -2769,11 +2769,11 @@ save_copperlist_ptrs
 		CNOP 0,4
 get_tod_time
 		moveq	#0,d0
-		move.b	CIATODHI(a4),d0	; TOD-clock bits 23-16
+		move.b	CIATODHI(a4),d0	; TOD-clock bits 16..23
 		swap	d0		; adjust bits
-		move.b	CIATODMID(a4),d0 ; TOD-clock bits 15-8
+		move.b	CIATODMID(a4),d0 ; TOD-clock bits 8..15
 		lsl.w	#8,d0		; adjust bits
-		move.b	CIATODLOW(a4),d0 ; TOD-clock bits 7-0
+		move.b	CIATODLOW(a4),d0 ; TOD-clock bits 0..7
 		move.l	d0,tod_time(a3)
 		rts
 
@@ -2789,7 +2789,7 @@ save_chips_registers
 		move.b	CIAPRA(a4),old_ciaa_pra(a3)
 		move.b	CIACRA(a4),d0
 		move.b	d0,old_ciaa_cra(a3)
-		and.b	#~(CIACRAF_START),d0 ; stop timer a
+		and.b	#~CIACRAF_START,d0 ; stop timer a
 		or.b	#CIACRAF_LOAD,d0 ; load counter
 		move.b	d0,CIACRA(a4)
 		nop
@@ -2798,7 +2798,7 @@ save_chips_registers
 	
 		move.b	CIACRB(a4),d0
 		move.b	d0,old_ciaa_crb(a3)
-		and.b	#~(CIACRBF_ALARM-CIACRBF_START),d0 ; stop timer b
+		and.b	#(~(CIACRBF_ALARM&(~CIACRBF_START)))&$ff,d0 ; stop timer b
 		or.b	#CIACRBF_LOAD,d0 ; load counter
 		move.b	d0,CIACRB(a4)
 		nop
@@ -2808,7 +2808,7 @@ save_chips_registers
 		move.b	CIAPRB(a5),old_ciab_prb(a3)
 		move.b	CIACRA(a5),d0
 		move.b	d0,old_ciaa_cra(a3)
-		and.b	#~(CIACRAF_START),d0 ; stop timer a
+		and.b	#~CIACRAF_START,d0 ; stop timer a
 		or.b	#CIACRAF_LOAD,d0 ; load counter
 		move.b	d0,CIACRA(a5)
 		nop
@@ -2817,7 +2817,7 @@ save_chips_registers
 	
 		move.b	CIACRB(a5),d0
 		move.b	d0,old_ciab_crb(a3)
-		and.b	#~(CIACRBF_ALARM-CIACRBF_START),d0 ; stop timer b
+		and.b	#(~(CIACRBF_ALARM&(~CIACRBF_START)))&$ff,d0 ; stop timer b
 		or.b	#CIACRBF_LOAD,d0 ; load counter
 		move.b	d0,CIACRB(a5)
 		nop
@@ -2837,10 +2837,10 @@ clear_chips_registers1
 		move.w	d0,ADKCON-DMACONR(a6)
 	
 		moveq	#$7f,d0
-		move.b	d0,CIAICR(a4)	; disable interruts
-		move.b	d0,CIAICR(a5)	; disable interrupts
-		move.b	CIAICR(a4),d0	; clear interrupts
-		move.b	CIAICR(a5),d0	; clear interrupts
+		move.b	d0,CIAICR(a4)	; disable cia interruts
+		move.b	d0,CIAICR(a5)	; disable cia interrupts
+		move.b	CIAICR(a4),d0	; clear cia interrupts
+		move.b	CIAICR(a5),d0	; clear cia interrupts
 
 		moveq	#0,d0
 		move.w	d0,JOYTEST-DMACONR(a6) ; reset mouse/joystick position
@@ -2854,11 +2854,11 @@ turn_off_drive_motors
 		move.b	CIAPRB(a5),d0
 		moveq	#CIAF_DSKSEL0|CIAF_DSKSEL1|CIAF_DSKSEL2|CIAF_DSKSEL3,d1
 		or.b	d1,d0
-		move.b	d0,CIAPRB(a5)	; df0: .. df3:
+		move.b	d0,CIAPRB(a5)	; df0..3:
 		or.b	#CIAF_DSKMOTOR,d0
 		move.b	d0,CIAPRB(a5)	; motor off
 		eor.b	d1,d0
-		move.b	d0,CIAPRB(a5)	; df0: .. df3:
+		move.b	d0,CIAPRB(a5)	; df0..3:
 		or.b	d1,d0
 		move.b	d0,CIAPRB(a5)	; disable
 		rts
@@ -2887,19 +2887,19 @@ start_own_display
 	rts
 
 
-	IFNE (intena_bits-INTF_SETCLR)|(ciaa_icr_bits-CIAICRF_SETCLR)|(ciab_icr_bits-CIAICRF_SETCLR)
+	IFNE (intena_bits&(~INTF_SETCLR))|(ciaa_icr_bits&(~CIAICRF_SETCLR))|(ciab_icr_bits&(~CIAICRF_SETCLR))
 ; Input
 ; Result
 		CNOP 0,4
 start_own_interrupts
-		IFNE intena_bits-INTF_SETCLR
+		IFNE intena_bits&(~INTF_SETCLR)
 			move.w	#intena_bits,INTENA-DMACONR(a6)
 		ENDC
-		IFNE ciaa_icr_bits-CIAICRF_SETCLR
+		IFNE ciaa_icr_bits&(~CIAICRF_SETCLR)
 			MOVEF.B	ciaa_icr_bits,d0
 			move.b	d0,CIAICR(a4)
 		ENDC
-		IFNE ciab_icr_bits-CIAICRF_SETCLR
+		IFNE ciab_icr_bits&(~CIAICRF_SETCLR)
 			MOVEF.B	ciab_icr_bits,d0
 			move.b	d0,CIAICR(a5)
 		ENDC
@@ -2938,31 +2938,31 @@ start_cia_timers
 		CNOP 0,4
 stop_CIA_timers
 		IFNE ciaa_ta_time
-			moveq	#~(CIACRAF_START),d0
+			moveq	#~CIACRAF_START,d0
 			and.b	d0,CIACRA(a4) ; stop CIA-A timer a
 		ENDC
 		IFNE ciaa_tb_time
-			moveq	#~(CIACRBF_START),d0
+			moveq	#~CIACRBF_START,d0
 			and.b	d0,CIACRB(a4) ; stop CIA-A timer b
 		ENDC
 		IFNE ciab_ta_time
-			moveq	#~(CIACRAF_START),d0
+			moveq	#~CIACRAF_START,d0
 			and.b	d0,CIACRA(a5) ; stop CIA-B timer a
 		ENDC
 		IFNE ciab_tb_time
-			moveq	#~(CIACRBF_START),d0
+			moveq	#~CIACRBF_START,d0
 			and.b	d0,CIACRB(a5) ; stop CIA-B timer b
 		ENDC
 		rts
 	ENDC
 
 
-	IFNE (intena_bits-INTF_SETCLR)|(ciaa_icr_bits-CIAICRF_SETCLR)|(ciab_icr_bits-CIAICRF_SETCLR)
+	IFNE (intena_bits&(~INTF_SETCLR))|(ciaa_icr_bits&(~CIAICRF_SETCLR))|(ciab_icr_bits&(~CIAICRF_SETCLR))
 ; Input
 ; Result
 		CNOP 0,4
 stop_own_interrupts
-		IFNE intena_bits-INTF_SETCLR
+		IFNE intena_bits&(~INTF_SETCLR)
 			IFD SYS_TAKEN_OVER
 				move.w	#intena_bits&(~INTF_SETCLR),INTENA-DMACONR(a6) ; disable interrupts
 			ELSE
@@ -2979,7 +2979,7 @@ stop_own_interrupts
 stop_own_display
 	IFNE copcon_bits&COPCONF_CDANG
 		moveq	#0,d0
-		move.w	d0,COPCON-DMACONR(a6) ; copper can't access blitter registers
+		move.w	d0,COPCON-DMACONR(a6) ; copper can not access blitter registers
 	ENDC
 	bsr	wait_beam_position	; external routine
 	IFNE dma_bits&DMAF_BLITTER
@@ -3005,13 +3005,13 @@ clear_chips_registers2
 		move.w	d0,ADKCON-DMACONR(a6)
 	
 		moveq	#$7f,d0
-		move.b	d0,CIAICR(a4)	; disable interrupts
-		move.b	d0,CIAICR(a5)	; disable interrupts
-		IFNE ciaa_icr_bits-CIAICRF_SETCLR
-			move.b	CIAICR(a4),d0 ; clear interrupts
+		move.b	d0,CIAICR(a4)	; disable cia interrupts
+		move.b	d0,CIAICR(a5)
+		IFNE ciaa_icr_bits&(~CIAICRF_SETCLR)
+			move.b	CIAICR(a4),d0 ; clear cia interrupts
 		ENDC
-		IFNE ciab_icr_bits-CIAICRF_SETCLR
-			move.b	CIAICR(a5),d0 ; clear interrupts
+		IFNE ciab_icr_bits&(~CIAICRF_SETCLR)
+			move.b	CIAICR(a5),d0 ; clear cia interrupts
 		ENDC
 
 		moveq	#0,d0
@@ -3123,7 +3123,7 @@ get_tod_duration
 		bge.s	get_tod_duration_skip1
 		move.l	#TOD_MAX,d2
 		sub.l	d0,d2
-		add.l	d2,d1           ; correct time
+		add.l	d2,d1           ; adjust time
 		bra.s	get_tod_duration_skip2
 		CNOP 0,4
 get_tod_duration_skip1
@@ -3258,10 +3258,10 @@ sf_fade_in_screen
 			CNOP 0,4	
 rgb32_screen_fader_in
 			MOVEF.W	sf_rgb32_colors_number*3,d6 ; RGB counter
-			move.l	sf_screen_color_cache(a3),a0 ; color values buffer
+			move.l	sf_screen_color_cache(a3),a0 ; colors buffer
 			addq.w	#LONGWORD_SIZE,a0 ; skip offset
-			move.l	sf_screen_color_table(a3),a1 ; destination color values
-			move.w	#sfi_fader_speed,a4 ; increase/decrease RGB values
+			move.l	sf_screen_color_table(a3),a1 ; destination colors
+			move.w	#sfi_fader_speed,a4 ; increase/decrease RGB
 			MOVEF.W	sf_rgb32_colors_number-1,d7
 rgb32_screen_fader_in_loop
 			moveq	#0,d0
@@ -3281,19 +3281,19 @@ rgb32_screen_fader_in_loop
 			bgt.s	sfi_rgb32_decrease_red
 			blt.s	sfi_rgb32_increase_red
 sfi_rgb32_matched_red
-			subq.w	#1,d6	; destination value reached
+			subq.w	#1,d6	; destination red
 sfi_rgb32_check_green
 			cmp.w	d4,d1
 			bgt.s	sfi_rgb32_decrease_green
 			blt.s	sfi_rgb32_increase_green
 sfi_rgb32_matched_green
-			subq.w	#1,d6	; destination value reached
+			subq.w	#1,d6	; destination green
 sfi_rgb32_check_blue
 			cmp.w	d5,d2
 			bgt.s	sfi_rgb32_decrease_blue
 			blt.s	sfi_rgb32_increase_blue
 sfi_rgb32_matched_blue
-			subq.w	#1,d6	; destination value reached
+			subq.w	#1,d6	; destination blue
 
 sfi_set_rgb32
 			move.b	d0,(a0)+ ; 4x 8 bit red
@@ -3311,7 +3311,7 @@ sfi_set_rgb32
 			addq.w	#4,a1
 			move.b	d2,(a0)+
 			dbf	d7,rgb32_screen_fader_in_loop
-			tst.w	d6	; Fading finished ?
+			tst.w	d6	; fading-in finished ?
 			bne.s	sfi_rgb32_quit
 			move.w	#FALSE,sfi_rgb32_active(a3)
 sfi_rgb32_quit
