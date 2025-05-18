@@ -1223,7 +1223,7 @@ DIVUF				MACRO
 	moveq	#-1,\3			; counter for result
 divison_loop\@
 	addq.w	#1,\3
-	sub.w	\1,\2			; divisor - divident
+	SUBF.W	\1,\2			; divisor - divident
 	bge.s	divison_loop\@		; until dividend < divisor
 	ENDM
 
