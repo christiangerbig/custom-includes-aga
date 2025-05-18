@@ -617,7 +617,7 @@ MULUF				MACRO
 		lsl.\0	#6,\2
 		sub.\0	\3,\2
 	ENDC
-	IFEQ (\1)-64			; *64
+	IFEQ (\1)-64			; <<6
 		lsl.\0	#6,\2
 	ENDC
 	IFEQ (\1)-65			; *65
