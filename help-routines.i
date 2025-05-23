@@ -89,23 +89,23 @@ write_VBR
 ; Result
 	CNOP 0,4
 wait_beam_position
-	move.l	#$0003ff00,d1		; mask V0..V9
-	move.l	#beam_position<<8,d2	; adjust vertical position
+	move.l	#VERT_POSITION_MASK<<8,d1
+	move.l	#beam_position<<8,d2
 	lea	VPOSR-DMACONR(a6),a0
 	lea	VHPOSR-DMACONR(a6),a1
 wait_beam_position_loop1
-	move.w	(a0),d0			; VPOSR
-	swap	d0			; adjust bits
-	move.w	(a1),d0			; VHPOSR
-	and.l	d1,d0			; only vertical position
-	cmp.l	d2,d0			; wait beam position ?
+	move.w	(a0),d0
+	swap	d0			; high word: VPOSR
+	move.w	(a1),d0			; low word: VHPOSR
+	and.l	d1,d0			; vertical position
+	cmp.l	d2,d0			; only one position per frame on 680x0 machines
 	bge.s	wait_beam_position_loop1
 wait_beam_position_loop2
-	move.w	(a0),d0			; VPOSR
-	swap	d0			; adjust bits
-	move.w	(a1),d0			; VHPOSR
-	and.l	d1,d0			; only vertical position
-	cmp.l	d2,d0			; wait beam position ?
+	move.w	(a0),d0
+	swap	d0			; high word: VPOSR
+	move.w	(a1),d0			; low word: VHPOSR
+	and.l	d1,d0			; vertical position
+	cmp.l	d2,d0			; wait beam position reached ?
 	blt.s	wait_beam_position_loop2
 	rts
 
