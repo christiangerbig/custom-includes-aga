@@ -83,9 +83,13 @@ COP_SKIP			MACRO
 
 COP_LISTEND MACRO
 ; Input
+; \1 STRING:	"SAVETAIL" (optional)
 ; Result
 	moveq	#-2,d0
 	move.l	d0,(a0)
+	IFC "SAVETAIL","\1"
+		move.l	a0,cl_end(a3)
+	ENDC
 	ENDM
 
 

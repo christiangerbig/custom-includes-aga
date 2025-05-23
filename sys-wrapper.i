@@ -2986,9 +2986,9 @@ stop_own_display
 		WAITBLIT
 	ENDC
 	IFD SYS_TAKEN_OVER
-		move.w	#dma_bits&(~DMAF_SETCLR),DMACON-DMACONR(a6) ; disable DMA
+		move.w	#dma_bits&(~DMAF_SETCLR),DMACON-DMACONR(a6) ; disable all enabled DMA channels
 	ELSE
-		move.w	#DMAF_MASTER,DMACON-DMACONR(a6) ; disable DMA
+		move.w	#DMAF_MASTER,DMACON-DMACONR(a6) ; disable master DMA
 	ENDC
 	rts
 

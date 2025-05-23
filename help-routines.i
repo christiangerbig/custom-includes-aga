@@ -89,17 +89,24 @@ write_VBR
 ; Result
 	CNOP 0,4
 wait_beam_position
-	move.l	#$0003ff00,d1		; mask vertical beam position V0..V9
+	move.l	#$0003ff00,d1		; mask V0..V9
 	move.l	#beam_position<<8,d2	; adjust vertical position
 	lea	VPOSR-DMACONR(a6),a0
 	lea	VHPOSR-DMACONR(a6),a1
-wait_beam_position_loop
+wait_beam_position_loop1
 	move.w	(a0),d0			; VPOSR
 	swap	d0			; adjust bits
 	move.w	(a1),d0			; VHPOSR
 	and.l	d1,d0			; only vertical position
-	cmp.l	d2,d0			; wait beam position
-	blt.s	wait_beam_position_loop
+	cmp.l	d2,d0			; wait beam position ?
+	bge.s	wait_beam_position_loop1
+wait_beam_position_loop2
+	move.w	(a0),d0			; VPOSR
+	swap	d0			; adjust bits
+	move.w	(a1),d0			; VHPOSR
+	and.l	d1,d0			; only vertical position
+	cmp.l	d2,d0			; wait beam position ?
+	blt.s	wait_beam_position_loop2
 	rts
 
 
