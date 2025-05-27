@@ -617,7 +617,7 @@ MULUF				MACRO
 		lsl.\0	#6,\2
 		sub.\0	\3,\2
 	ENDC
-	IFEQ (\1)-64			; <<6
+	IFEQ (\1)-64			; )<<6
 		lsl.\0	#6,\2
 	ENDC
 	IFEQ (\1)-65			; *65
@@ -1522,7 +1522,7 @@ INIT_CHARS_IMAGES		MACRO
 	ENDM
 
 
-GET_NEW_char_IMAGE		MACRO
+GET_NEW_CHAR_IMAGE		MACRO
 ; Input
 ; \0 STRING:	Size [W/L]
 ; \1 STRING:	Labels prefix
@@ -1533,10 +1533,10 @@ GET_NEW_char_IMAGE		MACRO
 ; Result
 ; d0.l		pointer character image
 	IFC "","\0"
-		FAIL Macro GET_NEW_char_IMAGE: Size [W/L] missing
+		FAIL Macro GET_NEW_CHAR_IMAGE: Size [W/L] missing
 	ENDC
 	IFC "","\1"
-		FAIL Macro GET_NEW_char_IMAGE: Labels prefix missing
+		FAIL Macro GET_NEW_CHAR_IMAGE: Labels prefix missing
 	ENDC
 	CNOP 0,4
 \1_get_new_char_image
@@ -1646,6 +1646,7 @@ GET_NEW_char_IMAGE		MACRO
 	rts
 	IFNC "BACKWARDS","\4"
 		IFNC "","\2"
+			CNOP 0,4
 \1_get_new_char_image_skip5
 			IFC "","\5"
 				addq.w	#BYTE_SIZE,d1 ; next character
