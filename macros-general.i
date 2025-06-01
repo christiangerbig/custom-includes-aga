@@ -1512,7 +1512,7 @@ INIT_CHARS_IMAGES		MACRO
 	IFC "","\1"
 		FAIL Macro INIT_CHARS_IMAGES: Labels prefix missing
 	ENDC
-	lea	\1_chars_image_ptrs(pc),a2
+	lea	\1_chars_image_pointers(pc),a2
 	MOVEF.W	(\1_text_chars_number)-1,d7
 \1_init_chars_images_loop
 	bsr	\1_get_new_char_image

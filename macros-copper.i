@@ -194,14 +194,14 @@ COP_INIT_BITPLANE_POINTERS	MACRO
 		FAIL Macro COP_INIT_BITPLANE_POINTERS: Labels prefix missing
 	ENDC
 	CNOP 0,4
-\1_init_plane_ptrs
-	MOVEF.W	BPL1PTH,d0
+\1_init_bitplane_pointers
+	move.w	#BPL1PTH,d0
 	moveq	#(pf_depth*2)-1,d7
-\1_init_plane_ptrs_loop
+\1_init_bitplane_pointers_loop
 	move.w	d0,(a0)			; BPLxPTH/L
 	addq.w	#WORD_SIZE,d0		; next register
 	addq.w	#LONGWORD_SIZE,a0	; next entry in cl
-	dbf	d7,\1_init_plane_ptrs_loop
+	dbf	d7,\1_init_bitplane_pointers_loop
 	rts
 	ENDM
 
@@ -225,53 +225,53 @@ COP_SET_BITPLANE_POINTERS	MACRO
 		FAIL Macro COP_SET_BITPLANE_POINTERS: Number of bitplanes playfield1 missing
 	ENDC
 	CNOP 0,4
-\1_set_plane_ptrs
+\1_set_bitplane_pointers
 	IFC "","\4"
 		IFC "","\5"
 			move.l	\1_\2(a3),a0
 			ADDF.W	\1_BPL1PTH+WORD_SIZE,a0
 			move.l	pf1_display(a3),a1
 			moveq	#\3-1,d7 ; number of bitplanes
-\1_set_plane_ptrs_loop
+\1_set_bitplane_pointers_loop
 			move.w	(a1)+,(a0) ; BPLxPTH
 			addq.w	#QUADWORD_SIZE,a0
 			move.w	(a1)+,LONGWORD_SIZE-QUADWORD_SIZE(a0) ; BPLxPTL
-			dbf	d7,\1_set_plane_ptrs_loop
+			dbf	d7,\1_set_bitplane_pointers_loop
 		ELSE
+			MOVEF.L	(\5/8)+(\6*pf1_plane_width*pf1_depth3),d1
 			move.l	\1_\2(a3),a0
 			ADDF.W	\1_BPL1PTH+WORD_SIZE,a0
 			move.l	pf1_display(a3),a1
-			MOVEF.L	(\5/8)+(\6*pf1_plane_width*pf1_depth3),d1
 			moveq	#\3-1,d7 ; number of bitplanes
-\1_set_plane_ptrs_loop
+\1_set_bitplane_pointers_loop
 			move.l	(a1)+,d0
 			add.l	d1,d0
 			move.w	d0,4(a0) ; BPLxPTL
 			swap	d0
 			move.w	d0,(a0)	; BPLxPTH
 			addq.w	#QUADWORD_SIZE,a0
-			dbf	d7,\1_set_plane_ptrs_loop
+			dbf	d7,\1_set_bitplane_pointers_loop
 		ENDC
 	ELSE
+; Playfield 1
 		move.l	\1_\2(a3),a0
 		lea	\1_BPL2PTH+2(a0),a1
 		ADDF.W	\1_BPL1PTH+WORD_SIZE,a0
 		move.l	pf1_display(a3),a2
-; Zeiger auf Playfield 1 eintragen
 		moveq	#\3-1,d7	; number of bitplanes
-\1_set_plane_ptrs_loop1
+\1_set_bitplane_pointers_loop1
 		move.w	(a2)+,(a0)	; BPLxPTH
 		ADDF.W	QUADWORD_SIZE*2,a0
 		move.w	(a2)+,LONGWORD_SIZE-(QUADWORD_SIZE*2)(a0) ; BPLxPTL
-		dbf	d7,\1_set_plane_ptrs_loop1
-; Zeiger auf Playfield 2 eintragen
+		dbf	d7,\1_set_bitplane_pointers_loop1
+; Playfield 2
 		move.l	pf2_display(a3),a2
 		moveq	#\4-1,d7	; number of bitplanes
-\1_set_plane_ptrs_loop2
+\1_set_bitplane_pointers_loop2
 		move.w	(a2)+,(a1)	; BPLxPTH
 		ADDF.W	QUADWORD_SIZE*2,a1
 		move.w	(a2)+,LONGWORD_SIZE-(QUADWORD_SIZE*2)(a1) ; BPLxPTL
-		dbf	d7,\1_set_plane_ptrs_loop2
+		dbf	d7,\1_set_bitplane_pointers_loop2
 	ENDC
 	rts
 	ENDM
@@ -285,14 +285,14 @@ COP_INIT_SPRITE_POINTERS	MACRO
 		FAIL Macro COP_INIT_SPRITE_POINTERS: Labels prefix missing
 	ENDC
 	CNOP 0,4
-\1_init_sprite_ptrs
+\1_init_sprite_pointers
 	move.w	#SPR0PTH,d0
 	moveq	#(spr_number*2)-1,d7	; number of sprites
-\1_init_sprite_ptrs_loop
+\1_init_sprite_pointers_loop
 	move.w	d0,(a0)			; SPRxPTH/L
 	addq.w	#WORD_SIZE,d0		; next register
 	addq.w	#LONGWORD_SIZE,a0
-	dbf	d7,\1_init_sprite_ptrs_loop
+	dbf	d7,\1_init_sprite_pointers_loop
 	rts
 	ENDM
 
@@ -314,21 +314,21 @@ COP_SET_SPRITE_POINTERS		MACRO
 		FAIL Macro COP_SET_SPRITE_POINTERS: Number of sprites missing
 	ENDC
 	CNOP 0,4
-\1_set_sprite_ptrs
+\1_set_sprite_pointers
 	move.l	\1_\2(a3),a0
 	IFC "","\4"
-		lea	spr_ptrs_display(pc),a1
+		lea	spr_pointers_display(pc),a1
 		ADDF.W	\1_SPR0PTH+WORD_SIZE,a0
 	ELSE
-		lea	spr_ptrs_display+(\4*4)(pc),a1 ; with index
+		lea	spr_pointers_display+(\4*4)(pc),a1 ; with index
 		ADDF.W	\1_SPR\3PTH+WORD_SIZE,a0
 	ENDC
 	moveq	#\3-1,d7		; number of sprites
-\1_set_sprite_ptrs_loop
+\1_set_sprite_pointers_loop
 	move.w	(a1)+,(a0)		; SPRxPTH
 	addq.w	#QUADWORD_SIZE,a0
 	move.w	(a1)+,LONGWORD_SIZE-QUADWORD_SIZE(a0) ; SPRxPTL
-	dbf	d7,\1_set_sprite_ptrs_loop
+	dbf	d7,\1_set_sprite_pointers_loop
 	rts
 	ENDM
 
@@ -421,10 +421,9 @@ COP_INIT_COLOR00_REGISTERS	MACRO
 	move.l	#(BPLCON3<<16)|bplcon3_bits2,d3
 	move.l	#(COLOR00<<16)|color00_low_bits,d4
 	IFC "YWRAP","\2"
-		move.l	#(((CL_Y_WRAP<<24)|(((\1_hstart1/4)*2)<<16))|$10000)|$fffe,d5 ; CWAIT
+		move.l	#(((CL_Y_WRAPPING<<24)|(((\1_hstart1/4)*2)<<16))|$10000)|$fffe,d5 ; CWAIT
 	ENDC
-	moveq	#1,d6
-	ror.l	#8,d6			; $01000000
+	move.l	#$01000000,d6
 	MOVEF.W	\1_display_y_size-1,d7
 \1_init_color00_loop
 	move.l	d0,(a0)+		; CWAIT x,y
@@ -434,10 +433,10 @@ COP_INIT_COLOR00_REGISTERS	MACRO
 	move.l	d4,(a0)+		; COLOR00
 	IFC "YWRAP","\2"
 		COP_MOVEQ 0,NOOP
-		cmp.l	d5,d0		; raster line $ff reached ?
+		cmp.l	d5,d0		; y wrapping ?
 		bne.s	\1_init_color00_skip
 		subq.w	#LONGWORD_SIZE,a0
-		COP_WAIT CL_X_WRAP,CL_Y_WRAP ; patch cl
+		COP_WAIT CL_X_WRAPPING,CL_Y_WRAPPING ; patch cl
 \1_init_color00_skip
 	ENDC
 	add.l	d6,d0			; next line in cl
@@ -644,8 +643,7 @@ COP_INIT_BPLCON1_CHUNKY_SCREEN	MACRO
 	ELSE
 		move.l	#(BPLCON1<<16)|\6,d1
 	ENDC
-	moveq	#1,d3
-	ror.l	#8,d3			; $01000000
+	move.l	#$01000000,d3
 	MOVEF.W \5-1,d7			; number of lines
 \1_init_bplcon1s_loop1
 	move.l	d0,(a0)+		; CWAIT x,y
@@ -672,7 +670,7 @@ COP_INIT_COPINT			MACRO
 	CNOP 0,4
 \1_init_copper_interrupt
 	IFC "YWRAP","\4"
-		COP_WAIT CL_X_WRAP,CL_Y_WRAP ; patch cl
+		COP_WAIT CL_X_WRAPPING,CL_Y_WRAPPING ; patch cl
 	ENDC
 	IFNC "","\2"
 		IFNC "","\3"

@@ -345,7 +345,7 @@
 	move.l	#_CUSTOM+DMACONR,a6
 	
 	IFND SYS_TAKEN_OVER
-		bsr	save_copperlist_ptrs
+		bsr	save_copperlist_pointers
 		bsr	get_tod_time
 		bsr	save_chips_registers
 		bsr	clear_chips_registers1
@@ -2753,7 +2753,7 @@ move_exception_vectors_quit
 ; Input
 ; Result
 ; d0.l	Return code
-save_copperlist_ptrs
+save_copperlist_pointers
 		move.l	_GfxBase(pc),a0
 		IFNE cl1_size3
 			move.l	gb_Copinit(a0),old_cop1lc(a3)
@@ -3485,6 +3485,7 @@ free_audio_memory_skip
 		CNOP 0,4
 free_sprite_memory2
 		lea	spr0_bitmap2(a3),a2
+		lea	sprite_attributes2(pc),a4
 		moveq	#spr_number-1,d7
 free_sprite_memory2_loop
 		move.l	(a2)+,d0

@@ -93,26 +93,26 @@ SET_SPRITE_POSITION_V9		MACRO
 
 INIT_SPRITE_POINTERS_TABLE	MACRO
 	CNOP 0,4
-spr_init_ptrs_table
+spr_init_pointers_table
 ; Input
 ; Result
 	IFNE spr_x_size1
 		lea	spr0_construction(a3),a0
-		lea	spr_ptrs_construction(pc),a1
+		lea	spr_pointers_construction(pc),a1
 		moveq	#spr_number-1,d7
-spr_init_ptrs_table_loop1
+spr_init_pointers_table_loop1
 		move.l	(a0)+,a2
 		move.l	(a2),(a1)+	; sprite structure
-		dbf	d7,spr_init_ptrs_table_loop1
+		dbf	d7,spr_init_pointers_table_loop1
 	ENDC
 	IFNE spr_x_size2
 		lea	spr0_display(a3),a0
-		lea	spr_ptrs_display(pc),a1
+		lea	spr_pointers_display(pc),a1
 		moveq	#spr_number-1,d7
-spr_init_ptrs_table_loop2
+spr_init_pointers_table_loop2
 		move.l	(a0)+,a2
 		move.l	(a2),(a1)+	; sprite structure
-		dbf	d7,spr_init_ptrs_table_loop2
+		dbf	d7,spr_init_pointers_table_loop2
 	ENDC
 	rts
 	ENDM
@@ -124,8 +124,8 @@ spr_copy_structures
 ; Input
 ; Result
 	move.l	a4,-(a7)
-	lea	spr_ptrs_construction(pc),a2
-	lea	spr_ptrs_display(pc),a4
+	lea	spr_pointers_construction(pc),a2
+	lea	spr_pointers_display(pc),a4
 	move.w	#(sprite0_size/LONGWORD_SIZE)-1,d7
 	bsr.s	spr_copy_data
 	move.w	#(sprite1_size/LONGWORD_SIZE)-1,d7
@@ -380,7 +380,7 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 ; d0.w	x position
 ; d1.w	y position
 ; d3.b	Attached bit
-; a0	Pointer sprite structure
+; a0.l	Pointer sprite structure
 ; Result
 	CNOP 0,4
 \1_init_sprite_header
@@ -414,58 +414,56 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 	ENDM
 
 
-SWAP_SPRITES		MACRO
+SWAP_SPRITES			MACRO
 ; Input
-; \1 STRING:		Labels prefix
-; \2 BYTE SIGNED:	Number of sprites
-; \3 NUMBER:		Sprite structure pointer index [1,2,3,4,6,7] (optional)
+; \1 BYTE SIGNED:	Number of sprites
+; \2 NUMBER:		Sprite structure pointer index [1,2,3,4,6,7] (optional)
 ; Result
 	IFC "","\1"
-		FAIL Macro SWAP_SPRITE_STRUCTURES: Labels prefix missing
-	ENDC
-	IFC "","\2"
 		FAIL Macro SWAP_SPRITE_STRUCTURES: Number of sprites missing
 	ENDC
 	CNOP 0,4
-\1_swap_structures
-	IFC "","\3"
-		lea	spr_ptrs_construction(pc),a0
-		lea	spr_ptrs_display(pc),a1
+swap_sprite_structures
+	IFC "","\2"
+		lea	spr_pointers_construction(pc),a0
+		lea	spr_pointers_display(pc),a1
 	ELSE
-		lea	spr_ptrs_construction+(\3*LONGWORD_SIZE)(pc),a0
-		lea	spr_ptrs_display+(\3*LONGWORD_SIZE)(pc),a1
+		lea	spr_pointers_construction+(\2*LONGWORD_SIZE)(pc),a0
+		lea	spr_pointers_display+(\2*LONGWORD_SIZE)(pc),a1
 	ENDC
-	moveq	#\2-1,d7		; number of sprites
-\1_swap_structures_loop
+	moveq	#\1-1,d7		; number of sprites
+swap_sprite_structures_loop
 	move.l	(a0),d0
 	move.l	(a1),(a0)+
 	move.l	d0,(a1)+
-	dbf	d7,\1_swap_structures_loop
+	dbf	d7,swap_sprite_structures_loop
 	rts
 	ENDM
 
 
 SET_SPRITES			MACRO
 ; Input
-; \1 STRING:		Labels prefix der Routine
-; \2 BYTE SIGNED:	Number of sprites
-; \3 NUMBER:		Sprite structure pointer index [1,2,3,4,6,7] (optional)
+; \1 BYTE SIGNED:	Number of sprites
+; \2 NUMBER:		Sprite structure pointer index [1,2,3,4,6,7] (optional)
 ; Result
+	IFC "","\1"
+		FAIL Macro SWAP_SPRITE_STRUCTURES: Number of sprites missing
+	ENDC
 	CNOP 0,4
-\1_set_sprite_ptrs
+set_sprite_pointers
 	move.l	cl1_display(a3),a0 
-	IFC "","\3"
-		lea	spr_ptrs_display(pc),a1
+	IFC "","\2"
+		lea	spr_pointers_display(pc),a1
 		ADDF.W	cl1_SPR0PTH+WORD_SIZE,a0
 	ELSE
-		lea	spr_ptrs_display+(\3*LONGWORD_SIZE)(pc),a1
-		ADDF.W	cl1_SPR\3PTH+WORD_SIZE,a0
+		lea	spr_pointers_display+(\2*LONGWORD_SIZE)(pc),a1
+		ADDF.W	cl1_SPR\2PTH+WORD_SIZE,a0
 	ENDC
-	moveq	#\2-1,d7		; number of sprites
-\1_set_sprite_ptrs_loop
+	moveq	#\1-1,d7		; number of sprites
+set_sprite_pointers_loop
 	move.w	(a1)+,(a0)		; SPRxPTH
 	addq.w	#QUADWORD_SIZE,a0
 	move.w	(a1)+,LONGWORD_SIZE-QUADWORD_SIZE(a0) ; SPRxPTL
-	dbf	d7,\1_set_sprite_ptrs_loop
+	dbf	d7,set_sprite_pointers_loop
 	rts
 	ENDM
