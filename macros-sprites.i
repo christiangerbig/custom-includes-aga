@@ -29,7 +29,7 @@ SET_SPRITE_POSITION		MACRO
 	ENDM
 
 
-SET_SPRITE_POSITION_1X		MACRO
+INIT_SPRITE_CONTROL_WORDS_1X		MACRO
 ; Input
 ; \1 WORD:	x position
 ; \2 WORD:	y position
@@ -37,13 +37,13 @@ SET_SPRITE_POSITION_1X		MACRO
 ; Result
 ; \2 LONGWORD:	low word SPRxCTL, high word SPRxPOS
 	IFC "","\1"
-		FAIL Macro SET_SPRITE_POSITION_1X: x position missing
+		FAIL Macro INIT_SPRITE_CONTROL_WORDS_1X: x position missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro SET_SPRITE_POSITION_1X: y position missing
+		FAIL Macro INIT_SPRITE_CONTROL_WORDS_1X: y position missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro SET_SPRITE_POSITION_1X: Height missing
+		FAIL Macro INIT_SPRITE_CONTROL_WORDS_1X: Height missing
 	ENDC
 	SET_SPRITE_POSITION \1,\2,\3
 	swap	\2			; SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3 --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
