@@ -1263,7 +1263,6 @@ SWAP_COPPERLIST			MACRO
 ; Input
 ; \1 STRING:	Labels prefix
 ; \2 NUMBER:	Number of copperlists [2,3]
-; \3 STRING:	"NOSET" Do not set cl pointer (optional)
 ; Result
 	IFC "","\1"
 		FAIL Macro SWAP_COPPERLIST: Labels prefix missing
@@ -1271,16 +1270,13 @@ SWAP_COPPERLIST			MACRO
 	IFC "","\2"
 		FAIL Macro SWAP_COPPERLIST: Number of copperlists [2,3] missing
 	ENDC
-	CNOP 0,4
 	IFC "cl1","\1"
+		CNOP 0,4
 swap_first_copperlist
 		IFEQ \2-2
 			move.l	\1_construction2(a3),a0
 			move.l	\1_display(a3),\1_construction2(a3)
 			move.l	a0,\1_display(a3)
-			IFNC "NOSET","\3"
-				move.l	a0,COP1LC-DMACONR(a6)
-			ENDC
 			rts
 		ENDC
 		IFEQ \2-3
@@ -1289,21 +1285,16 @@ swap_first_copperlist
 			move.l	\1_construction2(a3),a1
 			move.l	a0,\1_construction2(a3)
 			move.l	a1,\1_display(a3)
-			IFNC "NOSET","\3"
-				move.l	a1,COP1LC-DMACONR(a6)
-			ENDC
 			rts
 		ENDC
 	ENDC
 	IFC "cl2","\1"
+		CNOP 0,4
 swap_second_copperlist
 		IFEQ \2-2
 			move.l	\1_construction2(a3),a0
 			move.l	\1_display(a3),\1_construction2(a3)
 			move.l	a0,\1_display(a3)
-			IFNC "NOSET","\3"
-				move.l	a0,COP2LC-DMACONR(a6)
-			ENDC
 			rts
 		ENDC
 		IFEQ \2-3
@@ -1312,11 +1303,30 @@ swap_second_copperlist
 			move.l	\1_construction2(a3),a1
 			move.l	a0,\1_construction2(a3)
 			move.l	a1,\1_display(a3)
-			IFNC "NOSET","\3"
-				move.l	a1,COP2LC-DMACONR(a6)
-			ENDC
 			rts
 		ENDC
+	ENDC
+	ENDM
+
+
+SET_COPPERLIST			MACRO
+; Input
+; \1 STRING:	Labels prefix
+; Result
+	IFC "","\1"
+		FAIL Macro SET_COPPERLIST: Labels prefix missing
+	ENDC
+	IFC "cl1","\1"
+		CNOP 0,4
+set_first_copperlist
+		move.l	\1_display(a3),COP1LC-DMACONR(a6)
+		rts
+	ENDC
+	IFC "cl2","\1"
+		CNOP 0,4
+set_second_copperlist
+		move.l	\1_display(a3),COP2LC-DMACONR(a6)
+		rts
 	ENDC
 	ENDM
 
