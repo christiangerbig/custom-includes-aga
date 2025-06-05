@@ -1,16 +1,16 @@
 SET_SPRITE_POSITION		MACRO
 ; Input
-; \1 WORD:	x position
-; \2 WORD:	y position
+; \1 WORD:	X position
+; \2 WORD:	Y position
 ; \3 WORD:	Height
 ; Result
 ; \2 WORD:	SPRxPOS
 ; \3 WORD:	SPRxCTL
 	IFC "","\1"
-		FAIL Macro SET_SPRITE_POSITION: x position missing
+		FAIL Macro SET_SPRITE_POSITION: X position missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro SET_SPRITE_POSITION: y position missing
+		FAIL Macro SET_SPRITE_POSITION: Y position missing
 	ENDC
 	IFC "","\3"
 		FAIL Macro SET_SPRITE_POSITION: Height missing
@@ -31,16 +31,16 @@ SET_SPRITE_POSITION		MACRO
 
 INIT_SPRITE_CONTROL_WORDS_1X		MACRO
 ; Input
-; \1 WORD:	x position
-; \2 WORD:	y position
+; \1 WORD:	X position
+; \2 WORD:	Y position
 ; \3 WORD:	Height
 ; Result
 ; \2 LONGWORD:	low word SPRxCTL, high word SPRxPOS
 	IFC "","\1"
-		FAIL Macro INIT_SPRITE_CONTROL_WORDS_1X: x position missing
+		FAIL Macro INIT_SPRITE_CONTROL_WORDS_1X: X position missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro INIT_SPRITE_CONTROL_WORDS_1X: y position missing
+		FAIL Macro INIT_SPRITE_CONTROL_WORDS_1X: Y position missing
 	ENDC
 	IFC "","\3"
 		FAIL Macro INIT_SPRITE_CONTROL_WORDS_1X: Height missing
@@ -53,18 +53,18 @@ INIT_SPRITE_CONTROL_WORDS_1X		MACRO
 
 SET_SPRITE_POSITION_V9		MACRO
 ; Input
-; \1 WORD:	x position
-; \2 WORD:	y position
+; \1 WORD:	X position
+; \2 WORD:	Y position
 ; \3 WORD:	Height
 ; \4 BYTE:	Scratch register
 ; Result
 ; \2 WORD: SPRxPOS
 ; \3 WORD: SPRxCTL
 	IFC "","\1"
-		FAIL Macro SET_SPRITE_POSITION_V9: x position missing
+		FAIL Macro SET_SPRITE_POSITION_V9: X position missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro SET_SPRITE_POSITION_V9: y position missing
+		FAIL Macro SET_SPRITE_POSITION_V9: Y position missing
 	ENDC
 	IFC "","\3"
 		FAIL Macro SET_SPRITE_POSITION_V9: Height missing
@@ -163,9 +163,9 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 ; \4 WORD:	y position (optional)
 ; \5 WORD:	Width
 ; \6 WORD:	Height
-; \7 STRING:	"NOHEADER" (optional)
-; \8 STRING:	"BLANK" (optional)
-; \9 STRING:	"REPEAT" (optional)
+; \7 STRING:	["NOHEADER"] (optional)
+; \8 STRING:	["BLANK"] (optional)
+; \9 STRING:	["REPEAT"] (optional)
 ; Result
 	IFC "","\1"
 		FAIL Macro INIT_ATTACHED_SPRITES_CLUSTER: Labels prefix missing
@@ -377,8 +377,8 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 	ENDC
 
 ; Input
-; d0.w	x position
-; d1.w	y position
+; d0.w	X position
+; d1.w	Y position
 ; d3.b	Attached bit
 ; a0.l	Pointer sprite structure
 ; Result
@@ -417,7 +417,7 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 SWAP_SPRITES			MACRO
 ; Input
 ; \1 BYTE SIGNED:	Number of sprites
-; \2 NUMBER:		Sprite structure pointer index [1,2,3,4,6,7] (optional)
+; \2 NUMBER:		[1..7] sprite structure pointer index (optional)
 ; Result
 	IFC "","\1"
 		FAIL Macro SWAP_SPRITE_STRUCTURES: Number of sprites missing
@@ -444,7 +444,7 @@ swap_sprite_structures_loop
 SET_SPRITES			MACRO
 ; Input
 ; \1 BYTE SIGNED:	Number of sprites
-; \2 NUMBER:		Sprite structure pointer index [1,2,3,4,6,7] (optional)
+; \2 NUMBER:		[1..7] sprite structure pointer index (optional)
 ; Result
 	IFC "","\1"
 		FAIL Macro SWAP_SPRITE_STRUCTURES: Number of sprites missing

@@ -25,19 +25,19 @@ wait_right_button_loop\@
 	ENDM
 
 
-WAIT_MOUSE			MACRO	; ONLY for testing purposes
+WAIT_MOUSE			MACRO	; !ONLY for testing purposes!
 ; Input
 ; Result
 wm_loop\@
-	move.w	$dff006,$dff180
-	btst	#2,$dff016
+	move.w	_CUSTOM+VHPOSR,_CUSTOM+COLOR00
+	btst	#POTINPB_DATLY-8,POTINP-DMACONR(a6)
 	bne.s	wm_loop\@
 	ENDM
 
 
 RASTER_TIME			MACRO
 ; Input
-; \1 HEXNUMBER:	RGB4 value (optional)
+; \1 WORD:	RGB4 value (optional)
 ; Result
 	move.l	d0,-(a7)
 	move.w	VPOSR-DMACONR(a6),d0
@@ -90,12 +90,12 @@ AUDIO_TEST			MACRO
 
 MOVEF				MACRO
 ; Input
-; \0 STRING:	Size [B/W/L]
+; \0 STRING:	["B", "W", "L"] size
 ; \1 NUMBER:	Source value
 ; \2 STRING:	Target
 ; Result
 	IFC "","\0"
-		FAIL Macro MOVEF: Size [B/W/L] missing
+		FAIL Macro MOVEF: Size missing
 	ENDC
 	IFC "","\1"
 		FAIL Macro MOVEF: Source value missing
@@ -151,18 +151,18 @@ MOVEF				MACRO
 
 ADDF				MACRO
 ; Input
-; \0 STRING:	Size [B/W/L]
+; \0 STRING:	["B", "W", "L"] size
 ; \1 NUMBER:	8/16 bit source value
 ; \2 STRING:	Target
 ; Result
 	IFC "","\0"
-		FAIL Macro ADDF: Size [B/W/L] missing
+		FAIL Macro ADDF: Size missing
 	ENDC
 	IFC "","\1"
-		FAIL Macro ADDF: 8/16 bit source value missing
+		FAIL Macro ADDF: Source missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro ADDF: destination missing
+		FAIL Macro ADDF: Destination missing
 	ENDC
 	IFEQ \1
 		MEXIT
@@ -223,15 +223,15 @@ ADDF				MACRO
 
 SUBF				MACRO
 ; Input
-; \0 STRING:	Size [B/W/L]
+; \0 STRING:	["B", "W", "L"] size
 ; \1 NUMBER:	8/16 bit source value
 ; \2 STRING:	Target
 ; Result
 	IFC "","\0"
-		FAIL Macro SUBF: Size [B/W/L] missing
+		FAIL Macro SUBF: Size missing
 	ENDC
 	IFC "","\1"
-		FAIL Macro SUBF: 8/16 bit source missing
+		FAIL Macro SUBF: Source missing
 	ENDC
 	IFC "","\2"
 		FAIL Macro SUBF: Target missing
@@ -280,16 +280,16 @@ SUBF				MACRO
 
 MULUF				MACRO
 ; Input
-; \0 STRING:	Size [B/W/L]
+; \0 STRING:	["B", "W", "L"] size
 ; \1 NUMBER:	16/32 bit factor
 ; \2 NUMBER:	Product
 ; \3 STRING:	Scratch register
 ; Result
 	IFC "","\0"
-		FAIL Macro MULUF: Size [B/W/L] missing
+		FAIL Macro MULUF: Size missing
 	ENDC
 	IFC "","\1"
-		FAIL Macro MULUF: 16/32 bit factor missing
+		FAIL Macro MULUF: Factor missing
 	ENDC
 	IFC "","\2"
 		FAIL Macro MULUF: Product missing
@@ -1191,10 +1191,10 @@ MULSF				MACRO
 ; \3 STRING:	Scratch register
 ; Result
 	IFC "","\1"
-		FAIL Macro MULSF: 16 bit signed factor missing
+		FAIL Macro MULSF: Factor missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro MULSF: 16-Bit Product missing
+		FAIL Macro MULSF: Product missing
 	ENDC
 	IFEQ \1
 		FAIL Macro MULSF: Factor is 0
@@ -1206,13 +1206,13 @@ MULSF				MACRO
 
 DIVUF				MACRO
 ; Input
-; \0 STRING:	Size [W]
+; \0 STRING:	["W"] size
 ; \1 NUMBER:	Divisor
 ; \2 NUMBER:	Divident
 ; \3 STRING:	Scratch register, result
 ; Result
 	IFC "","\0"
-		FAIL Macro DIVUF: Size [W] missing
+		FAIL Macro DIVUF: Size missing
 	ENDC
 	IFC "","\1"
 		FAIL Macro DIVUF: Divsor missing
@@ -1230,15 +1230,15 @@ divison_loop\@
 
 CMPF				MACRO
 ; Input
-; \0 STRING:	Size [B/W/L]
+; \0 STRING:	["B", "W", "L"] size
 ; \1 NUMBER:	Source 8/16/32 bit
 ; \2 STRING:	Target
 ; Result
 	IFC "","\0"
-		FAIL Macro CMPF: Size [B/W/L] missing
+		FAIL Macro CMPF: Size missing
 	ENDC
 	IFC "","\1"
-		FAIL Macro CMPF: Source 8/16/32 bit missing
+		FAIL Macro CMPF: Source missing
 	ENDC
 	IFC "","\2"
 		FAIL Macro CMPF: Target missing
@@ -1284,7 +1284,7 @@ CPU_INIT_COLOR_LOW		MACRO
 	IFC "","\2"
 		FAIL Macro CPU_INIT_COLOR_LOW: Number of colors missing
 	ENDC
-	lea		(\1)-DMACONR(a6),a0 ; erstes Farbregister
+	lea		(\1)-DMACONR(a6),a0 ; first color register
 	IFNC "","\3"
 		lea	\3(pc),a1	; color table
 	ENDC
@@ -1374,13 +1374,13 @@ RGB8_TO_RGB8_HIGH_LOW		MACRO
 
 INIT_CHARS_OFFSETS MACRO
 ; Input
-; \0 STRING:	Size [W/L]
+; \0 STRING:	["W", "L"] size
 ; \1 STRING:	Labels prefix
 ; Result
 	CNOP 0,4
 \1_init_chars_offsets
 	IFC "","\0"
-		FAIL Macro INIT_CHARS_OFFSETS: Size [W/L] missing
+		FAIL Macro INIT_CHARS_OFFSETS: Size missing
 	ENDC
 	IFC "","\1"
 		FAIL Macro INIT_CHARS_OFFSETS: Labels prefix missing
@@ -1429,8 +1429,8 @@ INIT_CHARS_OFFSETS MACRO
 INIT_CHARS_X_POSITIONS	MACRO
 ; Input
 ; \1 STRING:	Labels prefix
-; \2 STRING:	Pixel resolution ["LORES", "HIRES", "SHIRES"]
-; \3 STRING:	Entry access "BACKWARDS" (optional)
+; \2 STRING:	["LORES", "HIRES", "SHIRES"] pixel resolution
+; \3 STRING:	["BACKWARDS"] (optional)
 ; \4 NUMBER:	Number of characters (optional)
 ; Result
 	CNOP 0,4
@@ -1439,7 +1439,7 @@ INIT_CHARS_X_POSITIONS	MACRO
 		FAIL Macro INIT_CHARS_X_POSITIONS: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro INIT_CHARS_X_POSITIONS: Pixel resolution ["LORES", "HIRES", "SHIRES"] missing
+		FAIL Macro INIT_CHARS_X_POSITIONS: Pixel resolution missing
 	ENDC
 	moveq	#0,d0			; 1st x
 	IFC "LORES","\2"
@@ -1524,16 +1524,16 @@ INIT_CHARS_IMAGES		MACRO
 
 GET_NEW_CHAR_IMAGE		MACRO
 ; Input
-; \0 STRING:	Size [W/L]
+; \0 STRING:	["W", "L"] size
 ; \1 STRING:	Labels prefix
 ; \2 LABEL:	Sub routine acheck control codes (optional)
-; \3 STRING:	"NORESTART" (optional)
-; \4 STRING:	"BACKWARDS" (optional)
+; \3 STRING:	["NORESTART"] (optional)
+; \4 STRING:	["BACKWARDS"] (optional)
 ; \5 STRING:	Offset next character image (optional)
 ; Result
-; d0.l		pointer character image
+; d0.l		Pointer character image
 	IFC "","\0"
-		FAIL Macro GET_NEW_CHAR_IMAGE: Size [W/L] missing
+		FAIL Macro GET_NEW_CHAR_IMAGE: Size missing
 	ENDC
 	IFC "","\1"
 		FAIL Macro GET_NEW_CHAR_IMAGE: Labels prefix missing
@@ -1672,11 +1672,11 @@ GET_NEW_CHAR_IMAGE		MACRO
 
 CPU_SELECT_COLOR_HIGH_BANK	MACRO
 ; Input
-; \1 NUMBER:	Color bank [0..7]
+; \1 NUMBER:	[0..7] color bank
 ; \2 WORD:	Additional BPLCON3 bits (optional)
 ; Result
 	IFC "","\1"
-		FAIL Macro CPU_SELECT_COLOR_HIGH_BANK: Color bank [0..7] missing
+		FAIL Macro CPU_SELECT_COLOR_HIGH_BANK: Color bank missing
 	ENDC
 	IFC "","\2"
 		IFNE \1
@@ -1695,11 +1695,11 @@ CPU_SELECT_COLOR_HIGH_BANK	MACRO
 
 CPU_SELECT_COLOR_LOW_BANK	MACRO
 ; Input
-; \1 NUMBER:	Color bank [0..7]
+; \1 NUMBER:	[0..7] color bank
 ; \2 WORD:	Additional BPCON3 bits (optional)
 ; Result
 	IFC "","\1"
-		FAIL Macro CPU_SELECT_COLOR_LOW_BANK: Color bank [0..7] missing
+		FAIL Macro CPU_SELECT_COLOR_LOW_BANK: Color bank missing
 	ENDC
 	IFC "","\2"
 		move.w	#bplcon3_bits2|(BPLCON3F_BANK0*\1),BPLCON3-DMACONR(a6)
@@ -1768,21 +1768,21 @@ do_enable_060_store_buffer
 
 INIT_MIRROR_BPLAM_TABLE		MACRO
 ; Input
-; \0 STRING:		Size [B/W]
+; \0 STRING:		["B", "W"] size
 ; \1 STRING:		Labels prefix
 ; \2 NUMBER:		First BPLAM value (optional)
 ; \3 NUMBER:		Next switch value (optional)
 ; \4 BYTE SIGNED:	Number of color gradients
 ; \5 BYTE SINGED:	Number of sections per color gradient
 ; \6 POINTER:		BPLAM table
-; \7 STRING:		Pointer base [pc, a3]
+; \7 STRING:		["pc", "a3"] pointer base
 ; \8 WORD:		Offset table start (optional)
-; \9 NUMBER:		Firsr switch value for mirroring (optional)
+; \9 NUMBER:		First switch value for mirroring (optional)
 ; Result
 	CNOP 0,4
 \1_init_mirror_bplam_table
 	IFC "","\0"
-		FAIL Macro MIRROR_bplam_table: Size [B/W] missing
+		FAIL Macro MIRROR_bplam_table: Size missing
 	ENDC
 	IFC "","\1"
 		FAIL Macro MIRROR_bplam_table: Labels prefix missing
@@ -1797,7 +1797,7 @@ INIT_MIRROR_BPLAM_TABLE		MACRO
 		FAIL Macro INIT_MIRROR_bplam_table: BPLAM table missing
 	ENDC
 	IFC "","\7"
-		FAIL Macro INIT_MIRROR_bplam_table: Pointer base [pc, a3] missing
+		FAIL Macro INIT_MIRROR_bplam_table: Pointer base missing
 	ENDC
 	IFC "pc","\7"
 		lea	\1_\6(\7),a0	; BPLAM table
@@ -1869,21 +1869,21 @@ INIT_MIRROR_BPLAM_TABLE		MACRO
 
 INIT_NESTED_MIRROR_BPLAM_TABLE	MACRO
 ; Input
-; \0 STRING:		Size [B/W]
+; \0 STRING:		["B", "W"] size
 ; \1 STRING:		Labels prefix
 ; \2 NUMBER:		First BPLAM value
 ; \3 NUMBER:		next BPLAM value
 ; \4 BYTE SIGNED:	Number of color gradients
 ; \5 BYTE SINGED:       Number of sections per color gradient
 ; \6 POINTER:		BPLAM table
-; \7 STRING:		Pointer base [pc, a3]
+; \7 STRING:		["pc", "a3"] pointer base
 ; \8 WORD:		Offset table start (optional)
 ; \9 NUMBER:		First BPLAM value for mirroring (optional)
 ; Result
 	CNOP 0,4
 \1_init_nested_mirror_bplam_table
 	IFC "","\0"
-		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Size [B/W] missing
+		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Size missing
 	ENDC
 	IFC "","\1"
 		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Labels prefix missing
@@ -1904,7 +1904,7 @@ INIT_NESTED_MIRROR_BPLAM_TABLE	MACRO
 		FAIL Macro INIT_NESTED_MIRROR_bplam_table: BPLAM table missing
 	ENDC
 	IFC "","\7"
-		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Pointer base [pc, a3] missing
+		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Pointer base missing
 	ENDC
 	IFC "pc","\7"
 		lea	\1_\6(\7),a1	; BPLAM table
@@ -1973,13 +1973,13 @@ INIT_NESTED_MIRROR_BPLAM_TABLE	MACRO
 
 INIT_BPLAM_TABLE		MACRO
 ; Input
-; \0 STRING:		Size [B/W]
+; \0 STRING:		["B", "W"] size
 ; \1 STRING:		Labels prefix
 ; \2 NUMBER:		First BPLAM value
 ; \3 NUMBER:		Next BPLAM value
 ; \4 BYTE SIGNED:	Number of sections per color gradient
 ; \5 POINTER:		BPLAM table (optional)
-; \6 STRING:		Pointer base [pc, a3] (optoinal)
+; \6 STRING:		["pc", "a3"] pointer base (optional)
 ; \7 WORD:		Offset table start (optional)
 ; \8 LONGWORD:		Offset next BPLAM value (optional)
 ; Result
@@ -1987,7 +1987,7 @@ INIT_BPLAM_TABLE		MACRO
 	CNOP 0,4
 \1_init_bplam_table
 	IFC "","\0"
-		FAIL Macro INIT_bplam_table: Size [B/W] missing
+		FAIL Macro INIT_bplam_table: Size missing
 	ENDC
 	IFC "","\1"
 		FAIL Macro INIT_bplam_table: Labels prefix missing
@@ -2067,12 +2067,12 @@ INIT_BPLAM_TABLE		MACRO
 
 INIT_COLOR_GRADIENT_RGB8	MACRO
 ; Input
-; \1 HEXNUMBER:		RGB8 start
-; \2 HEXNUMBER:		RGB8 end
+; \1 LONGWORD:		RGB8 start
+; \2 LONGWORD:		RGB8 end
 ; \3 BYTE SIGNED:	Number of color values
 ; \4 NUMBER:		Color step RGB8 (optional)
 ; \5 POINTER:		Color table (optional)
-; \6 STRING:		Pointer base [pc, a3] (optional)
+; \6 STRING:		["pc", "a3"] pointer base (optional)
 ; \7 LONGWORD:		Offset next color value (optional)
 ; \8 LONGWORD:		Offset table start (optional)
 ; Result
@@ -2118,7 +2118,7 @@ INIT_COLOR_GRADIENTS_RGB8	MACRO
 ; \3 BYTE SIGNED:	Number of sections
 ; \4 NUMBER:		RGB8 step (optional)
 ; \5 POINTER:		Color table (optional)
-; \6 STRING:		Pointer base [pc, a3] (optional)
+; \6 STRING:		[pc, a3] pointer base (optional)
 ; \7 LONGWORD:		Offset table start (optional)
 ; \8 LONGWORD:		Offset next color value (optional)
 ; Result
@@ -2295,14 +2295,14 @@ INIT_DISPLAY_PATTERN		MACRO
 GET_SINE_BARS_YZ_COORDINATES	MACRO
 ; Input
 ; \1 STRING:	Labels prefix
-; \2 NUMBER:	Sine table length [256, 360, 512]
+; \2 NUMBER:	[256, 360, 512] sine table length
 ; \3 WORD:	Multiplier y offset in copperlist
 ; Result
 	IFC "","\1"
 		FAIL Macro GET_SINE_BARS_YZ_COORDINATES: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro GET_SINE_BARS_YZ_COORDINATES: Sine table length [256, 360, 512] missing
+		FAIL Macro GET_SINE_BARS_YZ_COORDINATES: Sine table length missing
 	ENDC
 	IFC "","\3"
 		FAIL Macro GET_SINE_BARS_YZ_COORDINATES: Multiplier y offset in copperlist missing
@@ -2313,10 +2313,10 @@ GET_SINE_BARS_YZ_COORDINATES	MACRO
 		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Länge der Sinustabelle [256, a260, 512] missing
+		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Sine table length missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Multiplikator Y-Offset in CL missing
+		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Multiplier y offset in copperlist missing
 	ENDC
 	IFEQ \2-256
 		move.w	\1_y_angle(a3),d2
@@ -2419,14 +2419,14 @@ GET_SINE_BARS_YZ_COORDINATES	MACRO
 GET_TWISTED_BARS_YZ_COORDINATES	MACRO
 ; Input
 ; \1 STRING:	Labels prefix
-; \2 NUMBER:	Sine table length [256, 360, 512]
+; \2 NUMBER:	[256, 360, 512] sine table length
 ; \3 WORD:	Multiplier y offset in copperlist
 ; Result
 	IFC "","\1"
 		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Sine table length [256, 360, 512] missing
+		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Sine table length missing
 	ENDC
 	IFC "","\3"
 		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Multiplier y offset in copperlist missing

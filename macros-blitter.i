@@ -20,13 +20,13 @@ wait_blitter_quick_loop\@
 GET_LINE_PARAMETERS		MACRO
 ; Input
 ; \1 STRING:	Labels prefix
-; \2 STRING:	"AREAFILL" (optional)
-; \3 STRING:	"COPPERUSE" (optional)
+; \2 STRING:	["AREAFILL"] (optional)
+; \3 STRING:	["COPPERUSE"] (optional)
 ; \4 WORD:	Multiplicator Y offset in playfield (optional)
 ; \5 STRING:	Hook label for "AREAFILL" mode (optional)
 ; Result
 	IFC "","\1"
-		FAIL Macro GET_LINE_PARAMETERS: labels prefix missing
+		FAIL Macro GET_LINE_PARAMETERS: Labels prefix missing
 	ENDC
 	cmp.w	d1,d3
 	IFC "AREAFILL","\2"

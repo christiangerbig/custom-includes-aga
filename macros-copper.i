@@ -1,13 +1,13 @@
 COP_MOVE			MACRO
 ; Input
-; \1 WORD:	16 bit value
+; \1 WORD:	Source 16 bit value
 ; \2 WORD:	CUSTOM register offset
 ; Result
 	IFC "","\1"
-		FAIL Macro COP_MOVE: 16-bit value missing
+		FAIL Macro COP_MOVE: Source missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro COP_MOVE: CUSTOM register offset missing
+		FAIL Macro COP_MOVE: Custom register offset missing
 	ENDC
 	move.w	#\2,(a0)+		; CUSTOM register offset
 	move.w	\1,(a0)+		; register value
@@ -16,14 +16,14 @@ COP_MOVE			MACRO
 
 COP_MOVEQ			MACRO
 ; Input
-; \1 WORD:	16 bit value
+; \1 WORD:	Source 16 bit value
 ; \2 WORD:	CUSTOM register offset
 ; Result
 	IFC "","\1"
-		FAIL Macro COP_MOVEQ: 16-bit value missing
+		FAIL Macro COP_MOVEQ: Source missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro COP_MOVEQ: CUSTOM register offset missing
+		FAIL Macro COP_MOVEQ: Custom register offset missing
 	ENDC
 	move.l	#((\2)<<16)|((\1)&$ffff),(a0)+ ; CMOVE
 	ENDM
@@ -31,14 +31,14 @@ COP_MOVEQ			MACRO
 
 COP_WAIT			MACRO
 ; Input
-; \1	X position (bits 2..8)
-; \2	Y Position (bits 0..7)
+; \1 BYTE:	X position (bits 2..8)
+; \2 BYTE: 	Y Position (bits 0..7)
 ; Result
 	IFC "","\1"
-		FAIL Macro COP_WAIT: x position missing
+		FAIL Macro COP_WAIT: X position missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro COP_WAIT: y osition missing
+		FAIL Macro COP_WAIT: Y osition missing
 	ENDC
 	move.l	#((((\2)<<24)|((((\1)/4)*2)<<16))|$10000)|$fffe,(a0)+ ; CWAIT
 	ENDM
@@ -53,14 +53,14 @@ COP_WAITBLIT			MACRO
 
 COP_WAITBLIT2			MACRO
 ; Input
-; \1	X position (bits 2..8)
-; \2	Y Position (bits 0..7)
+; \1 BYTE:	X position (bits 2..8)
+; \2 BYTE:	Y Position (bits 0..7)
 ; Result
 	IFC "","\1"
-		FAIL Macro COP_WAITBLIT2: x position missing
+		FAIL Macro COP_WAITBLIT2: X position missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro COP_WAITBLIT2: y position missing
+		FAIL Macro COP_WAITBLIT2: Y position missing
 	ENDC
 	move.l	#((((\2)<<24)|((((\1)/4)*2)<<16))|$10000)|$7ffe,(a0)+ ; CWAIT & wait for blitter
 	ENDM
@@ -68,14 +68,14 @@ COP_WAITBLIT2			MACRO
 
 COP_SKIP			MACRO
 ; Input
-; \1	X position (bits 2..8)
-; \2	Y Position (bits 0..7)
+; \1 BYTE:	X position (bits 2..8)
+; \2 BYTE:	Y Position (bits 0..7)
 ; Result
 	IFC "","\1"
-		FAIL Macro COP_SKIP: x position missing
+		FAIL Macro COP_SKIP: X position missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro COP_SKIP: y position missing
+		FAIL Macro COP_SKIP: Y position missing
 	ENDC
 	move.l	#((\2)<<24)|((((\1)/4)*2)<<16)|$ffff,(a0)+ ; CSKIP
 	ENDM
@@ -83,7 +83,7 @@ COP_SKIP			MACRO
 
 COP_LISTEND MACRO
 ; Input
-; \1 STRING:	"SAVETAIL" (optional)
+; \1 STRING:	["SAVETAIL"] (optional)
 ; Result
 	moveq	#-2,d0
 	move.l	d0,(a0)
@@ -96,15 +96,15 @@ COP_LISTEND MACRO
 COP_INIT_PLAYFIELD_REGISTERS	MACRO
 ; Input
 ; \1 STRING:	Labels prefix
-; \2 STRING:	["NOBITPLANES", "NOBITPLANESSPR", "BLANK", "BLANKSPR"]
-; \3 STRING:	Viewport label prefix: [vp1,vp2..vpn] (optional)
-; \4 STRING:	"TRIGGERBITPLANES" to initialize BPLCON0 (optinal)
+; \2 STRING:	["NOBITPLANES", "NOBITPLANESSPR", "BLANK", "BLANKSPR"] type of display
+; \3 STRING:	["vp1", "vp2".."vpn"] viewport label prefix (optional)
+; \4 STRING:	["TRIGGERBITPLANES"] to initialize BPLCON0 (optinal)
 ; Result
 	IFC "","\1"
 		FAIL Macro COP_INIT_PLAYFIELD_REGISTERS: Labels prefix missing
 	ENDC
 	IFC "","\1"
-		FAIL Macro COP_INIT_PLAYFIELD_REGISTERS: Type of display ["NOBITPLANES", "NOBITPLANESPR", "BLANK", "BLANKSPR"] missing
+		FAIL Macro COP_INIT_PLAYFIELD_REGISTERS: Type of display missing
 	ENDC
 	CNOP 0,4
 	IFC "","\3"
@@ -219,7 +219,7 @@ COP_SET_BITPLANE_POINTERS	MACRO
 		FAIL Macro COP_SET_BITPLANE_POINTERS: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro COP_SET_BITPLANE_POINTERS: Name of copperlist ["construction1", "display"] missing
+		FAIL Macro COP_SET_BITPLANE_POINTERS: Name of copperlist missing
 	ENDC
 	IFC "","\3"
 		FAIL Macro COP_SET_BITPLANE_POINTERS: Number of bitplanes playfield1 missing
@@ -300,15 +300,15 @@ COP_INIT_SPRITE_POINTERS	MACRO
 COP_SET_SPRITE_POINTERS		MACRO
 ; Input
 ; \1 STRING:		Labels prefix
-; \2 STRING:		["construction1", "construction2", "display"]
-; \3 BYTE SIGNED:	Number of sprites
-; \4 NUMBER:		Sprite index [1,2,3,4,5,6,7] (optional)
+; \2 STRING:		["construction1", "construction2", "display"] name of copperlist
+; \3 BYTE SIGNED:	[1..8] Number of sprites
+; \4 NUMBER:		[1..7] sprite structure index (optional)
 ; Result
 	IFC "","\1"
 		FAIL Macro COP_SET_SPRITE_POINTERS: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro COP_SET_SPRITE_POINTERS: Name of copperlist ["construction1", "construction2", "display"] missing
+		FAIL Macro COP_SET_SPRITE_POINTERS: Name of copperlist missing
 	ENDC
 	IFC "","\3"
 		FAIL Macro COP_SET_SPRITE_POINTERS: Number of sprites missing
@@ -335,11 +335,11 @@ COP_SET_SPRITE_POINTERS		MACRO
 
 COP_SELECT_COLOR_HIGH_BANK	MACRO
 ; Input
-; \1 NUMBER:	Color bank number [0..7]
+; \1 NUMBER:	[0..7] color bank number
 ; \2 WORD:	BPLCON3 bits (optional)
 ; Result
 	IFC "","\1"
-		FAIL Macro COP_SELECT_COLOR_HIGH_BANK MACRO: Color bank number [0..7] missing
+		FAIL Macro COP_SELECT_COLOR_HIGH_BANK MACRO: Color bank number missing
 	ENDC
 		COP_MOVEQ bplcon3_bits1|(BPLCON3F_BANK0*\1),BPLCON3
 	IFNC "","\2"
@@ -350,11 +350,11 @@ COP_SELECT_COLOR_HIGH_BANK	MACRO
 
 COP_SELECT_COLOR_LOW_BANK	MACRO
 ; Input
-; \1 NUMBER:	Color bank number [0..7]
+; \1 NUMBER:	[0..7] color bank number
 ; \2 WORD:	BPLCON3 bits (optional)
 ; Result
 	IFC "","\1"
-		FAIL Macro COP_SELECT_COLOR_LOW_BANK MACRO: Color bank number [0..7] missing
+		FAIL Macro COP_SELECT_COLOR_LOW_BANK MACRO: Color bank number missing
 	ENDC
 		COP_MOVEQ bplcon3_bits2|(BPLCON3F_BANK0*\1),BPLCON3
 	IFNC "","\2"
@@ -407,8 +407,8 @@ COP_INIT_COLOR_LOW		MACRO
 
 COP_INIT_COLOR00_REGISTERS	MACRO
 ; Input
-; \1 STRING: Labels prefix
-; \2 STRING: "YWRAP" (optional)
+; \1 STRING:	Labels prefix
+; \2 STRING:	["YWRAP"] (optional)
 ; Result
 	IFC "","\1"
 		FAIL Macro COP_INIT_COLOR00_REGISTERS: Labels prefix missing
@@ -416,10 +416,10 @@ COP_INIT_COLOR00_REGISTERS	MACRO
 	CNOP 0,4
 \1_init_color00
 	move.l	#(((\1_vstart1<<24)|(((\1_hstart1/4)*2)<<16))|$10000)|$fffe,d0 ; CWAIT
-	move.l	#(BPLCON3<<16)|bplcon3_bits1,d1
-	move.l	#(COLOR00<<16)|color00_high_bits,d2
-	move.l	#(BPLCON3<<16)|bplcon3_bits2,d3
-	move.l	#(COLOR00<<16)|color00_low_bits,d4
+	move.l	#(BPLCON3<<16)+bplcon3_bits1,d1
+	move.l	#(COLOR00<<16)+color00_high_bits,d2
+	move.l	#(BPLCON3<<16)+bplcon3_bits2,d3
+	move.l	#(COLOR00<<16)+color00_low_bits,d4
 	IFC "YWRAP","\2"
 		move.l	#(((CL_Y_WRAPPING<<24)|(((\1_hstart1/4)*2)<<16))|$10000)|$fffe,d5 ; CWAIT
 	ENDC
@@ -447,18 +447,18 @@ COP_INIT_COLOR00_REGISTERS	MACRO
 
 COP_RESET_COLOR00		MACRO
 ; Input
-; \1 STRING:	Label prefix copperlist [cl1,cl2]
-; \2 WORD:	x position
-; \3 WORD:	y postion
+; \1 STRING:	["cl1", "cl2"] label prefix copperlist
+; \2 WORD:	X position
+; \3 WORD:	Y postion
 ; Result
 	IFC "","\1"
-		FAIL Macro COP_RESET_COLOR00: Label prefix copperlist [cl1,cl2] missing
+		FAIL Macro COP_RESET_COLOR00: Label prefix copperlist missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro COP_RESET_COLOR00: x position missing
+		FAIL Macro COP_RESET_COLOR00: X position missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro COP_RESET_COLOR00: y position missing
+		FAIL Macro COP_RESET_COLOR00: Y position missing
 	ENDC
 	CNOP 0,4
 \1_reset_color00
@@ -471,9 +471,9 @@ COP_RESET_COLOR00		MACRO
 	ENDM
 
 
-COP_INIT_BPLCON4_CHUNKY_SCREEN	MACRO
+COP_INIT_BPLCON4_CHUNKY	MACRO
 ; Input
-; \1 STRING:	Label prefix copperlist [cl1,cl2]
+; \1 STRING:	["cl1", "cl2"] label prefix copperlist
 ; \2 NUMBER:	HSTART
 ; \3 NUMBER:	VSTART
 ; \4 NUMBER:	Width
@@ -481,34 +481,34 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN	MACRO
 ; \6 BOOLEAN:	TRUE = open border before display window start
 ; \7 BOOLEAN:	TRUE = quick clear
 ; \8 BOOLEAN:	TRUE = background effect
-; \9 LONGWORD:	CMOVE value,register / STRING: "OVERSCAN" (optional)
+; \9 LONGWORD:	CMOVE value,register / STRING: ["OVERSCAN"] (optional)
 ; Result
 	IFC "","\1"
-		FAIL Macro COP_INIT_BPLCON4_CHUNKY_SCREEN: Label prefix copperlist [cl1,cl2] missing
+		FAIL Macro COP_INIT_BPLCON4_CHUNKY: Label prefix copperlist missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro COP_INIT_BPLCON4_CHUNKY_SCREEN: HSTART missing
+		FAIL Macro COP_INIT_BPLCON4_CHUNKY: HSTART missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro COP_INIT_BPLCON4_CHUNKY_SCREEN: VSTART missing
+		FAIL Macro COP_INIT_BPLCON4_CHUNKY: VSTART missing
 	ENDC
 	IFC "","\4"
-		FAIL Macro COP_INIT_BPLCON4_CHUNKY_SCREEN: Width missing
+		FAIL Macro COP_INIT_BPLCON4_CHUNKY: Width missing
 	ENDC
 	IFC "","\5"
-		FAIL Macro COP_INIT_BPLCON4_CHUNKY_SCREEN: Height missing
+		FAIL Macro COP_INIT_BPLCON4_CHUNKY: Height missing
 	ENDC
 	IFC "","\6"
-		FAIL Macro COP_INIT_BPLCON4_CHUNKY_SCREEN: Boolean open border missing
+		FAIL Macro COP_INIT_BPLCON4_CHUNKY: Boolean open border missing
 	ENDC
 	IFC "","\7"
-		FAIL Macro COP_INIT_BPLCON4_CHUNKY_SCREEN: Boolean quick clear missing
+		FAIL Macro COP_INIT_BPLCON4_CHUNKY: Boolean quick clear missing
 	ENDC
 	IFC "","\8"
-		FAIL Macro COP_INIT_BPLCON4_CHUNKY_SCREEN: Boolean background effect missing
+		FAIL Macro COP_INIT_BPLCON4_CHUNKY: Boolean background effect missing
 	ENDC
 	CNOP 0,4
-\1_init_bplcon4
+\1_init_bplcon4_chunky
 	IFNE \8
 		move.l	#(((\3<<24)|(((\2/4)*2)<<16))|$10000)|$fffe,d0 ; CWAIT
 		move.l	#(BPLCON4<<16)|(bplcon4_bits&$00ff),d1
@@ -526,7 +526,7 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN	MACRO
 		moveq	#1,d3
 		ror.l	#8,d3		; $01000000
 		MOVEF.W \5-1,d7		; number of lines
-\1_init_bplcon4_loop1
+\1_init_bplcon4_chunky_loop1
 		move.l	d0,(a0)+	; WAIT x,y
 		IFEQ \6
 			IFC "OVERSCAN","\9"
@@ -539,19 +539,19 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN	MACRO
 			ENDC
 		ENDC
 		moveq	#(\4/8)-1,d6	; number of columns
-\1_init_bplcon4_loop2
+\1_init_bplcon4_chunky_loop2
 		move.l	d1,(a0)+	; BPLCON4
-		dbf	d6,\1_init_bplcon4_loop2
+		dbf	d6,\1_init_bplcon4_chunky_loop2
 		add.l	d3,d0		; next line in cl
-		dbf	d7,\1_init_bplcon4_loop1
+		dbf	d7,\1_init_bplcon4_chunky_loop1
 		rts
 	ELSE
 		move.l	a4,-(a7)
 		move.l	#(((\3<<24)|(((\2/4)*2)<<16))|$10000)|$fffe,d0 ; CWAIT
 		IFEQ \7
-			move.l	#(BPLCON3<<16)|bplcon3_bits3,d1 ; high color
+			move.l	#(BPLCON3<<16)+bplcon3_bits3,d1 ; high color
 		ELSE
-			move.l	#(BPLCON3<<16)|bplcon3_bits1,d1 ; high color
+			move.l	#(BPLCON3<<16)+bplcon3_bits1,d1 ; high color
 		ENDC
 		IFEQ \7
 			move.l	#(COLOR31<<16)+color00_high_bits,a2
@@ -564,9 +564,9 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN	MACRO
 			move.l	#(COLOR00<<16)+color00_low_bits,a4
 		ENDC
 		IFEQ \7
-			move.l	#(BPLCON3<<16)|bplcon3_bits4,d3 ; low color
+			move.l	#(BPLCON3<<16)+bplcon3_bits4,d3 ; low color
 		ELSE
-			move.l	#(BPLCON3<<16)|bplcon3_bits2,d3 ; low color
+			move.l	#(BPLCON3<<16)+bplcon3_bits2,d3 ; low color
 		ENDC
 		move.l	#(BPLCON4<<16)+(bplcon4_bits&$00ff),d4
 		IFEQ \6
@@ -580,10 +580,9 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN	MACRO
 				move.l	#BPL1DAT<<16,d2
 			ENDC
 		ENDC
-		moveq	#1,d5
-		ror.l	#8,d5		; $01000000
+		move.l	#$01000000,d5
 		MOVEF.W	\5-1,d7		; number of lines
-\1_init_bplcon4_loop1
+\1_init_bplcon4_chunky_loop1
 		move.l	d0,(a0)+	; CWAIT x,y
 		move.l	d1,(a0)+	; BPLCON3
 		move.l	a2,(a0)+	; COLOR31/00
@@ -600,20 +599,20 @@ COP_INIT_BPLCON4_CHUNKY_SCREEN	MACRO
 			ENDC
 		ENDC
 		moveq	#(\4/8)-1,d6	; number of columns
-\1_init_bplcon4_loop2
+\1_init_bplcon4_chunky_loop2
 		move.l	d4,(a0)+	; BPLCON4
-		dbf	d6,\1_init_bplcon4_loop2
+		dbf	d6,\1_init_bplcon4_chunky_loop2
 		add.l	d5,d0		; next line in cl
-		dbf	d7,\1_init_bplcon4_loop1
+		dbf	d7,\1_init_bplcon4_chunky_loop1
 		move.l	(a7)+,a4
 		rts
 	ENDC
 	ENDM
 
 
-COP_INIT_BPLCON1_CHUNKY_SCREEN	MACRO
+COP_INIT_BPLCON1_CHUNKY	MACRO
 ; Input
-; \1 STRING:	Label prefix copperlist [cl1,cl2]
+; \1 STRING:	["cl1", "cl2"] label prefix copperlist
 ; \2 NUMBER:	HSTART
 ; \3 NUMBER:	VSTART
 ; \4 NUMBER:	Width
@@ -621,22 +620,22 @@ COP_INIT_BPLCON1_CHUNKY_SCREEN	MACRO
 ; \6 WORD:	Alternative BPLCON1 bits (optinal)
 ; Result
 	IFC "","\1"
-		FAIL Macro COP_INIT_BPLCON1_CHUNKY_SCREEN: Label prefix copperlist [cl1,cl2] missing
+		FAIL Macro COP_INIT_BPLCON1_CHUNKY: ["cl1", "cl2"] label prefix copperlist missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro COP_INIT_BPLCON1_CHUNKY_SCREEN: HSTART missing
+		FAIL Macro COP_INIT_BPLCON1_CHUNKY: HSTART missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro COP_INIT_BPLCON1_CHUNKY_SCREEN: VSTART missing
+		FAIL Macro COP_INIT_BPLCON1_CHUNKY: VSTART missing
 	ENDC
 	IFC "","\4"
-		FAIL Macro COP_INIT_BPLCON1_CHUNKY_SCREEN: Width missing
+		FAIL Macro COP_INIT_BPLCON1_CHUNKY: Width missing
 	ENDC
 	IFC "","\5"
-		FAIL Macro COP_INIT_BPLCON1_CHUNKY_SCREEN: Height missing
+		FAIL Macro COP_INIT_BPLCON1_CHUNKY: Height missing
 	ENDC
 	CNOP 0,4
-\1_init_bplcon1s
+\1_init_bplcon1_chunky
 	move.l	#(((\3<<24)|(((\2/4)*2)<<16))|$10000)|$fffe,d0 ; CWAIT
 	IFC "","\6"
 		move.l	#(BPLCON1<<16)|bplcon1_bits,d1
@@ -645,27 +644,27 @@ COP_INIT_BPLCON1_CHUNKY_SCREEN	MACRO
 	ENDC
 	move.l	#$01000000,d3
 	MOVEF.W \5-1,d7			; number of lines
-\1_init_bplcon1s_loop1
+\1_init_bplcon1_chunky_loop1
 	move.l	d0,(a0)+		; CWAIT x,y
 	moveq	#(\4/8)-1,d6		; number of columns
-\1_init_bplcon1s_loop2
+\1_init_bplcon1_chunky_loop2
 	move.l	d1,(a0)+		; BPLCON1
-	dbf		d6,\1_init_bplcon1s_loop2
+	dbf	d6,\1_init_bplcon1_chunky_loop2
 	add.l	d3,d0			; next line in cl
-	dbf		d7,\1_init_bplcon1s_loop1
+	dbf	d7,\1_init_bplcon1_chunky_loop1
 	rts
 	ENDM
 
 
 COP_INIT_COPINT			MACRO
 ; Input
-; \1 STRING:	Label prefix copperlist [cl1,cl2]
-; \2 WORD:	x position (optional)
-; \3 WORD:	y postion (optional)
-; \4 STRING:	"YWRAP" (optional)
+; \1 STRING:	["cl1", "cl2"] label prefix copperlist
+; \2 WORD:	X position (optional)
+; \3 WORD:	Y postion (optional)
+; \4 STRING:	["YWRAP"] (optional)
 ; Result
 	IFC "","\1"
-		FAIL Macro COP_INIT_COPINT: Label prefix copperlist [cl1,cl2] missing
+		FAIL Macro COP_INIT_COPINT: Label prefix copperlist missing
 	ENDC
 	CNOP 0,4
 \1_init_copper_interrupt
@@ -684,14 +683,14 @@ COP_INIT_COPINT			MACRO
 
 COPY_COPPERLIST			MACRO
 ; Input
-; \1 STRING:	Label prefix copperlist [cl1,cl2]
-; \2 NUMBER:	Number of copperlists [2,3]
+; \1 STRING:	["cl1", "cl2"] label prefix copperlist
+; \2 NUMBER:	[2, 3] number of copperlists
 ; Result
 	IFC "","\1"
-		FAIL Macro COPY_COPPERLIST: Labels prefix copperlist [cl1,cl2] missing
+		FAIL Macro COPY_COPPERLIST: Labels prefix copperlist missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro COPY_COPPERLIST: Number of copperlists [2,3] missing
+		FAIL Macro COPY_COPPERLIST: Number of copperlists missing
 	ENDC
 	CNOP 0,4
 	IFC "cl1","\1"
@@ -747,7 +746,7 @@ CONVERT_IMAGE_TO_RGB4_CHUNKY	MACRO
 ; Input
 ; \1 STRING:	Labels prefix
 ; \2 POINTER:	BPLAM table
-; \3 STRING:	Pointer base [pc,a3]
+; \3 STRING:	["pc", "a3"] pointer base
 ; Result
 	IFC "","\1"
 		FAIL Macro CONVERT_IMAGE_TO_RGB4_CHUNKY: Labels prefix missing
@@ -756,7 +755,7 @@ CONVERT_IMAGE_TO_RGB4_CHUNKY	MACRO
 		FAIL Macro CONVERT_IMAGE_TO_RGB4_CHUNKY: BPLAM table missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro CONVERT_IMAGE_TO_RGB4_CHUNKY: Pointer base [pc,a3] missing
+		FAIL Macro CONVERT_IMAGE_TO_RGB4_CHUNKY: Pointer base missing
 	ENDC
 	CNOP 0,4
 \1_convert_image_data
@@ -822,7 +821,7 @@ CONVERT_IMAGE_TO_HAM6_CHUNKY	MACRO
 ; Input
 ; \1 STRING:	Labels prefix
 ; \2 POINTER:	BPLAM table
-; \3 STRING:	Pointer base [pc,a3]
+; \3 STRING:	["pc", "a3"] pointer base
 ; Result
 	IFC "","\1"
 		FAIL Macro CONVERT_IMAGE_TO_HAM6_CHUNKY: Labels prefix missing
@@ -831,7 +830,7 @@ CONVERT_IMAGE_TO_HAM6_CHUNKY	MACRO
 		FAIL Macro CONVERT_IMAGE_TO_HAM6_CHUNKY: BPLAM table missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro CONVERT_IMAGE_TO_HAM6_CHUNKY: Pointer- base [pc,a3] missing
+		FAIL Macro CONVERT_IMAGE_TO_HAM6_CHUNKY: Pointer base missing
 	ENDC
 	CNOP 0,4
 \1_convert_image_data
@@ -926,7 +925,7 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY	MACRO
 ; Input
 ; \1 STRING:	Labels prefix
 ; \2 POINTER:	BPLAM table
-; \3 STRING:	Pointer base [pc,a3]
+; \3 STRING:	["pc", "a3"] pointer base
 ; Result
 	IFC "","\1"
 		FAIL Macro CONVERT_IMAGE_TO_RGB8_CHUNKY: Labels-Prefix missing
@@ -935,7 +934,7 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY	MACRO
 		FAIL Macro CONVERT_IMAGE_TO_RGB8_CHUNKY: BPLAM table missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro CONVERT_IMAGE_TO_RGB8_CHUNKY: pointer-base [pc,a3] missing
+		FAIL Macro CONVERT_IMAGE_TO_RGB8_CHUNKY: Pointer base missing
 	ENDC
 	CNOP 0,4
 \1_convert_image_data
@@ -1027,7 +1026,7 @@ CONVERT_IMAGE_TO_HAM8_CHUNKY	MACRO
 ; Input
 ; \1 STRING:	Labels prefix
 ; \2 POINTER:	BPLAM table
-; \3 STRING:	Pointer base [pc,a3]
+; \3 STRING:	["pc", "a3"] pointer base
 ; Result
 	IFC "","\1"
 		FAIL Macro CONVERT_IMAGE_TO_HAM8_CHUNKY: Labels-Prefix missing
@@ -1036,7 +1035,7 @@ CONVERT_IMAGE_TO_HAM8_CHUNKY	MACRO
 		FAIL Macro CONVERT_IMAGE_TO_HAM8_CHUNKY: BPLAM table missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro CONVERT_IMAGE_TO_HAM8_CHUNKY: Pointer-base [pc,a3] missing
+		FAIL Macro CONVERT_IMAGE_TO_HAM8_CHUNKY: Pointer base missing
 	ENDC
 	CNOP 0,4
 \1_convert_image_data
@@ -1143,14 +1142,14 @@ CONVERT_IMAGE_TO_HAM8_CHUNKY	MACRO
 
 CONVERT_IMAGE_TO_BPLCON4_CHUNKY	MACRO
 ; Input
-; \0 STRING:	Size ["B","W"]
+; \0 STRING:	["B", "W"] size
 ; \1 STRING:	Labels prefix
 ; \2 POINTER:	BPLAM table
-; \3 STRING:	Pointer base [pc,a3]
+; \3 STRING:	["pc", "a3"] pointer base
 ; \4 NUMBER:	Start BPLAM value (optional)
 ; Result
 	IFC "","\0"
-		FAIL Macro CONVERT_IMAGE_TO_BPLCON4_CHUNKY: Size ["B","W"] missing
+		FAIL Macro CONVERT_IMAGE_TO_BPLCON4_CHUNKY: Size missing
 	ENDC
 	IFC "","\1"
 		FAIL Macro CONVERT_IMAGE_TO_BPLCON4_CHUNKY: Labels prefix missing
@@ -1159,7 +1158,7 @@ CONVERT_IMAGE_TO_BPLCON4_CHUNKY	MACRO
 		FAIL Macro CONVERT_IMAGE_TO_BPLCON4_CHUNKY: BPLAM table missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro CONVERT_IMAGE_TO_BPLCON4_CHUNKY: Pointer base [pc,a3] missing
+		FAIL Macro CONVERT_IMAGE_TO_BPLCON4_CHUNKY: Pointer base missing
 	ENDC
 	CNOP 0,4
 \1_convert_image_data
@@ -1186,7 +1185,7 @@ CONVERT_IMAGE_TO_BPLCON4_CHUNKY	MACRO
 	ENDC
 	MOVEF.W	\1_image_y_size-1,d7
 \1_translate_image_data_loop1
-	moveq	#\1_image_plane_width-1,d6 ; Breite des Quellbildes in Bytes
+	moveq	#\1_image_plane_width-1,d6
 \1_translate_image_data_loop2
 	moveq	#8-1,d5			; number of bits in byte
 \1_translate_image_data_loop3
@@ -1262,13 +1261,13 @@ CONVERT_IMAGE_TO_BPLCON4_CHUNKY	MACRO
 SWAP_COPPERLIST			MACRO
 ; Input
 ; \1 STRING:	Labels prefix
-; \2 NUMBER:	Number of copperlists [2,3]
+; \2 NUMBER:	[2,3] number of copperlists
 ; Result
 	IFC "","\1"
 		FAIL Macro SWAP_COPPERLIST: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro SWAP_COPPERLIST: Number of copperlists [2,3] missing
+		FAIL Macro SWAP_COPPERLIST: Number of copperlists missing
 	ENDC
 	IFC "cl1","\1"
 		CNOP 0,4
@@ -1331,28 +1330,28 @@ set_second_copperlist
 	ENDM
 
 
-CLEAR_COLOR00_CHUNKY_SCREEN	MACRO
+CLEAR_COLOR00_SCREEN		MACRO
 ; Input
 ; \1 STRING:	Labels prefix
-; \2 STRING:	Label prefix copperlist [cl1,cl2]
-; \3 STRING:	Name of copperlist  [construction1,construction2]
+; \2 STRING:	[cl1,cl2] label prefix copperlist
+; \3 STRING:	[construction1,construction2] name of copperlist
 ; \4 STRING:	"extension[1..n]"
-; \5 NUMBER:	Number of commands per loop [16,32]
+; \5 NUMBER:	[16,32] number of commands per loop
 ; Result
 	IFC "","\1"
-		FAIL Macro CLEAR_COLOR00_CHUNKY_SCREEN: Labels prefix missing
+		FAIL Macro CLEAR_COLOR00_SCREEN: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro CLEAR_COLOR00_CHUNKY_SCREEN: Label prefix copperlist [cl1,cl2] missing
+		FAIL Macro CLEAR_COLOR00_SCREEN: Label prefix copperlist missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro CLEAR_COLOR00_CHUNKY_SCREEN: Name of copperlist [construction1,construction2] missing
+		FAIL Macro CLEAR_COLOR00_SCREEN: Name of copperlist missing
 	ENDC
 	IFC "","\4"
-		FAIL Macro CLEAR_COLOR00_CHUNKY_SCREEN: Extension [1..n] missing
+		FAIL Macro CLEAR_COLOR00_SCREEN: Extension missing
 	ENDC
 	IFC "","\5"
-		FAIL Macro CLEAR_COLOR00_CHUNKY_SCREEN: Number of commands per loop missing
+		FAIL Macro CLEAR_COLOR00_SCREEN: Number of commands per loop missing
 	ENDC
 	CNOP 0,4
 	IFC "cl1","\2"
@@ -1472,10 +1471,8 @@ CLEAR_COLOR00_CHUNKY_SCREEN	MACRO
 			move.w	d0,\2_\4_size*30(a0)
 			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*30)(a0)
 			move.w	d0,\2_\4_size*31(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*31)(a0)
-			move.w	d0,\2_\4_size*32(a0)
 			add.l	d2,a0	; next line in cl
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*15)-(\2_\4_size*32)(a0)
+			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*31)-(\2_\4_size*32)(a0)
 			dbf	d7,\1_clear_first_copperlist_loop
 			rts
 		ENDC
@@ -1597,10 +1594,8 @@ CLEAR_COLOR00_CHUNKY_SCREEN	MACRO
 			move.w	d0,\2_\4_size*30(a0)
 			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*30)(a0)
 			move.w	d0,\2_\4_size*31(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*31)(a0)
-			move.w	d0,\2_\4_size*32(a0)
 			add.l	d2,a0	; next line in cl
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*15)-(\2_\4_size*32)(a0)
+			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*31)-(\2_\4_size*32)(a0)
 			dbf	d7,\1_clear_second_copperlist_loop
 			rts
 		ENDC
@@ -1608,28 +1603,28 @@ CLEAR_COLOR00_CHUNKY_SCREEN	MACRO
 	ENDM
 
 
-CLEAR_BPLCON4_CHUNKY_SCREEN	MACRO
+CLEAR_BPLCON4_CHUNKY		MACRO
 ; Input
 ; \1 STRING:	Labels prefix
-; \2 STRING:	Label prefix copperlist [cl1,cl2]
-; \3 STRING:	Name of copperlist [construction1,construction2]
+; \2 STRING:	["cl1", "cl2"] label prefix copperlist
+; \3 STRING:	["construction1", "construction2"] name of copperlist
 ; \4 STRING:	"extension[1..n]"
 ; \5 BOOLEAN:	TRUE = quick clear enabled
 ; Result
 	IFC "","\1"
-		FAIL Macro CLEAR_CHUNKY_SCREEN: Labels prefix missing
+		FAIL Macro CLEAR_CHUNKY: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro CLEAR_CHUNKY_SCREEN: Label prefix copperlist [cl1,cl2] missing
+		FAIL Macro CLEAR_CHUNKY: Label prefix copperlist missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro CLEAR_CHUNKY_SCREEN: Name of copperlist [construction1,construction2] missing
+		FAIL Macro CLEAR_CHUNKY: Name of copperlist missing
 	ENDC
 	IFC "","\4"
-		FAIL Macro CLEAR_CHUNKY_SCREEN: Extension [1..n] missing
+		FAIL Macro CLEAR_CHUNKY: Extension missing
 	ENDC
 	IFC "","\5"
-		FAIL Macro CLEAR_CHUNKY_SCREEN: Boolean quick clear missing
+		FAIL Macro CLEAR_CHUNKY: Boolean quick clear missing
 	ENDC
 	CNOP 0,4
 	IFC "cl1","\2"
@@ -1637,7 +1632,7 @@ CLEAR_BPLCON4_CHUNKY_SCREEN	MACRO
 		move.l	\2_\3(a3),a0
 		WAITBLIT
 		move.l	#(BC0F_DEST|ANBNC|ANBC|ABNC|ABC)<<16,BLTCON0-DMACONR(a6) ; minterm D=A
-		moveq	#FALSE,d0
+		moveq	#-1,d0
 		move.l	d0,BLTAFWM-DMACONR(a6)
 		ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
 		move.l	a0,BLTDPT-DMACONR(a6) ; destination
@@ -1647,12 +1642,12 @@ CLEAR_BPLCON4_CHUNKY_SCREEN	MACRO
 		ELSE
 			IFEQ bplcon4_bits
 				moveq	#bplcon4_bits,d0
-				move.w	d0,BLTADAT-DMACONR(a6) ; source BPLCON4 bits
+				move.w	d0,BLTADAT-DMACONR(a6)
 			ELSE
-				move.w	#bplcon4_bits,BLTADAT-DMACONR(a6) ; source BPLCON4 bits
+				move.w	#bplcon4_bits,BLTADAT-DMACONR(a6)
              	ENDC
 		ENDC
-		move.l	#(\1_clear_blit_y_size<<16)|(\1_clear_blit_x_size/WORD_BITS),BLTSIZV-DMACONR(a6) ; start blit
+		move.l	#(\1_clear_blit_y_size<<16)|(\1_clear_blit_x_size/WORD_BITS),BLTSIZV-DMACONR(a6)
 		rts
 	ENDC
 	IFC "cl2","\2"
@@ -1660,7 +1655,7 @@ CLEAR_BPLCON4_CHUNKY_SCREEN	MACRO
 		move.l	\2_\3(a3),a0
 		WAITBLIT
 		move.l	#(BC0F_DEST|ANBNC|ANBC|ABNC|ABC)<<16,BLTCON0-DMACONR(a6) ; minterm D=A
-		moveq	#FALSE,d0
+		moveq	#-1,d0
 		move.l	d0,BLTAFWM-DMACONR(a6)
 		ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
 		move.l	a0,BLTDPT-DMACONR(a6) ; destination
@@ -1670,41 +1665,41 @@ CLEAR_BPLCON4_CHUNKY_SCREEN	MACRO
 		ELSE
 			IFEQ bplcon4_bits
 				moveq	#bplcon4_bits,d0
-				move.w	d0,BLTADAT-DMACONR(a6) ; source BPLCON4 bits
+				move.w	d0,BLTADAT-DMACONR(a6)
 			ELSE
-				move.w	#bplcon4_bits,BLTADAT-DMACONR(a6) ; source BPLCON4 bits
+				move.w	#bplcon4_bits,BLTADAT-DMACONR(a6)
              	ENDC
 		ENDC
-		move.l	#(\1_clear_blit_y_size<<16)|(\1_clear_blit_x_size/WORD_BITS),BLTSIZV-DMACONR(a6) ; start blit
+		move.l	#(\1_clear_blit_y_size<<16)|(\1_clear_blit_x_size/WORD_BITS),BLTSIZV-DMACONR(a6)
 		rts
 	ENDC
 	ENDM
 
 
-RESTORE_BLCON4_CHUNKY_SCREEN	MACRO
+RESTORE_BPLCON4_CHUNKY		MACRO
 ; Input
 ; \1 STRING:	Labels prefix
-; \2 STRING:	Label prefix copperlist [cl1,cl2]
-; \3 STRING:	Name of copperlist [construction1,construction2]
+; \2 STRING:	["cl1", "cl2"] label prefix copperlist
+; \3 STRING:	["construction1", "construction2"] name of copperlist
 ; \4 STRING:	Extension[1..n]
-; \5 NUMBER:	Number of commands per loop [16,32]
+; \5 NUMBER:	[16, 32] number of commands per loop
 ; \6 LABEL:	Sub routine clear by cpu (optional)
 ; \7 LABEL:	Sub routine clear by blitter (optional)
 ; Result
 	IFC "","\1"
-		FAIL Macro RESTORE_BLCON4_CHUNKY_SCREEN: Labels prefix missing
+		FAIL Macro RESTORE_BLCON4_CHUNKY: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro RESTORE_BLCON4_CHUNKY_SCREEN: Label prefix copperlist [cl1,cl2] missing
+		FAIL Macro RESTORE_BLCON4_CHUNKY: Label prefix copperlist missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro RESTORE_BLCON4_CHUNKY_SCREEN: Name of copperlist [construction1,construction2] missing
+		FAIL Macro RESTORE_BLCON4_CHUNKY: Name of copperlist missing
 	ENDC
 	IFC "","\4"
-		FAIL Macro RESTORE_BLCON4_CHUNKY_SCREEN: Extension[1..n] missing
+		FAIL Macro RESTORE_BLCON4_CHUNKY: Extension missing
 	ENDC
 	IFC "","\5"
-		FAIL Macro RESTORE_BLCON4_CHUNKY_SCREEN: Number of commands per loop [16,32] missing
+		FAIL Macro RESTORE_BLCON4_CHUNKY: Number of commands per loop missing
 	ENDC
 	CNOP 0,4
 	IFC "cl1","\2"
@@ -1733,7 +1728,6 @@ restore_first_copperlist_loop
 					move.w	d0,\2_\4_size*12(a0)
 					move.w	d0,\2_\4_size*13(a0)
 					move.w	d0,\2_\4_size*14(a0)
-					move.w	d0,\2_\4_size*15(a0)
 					add.l	d1,a0 ; skip lines in cl
 					move.w	d0,(\2_\4_size*15)-(\2_\4_size*16)(a0)
 					dbf	d7,restore_first_copperlist_loop
@@ -1791,9 +1785,8 @@ restore_first_copperlist_loop
 				ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
 				move.l	a0,BLTDPT-DMACONR(a6) ; destination
 				move.w	#\2_\4_size-\1_restore_blit_width,BLTDMOD-DMACONR(a6)
-				moveq	#-2,d0 ; 2nd word CWAIT
-				move.w	d0,BLTADAT-DMACONR(a6) ; source 2nd word CWAIT
-				move.w	#(((\1_restore_blit_y_size)<<6)|(\1_restore_blit_x_size/WORD_BITS),BLTSIZE-DMACONR(a6) ; start blit
+				move.w	#$fffe,BLTADAT-DMACONR(a6) ; 2nd word CWAIT
+				move.w	#(((\1_restore_blit_y_size)<<6)|(\1_restore_blit_x_size/WORD_BITS),BLTSIZE-DMACONR(a6)
 				rts
 			ENDC
 		ENDC
@@ -1824,7 +1817,6 @@ restore_second_copperlist_loop
 					move.w	d0,\2_\4_size*12(a0)
 					move.w	d0,\2_\4_size*13(a0)
 					move.w	d0,\2_\4_size*14(a0)
-					move.w	d0,\2_\4_size*15(a0)
 					add.l	d1,a0 ; skip lines in cl
 					move.w	d0,(\2_\4_size*15)-(\2_\4_size*16)(a0)
 					dbf	d7,restore_second_copperlist_loop
@@ -1882,8 +1874,8 @@ restore_second_copperlist_loop
 				ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
 				move.l	a0,BLTDPT-DMACONR(a6) ; destination
 				move.w	#\2_\4_size-\1_restore_blit_width,BLTDMOD-DMACONR(a6)
-				move.w	#-2,BLTADAT-DMACONR(a6) ; source 2nd word CWAIT
-				move.w	#((\1_restore_blit_y_size)<<6)|(\1_restore_blit_x_size/WORD_BITS),BLTSIZE-DMACONR(a6) ; start blit
+				move.w	#$fffe,BLTADAT-DMACONR(a6) ; 2nd word CWAIT
+				move.w	#((\1_restore_blit_y_size)<<6)|(\1_restore_blit_x_size/WORD_BITS),BLTSIZE-DMACONR(a6)
 				rts
 			ENDC
 		ENDC
@@ -1893,40 +1885,40 @@ restore_second_copperlist_loop
 
 SET_TWISTED_BACKGROUND_BARS	MACRO
 ; Input
-; \0 STRING:	Size ["B","W"]
+; \0 STRING:	["B", "W"] size
 ; \1 STRING:	Labels prefix
-; \2 STRING:	Label prefix copperlist ["cl1","cl2"]
-; \3 STRING:	Name of copperlist ["construction2","construction3"]
+; \2 STRING:	["cl1", "cl2"] label prefix copperlist
+; \3 STRING:	["construction2", "construction3"] name of copperlist
 ; \4 STRING:	"extension[1..n]"
-; \5 NUMBER:	Bar height [32,48]
+; \5 NUMBER:	[32, 48] bar height
 ; \6 POINTER:	BPLAM table
-; \7 STRING:	Pointer- base [pc,a3]
+; \7 STRING:	[pc,a3] pointer base
 ; \8 WORD:	Offset table start (optional)
-; \9 STRING:	"45" (optional)
+; \9 STRING:	["45"] (optional)
 ; Result
 	IFC "","\0"
-		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Size ["B","W"] missing
+		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Size missing
 	ENDC
 	IFC "","\1"
 		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Label prefix copperlist ["cl1","cl2"] missing
+		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Label prefix copperlist missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Name of copperlist ["construction2","construction3"] missing
+		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Name of copperlist missing
 	ENDC
 	IFC "","\4"
-		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Extension [1..n] missing
+		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Extension missing
 	ENDC
 	IFC "","\5"
-		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Bar height [32,48] missing
+		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Bar height missing
 	ENDC
 	IFC "","\6"
-		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Höhe der Bar BPLAM table missing
+		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Pointer BPLAM table missing
 	ENDC
 	IFC "","\7"
-		FAIL Macro SET_TWISTED_BACKGROUND_BARS: pointer-base [pc,a3] missing
+		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Pointer base missing
 	ENDC
 	CNOP 0,4
 \1_set_background_bars
@@ -1984,40 +1976,40 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 
 SET_TWISTED_FOREGROUND_BARS	MACRO
 ; Input
-; \0 STRING:	Size ["B","W"]
+; \0 STRING:	["B", "W"] size
 ; \1 STRING:	Labels prefix
-; \2 STRING:	Label prefix copperlist [cl1,cl2]
-; \3 STRING:	Name of copperlist construction[2,3]
+; \2 STRING:	["cl1", "cl2"] label prefix copperlist
+; \3 STRING:	["construction2", "construction3"] name of copperlist
 ; \4 STRING:	"extension[1..n]"
-; \5 NUMBER:	Bar height [32, 48]
+; \5 NUMBER:	[32, 48] bar height in lines
 ; \6 POINTER:	BPLAM table
-; \7 STRING:	Pointer base [pc, a3]
+; \7 STRING:	["pc", "a3"] pointer base
 ; \8 WORD:	Offset table start (optional)
-; \9 STRING:	"45" (optional)
+; \9 STRING:	["45"] (optional)
 ; Result
 	IFC "","\0"
-		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Size ["B","W"] missing
+		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Size missing
 	ENDC
 	IFC "","\1"
 		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Label prefix copperlist ["cl1","cl2"] missing
+		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Label prefix copperlist missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Name of coppwerelist ["construction2","construction3"] missing
+		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Name of coppwerelist missing
 	ENDC
 	IFC "","\4"
-		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Extension [1..n] missing
+		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Extension missing
 	ENDC
 	IFC "","\5"
-		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Bar height [32,48] missing
+		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Bar height missing
 	ENDC
 	IFC "","\6"
-		FAIL Macro SET_TWISTED_FOREGROUND_BARS: BPLAM table missing
+		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Pointer BPLAM table missing
 	ENDC
 	IFC "","\7"
-		FAIL Macro SET_TWISTED_FOREGROUND_BARS: pointer base [pc,a3] missing
+		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Pointer base missing
 	ENDC
 	CNOP 0,4
 \1_set_foreground_bars
@@ -2070,26 +2062,26 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 
 COPY_TWISTED_BAR		MACRO
 ; Input
-; \0 STRING:	Size ["B","W"]
+; \0 STRING:	["B", "W"] size
 ; \1 STRING:	Labels prefix
-; \2 STRING:	Label prefix copperlist ["cl1","cl2"]
+; \2 STRING:	["cl1","cl2"] label prefix copperlist
 ; \3 STRING:	"extension[1..n]"
-; \4 NUMBER:	Bar height [32,48]
+; \4 NUMBER:	[32, 48] bar height in lines
 ; Result
 	IFC "","\0"
-		FAIL Macro COPY_TWISTED_BAR: Size ["B","W"] missing
+		FAIL Macro COPY_TWISTED_BAR: Size missing
 	ENDC
 	IFC "","\1"
 		FAIL Macro COPY_TWISTED_BAR: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro COPY_TWISTED_BAR: Label prefix copperlist ["cl1","cl2"] missing
+		FAIL Macro COPY_TWISTED_BAR: Label prefix copperlist missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro COPY_TWISTED_BAR: Extension [1..n] missing
+		FAIL Macro COPY_TWISTED_BAR: Extension missing
 	ENDC
 	IFC "","\4"
-		FAIL Macro COPY_TWISTED_BAR: Bar height [32,48] missing
+		FAIL Macro COPY_TWISTED_BAR: Bar height missing
 	ENDC
 	IFC "B","\0"
 		IFEQ \1_\4-15

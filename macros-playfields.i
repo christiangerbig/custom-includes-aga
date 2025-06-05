@@ -8,7 +8,7 @@ INIT_BPLCON0_BITS		MACRO
 		FAIL Macro INIT_BPLCON0_BITS: Label missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro INIT_BPLCON0_BITS: Playfield epth missing
+		FAIL Macro INIT_BPLCON0_BITS: Playfield depth missing
 	ENDC
 	IFC "","\3"
 \1 EQU BPLCON0F_ECSENA|((\2>>3)*BPLCON0F_BPU3)|(BPLCON0F_COLOR)|((\2&$07)*BPLCON0F_BPU0)
@@ -177,7 +177,7 @@ ODDPF_SOFTSCROLL_16PIXEL_LORES	MACRO
 ; Result
 ; \1 WORD:	BPLCON1 soft scroll
 	IFC "","\1"
-		FAIL Macro ODDPF_SOFTSCROLL_16PIXEL_LORES: PF1 X shift missing
+		FAIL Macro ODDPF_SOFTSCROLL_16PIXEL_LORES: PF1 x shift missing
 	ENDC
 	IFC "","\2"
 		and.w	#$003f,\1	; -- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
@@ -192,12 +192,12 @@ ODDPF_SOFTSCROLL_16PIXEL_LORES	MACRO
 
 EVENPF_SOFTSCROLL_16PIXEL_LORES	MACRO
 ; Input
-; \1 WORD:	X shift missing
+; \1 WORD:	X shift
 ; \2 WORD:	H0-H5 mask (optional)
 ; Result
 ; \1 WORD:	BPLCON1 soft scroll
 	IFC "","\1"
-		FAIL Macro EVENPF_SOFTSCROLL_16PIXEL_LORES: x shift missing
+		FAIL Macro EVENPF_SOFTSCROLL_16PIXEL_LORES: X shift missing
 	ENDC
 	IFC "","\2"
 		and.w	#$003f,\1	; -- -- -- -- -- -- -- -- -- -- H5 H4 H3 H2 H1 H0
@@ -219,7 +219,7 @@ PF_SOFTSCROLL_8PIXEL_HIRES	MACRO
 ; Result
 ; \1 WORD:	BPLCON2 soft scroll
 	IFC "","\1"
-		FAIL Macro PF_SOFTSCROLL_8PIXEL_HIRES: X Shift missing
+		FAIL Macro PF_SOFTSCROLL_8PIXEL_HIRES: X shift missing
 	ENDC
 	IFC "","\2"
 		FAIL Macro PF_SOFTSCROLL_8PIXEL_HIRES: Scratch register missing
@@ -346,7 +346,7 @@ SET_PLAYFIELD			MACRO
 ; Input
 ; \1 STRING:		Labels prefix
 ; \2 BYTE SIGNED:	Playfield depth
-; \3 WORD:		x shift (optional)
+; \3 WORD:		X shift (optional)
 ; \4 WORD:		y shift (optional)
 ; Result
 	IFC "","\1"
@@ -390,8 +390,8 @@ SET_DUAL_PLAYFIELD		MACRO
 ; Input
 ; \1 STRING:		Labels prefix
 ; \2 BYTE SIGNED:	Playfield depth
-; \3 WORD:		x shift (optional)
-; \4 WORD:		y shift (optional)
+; \3 WORD:		X shift (optional)
+; \4 WORD:		Y shift (optional)
 ; Result
 	IFC "","\1"
 		FAIL Macro SET_DUAL_PLAYFIELD: Labels prefix missing
