@@ -405,13 +405,13 @@ COP_INIT_COLOR_LOW		MACRO
 	ENDM
 
 
-COP_INIT_COLOR00_REGISTERS	MACRO
+COP_INIT_COLOR00_SCREEN	MACRO
 ; Input
 ; \1 STRING:	Labels prefix
 ; \2 STRING:	["YWRAP"] (optional)
 ; Result
 	IFC "","\1"
-		FAIL Macro COP_INIT_COLOR00_REGISTERS: Labels prefix missing
+		FAIL Macro COP_INIT_COLOR00_SCREEN: Labels prefix missing
 	ENDC
 	CNOP 0,4
 \1_init_color00
@@ -1890,7 +1890,7 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 ; \2 STRING:	["cl1", "cl2"] label prefix copperlist
 ; \3 STRING:	["construction2", "construction3"] name of copperlist
 ; \4 STRING:	"extension[1..n]"
-; \5 NUMBER:	[32, 48] bar height
+; \5 NUMBER:	[14,15, 32, 48] bar height
 ; \6 POINTER:	BPLAM table
 ; \7 STRING:	[pc,a3] pointer base
 ; \8 WORD:	Offset table start (optional)
@@ -1924,9 +1924,12 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 \1_set_background_bars
 	movem.l	a4-a5,-(a7)
 	IFC "B","\0"
-		moveq	#\1_bar_height*BYTE_SIZE,d4
+		MOVEF.L	\1_\5*BYTE_SIZE,d4
 	ENDC
-	lea	\1_yz_coords(pc),a0
+	IFC "W","\0"
+		MOVEF.L	\1_\5*WORD_SIZE,d4
+	ENDC
+	lea	\1_yz_coordinates(pc),a0
 	move.l	\2_\3(a3),a2
 	ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_BPLCON4_1+WORD_SIZE,a2
 	IFC "pc","\7"
@@ -1936,10 +1939,10 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 		move.l \6(\7),a5	; BPLAM table
 	ENDC
 	IFNC "","\8"
-		add.l	#\8*BYTE_SIZE,a5 ; offset table start
+		ADDQ.W	\8*BYTE_SIZE,a5 ; offset table start
 	ENDC
 	IFC "45","\9"
-		moveq	#(\2_display_width)-1-1,d7
+		moveq	#(\2_display_width-1)-1,d7
 	ELSE
 		moveq	#\2_display_width-1,d7
 	ENDC
@@ -1948,16 +1951,11 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 	moveq	#\1_bars_number-1,d6
 \1_set_background_bars_loop2
 	move.l	(a0)+,d0	 	; low word: y, high word: z vector
-	IFC "B","\0"
-		bpl.s	\1_set_background_bars_skip1
-		add.l	d4,a1		; skip BPLAMs
-		bra	\1_set_background_bars_skip2
-		CNOP 0,4
+	bpl.s	\1_set_background_bars_skip1
+	add.l	d4,a1			; skip BPLAMs
+	bra	\1_set_background_bars_skip2
+	CNOP 0,4
 \1_set_background_bars_skip1
-	ENDC
-	IFC "W","\0"
-		bmi	\1_set_background_bars_skip2
-	ENDC
 	lea	(a2,d0.w*4),a4		; y offset in cl
 	COPY_TWISTED_BAR.\0 \1,\2,\4,\5
 \1_set_background_bars_skip2
@@ -1981,7 +1979,7 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 ; \2 STRING:	["cl1", "cl2"] label prefix copperlist
 ; \3 STRING:	["construction2", "construction3"] name of copperlist
 ; \4 STRING:	"extension[1..n]"
-; \5 NUMBER:	[32, 48] bar height in lines
+; \5 NUMBER:	[14, 15, 32, 48] bar height in lines
 ; \6 POINTER:	BPLAM table
 ; \7 STRING:	["pc", "a3"] pointer base
 ; \8 WORD:	Offset table start (optional)
@@ -2015,9 +2013,12 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 \1_set_foreground_bars
 	movem.l	a4-a5,-(a7)
 	IFC "B","\0"
-		moveq	#\1_bar_height*BYTE_SIZE,d4
+		MOVEF.L	\1_\5*BYTE_SIZE,d4
 	ENDC
-	lea	\1_yz_coords(pc),a0
+	IFC "W","\0"
+		MOVEF.L	\1_\5*WORD_SIZE,d4
+	ENDC
+	lea	\1_yz_coordinates(pc),a0
 	move.l	\2_\3(a3),a2
 	ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_BPLCON4_1+WORD_SIZE,a2
 	IFC "pc","\7"
@@ -2027,10 +2028,10 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 		move.l	\6(\7),a5	; BPLAM table
 	ENDC
 	IFNC "","\8"
-		add.l	#\8,a5		; offset table start
+		ADDQ.W	\8,a5		; offset table start
 	ENDC
 	IFC "45","\9"
-		moveq	#(\2_display_width)-1-1,d7
+		moveq	#(\2_display_width-1)-1,d7
 	ELSE
 		moveq	#\2_display_width-1,d7
 	ENDC
@@ -2039,16 +2040,11 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 	moveq	#\1_bars_number-1,d6
 \1_set_foreground_bars_loop2
 	move.l	(a0)+,d0	 	; low word: y, high word: z vector
-	IFC "B","\0"
-		bmi.s	\1_set_foreground_bars_skip1
-		add.l	d4,a1		; skip BPLAMs
-		bra	\1_set_foreground_bars_skip2
-		CNOP 0,4
+	bmi.s	\1_set_foreground_bars_skip1
+	add.l	d4,a1		; skip BPLAMs
+	bra	\1_set_foreground_bars_skip2
+	CNOP 0,4
 \1_set_foreground_bars_skip1
-	ENDC
-	IFC "W","\0"
-		bpl	\1_set_foreground_bars_skip2
-	ENDC
 	lea	(a2,d0.w*4),a4		; y offset in cl
 	COPY_TWISTED_BAR.\0 \1,\2,\4,\5
 \1_set_foreground_bars_skip2
@@ -2066,7 +2062,7 @@ COPY_TWISTED_BAR		MACRO
 ; \1 STRING:	Labels prefix
 ; \2 STRING:	["cl1","cl2"] label prefix copperlist
 ; \3 STRING:	"extension[1..n]"
-; \4 NUMBER:	[32, 48] bar height in lines
+; \4 NUMBER:	[14, 15, 32, 48] bar height in lines
 ; Result
 	IFC "","\0"
 		FAIL Macro COPY_TWISTED_BAR: Size missing
@@ -2144,7 +2140,7 @@ COPY_TWISTED_BAR		MACRO
 			move.b	d3,\2_\3_size*12(a4)
 			swap	d3
 			move.b	d3,\2_\3_size*14(a4)
-			movem.l	(a1)+,d0-d3 ; fetch 16 values
+			movem.l	(a1)+,d0-d3
 			move.b	d0,\2_\3_size*19(a4)
 			swap	d0
 			move.b	d0,\2_\3_size*17(a4)
@@ -2204,7 +2200,7 @@ COPY_TWISTED_BAR		MACRO
 			move.b	d3,\2_\3_size*12(a4)
 			swap	d3
 			move.b	d3,\2_\3_size*14(a4)
-			movem.l	(a1)+,d0-d3 ; fetch 16 values
+			movem.l	(a1)+,d0-d3
 			move.b	d0,\2_\3_size*19(a4)
 			swap	d0
 			move.b	d0,\2_\3_size*17(a4)
@@ -2233,7 +2229,7 @@ COPY_TWISTED_BAR		MACRO
 			move.b	d3,\2_\3_size*28(a4)
 			swap	d3
 			move.b	d3,\2_\3_size*30(a4)
-			movem.l	(a1)+,d0-d3 ; fetch 16 values
+			movem.l	(a1)+,d0-d3
 			move.b	d0,\2_\3_size*35(a4)
 			swap	d0
 			move.b	d0,\2_\3_size*33(a4)

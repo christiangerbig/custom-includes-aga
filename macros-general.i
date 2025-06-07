@@ -30,7 +30,7 @@ WAIT_MOUSE			MACRO	; !ONLY for testing purposes!
 ; Result
 wm_loop\@
 	move.w	_CUSTOM+VHPOSR,_CUSTOM+COLOR00
-	btst	#POTINPB_DATLY-8,POTINP-DMACONR(a6)
+	btst	#POTINPB_DATLY-8,_CUSTOM+POTINP
 	bne.s	wm_loop\@
 	ENDM
 
@@ -2073,8 +2073,8 @@ INIT_COLOR_GRADIENT_RGB8	MACRO
 ; \4 NUMBER:		Color step RGB8 (optional)
 ; \5 POINTER:		Color table (optional)
 ; \6 STRING:		["pc", "a3"] pointer base (optional)
-; \7 LONGWORD:		Offset next color value (optional)
-; \8 LONGWORD:		Offset table start (optional)
+; \7 LONGWORD:		Offset table start (optional)
+; \8 LONGWORD:		Offset next color value (optional)
 ; Result
 	IFC "","\1"
 		FAIL Macro INIT_COLOR_GRADIENT_RGB8: RGB8 start missing
@@ -2095,16 +2095,16 @@ INIT_COLOR_GRADIENT_RGB8	MACRO
 			move.l	\5(\6),a0 ; color table
 		ENDC
 	ENDC
-	IFNC "","\8"
-		add.l	#(\8)*LONGWORD_SIZE,a0 ; offset table start
+	IFNC "","\7"
+		ADDF.W	(\7)*LONGWORD_SIZE,a0 ; offset table start
 	ENDC
 	IFNC "","\4"
 		move.l	#(\4)<<16,a1	; increase/decrease red
 		move.w	#(\4)<<8,a2	; increase/decrease green
 		move.w	#\4,a4		; increase/decrease blue
 	ENDC
-	IFNC "","\7"
-		move.w	#(\7)*LONGWORD_SIZE,a5 ; offset next color
+	IFNC "","\8"
+		move.w	#(\8)*LONGWORD_SIZE,a5 ; offset next color
 	ENDC
 	MOVEF.W	\3-1,d7			; number of colors
 	bsr	init_color_gradient_RGB8_loop
@@ -2308,7 +2308,7 @@ GET_SINE_BARS_YZ_COORDINATES	MACRO
 		FAIL Macro GET_SINE_BARS_YZ_COORDINATES: Multiplier y offset in copperlist missing
 	ENDC
 	CNOP 0,4
-\1_get_yz_coords
+\1_get_yz_coordinates
 	IFC "","\1"
 		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Labels prefix missing
 	ENDC
@@ -2325,10 +2325,10 @@ GET_SINE_BARS_YZ_COORDINATES	MACRO
 		move.w	d0,\1_y_angle(a3) 
 		MOVEF.W \1_y_distance,d3
 		lea	sine_table(pc),a0
-		lea	\1_yz_coords(pc),a1
+		lea	\1_yz_coordinates(pc),a1
 		move.w	#\1_y_center,a2
 		moveq	#\1_bars_number-1,d7
-\1_get_yz_coords_loop
+\1_get_yz_coordinates_loop
 		moveq	#-(sine_table_length/4),d1 ; - 90°
 		move.l	(a0,d2.w*4),d0	; sin(w)
 		add.w	d2,d1		; y angle - 90°
@@ -2337,80 +2337,80 @@ GET_SINE_BARS_YZ_COORDINATES	MACRO
 		MULUF.L \1_y_radius*2,d0,d1 ; y'=(yr*sin(w))/2^15
 		swap	d0
 		add.w	a2,d0		; y' + y center
-		MULUF.W (\3)/4,d0,d1	; y offset in cl
+		MULUF.W (\3)/8,d0,d1	; y offset in cl
 		move.w	d0,(a1)+	; y
 		add.b	d3,d2		; y distance next bar
-		dbf	d7,\1_get_yz_coords_loop
+		dbf	d7,\1_get_yz_coordinates_loop
 		rts
 	ENDC
 	IFEQ \2-360
 		move.w	\1_y_angle(a3),d2
 		move.w	d2,d0				
-		MOVEF.W sine_table_length,d3 ; overflow
+		MOVEF.W sine_table_length,d3 ; overflow 360°
 		addq.w	#\1_y_angle_speed,d0
 		cmp.w	d3,d0		; 360° ?
-		blt.s	\1_get_yz_coords_skip1
-		sub.w	d3,d0		; restart
-\1_get_yz_coords_skip1
+		blt.s	\1_get_yz_coordinates_skip1
+		sub.w	d3,d0		; reset y angle
+\1_get_yz_coordinates_skip1
 		move.w	d0,\1_y_angle(a3) 
 		MOVEF.W sine_table_length/2,d4 ; 180°
 		MOVEF.W \1_y_distance,d5
 		lea	sine_table(pc),a0
-		lea	\1_yz_coords(pc),a1
+		lea	\1_yz_coordinates(pc),a1
 		move.w	#\1_y_center,a2
 		moveq	#\1_bars_number-1,d7
-\1_get_yz_coords_loop
+\1_get_yz_coordinates_loop
 		moveq	#-(sine_table_length/4),d1 ; - 90+°
 		move.l	(a0,d2.w*4),d0 ; sin(w)
 		add.w	d2,d1		; y angle - 90°
-		bmi.s	\1_get_yz_coords_skip2
+		bmi.s	\1_get_yz_coordinates_skip2
 		sub.w	d4,d1		; y angle - 180°
 		neg.w	d1
-\1_get_yz_coords_skip2
+\1_get_yz_coordinates_skip2
 		move.w	d1,(a1)+	; z vector
 		MULUF.L \1_y_radius*2,d0,d1 ; y'=(yr*sin(w))/2^15
 		swap	d0
 		add.w	a2,d0		; y' + y center
-		MULUF.W (\3)/4,d0,d1	; y offset in cl
+		MULUF.W (\3)/8,d0,d1	; y offset in cl
 		move.w	d0,(a1)+	; y
 		add.w	d5,d2		; y distance next bar
 		cmp.w	d3,d2		; 360° ?
-		blt.s	\1_get_yz_coords_skip3
-		sub.w	d3,d2		; restart
-\1_get_yz_coords_skip3
-		dbf	d7,\1_get_yz_coords_loop
+		blt.s	\1_get_yz_coordinates_skip3
+		sub.w	d3,d2		; reset y angle
+\1_get_yz_coordinates_skip3
+		dbf	d7,\1_get_yz_coordinates_loop
 		rts
 	ENDC
 	IFEQ \2-512
 		move.w	\1_y_angle(a3),d2
 		move.w	d2,d0				
-		MOVEF.W sine_table_length-1,d5 ; overflow
+		MOVEF.W sine_table_length-1,d5 ; overflow 360°
 		addq.w	#\1_y_angle_speed,d0 ; next y angle
 		and.w	d5,d0		; remove overflow
 		move.w	d0,\1_y_angle(a3) 
 		MOVEF.W \1_y_distance,d3
 		MOVEF.W sine_table_length/2,d4 ; 180°
 		lea	sine_table(pc),a0
-		lea	\1_yz_coords(pc),a1
+		lea	\1_yz_coordinates(pc),a1
 		move.w	#\1_y_center,a2
 		moveq	#\1_bars_number-1,d7
-\1_get_yz_coords_loop
+\1_get_yz_coordinates_loop
 		moveq	#-(sine_table_length/4),d1 ; - 90°
 		move.l	(a0,d2.w*4),d0 ; sin(w)
 		add.w	d2,d1		; y angle - 90°
-		bmi.s	\1_get_yz_coords_skip
+		bmi.s	\1_get_yz_coordinates_skip
 		sub.w	d4,d1		; y angle + 180°
 		neg.w	d1
-\1_get_yz_coords_skip
+\1_get_yz_coordinates_skip
 		move.w	d1,(a1)+	; z vector
 		MULUF.L \1_y_radius*2,d0,d1 ; y'=(yr*sin(w))/2^15
 		swap	d0
 		add.w	a2,d0		; y' + center
-		MULUF.W (\3)/4,d0,d1	; y offset in cl
+		MULUF.W (\3)/8,d0,d1	; y offset in cl
 		move.w	d0,(a1)+	; y
-		add.w	d3,d2		; y distance next bar
+		add.w	d3,d2		; y distance to next bar
 		and.w	d5,d2		; remove overflow
-		dbf	d7,\1_get_yz_coords_loop
+		dbf	d7,\1_get_yz_coordinates_loop
 		rts
 	ENDC
 	ENDM
@@ -2419,7 +2419,7 @@ GET_SINE_BARS_YZ_COORDINATES	MACRO
 GET_TWISTED_BARS_YZ_COORDINATES	MACRO
 ; Input
 ; \1 STRING:	Labels prefix
-; \2 NUMBER:	[256, 360, 512] sine table length
+; \2 NUMBER:	[256, 360] sine table length
 ; \3 WORD:	Multiplier y offset in copperlist
 ; Result
 	IFC "","\1"
@@ -2432,7 +2432,7 @@ GET_TWISTED_BARS_YZ_COORDINATES	MACRO
 		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Multiplier y offset in copperlist missing
 	ENDC
 	CNOP 0,4
-\1_get_yz_coords
+\1_get_yz_coordinates
 	IFEQ \2-256
 		move.w	\1_y_angle(a3),d2
 		move.w	d2,d0				
@@ -2440,12 +2440,12 @@ GET_TWISTED_BARS_YZ_COORDINATES	MACRO
 		move.w	d0,\1_y_angle(a3) 
 		MOVEF.W \1_y_distance,d3
 		lea	sine_table(pc),a0
-		lea	\1_yz_coords(pc),a1
+		lea	\1_yz_coordinates(pc),a1
 		move.w	#\1_y_center,a2
 		moveq	#\*LEFT(\3,3)_display_width-1,d7 ; number of columns
-\1_get_yz_coords_loop1
+\1_get_yz_coordinates_loop1
 		moveq	#\1_bars_number-1,d6
-\1_get_yz_coords_loop2
+\1_get_yz_coordinates_loop2
 		moveq	#-(sine_table_length/4),d1 ; - 90°
 		move.l	(a0,d2.w*4),d0	; sin(w)
 		add.w	d2,d1		; y angle - 90°
@@ -2456,14 +2456,14 @@ GET_TWISTED_BARS_YZ_COORDINATES	MACRO
 		add.w	a2,d0		; y' + y center
 		MULUF.W	(\3)/4,d0,d1	; y offset in cl
 		move.w	d0,(a1)+	; y
-		add.b	d3,d2		; y distance next bar
-		dbf	d6,\1_get_yz_coords_loop2
+		add.b	d3,d2		; y distance to next bar
+		dbf	d6,\1_get_yz_coordinates_loop2
 		IFGE \1_y_angle_step
 			addq.b	#\1_y_angle_step,d2 ; next y angle
 		ELSE
 			subq.b	#-\1_y_angle_step,d2 ; next y angle
 		ENDC
-		dbf	d7,\1_get_yz_coords_loop1
+		dbf	d7,\1_get_yz_coordinates_loop1
 		rts
 	ENDC
 	IFEQ \2-360
@@ -2472,26 +2472,26 @@ GET_TWISTED_BARS_YZ_COORDINATES	MACRO
 		MOVEF.W sine_table_length,d3 ; overflow
 		addq.w	#\1_y_angle_speed,d0
 		cmp.w	d3,d0		; 360° ?
-		blt.s	\1_get_yz_coords_skip1
+		blt.s	\1_get_yz_coordinates_skip1
 		sub.w	d3,d0		; reset y angle
-\1_get_yz_coords_skip1
+\1_get_yz_coordinates_skip1
 		move.w	d0,\1_y_angle(a3) 
 		MOVEF.W sine_table_length/2,d4 ; 180°
 		MOVEF.W \1_y_distance,d5
 		lea	sine_table(pc),a0
-		lea	\1_yz_coords(pc),a1
+		lea	\1_yz_coordinates(pc),a1
 		move.w	#\1_y_center,a2
 		moveq	#\*LEFT(\3,3)_display_width-1,d7 ; number of columns
-\1_get_yz_coords_loop1
+\1_get_yz_coordinates_loop1
 		moveq	#\1_bars_number-1,d6
-\1_get_yz_coords_loop2
+\1_get_yz_coordinates_loop2
 		moveq	#-(sine_table_length/4),d1 ; - 90°
 		move.l	(a0,d2.w*4),d0	; sin(w)
 		add.w	d2,d1		; y angle - 90°
-		bmi.s	\1_get_yz_coords_skip2
+		bmi.s	\1_get_yz_coordinates_skip2
 		sub.w	d4,d1		; y angle + 180°
 		neg.w	d1
-\1_get_yz_coords_skip2
+\1_get_yz_coordinates_skip2
 		move.w	d1,(a1)+	; z vector
 		MULUF.L \1_y_radius*2,d0,d1 ; y'=(yr*sin(w))/2^15
 		swap	d0
@@ -2500,16 +2500,16 @@ GET_TWISTED_BARS_YZ_COORDINATES	MACRO
 		move.w	d0,(a1)+	; y
 		add.w	d5,d2		; y distance next bar
 		cmp.w	d3,d2		; 360° ?
-		blt.s	\1_get_yz_coords_skip3
-		sub.w	d3,d2		; restart
-\1_get_yz_coords_skip3
-		dbf	d6,\1_get_yz_coords_loop2
+		blt.s	\1_get_yz_coordinates_skip3
+		sub.w	d3,d2		; reset y angle
+\1_get_yz_coordinates_skip3
+		dbf	d6,\1_get_yz_coordinates_loop2
 		addq.w	#\1_y_angle_step,d2
 		cmp.w	d3,d2		; 360° ?
-		blt.s	\1_get_yz_coords_skip4
-		sub.w	d3,d2		; restart
-\1_get_yz_coords_skip4
-		dbf	d7,\1_get_yz_coords_loop1
+		blt.s	\1_get_yz_coordinates_skip4
+		sub.w	d3,d2		; rset y angle
+\1_get_yz_coordinates_skip4
+		dbf	d7,\1_get_yz_coordinates_loop1
 		rts
 	ENDC
 	ENDM
@@ -2810,4 +2810,54 @@ INIT_CUSTOM_ERROR_ENTRY		MACRO
 	move.l	a1,(a0,d0.w)
 	moveq	#\3,d1			; error text length
 	move.l	d1,4(a0,d0.w)
+	ENDM
+
+
+INIT_MIRROR_COLOR_TABLE		MACRO
+; Input
+; \1 STRING:		Labels prefix
+; \2 BYTE SIGNED:	Number of color gradients
+; \3 BYTE SIGNED:	Number of segments
+; \4 POINTER:		Source: color table
+; \5 POINTER:		Destination: color table
+; \6 STRING:		["pc", "a3"] pointer base for destination
+; Result
+	CNOP 0,4
+\1_init_mirror_color_table
+	IFC "","\1"
+		FAIL Macro MIRROR_COLOR_TABLE: Labels prefix missing
+	ENDC
+	IFC "","\2"
+		FAIL Macro INIT_MIRROR_COLOR_TABLE: Number of color gradients missing
+	ENDC
+	IFC "","\3"
+		FAIL Macro INIT_MIRROR_COLOR_TABLE: Number of color segments missing
+	ENDC
+	IFC "","\4"
+		FAIL Macro INIT_MIRROR_COLOR_TABLE: Source color table missing
+	ENDC
+	IFC "","\5"
+		FAIL Macro INIT_MIRROR_COLOR_TABLE: Destination color table missing
+	ENDC
+	IFC "","\6"
+		FAIL Macro INIT_MIRROR_COLOR_TABLE: Pointer base for destination missing
+	ENDC
+	lea	\4(pc),a0		; source: color table
+	IFC "pc","\6"
+		lea	\1_\5(\6),a1	; destination: color table
+	ENDC
+	IFC "a3","\6"
+		move.l	\5(\6),a1	; destination: color table
+	ENDC
+	moveq	#\3-1,d7		; number of segments
+\1_init_mirror_color_table_loop1
+	lea	(\2-1)*2*LONGWORD_SIZE(a1),a2 ; end of destination segment
+	moveq	#\2-1,d6		; number of color gradients
+\1_init_mirror_color_table_loop2
+	move.l	(a0),(a1)+		; copy RGB8 value
+	move.l	(a0)+,-(a2)
+	dbf	d6,\1_init_mirror_color_table_loop2
+	ADDF.W	\2*LONGWORD_SIZE,a1
+	dbf	d7,\1_init_mirror_color_table_loop1
+	rts
 	ENDM
