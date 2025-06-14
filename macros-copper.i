@@ -301,7 +301,7 @@ COP_SET_SPRITE_POINTERS		MACRO
 ; Input
 ; \1 STRING:		Labels prefix
 ; \2 STRING:		["construction1", "construction2", "display"] name of copperlist
-; \3 BYTE SIGNED:	[1..8] Number of sprites
+; \3 BYTE SIGNED:	[1..8] number of sprites
 ; \4 NUMBER:		[1..7] sprite structure index (optional)
 ; Result
 	IFC "","\1"
@@ -405,7 +405,7 @@ COP_INIT_COLOR_LOW		MACRO
 	ENDM
 
 
-COP_INIT_COLOR00_SCREEN	MACRO
+COP_INIT_COLOR00_SCREEN		MACRO
 ; Input
 ; \1 STRING:	Labels prefix
 ; \2 STRING:	["YWRAP"] (optional)
