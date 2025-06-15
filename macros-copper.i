@@ -568,7 +568,7 @@ COP_INIT_BPLCON4_CHUNKY	MACRO
 		ELSE
 			move.l	#(BPLCON3<<16)+bplcon3_bits2,d3 ; low color
 		ENDC
-		move.l	#(BPLCON4<<16)+(bplcon4_bits&$00ff),d4
+		move.l	#(BPLCON4<<16)|(bplcon4_bits&$00ff),d4
 		IFEQ \6
 			IFNC "","\9"
 				IFNC "OVERSCAN","\9"
