@@ -1626,8 +1626,8 @@ GET_NEW_CHAR_IMAGE		MACRO
 				moveq	#0,d3
 				move.w	\1_char_words_counter(a3),d3
 				move.l	d3,d4
-				MULUF.W	WORD_SIZE,d4
-				addq.w	#1,d3
+				MULUF.W	WORD_SIZE,d4,d2 ; character image word offset
+				addq.w	#1,d3 ; next character image
 				add.l	d4,d0 ; offset in character image
 				cmp.w	#\1_origin_char_x_size/16,d3 ; new character image ?
 				bne.s	\1_get_new_char_image_skip4
