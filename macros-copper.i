@@ -1630,12 +1630,12 @@ CLEAR_BPLCON4_CHUNKY		MACRO
 	IFC "cl1","\2"
 \1_clear_first_copperlist
 		move.l	\2_\3(a3),a0
+		ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
 		WAITBLIT
 		move.l	#(BC0F_DEST|ANBNC|ANBC|ABNC|ABC)<<16,BLTCON0-DMACONR(a6) ; minterm D=A
 		moveq	#-1,d0
 		move.l	d0,BLTAFWM-DMACONR(a6)
-		ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
-		move.l	a0,BLTDPT-DMACONR(a6) ; destination
+		move.l	a0,BLTDPT-DMACONR(a6)
 		move.w	#WORD_SIZE,BLTDMOD-DMACONR(a6)
 		IFEQ \1_\5
 			move.w	#-2,BLTADAT-DMACONR(a6) ; source 2nd word CWAIT
@@ -1653,12 +1653,12 @@ CLEAR_BPLCON4_CHUNKY		MACRO
 	IFC "cl2","\2"
 \1_clear_second_copperlist
 		move.l	\2_\3(a3),a0
+		ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
 		WAITBLIT
 		move.l	#(BC0F_DEST|ANBNC|ANBC|ABNC|ABC)<<16,BLTCON0-DMACONR(a6) ; minterm D=A
 		moveq	#-1,d0
 		move.l	d0,BLTAFWM-DMACONR(a6)
-		ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
-		move.l	a0,BLTDPT-DMACONR(a6) ; destination
+		move.l	a0,BLTDPT-DMACONR(a6)
 		move.w	#WORD_SIZE,BLTDMOD-DMACONR(a6)
 		IFEQ \1_\5
 			move.w	#-2,BLTADAT-DMACONR(a6) ; source 2nd word CWAIT
@@ -1781,8 +1781,8 @@ restore_first_copperlist_loop
 		IFEQ \1_blitter_restore_cl_enabled
 			IFC "","\7"
 				move.l	\2_\3(a3),a0
-				WAITBLIT
 				ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
+				WAITBLIT
 				move.l	a0,BLTDPT-DMACONR(a6) ; destination
 				move.w	#\2_\4_size-\1_restore_blit_width,BLTDMOD-DMACONR(a6)
 				move.w	#$fffe,BLTADAT-DMACONR(a6) ; 2nd word CWAIT
@@ -1869,10 +1869,10 @@ restore_second_copperlist_loop
 		ENDC
 		IFEQ \1_blitter_restore_cl_enabled
 			IFC "","\7"
-				move.l	\2_\3(a3),a0	
-				WAITBLIT
+				move.l	\2_\3(a3),a0
 				ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
-				move.l	a0,BLTDPT-DMACONR(a6) ; destination
+				WAITBLIT
+				move.l	a0,BLTDPT-DMACONR(a6)
 				move.w	#\2_\4_size-\1_restore_blit_width,BLTDMOD-DMACONR(a6)
 				move.w	#$fffe,BLTADAT-DMACONR(a6) ; 2nd word CWAIT
 				move.w	#((\1_restore_blit_y_size)<<6)|(\1_restore_blit_x_size/WORD_BITS),BLTSIZE-DMACONR(a6)
@@ -1956,7 +1956,7 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 	bra	\1_set_background_bars_skip2
 	CNOP 0,4
 \1_set_background_bars_skip1
-	lea	(a2,d0.w*4),a4		; y offset in cl
+	lea	(a2,d0.w*4),a4		; add cl address
 	COPY_TWISTED_BAR.\0 \1,\2,\4,\5
 \1_set_background_bars_skip2
 	dbf	d6,\1_set_background_bars_loop2
@@ -2045,7 +2045,7 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 	bra	\1_set_foreground_bars_skip2
 	CNOP 0,4
 \1_set_foreground_bars_skip1
-	lea	(a2,d0.w*4),a4		; y offset in cl
+	lea	(a2,d0.w*4),a4		; add cl address
 	COPY_TWISTED_BAR.\0 \1,\2,\4,\5
 \1_set_foreground_bars_skip2
 	dbf	d6,\1_set_foreground_bars_loop2
