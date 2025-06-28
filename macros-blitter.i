@@ -24,6 +24,9 @@ GET_LINE_PARAMETERS		MACRO
 ; \3 STRING:	["COPPERUSE"] (optional)
 ; \4 WORD:	Multiplicator Y offset in playfield (optional)
 ; \5 STRING:	Hook label for "AREAFILL" mode (optional)
+; Global reference
+; pf1_plane_width
+; pf1_depth3
 ; Result
 	IFC "","\1"
 		FAIL Macro GET_LINE_PARAMETERS: Labels prefix missing

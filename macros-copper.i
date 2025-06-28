@@ -84,6 +84,8 @@ COP_SKIP			MACRO
 COP_LISTEND MACRO
 ; Input
 ; \1 STRING:	["SAVETAIL"] (optional)
+; Global reference
+; cl_end
 ; Result
 	moveq	#-2,d0
 	move.l	d0,(a0)
@@ -99,6 +101,19 @@ COP_INIT_PLAYFIELD_REGISTERS	MACRO
 ; \2 STRING:	["NOBITPLANES", "NOBITPLANESSPR", "BLANK", "BLANKSPR"] type of display
 ; \3 STRING:	["vp1", "vp2".."vpn"] viewport label prefix (optional)
 ; \4 STRING:	["TRIGGERBITPLANES"] to initialize BPLCON0 (optinal)
+; Global reference
+; diwstrt_bits
+; diwstop_bits
+; ddfstrt_bits
+; ddfstop_bits
+; bplcon0_bits
+; bplcon1_bits
+; bplcon2_bits
+; bplcon3_bits
+; bplcon4_bits
+; diwhigh_bits
+; fmode_bits
+; pf1_plane_moduli
 ; Result
 	IFC "","\1"
 		FAIL Macro COP_INIT_PLAYFIELD_REGISTERS: Labels prefix missing
@@ -189,6 +204,8 @@ COP_INIT_PLAYFIELD_REGISTERS	MACRO
 COP_INIT_BITPLANE_POINTERS	MACRO
 ; Input
 ; \1 STRING:	Labels prefix
+; Global reference
+; pf_depth
 ; Result
 	IFC "","\1"
 		FAIL Macro COP_INIT_BITPLANE_POINTERS: Labels prefix missing
@@ -214,6 +231,10 @@ COP_SET_BITPLANE_POINTERS	MACRO
 ; \4 BYTE SIGNED:	Number of bisplanes playfield2 (optional)
 ; \5 WORD:		X offset (optional)
 ; \6 WORD:		Y offset (optional)
+; Global reference
+; pf1_display
+; pf1_plane_width
+; pf1_depth3
 ; Result
 	IFC "","\1"
 		FAIL Macro COP_SET_BITPLANE_POINTERS: Labels prefix missing
@@ -280,6 +301,8 @@ COP_SET_BITPLANE_POINTERS	MACRO
 COP_INIT_SPRITE_POINTERS	MACRO
 ; Input
 ; \1 STRING:	Labels prefix
+; Global reference
+; spr_number
 ; Result
 	IFC "","\1"
 		FAIL Macro COP_INIT_SPRITE_POINTERS: Labels prefix missing
@@ -303,6 +326,8 @@ COP_SET_SPRITE_POINTERS		MACRO
 ; \2 STRING:		["construction1", "construction2", "display"] name of copperlist
 ; \3 BYTE SIGNED:	[1..8] number of sprites
 ; \4 NUMBER:		[1..7] sprite structure index (optional)
+; Global reference
+; spr_pointers_display
 ; Result
 	IFC "","\1"
 		FAIL Macro COP_SET_SPRITE_POINTERS: Labels prefix missing
@@ -320,7 +345,7 @@ COP_SET_SPRITE_POINTERS		MACRO
 		lea	spr_pointers_display(pc),a1
 		ADDF.W	\1_SPR0PTH+WORD_SIZE,a0
 	ELSE
-		lea	spr_pointers_display+(\4*4)(pc),a1 ; with index
+		lea	spr_pointers_display+(\4*LONGWORD_SIZE)(pc),a1 ; with index
 		ADDF.W	\1_SPR\3PTH+WORD_SIZE,a0
 	ENDC
 	moveq	#\3-1,d7		; number of sprites
@@ -352,6 +377,8 @@ COP_SELECT_COLOR_LOW_BANK	MACRO
 ; Input
 ; \1 NUMBER:	[0..7] color bank number
 ; \2 WORD:	BPLCON3 bits (optional)
+; Global reference
+; bplcon3_bits2
 ; Result
 	IFC "","\1"
 		FAIL Macro COP_SELECT_COLOR_LOW_BANK MACRO: Color bank number missing
@@ -409,6 +436,14 @@ COP_INIT_COLOR00_SCREEN		MACRO
 ; Input
 ; \1 STRING:	Labels prefix
 ; \2 STRING:	["YWRAP"] (optional)
+; Global reference
+; bplcon3_bits1
+; bplcon3_bits2
+; color00_high_bits
+; color00_low_bits
+; _vstart1
+; _hstart1
+; _display_y_size
 ; Result
 	IFC "","\1"
 		FAIL Macro COP_INIT_COLOR00_SCREEN: Labels prefix missing
@@ -450,6 +485,11 @@ COP_RESET_COLOR00		MACRO
 ; \1 STRING:	["cl1", "cl2"] label prefix copperlist
 ; \2 WORD:	X position
 ; \3 WORD:	Y postion
+; Global reference
+bplcon3_bits1
+bplcon3_bits2
+color00_high_bits
+color00_low_bits
 ; Result
 	IFC "","\1"
 		FAIL Macro COP_RESET_COLOR00: Label prefix copperlist missing
@@ -482,6 +522,16 @@ COP_INIT_BPLCON4_CHUNKY	MACRO
 ; \7 BOOLEAN:	TRUE = quick clear
 ; \8 BOOLEAN:	TRUE = background effect
 ; \9 LONGWORD:	CMOVE value,register / STRING: ["OVERSCAN"] (optional)
+; Global reference
+; bplcon3_bits1
+; bplcon3_bits2
+; bplcon3_bits3
+; bplcon3_bits4
+; bplcon4_bits
+; fmode_bits
+; fmode_bits2
+; color00_high_bits
+; color00_low_bits
 ; Result
 	IFC "","\1"
 		FAIL Macro COP_INIT_BPLCON4_CHUNKY: Label prefix copperlist missing
@@ -618,6 +668,8 @@ COP_INIT_BPLCON1_CHUNKY	MACRO
 ; \4 NUMBER:	Width
 ; \5 NUMBER:	Height
 ; \6 WORD:	Alternative BPLCON1 bits (optinal)
+; Global reference
+; bplcon1_bits
 ; Result
 	IFC "","\1"
 		FAIL Macro COP_INIT_BPLCON1_CHUNKY: ["cl1", "cl2"] label prefix copperlist missing
@@ -685,6 +737,9 @@ COPY_COPPERLIST			MACRO
 ; Input
 ; \1 STRING:	["cl1", "cl2"] label prefix copperlist
 ; \2 NUMBER:	[2, 3] number of copperlists
+; Global reference
+; _construction2
+; _display
 ; Result
 	IFC "","\1"
 		FAIL Macro COPY_COPPERLIST: Labels prefix copperlist missing
@@ -747,6 +802,12 @@ CONVERT_IMAGE_TO_RGB4_CHUNKY	MACRO
 ; \1 STRING:	Labels prefix
 ; \2 POINTER:	BPLAM table
 ; \3 STRING:	["pc", "a3"] pointer base
+; Global reference
+; _image_data
+; _image_plane_width
+; _image_depth
+; _image_y_size
+; _image_color_table
 ; Result
 	IFC "","\1"
 		FAIL Macro CONVERT_IMAGE_TO_RGB4_CHUNKY: Labels prefix missing
@@ -822,6 +883,12 @@ CONVERT_IMAGE_TO_HAM6_CHUNKY	MACRO
 ; \1 STRING:	Labels prefix
 ; \2 POINTER:	BPLAM table
 ; \3 STRING:	["pc", "a3"] pointer base
+; Global reference
+; _image_data
+; _image_plane_width
+; _image_depth
+; _image_y_size
+; _image_color_table
 ; Result
 	IFC "","\1"
 		FAIL Macro CONVERT_IMAGE_TO_HAM6_CHUNKY: Labels prefix missing
@@ -926,6 +993,12 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY	MACRO
 ; \1 STRING:	Labels prefix
 ; \2 POINTER:	BPLAM table
 ; \3 STRING:	["pc", "a3"] pointer base
+; Global reference
+; _image_data
+; _image_plane_width
+; _image_depth
+; _image_y_size
+; _image_color_table
 ; Result
 	IFC "","\1"
 		FAIL Macro CONVERT_IMAGE_TO_RGB8_CHUNKY: Labels-Prefix missing
@@ -941,12 +1014,12 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY	MACRO
 	movem.l a4-a6,-(a7)
 	moveq	#16,d3			; COLOR16
 	move.w	#RB_NIBBLES_MASK,d4
-	lea	\1_image_data,a0 ; source
+	lea	\1_image_data,a0	; source
 	lea	\1_image_color_table(pc),a1
 	IFC "","\2"
 		lea	\1_color_table(pc),a2
 	ELSE
-		move.l \2(\3),a2
+		move.l	\2(\3),a2
 	ENDC
 	move.w	#32,a4			; COLOR32
 	move.w	#64,a5			; COLOR64
@@ -959,7 +1032,7 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY	MACRO
 \1_convert_image_loop3
 	moveq	#0,d0			; color number
 	IFGE \1_image_depth-1
-		btst		d5,(a0)
+		btst	d5,(a0)
 		beq.s	\1_convert_image_skip1
 		addq.w	#1,d0		; increase color number
 \1_convert_image_skip1
@@ -1027,6 +1100,14 @@ CONVERT_IMAGE_TO_HAM8_CHUNKY	MACRO
 ; \1 STRING:	Labels prefix
 ; \2 POINTER:	BPLAM table
 ; \3 STRING:	["pc", "a3"] pointer base
+; Global reference
+; variables
+; save_a7
+; _image_data
+; _image_plane_width
+; _image_depth
+; _image_y_size
+; _image_color_table
 ; Result
 	IFC "","\1"
 		FAIL Macro CONVERT_IMAGE_TO_HAM8_CHUNKY: Labels-Prefix missing
@@ -1147,6 +1228,15 @@ CONVERT_IMAGE_TO_BPLCON4_CHUNKY	MACRO
 ; \2 POINTER:	BPLAM table
 ; \3 STRING:	["pc", "a3"] pointer base
 ; \4 NUMBER:	Start BPLAM value (optional)
+; Global reference
+; variables
+; save_a7
+; bplcon4_bits
+; _image_data
+; _bplam_table
+; _image_plane_width
+; _image_depth
+; _image_y_size
 ; Result
 	IFC "","\0"
 		FAIL Macro CONVERT_IMAGE_TO_BPLCON4_CHUNKY: Size missing
@@ -1262,6 +1352,10 @@ SWAP_COPPERLIST			MACRO
 ; Input
 ; \1 STRING:	Labels prefix
 ; \2 NUMBER:	[2,3] number of copperlists
+; Global reference
+; _construction1
+; _construction2
+; _display
 ; Result
 	IFC "","\1"
 		FAIL Macro SWAP_COPPERLIST: Labels prefix missing
@@ -1311,6 +1405,8 @@ swap_second_copperlist
 SET_COPPERLIST			MACRO
 ; Input
 ; \1 STRING:	Labels prefix
+; Global reference
+; _display
 ; Result
 	IFC "","\1"
 		FAIL Macro SET_COPPERLIST: Labels prefix missing
@@ -1337,6 +1433,12 @@ CLEAR_COLOR00_SCREEN		MACRO
 ; \3 STRING:	[construction1,construction2] name of copperlist
 ; \4 STRING:	"extension[1..n]"
 ; \5 NUMBER:	[16,32] number of commands per loop
+; Global reference
+; color00_high_bits
+; color00_low_bits
+; _display_y_size
+; _COLOR00_low
+; _COLOR00_high
 ; Result
 	IFC "","\1"
 		FAIL Macro CLEAR_COLOR00_SCREEN: Labels prefix missing
@@ -1610,6 +1712,8 @@ CLEAR_BPLCON4_CHUNKY		MACRO
 ; \3 STRING:	["construction1", "construction2"] name of copperlist
 ; \4 STRING:	"extension[1..n]"
 ; \5 BOOLEAN:	TRUE = quick clear enabled
+; Global refgerence
+; bplcon4_bits
 ; Result
 	IFC "","\1"
 		FAIL Macro CLEAR_CHUNKY: Labels prefix missing
@@ -1685,6 +1789,10 @@ RESTORE_BPLCON4_CHUNKY		MACRO
 ; \5 NUMBER:	[16, 32] number of commands per loop
 ; \6 LABEL:	Sub routine clear by cpu (optional)
 ; \7 LABEL:	Sub routine clear by blitter (optional)
+; Global reference
+; _display_y_size
+; _restore_blit_x_size
+; _restore_blit_y_size
 ; Result
 	IFC "","\1"
 		FAIL Macro RESTORE_BLCON4_CHUNKY: Labels prefix missing
@@ -1895,6 +2003,10 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 ; \7 STRING:	[pc,a3] pointer base
 ; \8 WORD:	Offset table start (optional)
 ; \9 STRING:	["45"] (optional)
+; Global reference
+; _yz_coordinates
+; _display_width
+; _bars_number
 ; Result
 	IFC "","\0"
 		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Size missing
@@ -1984,6 +2096,10 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 ; \7 STRING:	["pc", "a3"] pointer base
 ; \8 WORD:	Offset table start (optional)
 ; \9 STRING:	["45"] (optional)
+; Global reference
+; _yz_coordinates
+; _display_width
+; _bars_number
 ; Result
 	IFC "","\0"
 		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Size missing

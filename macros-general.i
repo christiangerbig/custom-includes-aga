@@ -38,6 +38,8 @@ wm_loop\@
 RASTER_TIME			MACRO
 ; Input
 ; \1 WORD:	RGB4 hex value (optional)
+; Global reference
+; rt_rasterlines_number
 ; Result
 	move.l	d0,-(a7)
 	move.w	VPOSR-DMACONR(a6),d0
@@ -59,6 +61,8 @@ raster_time_skip\@
 SHOW_BEAM_POSITION		MACRO
 ; Input
 ; \1 WORD:	RGB4 hex value
+; Global refence
+; bplcon3_bits1
 ; Result
 	MOVEF.W	bplcon3_bits1,d0
 	move.w	d0,BPLCON3-DMACONR(a6)
@@ -1256,6 +1260,8 @@ CPU_INIT_COLOR_HIGH		MACRO
 ; \1 WORD:		First color register offset
 ; \2 BYTE_SIGNED:	Number of colors
 ; \3 POINTER:		Color table (optional)
+; Global reference
+; cpu_init_high_colors
 ; Result
 	IFC "","\1"
 		FAIL Macro CPU_INIT_COLOR_HIGH: First color register offset missing
@@ -1277,6 +1283,8 @@ CPU_INIT_COLOR_LOW		MACRO
 ; \1 WORD:		First color register offset
 ; \2 BYTE_SIGNED:	Number of colors
 ; \3 POINTER:		Color table (optional)
+; Global reference
+; cpu_init_high_colors
 ; Result
 	IFC "","\1"
 		FAIL Macro CPU_INIT_COLOR_LOW: First color register offset missing
@@ -1376,6 +1384,14 @@ INIT_CHARS_OFFSETS MACRO
 ; Input
 ; \0 STRING:	["W", "L"] size
 ; \1 STRING:	Labels prefix
+; Global reference
+; _image_plane_width
+; _image_depth
+; _origin_char_x_size
+; _origin_char_y_size
+; _chars_offsets
+; _ascii
+; _ascii_end
 ; Result
 	CNOP 0,4
 \1_init_chars_offsets
@@ -1432,6 +1448,10 @@ INIT_CHARS_X_POSITIONS	MACRO
 ; \2 STRING:	["LORES", "HIRES", "SHIRES"] pixel resolution
 ; \3 STRING:	["BACKWARDS"] (optional)
 ; \4 NUMBER:	Number of characters (optional)
+; Global reference
+; _text_char_x_size
+; _chars_x_positions
+; _text_chars_number
 ; Result
 	CNOP 0,4
 \1_init_chars_x_positions
@@ -1481,6 +1501,10 @@ INIT_CHARS_Y_POSITIONS		MACRO
 ; Input
 ; \1 STRING:	Labels prefix
 ; \2 NUMBER:	Number of characters (optional)
+; Global reference
+; _text_char_y_size
+; _chars_y_positions
+; _text_chars_number
 ; Result
 	CNOP 0,4
 \1_init_chars_y_positions
@@ -1506,6 +1530,11 @@ INIT_CHARS_Y_POSITIONS		MACRO
 INIT_CHARS_IMAGES		MACRO
 ; Input
 ; \1 STRING:	Labels prefix
+; Global reference
+; _chars_image_pointers
+; _text_chars_number
+; _get_new_char_image
+
 ; Result
 	CNOP 0,4
 \1_init_chars_images
@@ -1530,6 +1559,18 @@ GET_NEW_CHAR_IMAGE		MACRO
 ; \3 STRING:	["NORESTART"] (optional)
 ; \4 STRING:	["BACKWARDS"] (optional)
 ; \5 STRING:	Offset next character image (optional)
+; Global reference
+; _text_table_start
+; _text
+; _text_end
+; _ascii
+; _ascii_end
+; _origin_char_x_size
+; _text_char_x_size
+; _chars_offsets
+; _image
+; _char_toggle_image
+; _char_words_counter
 ; Result
 ; d0.l		Pointer character image
 	IFC "","\0"
@@ -1556,7 +1597,7 @@ GET_NEW_CHAR_IMAGE		MACRO
 	ENDC
 	IFNC "BACKWARDS","\4"
 		IFNC "NORESTART","\3"
-			cmp.b	#FALSE,d0 ; End of text reached ?
+			cmp.b	#FALSE,d0 ; end of text ?
 			beq.s	\1_get_new_char_image_skip6
 		ENDC
 	ENDC
@@ -1634,7 +1675,7 @@ GET_NEW_CHAR_IMAGE		MACRO
 				IFC "","\5"
 					addq.w	#BYTE_SIZE,d1 ; next character
 				ELSE
-					ADDF.W	\1_\5,d1 ; next chataczer
+					ADDF.W	\1_\5,d1 ; next character
 				ENDC
 				move.w	d1,\1_text_table_start(a3)
 				moveq	#0,d3 ; reset words counter
@@ -1674,6 +1715,8 @@ CPU_SELECT_COLOR_HIGH_BANK	MACRO
 ; Input
 ; \1 NUMBER:	[0..7] color bank
 ; \2 WORD:	Additional BPLCON3 bits (optional)
+; global reference
+; bplcon3_bits1
 ; Result
 	IFC "","\1"
 		FAIL Macro CPU_SELECT_COLOR_HIGH_BANK: Color bank missing
@@ -1697,6 +1740,8 @@ CPU_SELECT_COLOR_LOW_BANK	MACRO
 ; Input
 ; \1 NUMBER:	[0..7] color bank
 ; \2 WORD:	Additional BPCON3 bits (optional)
+; Global reference
+; bplcon3_bits1
 ; Result
 	IFC "","\1"
 		FAIL Macro CPU_SELECT_COLOR_LOW_BANK: Color bank missing
@@ -1715,6 +1760,8 @@ DISABLE_060_STORE_BUFFER	MACRO
 ; Input
 ; Result
 ; d0.l		CACR old content
+; Global reference
+; os_cacr
 	move.l	_SysBase(pc),a6
 	tst.b	AttnFlags+BYTESZE(a6)	; MC68060 ?
 	bpl.s	disable_060_store_buffer_skip
@@ -1743,6 +1790,8 @@ do_disable_060_store_buffer
 ENABLE_060_STORE_BUFFER		MACRO
 ; Input
 ; d1.l		CACR old content
+; Global reference
+; os_cacr
 ; Result
 	move.l	_SysBase(pc),a6
 	tst.b	AttnFlags+BYTE_SIZE(a6)	; MC68060 ?
@@ -1778,6 +1827,8 @@ INIT_MIRROR_BPLAM_TABLE		MACRO
 ; \7 STRING:		["pc", "a3"] pointer base
 ; \8 WORD:		Offset table start (optional)
 ; \9 NUMBER:		First switch value for mirroring (optional)
+; Global reference
+; bplcon4_bits
 ; Result
 	CNOP 0,4
 \1_init_mirror_bplam_table
@@ -1879,6 +1930,8 @@ INIT_NESTED_MIRROR_BPLAM_TABLE	MACRO
 ; \7 STRING:		["pc", "a3"] pointer base
 ; \8 WORD:		Offset table start (optional)
 ; \9 NUMBER:		First BPLAM value for mirroring (optional)
+; Global reference
+; bplcon4_bits
 ; Result
 	CNOP 0,4
 \1_init_nested_mirror_bplam_table
@@ -2173,12 +2226,20 @@ COPY_IMAGE_TO_BITPLANE		MACRO
 ; \2 WORD:	X offset (optional)
 ; \3 WORD:	Y offset (optional)
 ; \4 POINTER:	Target (optional)
+; Global reference
+; pf1_plane_width
+; pf1_depth3
+; pf1_display
+; _image_data
+; _image_plane_width
+; _image_x_size
+; _image_y_size
 ; Result
 	IFC "","\1"
 		FAIL Macro COPY_IMAGE_TO_BITPLANE: Labels prefix missing
 	ENDC
 	CNOP 0,4
-\1_copy_image_to_plane
+\1_copy_image_to_bitplane
 	movem.l a4-a6,-(a7)
 	IFNC "","\2"
 		IFC "","\4"
@@ -2204,10 +2265,10 @@ COPY_IMAGE_TO_BITPLANE		MACRO
 	ELSE
 		moveq	#\4_depth-1,d7
 	ENDC
-\1_copy_image_to_plane_loop1
+\1_copy_image_to_bitplane_loop1
 	bsr.s	\1_copy_image_data
 	add.l	#\1_image_plane_width,a1 ; next bitplane
-	dbf	d7,\1_copy_image_to_plane_loop1
+	dbf	d7,\1_copy_image_to_bitplane_loop1
 	movem.l (a7)+,a4-a6
 	rts
 	CNOP 0,4
@@ -2234,6 +2295,10 @@ INIT_DISPLAY_PATTERN		MACRO
 ; Input
 ; \1 STRING:	Labels prefix
 ; \2 NUMBER:	Column width
+; Global reference
+; pf1_display
+; cl2_display_width
+; pf1_plane_width
 ; Result
 	IFC "","\1"
 		FAIL Macro INIT_DISPLAY_PATTERN: Labels prefix missing
@@ -2297,6 +2362,16 @@ GET_SINE_BARS_YZ_COORDINATES	MACRO
 ; \1 STRING:	Labels prefix
 ; \2 NUMBER:	[256, 360, 512] sine table length
 ; \3 WORD:	Multiplier y offset in copperlist
+; Global reference
+; sine_table
+; sine_table_length
+; _y_angle
+; _y_angle_speed
+; _y_distance
+; _yz_coordinates
+; _y_center
+; _bars_number
+; _y_radius
 ; Result
 	IFC "","\1"
 		FAIL Macro GET_SINE_BARS_YZ_COORDINATES: Labels prefix missing
@@ -2421,6 +2496,17 @@ GET_TWISTED_BARS_YZ_COORDINATES	MACRO
 ; \1 STRING:	Labels prefix
 ; \2 NUMBER:	[256, 360] sine table length
 ; \3 WORD:	Multiplier y offset in copperlist
+; Global reference
+; sine_table
+; sine_table_length
+; _y_angle
+; _y_angle_speed
+; _y_distance
+; _y_center
+; _display_width
+; _bars_number
+; _y_radius
+; _y_angle_step
 ; Result
 	IFC "","\1"
 		FAIL Macro GET_TWISTED_BARS_YZ_COORDINATES: Labels prefix missing
@@ -2515,7 +2601,7 @@ GET_TWISTED_BARS_YZ_COORDINATES	MACRO
 	ENDM
 
 
-RGB8_COLOR_FADER			MACRO
+RGB8_COLOR_FADER		MACRO
 ; Input
 ; \1 STRING:	Labels prefix
 ; Result
@@ -2611,6 +2697,117 @@ RGB8_COLOR_FADER			MACRO
 	ENDM
 
 
+COPY_RGB8_COLORS_TO_COPPERLIST	MACRO
+; Input
+; \1 STRING:	Labels prefix
+; \2 STRING:	Color table prefix
+; \3 STRUNG:	Copperlist prefix
+; \4 STRING:	Offset in copperlist color high
+; \5 STRING:	Offset in copperlist color low
+; \6 LONGWORD:	Offset base (optional)
+; Global reference
+; _rgb8_copy_colors_active
+; _rgb8_colors_number
+; _rgb8_start_color
+; _rgb8_color_table
+; _rgb8_color_table_offset
+; Result
+	IFC "","\1"
+		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Labels prefix missing
+	ENDC
+	IFC "","\2"
+		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Color table prefix missing
+	ENDC
+	IFC "","\3"
+		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Copperlist prefix missing
+	ENDC
+	IFC "","\4"
+		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Offset in copperlist color high missing
+	ENDC
+	IFC "","\5"
+		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Offset in copperlist color low missing
+	ENDC
+	CNOP 0,4
+\1_rgb8_copy_color_table
+	IFNE \3_size2
+		move.l	a4,-(a7)
+	ENDC
+	tst.w	\1_rgb8_copy_colors_active(a3)
+	bne.s	\1_rgb8_copy_color_table_skip2
+	move.w	#RB_NIBBLES_MASK,d3
+	IFGT \1_rgb8_colors_number-32
+		MOVEF.W \1_rgb8_start_color<<3,d4 ; counter color registers per color bank
+	ENDC
+	lea	\2_rgb8_color_table+(\1_rgb8_color_table_offset*LONGWORD_SIZE)(pc),a0 ; colors buffer
+	move.l	\3_display(a3),a1
+	IFC "","\6"
+		ADDF.W	\4+(\1_rgb8_start_color*LONGWORD_SIZE)+WORD_SIZE,a1
+	ELSE
+		ADDF.W	\6+\4+(\1_rgb8_start_color*LONGWORD_SIZE)+WORD_SIZE,a1
+	ENDC
+	IFNE \3_size1
+		move.l	\3_construction1(a3),a2
+		IFC "","\6"
+			ADDF.W	\4+(\1_rgb8_start_color*LONGWORD_SIZE)+WORD_SIZE,a2
+		ELSE
+			ADDF.W	\6+(\1_rgb8_start_color*LONGWORD_SIZE)+\4+WORD_SIZE,a2
+		ENDC
+	ENDC
+	IFNE \3_size2
+		move.l	\3_construction2(a3),a4
+		IFC "","\6"
+			ADDF.W	\4+(\1_rgb8_start_color*LONGWORD_SIZE)+WORD_SIZE,a4
+		ELSE
+			ADDF.W	\6+(\1_rgb8_start_color*LONGWORD_SIZE)+\4+WORD_SIZE,a4
+		ENDC
+	ENDC
+	MOVEF.W	\1_rgb8_colors_number-1,d7
+\1_rgb8_copy_color_table_loop
+	move.l	(a0)+,d0		; RGB8
+	move.l	d0,d2					
+	RGB8_TO_RGB4_HIGH d0,d1,d3
+	move.w	d0,(a1)			; color high
+	IFNE \3_size1
+		move.w	d0,(a2)		; color high
+	ENDC
+	IFNE \3_size2
+		move.w	d0,(a4)		; color high
+	ENDC
+	RGB8_TO_RGB4_LOW d2,d1,d3
+	move.w	d2,\5-\4(a1)		; color low
+	addq.w	#LONGWORD_SIZE,a1	; next color register
+	IFNE \3_size1
+		move.w	d2,\5-\4(a2)	; color low
+		addq.w	#LONGWORD_SIZE,a2 ; next color register
+	ENDC
+	IFNE \3_size2
+		move.w	d2,\5-\4(a4)	; color low
+		addq.w	#LONGWORD_SIZE,a4 ; next color register
+	ENDC
+	IFGT \1_rgb8_colors_number-32
+		addq.b	#1<<3,d4	; increase color registers counter
+		bne.s	\1_rgb8_copy_color_table_skip1
+		addq.w	#LONGWORD_SIZE,a1 ; skip CMOVE
+		IFNE \3_size1
+			addq.w	#LONGWORD_SIZE,a2 ; skip CMOVE
+		ENDC
+		IFNE \3_size2
+			addq.w	#LONGWORD_SIZE,a4 ; skip CMOVE
+		ENDC
+\1_rgb8_copy_color_table_skip1
+	ENDC
+	dbf	d7,\1_rgb8_copy_color_table_loop
+	tst.w	\1_rgb8_colors_counter(a3)
+	bne.s	\1_rgb8_copy_color_table_skip2
+	move.w	#FALSE,\1_rgb8_copy_colors_active(a3)
+\1_rgb8_copy_color_table_skip2
+	IFNE \3_size2
+		move.l	(a7)+,a4
+	ENDC
+	rts
+	ENDM
+
+
 ROTATE_X_AXIS			MACRO
 ; Input
 ; d1.w	y
@@ -2680,111 +2877,6 @@ ROTATE_Z_AXIS			MACRO
 	swap	d0			; x position
 	MULUF.L 2,d1			; y'=(x*sin(c)+y*cos(c))/2^15
 	swap	d1			; y position
-	ENDM
-
-
-COPY_RGB8_COLORS_TO_COPPERLIST	MACRO
-; Input
-; \1 STRING:	Labels prefix
-; \2 STRING:	Color table prefix
-; \3 STRUNG:	Copperlist prefix
-; \4 STRING:	Offset in copperlist color high
-; \5 STRING:	Offset in copperlist color low
-; \6 LONGWORD:	Offset base (optional)
-; Result
-	IFC "","\1"
-		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Labels prefix missing
-	ENDC
-	IFC "","\2"
-		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Color table prefix missing
-	ENDC
-	IFC "","\3"
-		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Copperlist prefix missing
-	ENDC
-	IFC "","\4"
-		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Offset in copperlist color high missing
-	ENDC
-	IFC "","\5"
-		FAIL Macro COPY_RGB8_COLORS_TO_COPPERLIST: Offset in copperlist color low missing
-	ENDC
-	CNOP 0,4
-\1_rgb8_copy_color_table
-	IFNE \3_size2
-		move.l	a4,-(a7)
-	ENDC
-	tst.w	\1_rgb8_copy_colors_active(a3)
-	bne.s	\1_rgb8_copy_color_table_skip2
-	move.w	#RB_NIBBLES_MASK,d3
-	IFGT \1_rgb8_colors_number-32
-		MOVEF.W \1_rgb8_start_color<<3,d4 ; counter color registers per color bank
-	ENDC
-	lea	\2_rgb8_color_table+(\1_rgb8_color_table_offset*LONGWORD_SIZE)(pc),a0 ; colors buffer
-	move.l	\3_display(a3),a1
-	IFC "","\6"
-		ADDF.W	\4+WORD_SIZE,a1
-	ELSE
-		ADDF.W	\6+\4+WORD_SIZE,a1
-	ENDC
-	IFNE \3_size1
-		move.l	\3_construction1(a3),a2
-		IFC "","\6"
-			ADDF.W	\4+WORD_SIZE,a2
-		ELSE
-			ADDF.W	\6+\4+WORD_SIZE,a2
-		ENDC
-	ENDC
-	IFNE \3_size2
-		move.l	\3_construction2(a3),a4
-		IFC "","\6"
-			ADDF.W	\4+WORD_SIZE,a4
-		ELSE
-			ADDF.W	\6+\4+WORD_SIZE,a4
-		ENDC
-	ENDC
-	MOVEF.W	\1_rgb8_colors_number-1,d7
-\1_rgb8_copy_color_table_loop
-	move.l	(a0)+,d0		; RGB8
-	move.l	d0,d2					
-	RGB8_TO_RGB4_HIGH d0,d1,d3
-	move.w	d0,(a1)			; color high
-	IFNE \3_size1
-		move.w	d0,(a2)		; color high
-	ENDC
-	IFNE \3_size2
-		move.w	d0,(a4)		; color high
-	ENDC
-	RGB8_TO_RGB4_LOW d2,d1,d3
-	move.w	d2,\5-\4(a1)		; color low
-	addq.w	#LONGWORD_SIZE,a1	; next color register
-	IFNE \3_size1
-		move.w	d2,\5-\4(a2)	; color low
-		addq.w	#LONGWORD_SIZE,a2 ; next color register
-	ENDC
-	IFNE \3_size2
-		move.w	d2,\5-\4(a4)	; color low
-		addq.w	#LONGWORD_SIZE,a4 ; next color register
-	ENDC
-	IFGT \1_rgb8_colors_number-32
-		addq.b	#1<<3,d4	; increase color registers counter
-		bne.s	\1_rgb8_copy_color_table_skip1
-		addq.w	#LONGWORD_SIZE,a1 ; skip CMOVE
-		IFNE \3_size1
-			addq.w	#LONGWORD_SIZE,a2 ; skip CMOVE
-		ENDC
-		IFNE \3_size2
-			addq.w	#LONGWORD_SIZE,a4 ; skip CMOVE
-		ENDC
-\1_rgb8_copy_color_table_skip1
-	ENDC
-	dbf	d7,\1_rgb8_copy_color_table_loop
-	tst.w	\1_rgb8_colors_counter(a3)
-	bne.s	\1_rgb8_copy_color_table_skip2
-	move.w	#FALSE,\1_rgb8_copy_colors_active(a3)
-\1_rgb8_copy_color_table_skip2
-	IFNE \3_size2
-		move.l	(a7)+,a4
-	ENDC
-	rts
 	ENDM
 
 

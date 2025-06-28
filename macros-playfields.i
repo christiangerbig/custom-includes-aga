@@ -314,6 +314,10 @@ SWAP_PLAYFIELD			MACRO
 ; Input
 ; \1 STRING:		Labels prefix
 ; \2 NUMBER:		Number of playfields [2,3]
+; Global reference
+; _construction1
+; _construction2
+; _display
 ; Result
 	IFC "","\1"
 		FAIL Macro SWAP_PLAYFIELD: Labels prefix missing
@@ -344,6 +348,9 @@ SET_PLAYFIELD			MACRO
 ; \2 BYTE SIGNED:	Playfield depth
 ; \3 WORD:		X shift (optional)
 ; \4 WORD:		y shift (optional)
+; Global reference
+; cl1_display
+; cl1_BPL1PTH
 ; Result
 	IFC "","\1"
 		FAIL Macro SET_PLAYFIELD: Labels prefix missing
@@ -388,6 +395,8 @@ SET_DUAL_PLAYFIELD		MACRO
 ; \2 BYTE SIGNED:	Playfield depth
 ; \3 WORD:		X shift (optional)
 ; \4 WORD:		Y shift (optional)
+; Global reference
+; _display
 ; Result
 	IFC "","\1"
 		FAIL Macro SET_DUAL_PLAYFIELD: Labels prefix missing

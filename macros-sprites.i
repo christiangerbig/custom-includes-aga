@@ -86,7 +86,7 @@ SET_SPRITE_POSITION_V9		MACRO
 	addx.w	\3,\3			; EV7 EV6 EV5 EV4 EV3 EV2 EV1 EV0 --- --- --- SV9 EV9 SH1 SH0 SV8
 	addx.b	\3,\3			; EV7 EV6 EV5 EV4 EV3 EV2 EV1 EV0 --- --- SV9 EV9 SH1 SH0 SV8 EV8
 	lsr.w	#3,\1			; --- --- --- --- --- --- --- --- SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3
-	addx.b	\3,\3			; EV7 EV6 EV5 EV4 EV3 EV2 EV1 EV0 --- SV9 EV9 SH1 SH0 SV8 EV8 SH2
+	addx.b	\3,\3			; EV7 EV6 EV5 EV4 EV3 EV2 EV1 EV0 ---- SV9 EV9 SH1 SH0 SV8 EV8 SH2
 	move.b	\1,\2			; SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3
 	ENDM
 
@@ -95,6 +95,12 @@ INIT_SPRITE_POINTERS_TABLE	MACRO
 	CNOP 0,4
 spr_init_pointers_table
 ; Input
+; Global reference
+; spr0_construction
+; spr_pointers_construction
+; spr0_display
+; spr_pointers_display
+; spr_number
 ; Result
 	IFNE spr_x_size1
 		lea	spr0_construction(a3),a0
@@ -122,6 +128,17 @@ COPY_SPRITE_STRUCTURES		MACRO
 	CNOP 0,4
 spr_copy_structures
 ; Input
+; Global reference
+; spr_pointers_construction
+; spr_pointers_display
+; sprite0_size
+; sprite1_size
+; sprite2_size
+; sprite3_size
+; sprite4_size
+; sprite5_size
+; sprite6_size
+; sprite7_size
 ; Result
 	move.l	a4,-(a7)
 	lea	spr_pointers_construction(pc),a2
@@ -166,6 +183,8 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 ; \7 STRING:	["NOHEADER"] (optional)
 ; \8 STRING:	["BLANK"] (optional)
 ; \9 STRING:	["REPEAT"] (optional)
+; Global refefrence
+; _image_data
 ; Result
 	IFC "","\1"
 		FAIL Macro INIT_ATTACHED_SPRITES_CLUSTER: Labels prefix missing
@@ -381,6 +400,10 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 ; d1.w	Y position
 ; d3.b	Attached bit
 ; a0.l	Pointer sprite structure
+; Global reference
+; spr_pixel_per_datafetch
+; _image_plane_width
+; _image_y_size
 ; Result
 	CNOP 0,4
 \1_init_sprite_header
@@ -418,6 +441,9 @@ SWAP_SPRITES			MACRO
 ; Input
 ; \1 BYTE SIGNED:	Number of sprites
 ; \2 NUMBER:		[1..7] sprite structure pointer index (optional)
+; Global reference
+; spr_pointers_construction
+; spr_pointers_display
 ; Result
 	IFC "","\1"
 		FAIL Macro SWAP_SPRITE_STRUCTURES: Number of sprites missing
@@ -445,6 +471,9 @@ SET_SPRITES			MACRO
 ; Input
 ; \1 BYTE SIGNED:	Number of sprites
 ; \2 NUMBER:		[1..7] sprite structure pointer index (optional)
+; Global reference
+; cl1_display
+; spr_pointers_display
 ; Result
 	IFC "","\1"
 		FAIL Macro SWAP_SPRITE_STRUCTURES: Number of sprites missing
