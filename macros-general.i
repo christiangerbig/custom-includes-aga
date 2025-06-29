@@ -108,8 +108,8 @@ MOVEF				MACRO
 		FAIL Macro MOVEF: Target missing
 	ENDC
 	IFC "B","\0"
-		IFLE $80-(\1)		; number >= $80
-			IFGE $ff-(\1)	; number <= $ff
+		IFLE $80-(\1)
+			IFGE $ff-(\1)
 				moveq #-((-(\1)&$ff)),\2
 			ENDC
 		ELSE
@@ -117,36 +117,36 @@ MOVEF				MACRO
 		ENDC
 	ENDC
 	IFC "W","\0"
-		IFEQ (\1)&$ff00		; number <= $00ff
-			IFEQ (\1)&$80	; number <= $007f
+		IFEQ (\1)&$ff00
+			IFEQ (\1)&$80
 				moveq	#\1,\2
 			ENDC
-			IFEQ (\1)-$80	; number = $0080
+			IFEQ (\1)-$80
 				moveq	#$7f,\2
 				not.b	\2
 			ENDC
-			IFGT (\1)-$80	; number > $0080
+			IFGT (\1)-$80
 				moveq	#256-(\1),\2
 				neg.b	\2
 			ENDC
-		ELSE			; number > $00ff
+		ELSE
 			move.w	#\1,\2
 		ENDC
 	ENDC
 	IFC "L","\0"
-		IFEQ (\1)&$ffffff00	; number <= $000000ff
-			IFEQ (\1)&$80	; number <= $0000007f
+		IFEQ (\1)&$ffffff00
+			IFEQ (\1)&$80
 				moveq	#\1,\2
 			ENDC
-			IFEQ (\1)-$80	; number = $00000080
+			IFEQ (\1)-$80
 				moveq	#$7f,\2
 				not.b	\2
 			ENDC
-			IFGT (\1)-$80	; number > $00000080
+			IFGT (\1)-$80
 				moveq	#256-(\1),\2
 				neg.b	\2
 			ENDC
-		ELSE			; number > $000000ff
+		ELSE
 			move.l	#\1,\2
 		ENDC
 	ENDC
@@ -172,52 +172,52 @@ ADDF				MACRO
 		MEXIT
 	ENDC
 	IFC "B","\0"
-		IFGE (\1)-$8000		; number > $7fff
+		IFGE (\1)-$8000
 			add.b	#\1,\2
 		ELSE
-			IFLE (\1)-8	; number <= $0008
+			IFLE (\1)-8
 				addq.b	#(\1),\2
-			ELSE		; number > $0008
-				IFLE (\1)-16 ; number <= $0010
+			ELSE
+				IFLE (\1)-16
 					addq.b	#8,\2
 					addq.b	#\1-8,\2
-				ELSE	; number > $0010
+				ELSE
 					add.b	#\1,\2
 				ENDC
 			ENDC
 		ENDC
 	ENDC
 	IFC "W","\0"
-		IFGE (\1)-$8000		; number > $7fff
+		IFGE (\1)-$8000
 			add.w	#\1,\2
 		ELSE
-			IFLE (\1)-8	; number <= $0008
+			IFLE (\1)-8
 				addq.w	#(\1),\2
-			ELSE		; number > $0008
-				IFLE (\1)-16 ; number <= $0010
+			ELSE
+				IFLE (\1)-16
 					addq.w	#8,\2
 					addq.w	#\1-8,\2
-				ELSE	; number > $0010
+				ELSE
 					add.w	#\1,\2
 				ENDC
 			ENDC
 		ENDC
 	ENDC
 	IFC "L","\0"
-		IFGE (\1)-$8000		; number > $7fff
+		IFGE (\1)-$8000
 			add.l	#\1,\2
 		ELSE
-			IFLE (\1)-8	; number <= $0008
+			IFLE (\1)-8
 				addq.l	#(\1),\2
-			ELSE		; number > $0008
-				IFLE (\1)-16 ; number <= $0010
+			ELSE
+				IFLE (\1)-16
 					addq.l	#8,\2
 					addq.l	#\1-8,\2
-				ELSE	; number > $0010
+				ELSE
 					add.l	#\1,\2
 				ENDC
 			ENDC
-			IFGE (\1)-$8000	; number > $7fff
+			IFGE (\1)-$8000
 				add.l	#\1,\2
 			ENDC
 		ENDC
@@ -244,37 +244,37 @@ SUBF				MACRO
 		MEXIT
 	ENDC
 	IFC "B","\0"
-		IFLE (\1)-8		; number <= $0008
+		IFLE (\1)-8
 			subq.b	#(\1),\2
-		ELSE			; number > $0008
-			IFLE (\1)-16	; number <= $0010
+		ELSE
+			IFLE (\1)-16
 				subq.b	#8,\2
 				subq.b	#\1-8,\2
-			ELSE		; number > $0010
+			ELSE
 				sub.b	#\1,\2
 			ENDC
 		ENDC
 	ENDC
 	IFC "W","\0"
-		IFLE (\1)-8		; number <= $0008
+		IFLE (\1)-8
 			subq.w	#(\1),\2
-		ELSE			; number > $0008
-			IFLE (\1)-16	; number <= $0010
+		ELSE
+			IFLE (\1)-16
 				subq.w	#8,\2
 				subq.w	#\1-8,\2
-			ELSE		; number > $0010
+			ELSE
 				sub.w	#\1,\2
 			ENDC
 		ENDC
 	ENDC
 	IFC "L","\0"
-		IFLE (\1)-8		; number <= $0008
+		IFLE (\1)-8
 			subq.l	#(\1),\2
-		ELSE			; number > $0008
-			IFLE (\1)-16	; number <= $0010
+		ELSE
+			IFLE (\1)-16
 				subq.l	#8,\2
 				subq.l	#\1-8,\2
-			ELSE		; number > $0010
+			ELSE
 				sub.l	#\1,\2
 			ENDC
 		ENDC
@@ -1269,7 +1269,7 @@ CPU_INIT_COLOR_HIGH		MACRO
 	IFC "","\2"
 		FAIL Macro CPU_INIT_COLOR_HIGH: Number of colors missing
 	ENDC
-	lea		(\1)-DMACONR(a6),a0 ;first color register
+	lea		(\1)-DMACONR(a6),a0 ; 1st color register
 	IFNC "","\3"
 		lea	\3(pc),a1	; color table
 	ENDC
@@ -1407,7 +1407,7 @@ INIT_CHARS_OFFSETS MACRO
 		move.w	d1,d2		; x offset reset
 		MOVEF.W \1_image_plane_width*\1_image_depth*(\1_origin_char_y_size+1),d3 ; next character images line
 		lea	\1_chars_offsets(pc),a0
-		moveq	#\1_ascii_end-\1_ascii-1,d7
+		moveq	#\1_ascii_end-\1_ascii-1,d7 ; number of font characters
 \1_init_chars_offsets_loop
 		move.w	d0,(a0)+	; character image offset
 		addq.w	#\1_origin_char_x_size/8,d0 ; next character image
@@ -1426,7 +1426,7 @@ INIT_CHARS_OFFSETS MACRO
 		move.l	d1,d2		; x offset reset
 		move.l	#\1_image_plane_width*\1_image_depth*(\1_origin_char_y_size),d3 ; next character images line
 		lea	\1_chars_offsets(pc),a0
-		moveq	#\1_ascii_end-\1_ascii-1,d7
+		moveq	#\1_ascii_end-\1_ascii-1,d7 ; number of font characters
 \1_init_chars_offsets_loop
 		move.l	d0,(a0)+	; character image offset
 		add.l	#\1_origin_char_x_size/8,d0 ; next character image
@@ -1475,9 +1475,9 @@ INIT_CHARS_X_POSITIONS	MACRO
 		lea	\1_chars_x_positions(pc),a0
 	ELSE
 		IFC "","\4"
-			lea	\1_chars_x_positions+(\1_text_chars_number*WORD_SIZE)(pc),a0
+			lea	\1_chars_x_positions+(\1_text_chars_number*WORD_SIZE)(pc),a0 ; table end
 		ELSE
-			lea	\1_chars_x_positions+((\1_\4)*WORD_SIZE)(pc),a0
+			lea	\1_chars_x_positions+((\1_\4)*WORD_SIZE)(pc),a0 ; table end
 		ENDC
 	ENDC
 	IFC "","\4"
@@ -1491,7 +1491,7 @@ INIT_CHARS_X_POSITIONS	MACRO
 	ELSE
 		move.w	d0,-(a0)	; x position
 	ENDC
-	add.w	d1,d0			; next character image
+	add.w	d1,d0			; next x position
 	dbf	d7,\1_init_chars_x_positions_loop
 	rts
 	ENDM
@@ -1534,7 +1534,6 @@ INIT_CHARS_IMAGES		MACRO
 ; _chars_image_pointers
 ; _text_chars_number
 ; _get_new_char_image
-
 ; Result
 	CNOP 0,4
 \1_init_chars_images
@@ -1602,7 +1601,7 @@ GET_NEW_CHAR_IMAGE		MACRO
 		ENDC
 	ENDC
 	lea	\1_ascii(pc),a0
-	moveq	#\1_ascii_end-\1_ascii-1,d6
+	moveq	#\1_ascii_end-\1_ascii-1,d6 ; number of characters
 \1_get_new_char_image_loop
 	cmp.b	(a0)+,d0		; character found ?
 	dbeq	d6,\1_get_new_char_image_loop
@@ -1741,7 +1740,7 @@ CPU_SELECT_COLOR_LOW_BANK	MACRO
 ; \1 NUMBER:	[0..7] color bank
 ; \2 WORD:	Additional BPCON3 bits (optional)
 ; Global reference
-; bplcon3_bits1
+; bplcon3_bits2
 ; Result
 	IFC "","\1"
 		FAIL Macro CPU_SELECT_COLOR_LOW_BANK: Color bank missing
@@ -2349,9 +2348,9 @@ INIT_DISPLAY_PATTERN		MACRO
 	beq.s	\1_init_display_pattern_skip7
 	bset	d2,(pf1_plane_width*6,a0,d1.l)
 \1_init_display_pattern_skip7
-	addq.w	#1,d0			; increase columns counter
+	addq.w	#1,d0			; next column
 	dbf	d6,\1_init_display_pattern_loop2
-	addq.w	#1,d3			; increase color number
+	addq.w	#1,d3			; next color number
 	dbf	d7,\1_init_display_pattern_loop1
 	rts
 	ENDM
@@ -2370,8 +2369,8 @@ GET_SINE_BARS_YZ_COORDINATES	MACRO
 ; _y_distance
 ; _yz_coordinates
 ; _y_center
-; _bars_number
 ; _y_radius
+; _bars_number
 ; Result
 	IFC "","\1"
 		FAIL Macro GET_SINE_BARS_YZ_COORDINATES: Labels prefix missing
@@ -2414,7 +2413,7 @@ GET_SINE_BARS_YZ_COORDINATES	MACRO
 		add.w	a2,d0		; y' + y center
 		MULUF.W (\3)/8,d0,d1	; y offset in cl
 		move.w	d0,(a1)+	; y
-		add.b	d3,d2		; y distance next bar
+		add.b	d3,d2		; y distance to next bar
 		dbf	d7,\1_get_yz_coordinates_loop
 		rts
 	ENDC
@@ -2624,20 +2623,17 @@ RGB8_COLOR_FADER		MACRO
 	move.b	d3,d5			; Bb
 	clr.w	d3			; Rr
 	clr.b	d4			; Gg
-; Rotwert
 	cmp.l	d3,d0
 	bgt.s	\1_rgb8_decrease_red
 	blt.s	\1_rgb8_increase_red
 \1_rgb8_matched_red
 	subq.w	#1,d6			; destination red reched
-; Grünwert
 \1_rgb8_check_green
 	cmp.l	d4,d1
 	bgt.s	\1_rgb8_decrease_green
 	blt.s	\1_rgb8_increase_green
 \1_rgb8_matched_green
 	subq.w	#1,d6			; destination green reached
-; Blauwert
 \1_rgb8_check_blue
 	cmp.w	d5,d2
 	bgt.s	\1_rgb8_decrease_blue
@@ -2648,8 +2644,7 @@ RGB8_COLOR_FADER		MACRO
 	move.l	d0,d3			; updated red
 	move.w	d1,d3			; updated green
 	move.b	d2,d3			; updated blue
-; Farbwerte in Copperliste eintragen
-	move.l	d3,(a0)+		; RGB8
+	move.l	d3,(a0)+		; store RGB8
 	dbf	d7,\1_rgb8_fader_loop
 	rts
 	CNOP 0,4
@@ -2895,7 +2890,6 @@ INIT_CUSTOM_ERROR_ENTRY		MACRO
 	IFC "","\3"
 		FAIL Macro INIT_CUSTOM_ERROR_ENTRY: Error text length missing
 	ENDC
-
 	moveq	#\1-1,d0
 	MULUF.W	8,d0,d1			; offset in error texts
 	lea	\2(pc),a1		; error text

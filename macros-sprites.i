@@ -24,7 +24,7 @@ SET_SPRITE_POSITION		MACRO
 	lsr.b	#3,\1			;  --- --- --- SH1 SH0 --- --- ---
 	or.b	\1,\2			;  --- --- --- SH1 SH0 SV8 EV8 SH2
 	lsr.w	#8,\1			;  --- --- --- --- --- --- --- --- SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3
-	move.b	\2,\3			;  EV7 EV6 EV5 EV4 EV3 EV2 EV1 EV0	--- --- --- SH1 SH0 SV8 EV8 SH2
+	move.b	\2,\3			;  EV7 EV6 EV5 EV4 EV3 EV2 EV1 EV0  --- --- --- SH1 SH0 SV8 EV8 SH2
 	move.b	\1,\2			;  SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3
 	ENDM
 
@@ -46,8 +46,8 @@ INIT_SPRITE_CONTROL_WORDS_1X		MACRO
 		FAIL Macro INIT_SPRITE_CONTROL_WORDS_1X: Height missing
 	ENDC
 	SET_SPRITE_POSITION \1,\2,\3
-	swap	\2			; SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3 --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-	move.w	\3,\2			; SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3 SV7 SV6 SV5 SV4 SV3 SV2 SV1 SV0 SH10 SH9 SH8 SH7 SH6 SH5 SH4 SH3 --- --- --- SH1 SH0 SV8 EV8 SH2
+	swap	\2			; high word: SPRxPOS
+	move.w	\3,\2			; low word: SPRxCTL
 	ENDM
 
 

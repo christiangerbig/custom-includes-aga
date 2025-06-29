@@ -233,7 +233,9 @@ COP_SET_BITPLANE_POINTERS	MACRO
 ; \6 WORD:		Y offset (optional)
 ; Global reference
 ; pf1_display
+; pf2_display
 ; pf1_plane_width
+; pf2_plane_width
 ; pf1_depth3
 ; Result
 	IFC "","\1"
@@ -310,7 +312,7 @@ COP_INIT_SPRITE_POINTERS	MACRO
 	CNOP 0,4
 \1_init_sprite_pointers
 	move.w	#SPR0PTH,d0
-	moveq	#(spr_number*2)-1,d7	; number of sprites
+	moveq	#(spr_number*2)-1,d7
 \1_init_sprite_pointers_loop
 	move.w	d0,(a0)			; SPRxPTH/L
 	addq.w	#WORD_SIZE,d0		; next register
@@ -395,6 +397,8 @@ COP_INIT_COLOR_HIGH		MACRO
 ; \1 WORD:		First color register offset
 ; \2 BYTE_SIGNED:	Number of colors
 ; \3 POINTER:		Color table (optional)
+; Global reference
+; cop_init_colors
 ; Result
 	IFC "","\1"
 		FAIL Macro COP_INIT_COLOR_HIGH: First color register offset missing
@@ -416,6 +420,8 @@ COP_INIT_COLOR_LOW		MACRO
 ; \1 WORD:		First color register offset
 ; \2 BYTE_SIGNED:       Number of colors
 ; \3 POINTER:		Color table (optional)
+; Global reference
+; cop_init_colors
 ; Result
 	IFC "","\1"
 		FAIL Macro COP_INIT_COLOR_LOW: First color register offset missing
@@ -486,10 +492,10 @@ COP_RESET_COLOR00		MACRO
 ; \2 WORD:	X position
 ; \3 WORD:	Y postion
 ; Global reference
-bplcon3_bits1
-bplcon3_bits2
-color00_high_bits
-color00_low_bits
+; bplcon3_bits1
+; bplcon3_bits2
+; color00_high_bits
+; color00_low_bits
 ; Result
 	IFC "","\1"
 		FAIL Macro COP_RESET_COLOR00: Label prefix copperlist missing
@@ -738,6 +744,7 @@ COPY_COPPERLIST			MACRO
 ; \1 STRING:	["cl1", "cl2"] label prefix copperlist
 ; \2 NUMBER:	[2, 3] number of copperlists
 ; Global reference
+; _construction1
 ; _construction2
 ; _display
 ; Result
@@ -763,7 +770,7 @@ copy_first_copperlist_loop
 			move.l	\1_construction1(a3),a0 ; source
 			move.l	\1_construction2(a3),a1 ; 1st destination
 			move.l	\1_display(a3),a2 ; 2nd destination
-			MOVEF.W	(copperlist1_size/LONGWORD_SIZE)-1,d7
+			MOVEF.W	(copperlist1_size/LONGWORD_SIZE)-1,d7 ; number of commands
 copy_first_copperlist_loop
 			move.l	(a0),(a1)+
 			move.l	(a0)+,(a2)+
@@ -776,7 +783,7 @@ copy_second_copperlist
 		IFEQ \2-2
 			move.l	\1_construction2(a3),a0 ; source
 			move.l	\1_display(a3),a1 ; destination
-			MOVEF.W	(copperlist2_size/LONGWORD_SIZE)-1,d7
+			MOVEF.W	(copperlist2_size/LONGWORD_SIZE)-1,d7  ; number of commands
 copy_second_copperlist_loop
 			move.l	(a0)+,(a1)+
 			dbf	d7,copy_second_copperlist_loop
@@ -800,7 +807,7 @@ copy_second_copperlist_loop
 CONVERT_IMAGE_TO_RGB4_CHUNKY	MACRO
 ; Input
 ; \1 STRING:	Labels prefix
-; \2 POINTER:	BPLAM table
+; \2 POINTER:	Color table
 ; \3 STRING:	["pc", "a3"] pointer base
 ; Global reference
 ; _image_data
@@ -821,7 +828,7 @@ CONVERT_IMAGE_TO_RGB4_CHUNKY	MACRO
 	CNOP 0,4
 \1_convert_image_data
 	move.l	a4,-(a7)
-	lea	\1_image_data,a0	; source
+	lea	\1_image_data,a0
 	lea	\1_image_color_table(pc),a1
 	IFC "","\2"
 		lea	\1_\2(\3),a2
@@ -829,49 +836,49 @@ CONVERT_IMAGE_TO_RGB4_CHUNKY	MACRO
 		move.l	\2(\3),a2
 	ENDC
 	move.w	#\1_image_plane_width*(\1_image_depth-1),a4
-	moveq	#16,d1			; COLOR16
+	moveq	#16,d1			; color 16
 	MOVEF.W	\1_image_y_size-1,d7
 \1_convert_image_data_loop1
 	moveq	#\1_image_plane_width-1,d6
 \1_convert_image_data_loop2
 	moveq	#8-1,d5			; number of bits in byte
 \1_convert_image_data_loop3
-	moveq	#0,d0			; color number
+	moveq	#0,d0			; color 00
 	IFGE \1_image_depth-1
 		btst	d5,(a0)
 		beq.s	\1_convert_image_data_skip1
-		addq.w	#1,d0		; COLOR01
+		addq.w	#1,d0		; increase color number
 \1_convert_image_data_skip1
 	ENDC
 	IFGE \1_image_depth-2
 		btst	d5,\1_image_plane_width*1(a0)
 		beq.s	\1_convert_image_data_skip2
-		addq.w	#2,d0		; COLOR02
+		addq.w	#2,d0		; increase color number
 \1_convert_image_data_skip2
 	ENDC
 	IFGE \1_image_depth-3
 		btst	d5,\1_image_plane_width*2(a0)
 		beq.s	\1_convert_image_data_skip3
-		addq.w	#4,d0		; COLOR04
+		addq.w	#4,d0		; increase color number
 \1_convert_image_data_skip3
 	ENDC
 	IFGE \1_image_depth-4
 		btst	d5,\1_image_plane_width*3(a0)
 		beq.s	\1_convert_image_data_skip4
-		addq.w	#8,d0		; COLOR08
+		addq.w	#8,d0		; increase color number
 \1_convert_image_data_skip4
 	ENDC
 	IFEQ \1_image_depth-5
 		btst	d5,\1_image_plane_width*4(a0)
 		beq.s	\1_convert_image_data_skip5
-		add.w	d1,d0		; COLOR16
+		add.w	d1,d0		; increase color number
 \1_convert_image_data_skip5
 	ENDC
 	move.w	(a1,d0.l*2),(a2)+	; RGB4
 	dbf	d5,\1_convert_image_data_loop3
 	addq.w	#BYTE_SIZE,a0		; next byte in source
 	dbf	d6,\1_convert_image_data_loop2
-	add.l	a4,a0			; skip remaining bitplanes lines
+	add.l	a4,a0			; skip remaining bitplanes
 	dbf	d7,\1_convert_image_data_loop1
 	move.l	(a7)+,a4
 	rts
@@ -881,7 +888,7 @@ CONVERT_IMAGE_TO_RGB4_CHUNKY	MACRO
 CONVERT_IMAGE_TO_HAM6_CHUNKY	MACRO
 ; Input
 ; \1 STRING:	Labels prefix
-; \2 POINTER:	BPLAM table
+; \2 POINTER:	Color table
 ; \3 STRING:	["pc", "a3"] pointer base
 ; Global reference
 ; _image_data
@@ -909,19 +916,19 @@ CONVERT_IMAGE_TO_HAM6_CHUNKY	MACRO
 	ELSE
 		move.l	\2(\3),a2
 	ENDC
-	move.w	#16,a4			; COLOR16
-	move.w	#32,a5			; COLOR32
+	move.w	#16,a4			; color 16
+	move.w	#32,a5			; color 32
 	move.w	#\1_image_plane_width*(\1_image_depth-1),a6
 	moveq	#$30,d3
 	moveq	#MASK_NIBBLE_LOW,d4
 	MOVEF.W	\1_image_y_size-1,d7
 \1_convert_image_data_loop1
-	moveq	#0,d2			; RGB4 (COLOR00)
+	moveq	#0,d2
 	moveq	#\1_image_plane_width-1,d6
 \1_convert_image_data_loop2
 	moveq	#8-1,d5			; number of bits in byte
 \1_convert_image_data_loop3
-	moveq	#0,d0			; color number
+	moveq	#0,d0			; color 00
 	btst	d5,(a0)
 	beq.s	\1_convert_image_data_skip1
 	addq.w	#1,d0			; increase color number
@@ -949,7 +956,7 @@ CONVERT_IMAGE_TO_HAM6_CHUNKY	MACRO
 	move.l	d0,d1			; color number
 	and.b	d3,d1			; bit 4 or 5 set ?
 	bne.s	\1_convert_image_data_skip7
-	move.w	(a1,d0.l*2),d2		; Farbwert
+	move.w	(a1,d0.l*2),d2		; RGB4
 	bra.s	\1_convert_image_data_skip10
 	CNOP 0,4
 \1_convert_image_data_skip7
@@ -981,7 +988,7 @@ CONVERT_IMAGE_TO_HAM6_CHUNKY	MACRO
 	dbf	d5,\1_convert_image_data_loop3
 	addq.w	#BYTE_SIZE,a0		; next byte in source
 	dbf	d6,\1_convert_image_data_loop2
-	add.l	a6,a0			; skip remaining bitplanes lines
+	add.l	a6,a0			; skip remaining bitplanes
 	dbf	d7,\1_convert_image_data_loop1
 	movem.l	(a7)+,a4-a6
 	rts
@@ -991,7 +998,7 @@ CONVERT_IMAGE_TO_HAM6_CHUNKY	MACRO
 CONVERT_IMAGE_TO_RGB8_CHUNKY	MACRO
 ; Input
 ; \1 STRING:	Labels prefix
-; \2 POINTER:	BPLAM table
+; \2 POINTER:	Color table
 ; \3 STRING:	["pc", "a3"] pointer base
 ; Global reference
 ; _image_data
@@ -1012,25 +1019,25 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY	MACRO
 	CNOP 0,4
 \1_convert_image_data
 	movem.l a4-a6,-(a7)
-	moveq	#16,d3			; COLOR16
+	moveq	#16,d3			; color 16
 	move.w	#RB_NIBBLES_MASK,d4
-	lea	\1_image_data,a0	; source
+	lea	\1_image_data,a0
 	lea	\1_image_color_table(pc),a1
 	IFC "","\2"
 		lea	\1_color_table(pc),a2
 	ELSE
 		move.l	\2(\3),a2
 	ENDC
-	move.w	#32,a4			; COLOR32
-	move.w	#64,a5			; COLOR64
-	move.w	#128,a6			; COLOR128
+	move.w	#32,a4			; color 32
+	move.w	#64,a5			; color 64
+	move.w	#128,a6			; color 128
 	MOVEF.W \1_image_y_size-1,d7
 \1_convert_image_loop1
 	moveq	#\1_image_plane_width-1,d6
 \1_convert_image_loop2
 	moveq	#8-1,d5			; number of bits in byte
 \1_convert_image_loop3
-	moveq	#0,d0			; color number
+	moveq	#0,d0			; color 00
 	IFGE \1_image_depth-1
 		btst	d5,(a0)
 		beq.s	\1_convert_image_skip1
@@ -1082,13 +1089,13 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY	MACRO
 	move.l	(a1,d0.l*4),d0		; RGB8
 	move.l	d0,d2							
 	RGB8_TO_RGB4_HIGH d0,d1,d4
-	move.w	d0,(a2)+		; RGB high
+	move.w	d0,(a2)+		; RGB4 high
 	RGB8_TO_RGB4_LOW d2,d1,d4
-	move.w	d2,(a2)+		; RGB low
+	move.w	d2,(a2)+		; RGB4 low
 	dbf	5,\1_convert_image_loop3
 	addq.w	#BYTE_SIZE,a0		; next byte in source
 	dbf	6,\1_convert_image_loop2
-	add.l	#\1_image_plane_width*(\1_image_depth-1),a0 ; skip remaining bitplanes lines
+	add.l	#\1_image_plane_width*(\1_image_depth-1),a0 ; skip remaining bitplanes
 	dbf	7,\1_convert_image_loop1
 	movem.l (a7)+,a4-a6
 	rts
@@ -1098,7 +1105,7 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY	MACRO
 CONVERT_IMAGE_TO_HAM8_CHUNKY	MACRO
 ; Input
 ; \1 STRING:	Labels prefix
-; \2 POINTER:	BPLAM table
+; \2 POINTER:	Color table
 ; \3 STRING:	["pc", "a3"] pointer base
 ; Global reference
 ; variables
@@ -1126,25 +1133,24 @@ CONVERT_IMAGE_TO_HAM8_CHUNKY	MACRO
 	move.w	#RB_NIBBLES_MASK,d4
 	lea	\1_image_data,a0	; source
 	lea	\1_image_color_table(pc),a1
-	move.l	a7,save_a7(a3)
 	IFC "","\2"
 		lea	\1_color_table(pc),a2
 	ELSE
 		move.l	\2(\3),a2
 	ENDC
-	move.w	#16,a3			; COLOR16
-	move.w	#32,a4			; COLOR32
-	move.w	#64,a5			; COLOR64
-	move.w	#128,a6			; COLOR128
+	move.w	#16,a3			; color 16
+	move.w	#32,a4			; color 32
+	move.w	#64,a5			; color 64
+	move.w	#128,a6			; color 128
 	move.w	#\1_image_plane_width*(\1_image_depth-1),a7
 	MOVEF.W	\1_image_y_size-1,d7
 \1_translate_image_data_loop1
-	moveq	#0,d2			; Set to COLOR00
+	moveq	#0,d2			; color 00
 	moveq	#\1_image_plane_width-1,d6
 \1_translate_image_data_loop2
 	moveq	#8-1,d5			; number of bits in byte
 \1_translate_image_data_loop3
-	moveq	#0,d0			; start color number
+	moveq	#0,d0			; color 00
 	btst	d5,(a0)
 	beq.s	\1_translate_image_data_skip1
 	addq.w	#1,d0			; increase color number
@@ -1205,15 +1211,15 @@ CONVERT_IMAGE_TO_HAM8_CHUNKY	MACRO
 	lsl.w	#8,d0			; adjust bits
 	or.w	d0,d2			; updated green
 \1_translate_image_data_skip12
-	move.l	d2,d0			; RGB8-Farbwert
+	move.l	d2,d0			; RGB8
 	RGB8_TO_RGB4_HIGH d0,d1,d4
-	move.w	d0,(a2)+		; RGB high
+	move.w	d0,(a2)+		; RGB4 high
 	RGB8_TO_RGB4_LOW d0,d1,d4
-	move.w	d0,(a2)+		; RGB low
+	move.w	d0,(a2)+		; RGB4 low
 	dbf	d5,\1_translate_image_data_loop3
 	addq.w	#1,a0			; next byte in source
 	dbf	d6,\1_translate_image_data_loop2
-	add.l	a7,a0			; skip remaining bitplanes lines
+	add.l	a7,a0			; skip remaining bitplanes
 	dbf	d7,\1_translate_image_data_loop1
 	move.l	variables+save_a7(pc),a7
 	movem.l	(a7)+,a3-a6
@@ -1264,7 +1270,7 @@ CONVERT_IMAGE_TO_BPLCON4_CHUNKY	MACRO
 	IFEQ \1_image_depth-8
 		MOVEF.W	128,d4
 	ENDC
-	lea	\1_image_data,a0	; source
+	lea	\1_image_data,a0
 	IFC "","\2"
 		lea	\1_bplam_table(pc),a1
 	ELSE
@@ -1333,10 +1339,10 @@ CONVERT_IMAGE_TO_BPLCON4_CHUNKY	MACRO
 \1_translate_image_data_skip8
 	ENDC
 	IFC "B","\0"
-		move.b	d0,(a1)+	; BPLCON4
+		move.b	d0,(a1)+	; BPLCON4 low
 	ENDC
 	IFC "W","\0"
-		move.b	d0,(a1)+	; BPLCON4
+		move.b	d0,(a1)+	; BPLCON4 low
 		move.b	#bplcon4_bits&FALSE_BYTE,(a1)+
 	ENDC
 	dbf	d5,\1_translate_image_data_loop3
@@ -1714,6 +1720,8 @@ CLEAR_BPLCON4_CHUNKY		MACRO
 ; \5 BOOLEAN:	TRUE = quick clear enabled
 ; Global refgerence
 ; bplcon4_bits
+; 1_clear_blit_x_size
+; 1_clear_blit_y_size
 ; Result
 	IFC "","\1"
 		FAIL Macro CLEAR_CHUNKY: Labels prefix missing
@@ -1998,7 +2006,7 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 ; \2 STRING:	["cl1", "cl2"] label prefix copperlist
 ; \3 STRING:	["construction2", "construction3"] name of copperlist
 ; \4 STRING:	"extension[1..n]"
-; \5 NUMBER:	[14,15, 32, 48] bar height
+; \5 NUMBER:	[14, 15, 32, 48] bar height in lines
 ; \6 POINTER:	BPLAM table
 ; \7 STRING:	[pc,a3] pointer base
 ; \8 WORD:	Offset table start (optional)
@@ -2054,9 +2062,9 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 		ADDQ.W	\8*BYTE_SIZE,a5 ; offset table start
 	ENDC
 	IFC "45","\9"
-		moveq	#(\2_display_width-1)-1,d7
+		moveq	#(\2_display_width-1)-1,d7 ; number of columns
 	ELSE
-		moveq	#\2_display_width-1,d7
+		moveq	#\2_display_width-1,d7 ; number of columns
 	ENDC
 \1_set_background_bars_loop1
 	move.l	a5,a1			; BPLAM table
@@ -2068,7 +2076,7 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 	bra	\1_set_background_bars_skip2
 	CNOP 0,4
 \1_set_background_bars_skip1
-	lea	(a2,d0.w*4),a4		; add cl address
+	lea	(a2,d0.w*4),a4		; y offset in cl
 	COPY_TWISTED_BAR.\0 \1,\2,\4,\5
 \1_set_background_bars_skip2
 	dbf	d6,\1_set_background_bars_loop2
@@ -2147,9 +2155,9 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 		ADDQ.W	\8,a5		; offset table start
 	ENDC
 	IFC "45","\9"
-		moveq	#(\2_display_width-1)-1,d7
+		moveq	#(\2_display_width-1)-1,d7 ; number of columns
 	ELSE
-		moveq	#\2_display_width-1,d7
+		moveq	#\2_display_width-1,d7 ; number of columns
 	ENDC
 \1_set_foreground_bars_loop1
 	move.l	a5,a1			; BPLAM table
@@ -2157,11 +2165,11 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 \1_set_foreground_bars_loop2
 	move.l	(a0)+,d0	 	; low word: y, high word: z vector
 	bmi.s	\1_set_foreground_bars_skip1
-	add.l	d4,a1		; skip BPLAMs
+	add.l	d4,a1			; skip BPLAMs
 	bra	\1_set_foreground_bars_skip2
 	CNOP 0,4
 \1_set_foreground_bars_skip1
-	lea	(a2,d0.w*4),a4		; add cl address
+	lea	(a2,d0.w*4),a4		; y offset in cl
 	COPY_TWISTED_BAR.\0 \1,\2,\4,\5
 \1_set_foreground_bars_skip2
 	dbf	d6,\1_set_foreground_bars_loop2
@@ -2256,7 +2264,7 @@ COPY_TWISTED_BAR		MACRO
 			move.b	d3,\2_\3_size*12(a4)
 			swap	d3
 			move.b	d3,\2_\3_size*14(a4)
-			movem.l	(a1)+,d0-d3
+			movem.l	(a1)+,d0-d3 ; fetch 16 values
 			move.b	d0,\2_\3_size*19(a4)
 			swap	d0
 			move.b	d0,\2_\3_size*17(a4)
@@ -2316,7 +2324,7 @@ COPY_TWISTED_BAR		MACRO
 			move.b	d3,\2_\3_size*12(a4)
 			swap	d3
 			move.b	d3,\2_\3_size*14(a4)
-			movem.l	(a1)+,d0-d3
+			movem.l	(a1)+,d0-d3 ; fetch 16 values
 			move.b	d0,\2_\3_size*19(a4)
 			swap	d0
 			move.b	d0,\2_\3_size*17(a4)
@@ -2345,7 +2353,7 @@ COPY_TWISTED_BAR		MACRO
 			move.b	d3,\2_\3_size*28(a4)
 			swap	d3
 			move.b	d3,\2_\3_size*30(a4)
-			movem.l	(a1)+,d0-d3
+			movem.l	(a1)+,d0-d3 ; fetch 16 values
 			move.b	d0,\2_\3_size*35(a4)
 			swap	d0
 			move.b	d0,\2_\3_size*33(a4)
