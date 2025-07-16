@@ -868,7 +868,7 @@ init_pal_screen_tags
 		move.l	d0,(a0)+	; will be initialized later
 		move.l	#SA_VideoControl,(a0)+
 		lea	video_control_tags(pc),a1
-		move.l	#VTAG_SPRITERESN_SET,+vctl_VTAG_SPRITERESN+ti_tag(a1)
+		move.l	#VTAG_SPRITERESN_SET,vctl_VTAG_SPRITERESN+ti_tag(a1)
 		move.l	#SPRITERESN_140NS,vctl_VTAG_SPRITERESN+ti_data(a1)
 		move.l	a1,(a0)+
 		move.l	#SA_Font,(a0)+
