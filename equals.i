@@ -75,13 +75,14 @@ pal_screen_x_size		EQU 2
 pal_screen_y_size		EQU 2
 pal_screen_depth		EQU 1
 pal_screen_colors_number	EQU 2
+pal_screen_max_colors_number	EQU 256
 
 invisible_window_left		EQU 0
 invisible_window_top		EQU 0
 invisible_window_x_size		EQU pal_screen_x_size
 invisible_window_y_size		EQU pal_screen_y_size
 
-cleared_sprite_x_size		EQU 16	; 1x Bandwidth
+cleared_sprite_x_size		EQU 16	; 1x bandwidth
 cleared_sprite_y_size		EQU 1
 cleared_sprite_x_offset		EQU 0
 cleared_sprite_y_offset		EQU 0

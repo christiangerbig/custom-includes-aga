@@ -10,7 +10,8 @@
 	CNOP 0,4
 do_alloc_memory
 	move.l	#MEMF_CLEAR|MEMF_PUBLIC,d1
-	CALLEXECQ AllocMem
+	CALLEXEC AllocMem
+	rts
 
 
 ; Input
@@ -20,7 +21,8 @@ do_alloc_memory
 	CNOP 0,4
 do_alloc_chip_memory
 	move.l	#MEMF_CLEAR|MEMF_CHIP|MEMF_PUBLIC,d1
-	CALLEXECQ AllocMem
+	CALLEXEC AllocMem
+	rts
 
 
 ; Input
@@ -30,7 +32,8 @@ do_alloc_chip_memory
 	CNOP 0,4
 do_alloc_fast_memory
 	move.l	#MEMF_CLEAR|MEMF_FAST|MEMF_PUBLIC,d1
-	CALLEXECQ AllocMem
+	CALLEXEC AllocMem
+	rts
 
 
 ; Input
@@ -43,7 +46,8 @@ do_alloc_fast_memory
 do_alloc_bitmap_memory
 	moveq	#BMF_CLEAR|BMF_DISPLAYABLE|BMF_INTERLEAVED,d3 ; flags
 	sub.l	a0,a0			; no friend bitmap
-	CALLGRAFQ AllocBitMap
+	CALLGRAF AllocBitMap
+	rts
 
 
 	IFD SYS_TAKEN_OVER
