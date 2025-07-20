@@ -1177,7 +1177,7 @@ check_workbench_start_skip2
 ; d0.l	Return code
 		CNOP 0,4
 open_dos_library
-		lea	dos_name(pc),a1
+		lea	dos_library_name(pc),a1
 		moveq	#ANY_LIBRARY_VERSION,d0
 		CALLEXEC OpenLibrary
 		lea	_DOSBase(pc),a0
@@ -1216,7 +1216,7 @@ get_output_ok
 ; d0.l	Return code
 		CNOP 0,4
 open_graphics_library
-		lea	graphics_name(pc),a1
+		lea	graphics_library_name(pc),a1
 		moveq	#ANY_LIBRARY_VERSION,d0
 		CALLEXEC OpenLibrary
 		lea	_GfxBase(pc),a0
@@ -1236,7 +1236,7 @@ open_graphics_library_ok
 ; d0.l	Return code	
 		CNOP 0,4
 open_intuition_library
-		lea	intuition_name(pc),a1
+		lea	intuition_library_name(pc),a1
 		moveq	#ANY_LIBRARY_VERSION,d0
 		CALLEXEC OpenLibrary
 		lea	_IntuitionBase(pc),a0
@@ -1498,7 +1498,7 @@ check_tcp_stack_skip2
 ; d0.l	Return code	
 		CNOP 0,4
 open_ciaa_resource
-		lea	CIAA_name(pc),a1
+		lea	ciaa_resource_name(pc),a1
 		CALLEXEC OpenResource
 		lea	_CIABase(pc),a0
 		move.l	d0,(a0)
@@ -1521,7 +1521,7 @@ open_ciaa_resource_skip
 ; d0.l	Return code
 		CNOP 0,4
 open_ciab_resource	
-		lea	CIAB_name(pc),a1
+		lea	ciab_resource_name(pc),a1
 		CALLEXEC OpenResource
 		lea	_CIABase(pc),a0
 		move.l	d0,(a0)

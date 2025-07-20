@@ -1,12 +1,12 @@
 	IFND SYS_TAKEN_OVER
-dos_name			DC.B "dos.library",0
+dos_library_name		DC.B "dos.library",0
 		EVEN
-graphics_name			DC.B "graphics.library",0
+graphics_library_name		DC.B "graphics.library",0
 		EVEN
-intuition_name			DC.B "intuition.library",0
-ciaa_name			DC.B "ciaa.resource",0
+intuition_library_name		DC.B "intuition.library",0
+ciaa_resource_name		DC.B "ciaa.resource",0
 		EVEN
-ciab_name			DC.B "ciab.resource",0
+ciab_resource_name		DC.B "ciab.resource",0
 		EVEN
 timer_device_name		DC.B "timer.device",0
 		EVEN
