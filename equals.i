@@ -82,10 +82,10 @@ invisible_window_top		EQU 0
 invisible_window_x_size		EQU pal_screen_x_size
 invisible_window_y_size		EQU pal_screen_y_size
 
-cleared_sprite_x_size		EQU 16	; 1x bandwidth
-cleared_sprite_y_size		EQU 1
-cleared_sprite_x_offset		EQU 0
-cleared_sprite_y_offset		EQU 0
+pointer_x_size			EQU 16	; 1x bandwidth
+pointer_y_size			EQU 1
+pointer_x_offset		EQU 0
+pointer_y_offset		EQU 0
 sprites_colors_number		EQU 16
 
 monitor_switch_delay		EQU PAL_FPS*3 ; 3 s
@@ -159,7 +159,7 @@ CUSTOM_MEMORY_NO_MEMORY		EQU 39
 
 EXCEPTION_VECTORS_NO_MEMORY	EQU 40
 
-CLEARED_SPRITE_NO_MEMORY	EQU 41
+POINTER_NO_MEMORY		EQU 41
 
 VIEWPORT_MONITOR_ID_NOT_FOUND	EQU 42
 

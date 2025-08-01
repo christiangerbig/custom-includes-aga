@@ -22,7 +22,7 @@
 
 
 	IFND SYS_TAKEN_OVER
-		INCLUDE "cleared-pointer-data.i"
+		INCLUDE "pointer-data.i"
 
 		INCLUDE "custom-error-entry.i"
 
@@ -70,11 +70,18 @@
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_graphics_library
 
-		bsr	get_active_screen
-		move.l	d0,active_screen(a3)
 		bsr	check_system_props
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_error_message
+
+		bsr	get_active_screen
+		move.l	d0,active_screen(a3)
+		bsr	get_first_window
+		move.l	d0,first_window(a3)
+		bsr	check_screen_mode
+		move.l	d0,dos_return_code(a3)
+		bne	cleanup_intuition_library
+		bsr	get_sprite_resolution
 
 		IFEQ requires_030_cpu
 			bsr	check_cpu_requirements
@@ -292,19 +299,13 @@
 			bsr	save_beamcon0_register
 		ENDC
 
-		bsr	get_sprite_resolution
-		bsr	get_first_window
-		move.l	d0,first_window(a3)
-		bsr	check_screen_mode
-		move.l	d0,dos_return_code(a3)
-		bne	cleanup_all_memory
-
 		IFEQ screen_fader_enabled
 			bsr	sf_get_screen_colors
 			bsr	sf_copy_screen_color_table
 			bsr	sf_fade_out_screen
 		ENDC
 
+	
 		bsr	open_pal_screen
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_original_screen
@@ -314,11 +315,12 @@
 		bsr	open_invisible_window
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_pal_screen
-		bsr	clear_mousepointer
+		bsr	clear_mouse_pointer
 		bsr	blank_display
 		bsr	wait_monitor_switch
 
 		bsr	enable_exclusive_blitter
+
 		bsr	get_system_time
 
 		bsr	disable_system
@@ -398,6 +400,7 @@
 	IFND SYS_TAKEN_OVER
 		bsr	clear_chips_registers2
 		bsr	restore_chips_registers
+
 		bsr	get_tod_duration
 
 		bsr	restore_exception_vectors
@@ -624,13 +627,13 @@ init_structures
 	IFND SYS_TAKEN_OVER
 		bsr	init_custom_error_table
 		bsr	init_easy_request
-		bsr	init_timer_io
 		bsr	init_pal_screen_tags
 		IFNE screen_fader_enabled
-			bsr	init_pal_screen_color_table
+			bsr	init_pal_screen_rgb32_colors
 		ENDC
 		bsr	init_video_control_tags
 		bsr	init_invisible_window_tags
+		bsr	init_timer_io
 	ENDC
 	IFNE pf_extra_number
 		bsr	init_pf_extra_structure
@@ -715,7 +718,7 @@ init_custom_error_table
 
 		INIT_CUSTOM_ERROR_ENTRY EXCEPTION_VECTORS_NO_MEMORY,error_text_exception_vectors,error_text_exception_vectors_end-error_text_exception_vectors
 
-		INIT_CUSTOM_ERROR_ENTRY CLEARED_SPRITE_NO_MEMORY,error_text_cleared_sprite,error_text_cleared_sprite_end-error_text_cleared_sprite
+		INIT_CUSTOM_ERROR_ENTRY POINTER_NO_MEMORY,error_text_pointer,error_text_pointer_end-error_text_pointer
 
 		INIT_CUSTOM_ERROR_ENTRY VIEWPORT_MONITOR_ID_NOT_FOUND,error_text_viewport,error_text_viewport_end-error_text_viewport
 
@@ -768,19 +771,6 @@ init_easy_request
 ; Input
 ; Result
 		CNOP 0,4
-init_timer_io
-		lea	timer_io(pc),a0
-		moveq	#0,d0
-		move.b	d0,LN_Type(a0)
-		move.b	d0,LN_Pri(a0)
-		move.l	d0,LN_Name(a0)
-		move.l	d0,MN_ReplyPort(a0)
-		rts
-
-
-; Input
-; Result
-		CNOP 0,4
 init_pal_screen_tags
 		lea	pal_screen_tags(pc),a0
 		move.l	#SA_Left,(a0)+
@@ -821,8 +811,6 @@ init_pal_screen_tags
 		move.l	a1,(a0)+
 		move.l	#SA_VideoControl,(a0)+
 		lea	video_control_tags(pc),a1
-		move.l	#VTAG_SPRITERESN_SET,vctl_VTAG_SPRITERESN+ti_Tag(a1)
-		move.l	#SPRITERESN_140NS,vctl_VTAG_SPRITERESN+ti_Data(a1)
 		move.l	a1,(a0)+
 		move.l	#SA_Font,(a0)+
 		move.l	d0,(a0)+
@@ -852,42 +840,42 @@ init_pal_screen_tags
 ; Input
 ; Result
 			CNOP 0,4
-init_pal_screen_color_table
+init_pal_screen_rgb32_colors
 			lea	pal_screen_rgb32_colors(pc),a0
 			move.w	#pal_screen_colors_number,(a0)+
 			moveq	#0,d0
 			move.w	d0,(a0)+	; start with COLOR00
 			lea     pf1_rgb8_color_table(pc),a1
 			moveq	#0,d1
-			move.b	1(a1),d1	; COLOR00 R8
+			move.b	1(a1),d1	; R8
 			lsl.w	#8,d1
-			move.b	BYTE_SIZE(a1),d1 ; COLOR00 R8
+			move.b	BYTE_SIZE(a1),d1 ; R8
 			swap	d1
-			move.b	1(a1),d1	; COLOR00 R8
+			move.b	1(a1),d1	; R8
 			lsl.w	#8,d1
-			move.b	BYTE_SIZE(a1),d1 ; COLOR00 R8
+			move.b	BYTE_SIZE(a1),d1 ; R8
 			moveq	#0,d2
-			move.b	2(a1),d2	; COLOR00 G8
+			move.b	2(a1),d2	; G8
 			lsl.w	#8,d2
-			move.b	WORD_SIZE(a1),d2 ; COLOR00 G8
+			move.b	WORD_SIZE(a1),d2 ; G8
 			swap	d2
-			move.b	WORD_SIZE(a1),d2 ; COLOR00 G8
+			move.b	WORD_SIZE(a1),d2 ; G8
 			lsl.w	#8,d2
-			move.b	2(a1),d2	; COLOR00 G8
+			move.b	2(a1),d2	; G8
 			moveq	#0,d3
-			move.b	3(a1),d3	; COLOR00 B8
+			move.b	3(a1),d3	; B8
 			lsl.w	#8,d3
-			move.b	3(a1),d3	; COLOR00 B8
+			move.b	3(a1),d3	; B8
 			swap	d3
-			move.b	3(a1),d3	; COLOR00 B8
+			move.b	3(a1),d3	; B8
 			lsl.w	#8,d3
-			move.b	3(a1),d3	; COLOR00 B8
+			move.b	3(a1),d3	; B8
 			MOVEF.W	pal_screen_colors_number-1,d7
-init_pal_screen_color_table_loop
+init_pal_screen_rgb32_colors_loop
 			move.l	d1,(a0)+	; R32
 			move.l	d2,(a0)+	; G32
 			move.l	d3,(a0)+	; B32
-			dbf	d7,init_pal_screen_color_table_loop
+			dbf	d7,init_pal_screen_rgb32_colors_loop
 			move.l	d0,(a0)		; end of list
 			rts
 		ENDC
@@ -899,7 +887,8 @@ init_pal_screen_color_table_loop
 init_video_control_tags
 		lea	video_control_tags(pc),a0
 		moveq	#TAG_DONE,d2
-		move.l	d2,vctl_TAG_DONE(a0)
+		move.l	d2,vctl_VTAG_SPRITERESN+ti_Tag(a0)
+		move.l	d2,vctl_TAG_DONE+ti_Tag(a0)
 		rts
 
 
@@ -951,6 +940,18 @@ init_invisible_window_tags
 		move.l	#WFLG_BACKDROP|WFLG_BORDERLESS|WFLG_ACTIVATE,(a0)+
 		moveq	#TAG_DONE,d2
 		move.l	d2,(a0)
+		rts
+
+; Input
+; Result
+		CNOP 0,4
+init_timer_io
+		lea	timer_io(pc),a0
+		moveq	#0,d0
+		move.b	d0,LN_Type(a0)
+		move.b	d0,LN_Pri(a0)
+		move.l	d0,LN_Name(a0)
+		move.l	d0,MN_ReplyPort(a0)
 		rts
 	ENDC
 
@@ -1262,6 +1263,66 @@ get_active_screen
 		move.l	ib_ActiveScreen(a6),a2
 		CALLLIBS UnlockIBase
 		move.l	a2,d0
+		rts
+
+		
+; Input
+; Result
+; d0.l	Window structure first window
+		CNOP 0,4
+get_first_window
+		move.l	active_screen(a3),d0
+		bne.s	get_first_window_skip
+get_first_window_quit
+		rts
+		CNOP 0,4
+get_first_window_skip
+		move.l	d0,a0
+		move.l	sc_FirstWindow(a0),d0
+		bra.s	get_first_window_quit
+
+
+; Input
+; Result
+; d0.l	Return code
+		CNOP 0,4
+check_screen_mode
+		move.l	active_screen(a3),d0
+		beq.s	check_screen_mode_ok
+		move.l	d0,a0
+		ADDF.W	sc_ViewPort,a0
+		CALLGRAF GetVPModeID
+		cmp.l	#INVALID_ID,d0
+		bne.s	check_screen_mode_skip
+		move.w	#VIEWPORT_MONITOR_ID_NOT_FOUND,custom_error_code(a3)
+		moveq	#RETURN_FAIL,d0
+check_screen_mode_quit
+		rts
+		CNOP 0,4
+check_screen_mode_skip
+		and.l	#MONITOR_ID_MASK,d0	; without resolution
+		move.l	d0,screen_mode(a3)
+check_screen_mode_ok
+		moveq	#RETURN_OK,d0
+		bra.s	check_screen_mode_quit
+
+
+; Input
+; Result
+		CNOP 0,4
+get_sprite_resolution
+		move.l	active_screen(a3),d0
+		beq.s	get_sprite_resolution_quit
+		move.l	d0,a0
+		move.l  sc_ViewPort+vp_ColorMap(a0),a0
+		lea	video_control_tags(pc),a1
+		move.l	a1,a2
+		move.l	#VTAG_SPRITERESN_GET,vctl_VTAG_SPRITERESN+ti_Tag(a1)
+		moveq	#0,d0
+		move.l	d0,vctl_VTAG_SPRITERESN+ti_Data(a1)
+		CALLGRAF VideoControl
+		move.l  vctl_VTAG_SPRITERESN+ti_Data(a2),old_sprite_resolution(a3)
+get_sprite_resolution_quit
 		rts
 
 
@@ -2252,11 +2313,11 @@ alloc_vectors_base_memory_ok
 ; d0.l	Return code/error code
 		CNOP 0,4
 alloc_mouse_pointer_data
-		moveq	#cleared_pointer_data_size,d0
+		moveq	#pointer_data_size,d0
 		bsr	do_alloc_chip_memory
 		move.l	d0,mouse_pointer_data(a3)
 		bne.s	alloc_mouse_pointer_data_ok
-		move.w	#CLEARED_SPRITE_NO_MEMORY,custom_error_code(a3)
+		move.w	#POINTER_NO_MEMORY,custom_error_code(a3)
 		moveq	#ERROR_NO_FREE_STORE,d0
 alloc_mouse_pointer_data_quit
 		rts
@@ -2341,65 +2402,6 @@ save_beamcon0_register
 			rts
 		ENDC
 		
-
-; Input
-; Result
-		CNOP 0,4
-get_sprite_resolution
-		move.l	active_screen(a3),d0
-		beq.s	get_sprite_resolution_quit
-		move.l	d0,a0
-		move.l  sc_ViewPort+vp_ColorMap(a0),a0
-		lea	video_control_tags(pc),a1
-		move.l	#VTAG_SPRITERESN_GET,vctl_VTAG_SPRITERESN+ti_Tag(a1)
-		move.l	a1,a2
-		clr.l	vctl_VTAG_SPRITERESN+ti_Data(a1)
-		CALLGRAF VideoControl
-		move.l  vctl_VTAG_SPRITERESN+ti_Data(a2),old_sprite_resolution(a3)
-get_sprite_resolution_quit
-		rts
-
-
-; Input
-; Result
-; d0.l	Window structure first window
-		CNOP 0,4
-get_first_window
-		move.l	active_screen(a3),d0
-		bne.s	get_first_window_skip
-get_first_window_quit
-		rts
-		CNOP 0,4
-get_first_window_skip
-		move.l	d0,a0
-		move.l	sc_FirstWindow(a0),d0
-		bra.s	get_first_window_quit
-
-
-; Input
-; Result
-; d0.l	Return code
-		CNOP 0,4
-check_screen_mode
-		move.l	active_screen(a3),d0
-		beq.s	check_screen_mode_ok
-		move.l	d0,a0
-		ADDF.W	sc_ViewPort,a0
-		CALLGRAF GetVPModeID
-		cmp.l	#INVALID_ID,d0
-		bne.s	check_screen_mode_skip
-		move.w	#VIEWPORT_MONITOR_ID_NOT_FOUND,custom_error_code(a3)
-		moveq	#RETURN_FAIL,d0
-check_screen_mode_quit
-		rts
-		CNOP 0,4
-check_screen_mode_skip
-		and.l	#MONITOR_ID_MASK,d0	; without resolution
-		move.l	d0,screen_mode(a3)
-check_screen_mode_ok
-		moveq	#RETURN_OK,d0
-		bra.s	check_screen_mode_quit
-
 
 		IFEQ screen_fader_enabled
 ; Input
@@ -2579,11 +2581,15 @@ sf_rgb32_set_new_colors_skip
 ; d0.l	Return code
 		CNOP 0,4
 open_pal_screen
+		lea	video_control_tags(pc),a0
+		move.l	#VTAG_SPRITERESN_SET,vctl_VTAG_SPRITERESN+ti_Tag(a0)
+		move.l	#SPRITERESN_140NS,vctl_VTAG_SPRITERESN+ti_Data(a0)
 		lea	pal_screen_tags(pc),a1
 		IFEQ screen_fader_enabled
 			move.l	sf_screen_color_cache(a3),sctl_SA_Colors32+ti_Data(a1)
 		ENDC
 		sub.l	a0,a0		; no NewScreen structure
+
 		CALLINT OpenScreenTagList
 		move.l	d0,pal_screen(a3)
 		bne.s	open_pal_screen_ok
@@ -2644,13 +2650,13 @@ open_invisible_window_ok
 ; Input
 ; Result
 	CNOP 0,4
-clear_mousepointer
+clear_mouse_pointer
 		move.l	invisible_window(a3),a0
 		move.l	mouse_pointer_data(a3),a1
-		moveq	#cleared_sprite_y_size,d0
-		moveq	#cleared_sprite_x_size,d1
-		moveq	#cleared_sprite_x_offset,d2
-		moveq	#cleared_sprite_y_offset,d3
+		moveq	#pointer_y_size,d0
+		moveq	#pointer_x_size,d1
+		moveq	#pointer_x_offset,d2
+		moveq	#pointer_y_offset,d3
 		CALLINT SetPointer
 		rts
 
@@ -3199,7 +3205,7 @@ get_tod_duration
 		cmp.l	d0,d1		; TOD overflow ?
 		bge.s	get_tod_duration_skip1
 		move.l	#TOD_MAX,d2
-		sub.l	d0,d2
+		sub.l	d0,d2		; difference until overflow
 		add.l	d2,d1           ; adjust time
 		bra.s	get_tod_duration_skip2
 		CNOP 0,4
@@ -3276,8 +3282,8 @@ update_system_time
 		move.w	#TR_SETSYSTIME,IO_command(a1)
 		move.l	d0,d1
 		ext.l	d0
-		swap	d1		; remainder
 		add.l	d0,IO_size+TV_SECS(a1)
+		swap	d1		; remainder
 		mulu.w	#10000,d1	; convert to microseconds
 		add.l	d1,IO_size+TV_MICRO(a1)
 		CALLLIBS DoIO
@@ -3886,7 +3892,7 @@ free_mouse_pointer_data_quit
 		CNOP 0,4
 free_mouse_pointer_data_skip
 		move.l	d0,a1
-		moveq	#cleared_pointer_data_size,d0
+		moveq	#pointer_data_size,d0
 		CALLEXEC FreeMem
 		bra.s	free_mouse_pointer_data_quit
 

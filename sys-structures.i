@@ -25,7 +25,7 @@ pal_screen_tags
 		IFNE screen_fader_enabled
 			CNOP 0,4
 pal_screen_rgb32_colors
-			DS.L 1+pal_screen_colors_number+1
+			DS.L 1+(pal_screen_colors_number*3)+1
 		ENDC
 
 

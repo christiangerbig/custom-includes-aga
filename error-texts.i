@@ -238,10 +238,10 @@ error_text_exception_vectors
 error_text_exception_vectors_end
 		EVEN
 
-error_text_cleared_sprite
-		DC.B "Couldn't allocate memory for cleared_sprite !",ASCII_LINE_FEED,ASCII_LINE_FEED
+error_text_pointer
+		DC.B "Couldn't allocate memory for pointer !",ASCII_LINE_FEED,ASCII_LINE_FEED
 		DC.B "Press any key.",ASCII_LINE_FEED
-error_text_cleared_sprite_end
+error_text_pointer_end
 		EVEN
 
 error_text_active_screen
