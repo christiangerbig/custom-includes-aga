@@ -63,6 +63,7 @@
 			move.l	d0,dos_return_code(a3)
 			bne	cleanup_dos_library
   		ENDC
+
 		bsr	open_graphics_library
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_dos_library
@@ -72,7 +73,7 @@
 
 		bsr	check_system_props
 		move.l	d0,dos_return_code(a3)
-		bne	cleanup_error_message
+		bne	cleanup_intuition_library
 
 		bsr	get_active_screen
 		move.l	d0,active_screen(a3)
@@ -272,7 +273,7 @@
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_all_memory
 
-		bsr	alloc_mouse_pointer_data
+		bsr	alloc_pointer_data
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_all_memory
 
@@ -312,9 +313,11 @@
 		bsr	check_pal_screen_mode
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_original_screen
+
 		bsr	open_invisible_window
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_pal_screen
+
 		bsr	clear_mouse_pointer
 		bsr	blank_display
 		bsr	wait_monitor_switch
@@ -450,7 +453,7 @@ cleanup_all_memory
 			bsr	sf_free_screen_color_table
 		ENDC
 
-		bsr	free_mouse_pointer_data
+		bsr	free_pointer_data
 
 		bsr	free_vectors_base_memory
 	ENDC
@@ -626,13 +629,18 @@ init_variables
 init_structures
 	IFND SYS_TAKEN_OVER
 		bsr	init_custom_error_table
+
 		bsr	init_easy_request
+
 		bsr	init_pal_screen_tags
 		IFNE screen_fader_enabled
 			bsr	init_pal_screen_rgb32_colors
 		ENDC
+
 		bsr	init_video_control_tags
+
 		bsr	init_invisible_window_tags
+
 		bsr	init_timer_io
 	ENDC
 	IFNE pf_extra_number
@@ -2312,19 +2320,19 @@ alloc_vectors_base_memory_ok
 ; Result
 ; d0.l	Return code/error code
 		CNOP 0,4
-alloc_mouse_pointer_data
+alloc_pointer_data
 		moveq	#pointer_data_size,d0
 		bsr	do_alloc_chip_memory
-		move.l	d0,mouse_pointer_data(a3)
-		bne.s	alloc_mouse_pointer_data_ok
+		move.l	d0,mouse_pointer(a3)
+		bne.s	alloc_pointer_data_ok
 		move.w	#POINTER_NO_MEMORY,custom_error_code(a3)
 		moveq	#ERROR_NO_FREE_STORE,d0
-alloc_mouse_pointer_data_quit
+alloc_pointer_data_quit
 		rts
 		CNOP 0,4
-alloc_mouse_pointer_data_ok
+alloc_pointer_data_ok
 		moveq	#RETURN_OK,d0
-		bra.s	alloc_mouse_pointer_data_quit
+		bra.s	alloc_pointer_data_quit
 
 
 		IFEQ screen_fader_enabled
@@ -2652,7 +2660,7 @@ open_invisible_window_ok
 	CNOP 0,4
 clear_mouse_pointer
 		move.l	invisible_window(a3),a0
-		move.l	mouse_pointer_data(a3),a1
+		move.l	mouse_pointer(a3),a1
 		moveq	#pointer_y_size,d0
 		moveq	#pointer_x_size,d1
 		moveq	#pointer_x_offset,d2
@@ -3273,7 +3281,7 @@ enable_system
 ; Result
 		CNOP 0,4
 update_system_time
-		move.l	exec_base.w,a6
+		move.l	_SysBase(pc),a6
 		move.l	tod_time(a3),d0 ; time the system was disabled
 		moveq	#0,d1
 		move.b	VBlankFrequency(a6),d1
@@ -3496,6 +3504,22 @@ put_ch_process
 			move.b	d0,(a3)+ ; write data into output string
 			rts
 		ENDC
+
+
+; Input
+; Result
+		CNOP 0,4
+free_pointer_data
+		move.l	mouse_pointer(a3),d0
+		bne.s	free_pointer_data_skip
+free_pointer_data_quit
+		rts
+		CNOP 0,4
+free_pointer_data_skip
+		move.l	d0,a1
+		moveq	#pointer_data_size,d0
+		CALLEXEC FreeMem
+		bra.s	free_pointer_data_quit
 
 
 ; Input
@@ -3884,49 +3908,6 @@ sf_free_screen_color_table_skip
 ; Input
 ; Result
 		CNOP 0,4
-free_mouse_pointer_data
-		move.l	mouse_pointer_data(a3),d0
-		bne.s	free_mouse_pointer_data_skip
-free_mouse_pointer_data_quit
-		rts
-		CNOP 0,4
-free_mouse_pointer_data_skip
-		move.l	d0,a1
-		moveq	#pointer_data_size,d0
-		CALLEXEC FreeMem
-		bra.s	free_mouse_pointer_data_quit
-
-
-; Input
-; Result
-		CNOP 0,4
-close_timer_device
-		lea	timer_io(pc),a1
-		CALLEXEC CloseDevice
-		rts
-
-
-; Input
-; Result
-		CNOP 0,4
-close_intuition_library
-		move.l	_IntuitionBase(pc),a1
-		CALLEXEC CloseLibrary
-		rts
-
-
-; Input
-; Result
-		CNOP 0,4
-close_graphics_library
-		move.l	_GfxBase(pc),a1
-		CALLEXEC CloseLibrary
-		rts
-
-	
-; Input
-; Result
-		CNOP 0,4
 print_error_message
 		move.w	custom_error_code(a3),d4
 		beq.s	print_error_message_ok
@@ -3998,10 +3979,37 @@ get_first_screen
 ; Input
 ; Result
 		CNOP 0,4
+close_timer_device
+		lea	timer_io(pc),a1
+		CALLEXEC CloseDevice
+		rts
+
+
+; Input
+; Result
+		CNOP 0,4
+close_intuition_library
+		move.l	_IntuitionBase(pc),a1
+		CALLEXEC CloseLibrary
+		rts
+
+
+; Input
+; Result
+		CNOP 0,4
+close_graphics_library
+		move.l	_GfxBase(pc),a1
+		CALLEXEC CloseLibrary
+		rts
+
+
+; Input
+; Result
+		CNOP 0,4
 close_dos_library
 		move.l	_DOSBase(pc),a1
 		CALLEXEC CloseLibrary
-		rts
+		rts		
 
 
 		IFEQ workbench_start_enabled

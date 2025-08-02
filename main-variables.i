@@ -33,7 +33,7 @@ active_screen			RS.L 1
 screen_mode			RS.L 1
 pal_screen			RS.L 1
 invisible_window		RS.L 1
-mouse_pointer_data		RS.L 1
+mouse_pointer			RS.L 1
 old_sprite_resolution		RS.L 1
 first_window			RS.L 1
 
