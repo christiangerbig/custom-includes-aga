@@ -2592,12 +2592,12 @@ open_pal_screen
 		lea	video_control_tags(pc),a0
 		move.l	#VTAG_SPRITERESN_SET,vctl_VTAG_SPRITERESN+ti_Tag(a0)
 		move.l	#SPRITERESN_140NS,vctl_VTAG_SPRITERESN+ti_Data(a0)
+
+		sub.l	a0,a0		; no NewScreen structure
 		lea	pal_screen_tags(pc),a1
 		IFEQ screen_fader_enabled
 			move.l	sf_screen_color_cache(a3),sctl_SA_Colors32+ti_Data(a1)
 		ENDC
-		sub.l	a0,a0		; no NewScreen structure
-
 		CALLINT OpenScreenTagList
 		move.l	d0,pal_screen(a3)
 		bne.s	open_pal_screen_ok
