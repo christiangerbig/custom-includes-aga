@@ -1568,7 +1568,6 @@ open_timer_device_quit
 open_timer_device_ok
 		moveq	#RETURN_OK,d0
 		bra.s	open_timer_device_quit	
-	ENDC
 
 
 ; Input
@@ -1643,6 +1642,7 @@ get_sprite_resolution
 		move.l  vctl_VTAG_SPRITERESN+ti_Data(a2),old_sprite_resolution(a3)
 get_sprite_resolution_quit
 		rts
+	ENDC
 
 
 	IFNE cl1_size1
