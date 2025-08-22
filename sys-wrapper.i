@@ -9,6 +9,7 @@
 ;	PASS_RETURN_CODE
 ;	PASS_GLOBAL_REFERENCES
 ;	WRAPPER
+;	AGA_CHECK_BY_HARDWARE
 ;	CUSTOM_MEMORY_USED
 ;	SAVE_BEAMCON0
 ;	AGA_CHECK_BY_HARDWARE
@@ -291,7 +292,7 @@
 		IFEQ screen_fader_enabled
 			bsr	sf_alloc_screen_color_table
 			move.l	d0,dos_return_code(a3)
-			bne     cleanup_all_memory
+			bne   cleanup_all_memory
 			bsr	sf_alloc_screen_color_cache
 			move.l	d0,dos_return_code(a3)
 			bne	cleanup_all_memory
@@ -866,7 +867,7 @@ init_pal_screen_rgb32_colors
 			move.w	#pal_screen_colors_number,(a0)+
 			moveq	#0,d0
 			move.w	d0,(a0)+	; start with COLOR00
-			lea     pf1_rgb8_color_table(pc),a1
+			lea	  pf1_rgb8_color_table(pc),a1
 			moveq	#0,d1
 			move.b	1(a1),d1	; R8
 			lsl.w	#8,d1
@@ -1306,7 +1307,7 @@ check_system_props_skip2
 		CNOP 0,4
 check_system_props_skip3
 		move.l	_GfxBase(pc),a1
-		IFD DEF_AGA_CHECK_BY_HARDWARE
+		IFD AGA_CHECK_BY_HARDWARE
 			move.l	#_CUSTOM+DENISEID,a0
 			move.w	-(DENISEID-VPOSR)(a0),d0
 			and.w	#$7e00,d0
@@ -3188,7 +3189,7 @@ restore_chips_registers_skip3
 restore_chips_registers_skip4
 		move.b	d0,CIACRB(a5)
 
-		IFD _SAVE_BEAMCON0
+		IFD SAVE_BEAMCON0
 			move.w old_beamcon0(a3),BEAMCON0-DMACONR(a6)
 		ENDC
 

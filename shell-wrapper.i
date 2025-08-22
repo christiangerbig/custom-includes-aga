@@ -10,7 +10,7 @@
 	move.l	d0,dos_return_code(a3)
 	bne.s	cleanup_all
 
-	bsr     init_main_variables	; external routine
+	bsr    init_main_variables	; external routine
 
 	IFD USE_CMD_LINE_CHECK
 		bsr	check_command_line ; external routine
@@ -80,7 +80,7 @@ init_variables
 ; d0.l	Return code
 	CNOP 0,4
 open_dos_library
-	lea     dos_library_name(pc),a1
+	lea	  dos_library_name(pc),a1
 	moveq	#ANY_LIBRARY_VERSION,d0
 	CALLEXEC OpenLibrary
 	lea	_DOSBase(pc),a0

@@ -467,7 +467,7 @@ COP_INIT_COLOR00_SCREEN		MACRO
 	move.l	#$01000000,d6
 	MOVEF.W	\1_display_y_size-1,d7
 \1_init_color00_loop
-	move.l	d0,(a0)+		; CWAIT x,y
+	move.l	d0,(a0)+		; CWAIT
 	move.l	d1,(a0)+		; BPLCON3
 	move.l	d2,(a0)+		; COLOR00
 	move.l	d3,(a0)+		; BPLCON3
@@ -639,7 +639,7 @@ COP_INIT_BPLCON4_CHUNKY	MACRO
 		move.l	#$01000000,d5
 		MOVEF.W	\5-1,d7		; number of lines
 \1_init_bplcon4_chunky_loop1
-		move.l	d0,(a0)+	; CWAIT x,y
+		move.l	d0,(a0)+	; CWAIT
 		move.l	d1,(a0)+	; BPLCON3
 		move.l	a2,(a0)+	; COLOR31/00
 		move.l	d3,(a0)+	; BPLCON3
@@ -703,7 +703,7 @@ COP_INIT_BPLCON1_CHUNKY	MACRO
 	move.l	#$01000000,d3
 	MOVEF.W \5-1,d7			; number of lines
 \1_init_bplcon1_chunky_loop1
-	move.l	d0,(a0)+		; CWAIT x,y
+	move.l	d0,(a0)+		; CWAIT
 	moveq	#(\4/8)-1,d6		; number of columns
 \1_init_bplcon1_chunky_loop2
 	move.l	d1,(a0)+		; BPLCON1
