@@ -50,7 +50,7 @@ cleanup_all
 		bsr	free_RDArgs
 	ENDC
 
-	bsr	print_error_text
+	bsr	prerror_text
 
 	bsr	close_dos_library
 
@@ -122,7 +122,7 @@ alloc_memory
 		bne.s	alloc_memory_ok
 		lea	error_text1(pc),a0
 		moveq	#error_text1_end-error_text1,d0
-		bsr	print_text
+		bsr	prtext
 		moveq	#RETURN_ERROR,d0
 		rts
 		CNOP 0,4
@@ -169,19 +169,19 @@ free_RDArgs_skip
 ; Input
 ; Result
 	CNOP 0,4
-print_error_text
+prerror_text
 	move.l  dos_return_code(a3),d1
 	moveq   #ERROR_NO_FREE_STORE,d0
 	cmp.l   d0,d1
-	bge.s	print_error_text_skip
-print_error_text_quit
+	bge.s	prerror_text_skip
+prerror_text_quit
 	rts
 	CNOP 0,4
-print_error_text_skip
+prerror_text_skip
 	lea	error_header(pc),a0
 	move.l	a0,d2
 	CALLDOS PrintFault
-	bra.s	print_error_text_quit
+	bra.s	prerror_text_quit
 
 
 ; Input
@@ -189,7 +189,7 @@ print_error_text_skip
 ; a0.l	Error text
 ; Result
 	CNOP 0,4
-print_text
+prtext
 	move.l	output_handle(a3),d1
 	move.l	a0,d2			; error text
 	move.l	d0,d3			; error text length

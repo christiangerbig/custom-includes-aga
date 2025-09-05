@@ -1571,7 +1571,7 @@ GET_NEW_CHAR_IMAGE		MACRO
 ; _char_toggle_image
 ; _char_words_counter
 ; Result
-; d0.l		Pointer character image
+; d0.l		 character image
 	IFC "","\0"
 		FAIL Macro GET_NEW_CHAR_IMAGE: Size missing
 	ENDC
@@ -1847,7 +1847,7 @@ INIT_MIRROR_BPLAM_TABLE		MACRO
 		FAIL Macro INIT_MIRROR_bplam_table: BPLAM table missing
 	ENDC
 	IFC "","\7"
-		FAIL Macro INIT_MIRROR_bplam_table: Pointer base missing
+		FAIL Macro INIT_MIRROR_bplam_table:  base missing
 	ENDC
 	IFC "pc","\7"
 		lea	\1_\6(\7),a0	; BPLAM table
@@ -1956,7 +1956,7 @@ INIT_NESTED_MIRROR_BPLAM_TABLE	MACRO
 		FAIL Macro INIT_NESTED_MIRROR_bplam_table: BPLAM table missing
 	ENDC
 	IFC "","\7"
-		FAIL Macro INIT_NESTED_MIRROR_bplam_table: Pointer base missing
+		FAIL Macro INIT_NESTED_MIRROR_bplam_table:  base missing
 	ENDC
 	IFC "pc","\7"
 		lea	\1_\6(\7),a1	; BPLAM table
@@ -2926,7 +2926,7 @@ INIT_MIRROR_COLOR_TABLE		MACRO
 		FAIL Macro INIT_MIRROR_COLOR_TABLE: Destination color table missing
 	ENDC
 	IFC "","\6"
-		FAIL Macro INIT_MIRROR_COLOR_TABLE: Pointer base for destination missing
+		FAIL Macro INIT_MIRROR_COLOR_TABLE:  base for destination missing
 	ENDC
 	lea	\4(pc),a0		; source: color table
 	IFC "pc","\6"

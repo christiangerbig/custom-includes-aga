@@ -4,10 +4,10 @@ PT3_INIT_VARIABLES		MACRO
 ; Result
 	IFC "","\1"
 		lea	pt_auddata,a0
-		move.l	a0,pt_SongDataPointer(a3)
+		move.l	a0,pt_Song(a3)
 		IFEQ pt_split_module_enabled
 			lea	pt_audsmps,a0
-			move.l	a0,pt_SamplesDataPointer(a3)
+			move.l	a0,pt_Samples(a3)
 		ENDC
 	ENDC
 	moveq	#TRUE,d0
@@ -15,7 +15,7 @@ PT3_INIT_VARIABLES		MACRO
 	move.w	#pt_defaultticks,pt_CurrSpeed(a3)
 	move.w	d0,pt_DMACONtemp(a3)
 	move.w	#DMAF_AUD0|DMAF_AUD1|DMAF_AUD2|DMAF_AUD3,pt_ActiveChannels(a3) ; all audio channels enabled
-	move.l	d0,pt_PatternPointer(a3)
+	move.l	d0,pt_Pattern(a3)
 	move.w	d0,pt_PatternPosition(a3)
 	move.w	d0,pt_SongPosition(a3)
 
@@ -325,7 +325,7 @@ pt_ExtCommandsEnd
 ; New note at tick #1
 	CNOP 0,4
 pt_GetNewNote
-	move.l	pt_SongDataPointer(a3),a0
+	move.l	pt_Song(a3),a0
 	move.w	pt_SongPosition(a3),d0
 	moveq	#0,d1
 	move.b	(pt_sd_pattpos,a0,d0.w),d1 ; pattern number in song position table

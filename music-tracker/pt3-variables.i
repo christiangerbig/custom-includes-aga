@@ -1,13 +1,13 @@
-pt_SongDataPointer		RS.L 1
+pt_Song				RS.L 1
 	IFEQ pt_split_module_enabled
-pt_SamplesDataPointer		RS.L 1
+pt_Samples			RS.L 1
 	ENDC
 pt_125BPMrate			RS.L 1
 pt_Counter			RS.W 1
 pt_CurrSpeed			RS.W 1
 pt_DMACONtemp			RS.W 1
 pt_ActiveChannels		RS.W 1
-pt_PatternPointer		RS.L 1
+pt_Pattern			RS.L 1
 pt_PatternPosition		RS.W 1
 pt_SongPosition			RS.W 1
 

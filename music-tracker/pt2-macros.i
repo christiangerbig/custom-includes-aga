@@ -4,10 +4,10 @@ PT2_INIT_VARIABLES		MACRO
 ; Result
 	IFC "","\1"
 		lea	pt_auddata,a0
-		move.l	a0,pt_SongDataPointer(a3)
+		move.l	a0,pt_Song(a3)
  		IFEQ pt_split_module_enabled
 			lea	pt_audsmps,a0
-			move.l	a0,pt_SamplesDataPointer(a3)
+			move.l	a0,pt_Samples(a3)
 		ENDC
 	ENDC
 	moveq	#0,d0
@@ -305,7 +305,7 @@ pt_ExtCommandsEnd
 ; New note at tick #1
 	CNOP 0,4
 pt_GetNewNote
-	move.l	pt_SongDataPointer(a3),a0
+	move.l	pt_Song(a3),a0
 	move.w	pt_SongPosition(a3),d0
 	moveq	#0,d1
 	move.b	(pt_sd_pattpos,a0,d0.w),d1 ; pattern number in song position table

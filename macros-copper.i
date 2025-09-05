@@ -823,7 +823,7 @@ CONVERT_IMAGE_TO_RGB4_CHUNKY	MACRO
 		FAIL Macro CONVERT_IMAGE_TO_RGB4_CHUNKY: BPLAM table missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro CONVERT_IMAGE_TO_RGB4_CHUNKY: Pointer base missing
+		FAIL Macro CONVERT_IMAGE_TO_RGB4_CHUNKY:  base missing
 	ENDC
 	CNOP 0,4
 \1_convert_image_data
@@ -904,7 +904,7 @@ CONVERT_IMAGE_TO_HAM6_CHUNKY	MACRO
 		FAIL Macro CONVERT_IMAGE_TO_HAM6_CHUNKY: BPLAM table missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro CONVERT_IMAGE_TO_HAM6_CHUNKY: Pointer base missing
+		FAIL Macro CONVERT_IMAGE_TO_HAM6_CHUNKY:  base missing
 	ENDC
 	CNOP 0,4
 \1_convert_image_data
@@ -1014,7 +1014,7 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY	MACRO
 		FAIL Macro CONVERT_IMAGE_TO_RGB8_CHUNKY: BPLAM table missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro CONVERT_IMAGE_TO_RGB8_CHUNKY: Pointer base missing
+		FAIL Macro CONVERT_IMAGE_TO_RGB8_CHUNKY:  base missing
 	ENDC
 	CNOP 0,4
 \1_convert_image_data
@@ -1123,7 +1123,7 @@ CONVERT_IMAGE_TO_HAM8_CHUNKY	MACRO
 		FAIL Macro CONVERT_IMAGE_TO_HAM8_CHUNKY: BPLAM table missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro CONVERT_IMAGE_TO_HAM8_CHUNKY: Pointer base missing
+		FAIL Macro CONVERT_IMAGE_TO_HAM8_CHUNKY:  base missing
 	ENDC
 	CNOP 0,4
 \1_convert_image_data
@@ -1254,7 +1254,7 @@ CONVERT_IMAGE_TO_BPLCON4_CHUNKY	MACRO
 		FAIL Macro CONVERT_IMAGE_TO_BPLCON4_CHUNKY: BPLAM table missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro CONVERT_IMAGE_TO_BPLCON4_CHUNKY: Pointer base missing
+		FAIL Macro CONVERT_IMAGE_TO_BPLCON4_CHUNKY:  base missing
 	ENDC
 	CNOP 0,4
 \1_convert_image_data
@@ -2035,10 +2035,10 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Bar height missing
 	ENDC
 	IFC "","\6"
-		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Pointer BPLAM table missing
+		FAIL Macro SET_TWISTED_BACKGROUND_BARS:  BPLAM table missing
 	ENDC
 	IFC "","\7"
-		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Pointer base missing
+		FAIL Macro SET_TWISTED_BACKGROUND_BARS:  base missing
 	ENDC
 	CNOP 0,4
 \1_set_background_bars
@@ -2128,10 +2128,10 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Bar height missing
 	ENDC
 	IFC "","\6"
-		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Pointer BPLAM table missing
+		FAIL Macro SET_TWISTED_FOREGROUND_BARS:  BPLAM table missing
 	ENDC
 	IFC "","\7"
-		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Pointer base missing
+		FAIL Macro SET_TWISTED_FOREGROUND_BARS:  base missing
 	ENDC
 	CNOP 0,4
 \1_set_foreground_bars

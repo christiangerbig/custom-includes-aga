@@ -1,8 +1,13 @@
+ust_songname_size		EQU 20
+ust_samplename_size		EQU 22
+ust_pattpos_size		EQU 128
+
+
 	RSRESET
 
 ust_sampleinfo			RS.B 0
 
-ust_si_samplename		RS.B 22	; name padded with null bytes
+ust_si_samplename		RS.B ust_samplename_size ; name padded with null bytes
 ust_si_samplelength		RS.W 1	; sample length in words
 ust_si_volume			RS.W 1	; bits 0..6 sample volume [0..64]
 ust_si_repeatpoint		RS.W 1	; start of sample repeat offset in bytes
@@ -15,11 +20,11 @@ ust_sampleinfo_size		RS.B 0
 
 ust_songdata			RS.B 0
 
-ust_sd_songname			RS.B 20	; song name padded with null bytes
+ust_sd_songname			RS.B ust_songname_size ; song name padded with null bytes
 ust_sd_sampleinfo		RS.B ust_sampleinfo_size*ust_samplesnum ; 1st sampleinfo structure repeated 15 times
 ust_sd_numofpatt		RS.B 1	; number of song positions [1..128]
 ust_sd_songspeed		RS.B 1	; song speed [0..220] BPM, default 120 BPM
-ust_sd_pattpos			RS.B 128 ; pattern positions table [0..127]
+ust_sd_pattpos			RS.B ust_pattpos_size ; pattern positions table
 ust_sd_patterndata		RS.B 0	; 1st pattern structure, repeated for each pattern [1..64] times
 
 ust_songdata_size		RS.B 0

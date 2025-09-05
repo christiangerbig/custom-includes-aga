@@ -447,7 +447,7 @@ cleanup_original_screen
 		ENDC
 
 		IFEQ text_output_enabled
-			bsr	print_formatted_text
+			bsr	prformatted_text
 		ENDC
 	ENDC
 
@@ -547,7 +547,7 @@ cleanup_timer_device
 		bsr	close_timer_device
 
 cleanup_error_message
-		bsr	print_error_message
+		bsr	prerror_message
 		move.l	d0,dos_return_code(a3)
 
 cleanup_intuition_library
@@ -2791,31 +2791,31 @@ init_exception_vectors
 	ENDC
 
 	IFNE intena_bits&(INTF_TBE|INTF_DSKBLK|INTF_SOFTINT)
-		lea	level_1_int_handler(pc),a1
+		lea	level_1_handler(pc),a1
 		move.l	a1,LEVEL_1_AUTOVECTOR(a0)
 	ENDC
 	IFNE intena_bits&INTF_PORTS
-		lea	level_2_int_handler(pc),a1
+		lea	level_2_handler(pc),a1
 		move.l	a1,LEVEL_2_AUTOVECTOR(a0)
 	ENDC
 	IFNE intena_bits&(INTF_COPER|INTF_VERTB|INTF_BLIT)
-		lea	level_3_int_handler(pc),a1
+		lea	level_3_handler(pc),a1
 		move.l	a1,LEVEL_3_AUTOVECTOR(a0)
 	ENDC
 	IFNE intena_bits&(INTF_AUD0|INTF_AUD1|INTF_AUD2|INTF_AUD3)
-		lea	level_4_int_handler(pc),a1
+		lea	level_4_handler(pc),a1
 		move.l	a1,LEVEL_4_AUTOVECTOR(a0)
 	ENDC
 	IFNE intena_bits&(INTF_RBF|INTF_DSKSYNC)
-		lea	level_5_int_handler(pc),a1
+		lea	level_5_handler(pc),a1
 		move.l	a1,LEVEL_5_AUTOVECTOR(a0)
 	ENDC
 	IFNE intena_bits&INTF_EXTER
-		lea	level_6_int_handler(pc),a1
+		lea	level_6_handler(pc),a1
 		move.l	a1,LEVEL_6_AUTOVECTOR(a0)
 	ENDC
 	IFND SYS_TAKEN_OVER
-		lea	level_7_int_handler(pc),a1
+		lea	level_7_handler(pc),a1
 		move.l	a1,LEVEL_7_AUTOVECTOR(a0)
 	ENDC
 
@@ -3496,7 +3496,7 @@ sfi_rgb32_increase_blue
 ; Input
 ; Result
 			CNOP 0,4
-print_formatted_text
+prformatted_text
 
 			lea	format_string(pc),a0
 			lea	data_stream(pc),a1 ; data format string
@@ -3509,10 +3509,10 @@ print_formatted_text
 			lea	put_ch_data(pc),a0 
 			move.l	a0,d2	; text
 			moveq	#-1,d3	; characters counter
-print_formatted_text_loop
+prformatted_text_loop
 			addq.w	#1,d3
 			tst.b	(a0)+	; nullbyte ?
-			dbeq.s	print_formatted_text_loop
+			dbeq.s	prformatted_text_loop
 			CALLDOS Write
 			rts
 			CNOP 0,4
@@ -3923,21 +3923,21 @@ sf_free_screen_color_table_skip
 ; Input
 ; Result
 		CNOP 0,4
-print_error_message
+prerror_message
 		move.w	custom_error_code(a3),d4
-		beq.s	print_error_message_ok
+		beq.s	prerror_message_ok
 		CALLINT WBenchToFront
 		lea	raw_name(pc),a0
 		move.l	a0,d1
 		move.l	#MODE_OLDFILE,d2
 		CALLDOS Open
 		move.l	d0,raw_handle(a3)
-		bne.s	print_error_message_skip
+		bne.s	prerror_message_skip
 		moveq	#RETURN_FAIL,d0
-print_error_message_quit
+prerror_message_quit
 		rts
 		CNOP 0,4
-print_error_message_skip
+prerror_message_skip
 		subq.w	#1,d4		; count starts at 0
 		MULUF.W	8,d4,d1
 		lea	custom_error_table(pc),a0
@@ -3953,9 +3953,9 @@ print_error_message_skip
 		move.l	raw_handle(a3),d1
 		CALLLIBS Close
 		bsr.s	original_screen_to_front
-print_error_message_ok
+prerror_message_ok
 		moveq	#RETURN_OK,d0
-		bra.s	print_error_message_quit
+		bra.s	prerror_message_quit
 
 
 ; Input
@@ -3979,7 +3979,7 @@ original_screen_to_front_skip
 
 ; Input
 ; Result
-; d0.l	Pointer screen structure 1st screen
+; d0.l	 screen structure 1st screen
 		CNOP 0,4
 get_first_screen
 		moveq	#0,d0		; all locks

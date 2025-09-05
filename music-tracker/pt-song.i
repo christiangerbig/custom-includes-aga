@@ -1,8 +1,13 @@
+pt_songname_size		EQU 20
+pt_samplename_size		EQU 22
+pt_pattpos_size			EQU 128
+
+
 	RSRESET
 
 pt_sampleinfo			RS.B 0
 
-pt_si_samplename		RS.B 22	; name padded with null bytes, "#" at the beginning indicates a message
+pt_si_samplename		RS.B pt_samplename_size ; name padded with null bytes, "#" at the beginning indicates a message
 pt_si_samplelength		RS.W 1	; sample length in words
 pt_si_finetune			RS.B 1	; bits 0..3 finetune value as signed 4 bit number
 pt_si_volume			RS.B 1	; bits 0..6 sample volume [0..64]
@@ -16,11 +21,11 @@ pt_sampleinfo_size		RS.B 0
 
 pt_songdata			RS.B 0
 
-pt_sd_songname			RS.B 20	; name padded with null bytes
+pt_sd_songname			RS.B pt_songname_size ; name padded with null bytes
 pt_sd_sampleinfo		RS.B pt_sampleinfo_size*pt_samplesnum ; 1st sampleinfo structure repeated 31 times
 pt_sd_numofpatt			RS.B 1	; number of song positions [1..128]
 pt_sd_restartpos		RS.B 1	; restart position for Noisetracker and Startrekker not used by Protracker, set to 127
-pt_sd_pattpos			RS.B 128 ; pattern positions table [0..127]
+pt_sd_pattpos			RS.B pt_pattpos_size ; pattern positions table
 pt_sd_id			RS.B 4	; string "M.K." = 4 channels, 31 samples, 64 pattern positions or string "M!K!" = 4 channels, 31 Samples, 100 patterns
 pt_sd_patterndata		RS.B 0	; 1st pattern structure, repeated for each pattern [1..64] times
 
