@@ -1924,7 +1924,7 @@ INIT_NESTED_MIRROR_BPLAM_TABLE	MACRO
 ; \2 NUMBER:		First BPLAM value
 ; \3 NUMBER:		next BPLAM value
 ; \4 BYTE SIGNED:	Number of color gradients
-; \5 BYTE SINGED:       Number of sections per color gradient
+; \5 BYTE SINGED:	Number of sections per color gradient
 ; \6 POINTER:		BPLAM table
 ; \7 STRING:		["pc", "a3"] pointer base
 ; \8 WORD:		Offset table start (optional)

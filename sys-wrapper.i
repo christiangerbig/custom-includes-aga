@@ -3230,7 +3230,7 @@ get_tod_duration
 		bge.s	get_tod_duration_skip1
 		move.l	#TOD_MAX,d2
 		sub.l	d0,d2		; difference until overflow
-		add.l	d2,d1           ; adjust time
+		add.l	d2,d1		; adjust time
 		bra.s	get_tod_duration_skip2
 		CNOP 0,4
 get_tod_duration_skip1

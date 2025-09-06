@@ -53,7 +53,7 @@ level_2_handler
 			moveq	#ciaa_icr_bits&(~CIAICRF_SETCLR),d1
 			and.b	CIAICR(a4),d1	; any CIA-A interrupts ?
 			bne.s	level_2_handler_skip1
-                ENDC
+		ENDC
 		movem.l	d0-d1,-(a7)
 		bsr	ports_server
 		movem.l (a7)+,d0-d1
@@ -300,7 +300,7 @@ level_6_handler_skip5
 				movem.l	(a7)+,d0-d1
 level_6_handler_skip6
 			ENDC
-              	bra.s	level_6_handler_quit
+			bra.s	level_6_handler_quit
 		ENDC
 	ENDC
 

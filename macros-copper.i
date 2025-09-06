@@ -418,7 +418,7 @@ COP_INIT_COLOR_HIGH		MACRO
 COP_INIT_COLOR_LOW		MACRO
 ; Input
 ; \1 WORD:		First color register offset
-; \2 BYTE_SIGNED:       Number of colors
+; \2 BYTE_SIGNED:	  Number of colors
 ; \3 POINTER:		Color table (optional)
 ; Global reference
 ; cop_init_colors
@@ -1757,7 +1757,7 @@ CLEAR_BPLCON4_CHUNKY		MACRO
 				move.w	d0,BLTADAT-DMACONR(a6)
 			ELSE
 				move.w	#bplcon4_bits,BLTADAT-DMACONR(a6)
-             	ENDC
+	 	ENDC
 		ENDC
 		move.l	#(\1_clear_blit_y_size<<16)|(\1_clear_blit_x_size/WORD_BITS),BLTSIZV-DMACONR(a6)
 		rts
@@ -1780,7 +1780,7 @@ CLEAR_BPLCON4_CHUNKY		MACRO
 				move.w	d0,BLTADAT-DMACONR(a6)
 			ELSE
 				move.w	#bplcon4_bits,BLTADAT-DMACONR(a6)
-             	ENDC
+	 	ENDC
 		ENDC
 		move.l	#(\1_clear_blit_y_size<<16)|(\1_clear_blit_x_size/WORD_BITS),BLTSIZV-DMACONR(a6)
 		rts

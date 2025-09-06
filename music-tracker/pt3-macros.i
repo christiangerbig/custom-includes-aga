@@ -335,7 +335,7 @@ pt_GetNewNote
 	lea	pt_audchan1temp(pc),a2
 	IFEQ pt_metronome_enabled
 		moveq	#pt_metrochan1,d2
-        ENDC
+	ENDC
 	bsr.s	pt_Plv2
 	lea	pt_audchan2temp(pc),a2
 	ADDF.W	16,a6			; next audio channel
@@ -353,7 +353,7 @@ pt_GetNewNote
 	ADDF.W	16,a6
 	IFEQ pt_metronome_enabled
 		moveq	#pt_metrochan4,d2
-        ENDC
+	ENDC
 	bsr.s	pt_Plv2
 	bra	pt_SetDMA
 
