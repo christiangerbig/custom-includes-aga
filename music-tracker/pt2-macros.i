@@ -763,6 +763,7 @@ pt_SetTonePorta
 pt_StpLoop
 		cmp.w	(a1)+,d3	; note period >= table note period ?
 		dbhs	d7,pt_StpLoop
+		tst.w	d7
 		bpl.s	pt_StpFound
 		moveq	#0,d7		; last note period in table
 pt_StpFound
@@ -897,6 +898,7 @@ pt_ArpeggioFind
 pt_ArpLoop
 	cmp.w	(a1)+,d2		; note period >= table note period ?
 	dbhs	d7,pt_ArpLoop
+	tst.w	d7
 	bpl.s	pt_ArpFound
 	rts
 	CNOP 0,4
@@ -1025,7 +1027,8 @@ pt_TonePortaSetPer
 	moveq	#((pt_PeriodTableEnd-pt_PeriodTable)/2)-1,d7 ; number of periods
 pt_GlissLoop
 	cmp.w	(a1)+,d3		; note period >= table note period ?
-	dbhs	d7,pt_GlissLoop 
+	dbhs	d7,pt_GlissLoop
+	tst.w	d7
 	bpl.s	pt_GlissFound
 	moveq	#0,d7			; last note period in table
 pt_GlissFound

@@ -1605,6 +1605,11 @@ GET_NEW_CHAR_IMAGE		MACRO
 \1_get_new_char_image_loop
 	cmp.b	(a0)+,d0		; character found ?
 	dbeq	d6,\1_get_new_char_image_loop
+	tst.w	d6
+	bpl.s   \1_get_new_char_image_skip
+	moveq	#0,d6			; space character if character not found
+\1_get_new_char_image_skip
+
 	IFC "BACKWARDS","\4"
 		IFC "","\5"
 			subq.w	#BYTE_SIZE,d1 ; next character
