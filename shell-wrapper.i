@@ -122,7 +122,7 @@ alloc_memory
 		bne.s	alloc_memory_ok
 		lea	error_text1(pc),a0
 		moveq	#error_text1_end-error_text1,d0
-		bsr	prtext
+		bsr	print_text
 		moveq	#RETURN_ERROR,d0
 		rts
 		CNOP 0,4
@@ -189,7 +189,7 @@ prerror_text_skip
 ; a0.l	Error text
 ; Result
 	CNOP 0,4
-prtext
+print_text
 	move.l	output_handle(a3),d1
 	move.l	a0,d2			; error text
 	move.l	d0,d3			; error text length

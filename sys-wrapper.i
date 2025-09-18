@@ -72,9 +72,14 @@
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_graphics_library
 
+		bsr	get_active_screen
+		move.l	d0,active_screen(a3)
+		bsr	get_first_window
+		move.l	d0,first_window(a3)
+
 		bsr	check_system_props
 		move.l	d0,dos_return_code(a3)
-		bne	cleanup_intuition_library
+		bne	cleanup_error_message
 
 		IFEQ requires_030_cpu
 			bsr	check_cpu_requirements
@@ -121,10 +126,6 @@
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_error_message
 
-		bsr	get_active_screen
-		move.l	d0,active_screen(a3)
-		bsr	get_first_window
-		move.l	d0,first_window(a3)
 		bsr	check_screen_mode
 		move.l	d0,dos_return_code(a3)
 		bne	cleanup_error_message
@@ -547,7 +548,7 @@ cleanup_timer_device
 		bsr	close_timer_device
 
 cleanup_error_message
-		bsr	prerror_message
+		bsr	print_error_message
 		move.l	d0,dos_return_code(a3)
 
 cleanup_intuition_library
@@ -1277,6 +1278,36 @@ open_intuition_library_ok
 
 ; Input
 ; Result
+; d0.l	Screen structure active screen
+	CNOP 0,4
+get_active_screen
+		moveq	#0,d0		; all locks
+		CALLINT LockIBase
+		move.l	d0,a0
+		move.l	ib_ActiveScreen(a6),a2
+		CALLLIBS UnlockIBase
+		move.l	a2,d0
+		rts
+
+		
+; Input
+; Result
+; d0.l	Structure first window
+		CNOP 0,4
+get_first_window
+		move.l	active_screen(a3),d0
+		bne.s	get_first_window_skip
+get_first_window_quit
+		rts
+		CNOP 0,4
+get_first_window_skip
+		move.l	d0,a0
+		move.l	sc_FirstWindow(a0),d0
+		bra.s	get_first_window_quit
+
+
+; Input
+; Result
 ; d0.l	Return code	
 		CNOP 0,4
 check_system_props
@@ -1569,36 +1600,6 @@ open_timer_device_quit
 open_timer_device_ok
 		moveq	#RETURN_OK,d0
 		bra.s	open_timer_device_quit	
-
-
-; Input
-; Result
-; d0.l	pointer screen structure active screen
-	CNOP 0,4
-get_active_screen
-		moveq	#0,d0		; all locks
-		CALLINT LockIBase
-		move.l	d0,a0
-		move.l	ib_ActiveScreen(a6),a2
-		CALLLIBS UnlockIBase
-		move.l	a2,d0
-		rts
-
-		
-; Input
-; Result
-; d0.l	Window structure first window
-		CNOP 0,4
-get_first_window
-		move.l	active_screen(a3),d0
-		bne.s	get_first_window_skip
-get_first_window_quit
-		rts
-		CNOP 0,4
-get_first_window_skip
-		move.l	d0,a0
-		move.l	sc_FirstWindow(a0),d0
-		bra.s	get_first_window_quit
 
 
 ; Input
@@ -3923,21 +3924,21 @@ sf_free_screen_color_table_skip
 ; Input
 ; Result
 		CNOP 0,4
-prerror_message
+print_error_message
 		move.w	custom_error_code(a3),d4
-		beq.s	prerror_message_ok
+		beq.s	print_error_message_ok
 		CALLINT WBenchToFront
 		lea	raw_name(pc),a0
 		move.l	a0,d1
 		move.l	#MODE_OLDFILE,d2
 		CALLDOS Open
 		move.l	d0,raw_handle(a3)
-		bne.s	prerror_message_skip
+		bne.s	print_error_message_skip
 		moveq	#RETURN_FAIL,d0
-prerror_message_quit
+print_error_message_quit
 		rts
 		CNOP 0,4
-prerror_message_skip
+print_error_message_skip
 		subq.w	#1,d4		; count starts at 0
 		MULUF.W	8,d4,d1
 		lea	custom_error_table(pc),a0
@@ -3953,9 +3954,9 @@ prerror_message_skip
 		move.l	raw_handle(a3),d1
 		CALLLIBS Close
 		bsr.s	original_screen_to_front
-prerror_message_ok
+print_error_message_ok
 		moveq	#RETURN_OK,d0
-		bra.s	prerror_message_quit
+		bra.s	print_error_message_quit
 
 
 ; Input
@@ -3979,7 +3980,7 @@ original_screen_to_front_skip
 
 ; Input
 ; Result
-; d0.l	 screen structure 1st screen
+; d0.l	 Screen structure 1st screen
 		CNOP 0,4
 get_first_screen
 		moveq	#0,d0		; all locks
