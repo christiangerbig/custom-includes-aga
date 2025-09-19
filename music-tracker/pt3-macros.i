@@ -544,7 +544,7 @@ pt_sdmaskp
 	ELSE
 		move.w	n_period(a2),6(a6) ; AUDxPER
 	ENDC
-	move.w	d3,4(a6)		; AUDxLEN
+	move.w	d3,LONGWORD_SIZE(a6)		; AUDxLEN
 	bra	pt_CheckMoreEffects
 
 ; E5x "Set Sample Finetune"
@@ -1656,7 +1656,7 @@ pt_RtnSkip
 		move.b	d5,n_notetrigger(a2)
 	ENDC
 	move.l	n_start(a2),(a6)	; AUDxLCH
-	move.w	n_length(a2),4(a6)	; AUDxLEN
+	move.w	n_length(a2),LONGWORD_SIZE(a6)	; AUDxLEN
 pt_RtnEnd
 	rts
 	ENDM
@@ -1721,7 +1721,7 @@ pt_NoteDelay
 		move.b	d5,n_notetrigger(a2) ; set note trigger flag
 	ENDC
 	move.l	n_start(a2),(a6)	; AUDxLCH
-	move.w	n_length(a2),4(a6)	; AUDxLEN
+	move.w	n_length(a2),LONGWORD_SIZE(a6)	; AUDxLEN
 pt_NoteDelayEnd
 	rts
 	ENDM

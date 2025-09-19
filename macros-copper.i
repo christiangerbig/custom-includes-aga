@@ -269,7 +269,7 @@ COP_SET_BITPLANE_POINTERS	MACRO
 \1_set_bitplane_pointers_loop
 			move.l	(a1)+,d0
 			add.l	d1,d0
-			move.w	d0,4(a0) ; BPLxPTL
+			move.w	d0,LONGWORD_SIZE(a0) ; BPLxPTL
 			swap	d0
 			move.w	d0,(a0)	; BPLxPTH
 			addq.w	#QUADWORD_SIZE,a0
@@ -370,7 +370,7 @@ COP_SELECT_COLOR_HIGH_BANK	MACRO
 	ENDC
 		COP_MOVEQ bplcon3_bits1|(BPLCON3F_BANK0*\1),BPLCON3
 	IFNC "","\2"
-		or.w	#\2,-2(a0)
+		or.w	#\2,-WORD_SIZE(a0)
 	ENDC
 	ENDM
 
@@ -387,7 +387,7 @@ COP_SELECT_COLOR_LOW_BANK	MACRO
 	ENDC
 		COP_MOVEQ bplcon3_bits2|(BPLCON3F_BANK0*\1),BPLCON3
 	IFNC "","\2"
-		or.w	#\2,-2(a0)
+		or.w	#\2,-WORD_SIZE(a0)
 	ENDC
 	ENDM
 

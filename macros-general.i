@@ -2900,7 +2900,7 @@ INIT_CUSTOM_ERROR_ENTRY		MACRO
 	lea	\2(pc),a1		; error text
 	move.l	a1,(a0,d0.w)
 	moveq	#\3,d1			; error text length
-	move.l	d1,4(a0,d0.w)
+	move.l	d1,LONGWORD_SIZE(a0,d0.w)
 	ENDM
 
 
