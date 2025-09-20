@@ -90,13 +90,13 @@ pt_NoNewNote
 pt_NoNewAllChannels
 	lea	pt_audchan1temp(pc),a2
 	bsr.s	pt_CheckEffects
-	ADDF.W	16,a6			; next audio channel
+	ADDF.W	ac_SIZEOF,a6		; next audio channel
 	lea	pt_audchan2temp(pc),a2
 	bsr.s	pt_CheckEffects
-	ADDF.W	16,a6
+	ADDF.W	ac_SIZEOF,a6
 	lea	pt_audchan3temp(pc),a2
 	bsr.s	pt_CheckEffects
-	ADDF.W	16,a6
+	ADDF.W	ac_SIZEOF,a6
 	lea	pt_audchan4temp(pc),a2
 	bsr.s	pt_CheckEffects
 
@@ -176,10 +176,10 @@ pt_CheckEffects
 pt_SetBack
 	IFEQ pt_track_periods_enabled
 		move.w	n_period(a2),d2
-		move.w	d2,6(a6)	; AUDxPER
+		move.w	d2,ac_per(a6)	; AUDxPER
 		move.w	d2,n_currentperiod(a2)
 	ELSE
-		move.w	n_period(a2),6(a6) ; AUDxPER
+		move.w	n_period(a2),ac_per(a6) ; AUDxPER
 	ENDC
 
 ; 7xy "Tremolo"
@@ -200,10 +200,10 @@ pt_SetBack
 pt_ChkEfxPerNop
 		IFEQ pt_track_periods_enabled
 			move.w	n_period(a2),d2
-			move.w	d2,6(a6) ; AUDxPER
+			move.w	d2,ac_per(a6) ; AUDxPER
 			move.w	d2,n_currentperiod(a2)
 		ELSE
-			move.w n_period(a2),6(a6) ; AUDxPER
+			move.w n_period(a2),ac_per(a6) ; AUDxPER
 		ENDC
 		rts
 	ENDC
@@ -314,13 +314,13 @@ pt_GetNewNote
 	move.w	d5,pt_DMACONtemp(a3)	; clear DMA bits
 	lea	pt_audchan1temp(pc),a2
 	bsr.s	pt_PlayVoice
-	ADDF.W	16,a6			; next audio channel
+	ADDF.W	ac_SIZEOF,a6		; next audio channel
 	lea	pt_audchan2temp(pc),a2
 	bsr.s	pt_PlayVoice
-	ADDF.W	16,a6
+	ADDF.W	ac_SIZEOF,a6
 	lea	pt_audchan3temp(pc),a2
 	bsr.s	pt_PlayVoice
-	ADDF.W	16,a6
+	ADDF.W	ac_SIZEOF,a6
 	lea	pt_audchan4temp(pc),a2
 	bsr.s	pt_PlayVoice
 	bra	pt_SetDMA
@@ -331,10 +331,10 @@ pt_PlayVoice
 	bne.s	pt_PlvSkip
 	IFEQ pt_track_periods_enabled
 		move.w	n_period(a2),d2
-		move.w	d2,6(a6)	; AUDxPER
+		move.w	d2,ac_per(a6)	; AUDxPER
 		move.w	d2,n_currentperiod(a2)
 	ELSE
-		move.w	n_period(a2),6(a6) ; AUDxPER
+		move.w	n_period(a2),ac_per(a6) ; AUDxPER
 	ENDC
 pt_PlvSkip
 	moveq	#0,d2
@@ -363,9 +363,9 @@ pt_PlvSkip
 pt_DecVolSkip1
 	ENDC
 	IFEQ pt_mute_enabled
-		move.w	d5,8(a6)	; AUDxVOL muted
+		move.w	d5,ac_vol(a6)	; AUDxVOL muted
 	ELSE
-		move.w	d2,8(a6)	; AUDxVOL
+		move.w	d2,ac_vol(a6)	; AUDxVOL
 		IFEQ pt_track_volumes_enabled
 			move.w	d2,n_currentvolume(a2)
 		ENDC
@@ -457,14 +457,14 @@ pt_VibNoC
 pt_TreNoC
 	ENDC
 
-	move.l	n_start(a2),(a6)	; AUDxLCH
-	move.w	n_length(a2),LONGWORD_SIZE(a6)	; AUDxLEN
+	move.l	n_start(a2),(a6)	; AUDxLC
+	move.w	n_length(a2),ac_len(a6)	; AUDxLEN
 	IFEQ pt_track_periods_enabled
 		move.w	n_period(a2),d2
-		move.w	d2,6(a6)	; AUDxPER
+		move.w	d2,ac_per(a6)	; AUDxPER
 		move.w	d2,n_currentperiod(a2)
 	ELSE
-		move.w	n_period(a2),6(a6) ; AUDxPER
+		move.w	n_period(a2),ac_per(a6) ; AUDxPER
 	ENDC
 	IFEQ pt_track_notes_played_enabled
 		move.b d5,n_notetrigger(a2)
@@ -530,10 +530,10 @@ pt_CheckMoreEffects
 pt_ChkMoreEfxPerNop
 	IFEQ pt_track_periods_enabled
 		move.w	n_period(a2),d2
-		move.w	d2,6(a6)	; AUDxPER
+		move.w	d2,ac_per(a6)	; AUDxPER
 		move.w	d2,n_currentperiod(a2)
 	ELSE
-		move.w	n_period(a2),6(a6) ; AUDxPER
+		move.w	n_period(a2),ac_per(a6) ; AUDxPER
 	ENDC
 	rts
  
@@ -872,7 +872,7 @@ pt_ArpDivLoop
 pt_Arpeggio0
 	move.w	n_period(a2),d2		; play original note period at tick #1
 pt_ArpeggioSet
-	move.w	d2,6(a6)		; AUDxPER
+	move.w	d2,ac_per(a6)		; AUDxPER
 	IFEQ pt_track_periods_enabled
 		move.w	d2,n_currentperiod(a2)
 	ENDC
@@ -936,7 +936,7 @@ pt_PortamentoUp
 	bpl.s	pt_PortaUpSkip
 	moveq	#pt_portminper,d2
 pt_PortaUpSkip
-	move.w	d2,6(a6)		; AUDxPER
+	move.w	d2,ac_per(a6)		; AUDxPER
 	move.w	d2,n_period(a2)
 	IFEQ pt_track_periods_enabled
 		move.w	d2,n_currentperiod(a2)
@@ -967,7 +967,7 @@ pt_PortamentoDown
 	bmi.s	pt_PortaDownSkip
 	move.w	#pt_portmaxper,d2
 pt_PortaDownSkip
-	move.w	d2,6(a6)		; AUDxPER
+	move.w	d2,ac_per(a6)		; AUDxPER
 	move.w	d2,n_period(a2)
 	IFEQ pt_track_periods_enabled
 		move.w	d2,n_currentperiod(a2)
@@ -1037,7 +1037,7 @@ pt_GlissFound
 	move.l	d2,a1			; period table address
 	move.w	(a1,d0.w*2),d3		; note period from period table
 pt_GlissSkip
-	move.w	d3,6(a6)		; AUDxPER
+	move.w	d3,ac_per(a6)		; AUDxPER
 	IFEQ pt_track_periods_enabled
 		move.w	d3,n_currentperiod(a2)
 	ENDC
@@ -1109,7 +1109,7 @@ pt_VibSet
 pt_VibratoNeg
 	sub.w	d2,d0			; note period - period amplitude
 pt_Vibrato3
-	move.w	d0,6(a6)		; AUDxPER
+	move.w	d0,ac_per(a6)		; AUDxPER
 	IFEQ pt_track_periods_enabled
 		move.w	d0,n_currentperiod(a2)
 	ENDC
@@ -1223,9 +1223,9 @@ pt_TremoloOk
 pt_DecVolSkip2
 	ENDC
 	IFEQ pt_mute_enabled
-		move.w	d5,8(a6)	; AUDxVOL muted
+		move.w	d5,ac_vol(a6)	; AUDxVOL muted
 	ELSE
-		move.w	d0,8(a6)	; AUDxVOL
+		move.w	d0,ac_vol(a6)	; AUDxVOL
 		IFEQ pt_track_volumes_enabled
 			move.w	d0,n_currentvolume(a2)
 		ENDC
@@ -1266,9 +1266,9 @@ pt_VsuSkip
 pt_DecVolSkip3
 	ENDC
 	IFEQ pt_mute_enabled
-		move.w	d5,8(a6)	; AUDxVOL muted
+		move.w	d5,ac_vol(a6)	; AUDxVOL muted
 	ELSE
-		move.w	d2,8(a6)	; AUDxVOL
+		move.w	d2,ac_vol(a6)	; AUDxVOL
 		IFEQ pt_track_volumes_enabled
 			move.w	d2,n_currentvolume(a2)
 		ENDC
@@ -1296,9 +1296,9 @@ pt_VsdSkip
 pt_DecVolSkip4
 	ENDC
 	IFEQ pt_mute_enabled
-		move.w	d5,8(a6)	; AUDxVOL muted
+		move.w	d5,ac_vol(a6)	; AUDxVOL muted
 	ELSE
-		move.w	d2,8(a6)	; AUDxVOL
+		move.w	d2,ac_vol(a6)	; AUDxVOL
 		IFEQ pt_track_volumes_enabled
 			move.w	d2,n_currentvolume(a2)
 		ENDC
@@ -1369,9 +1369,9 @@ pt_MaxVolOk
 pt_DecVolSkip5
 	ENDC
 	IFEQ pt_mute_enabled
-		move.w	d5,8(a6)	; AUDxVOL muted
+		move.w	d5,ac_vol(a6)	; AUDxVOL muted
 	ELSE
-		move.w	d0,8(a6)	; AUDxVOL
+		move.w	d0,ac_vol(a6)	; AUDxVOL
 		IFEQ pt_track_volumes_enabled
 			move.w	d0,n_currentvolume(a2)
 		ENDC
@@ -1584,7 +1584,7 @@ pt_RtnSkip
 		move.b	d5,n_notetrigger(a2)
 	ENDC
 	move.l	n_start(a2),(a6)	; AUDxLCH
-	move.w	n_length(a2),LONGWORD_SIZE(a6)	; AUDxLEN
+	move.w	n_length(a2),ac_len(a6)	; AUDxLEN
 pt_RtnEnd
 	rts
 	ENDM
@@ -1622,7 +1622,7 @@ pt_NoteCut
 	and.b	n_cmdlo(a2),d0		; command data: x-blanks
 	cmp.w	pt_Counter(a3),d0	; blanks = ticks ?
 	bne.s	pt_NoteCutEnd
-	move.w	d5,8(a6)		; AUDxVOL muted
+	move.w	d5,ac_vol(a6)		; AUDxVOL muted
 	move.b	d5,n_volume(a2)
 	IFEQ pt_track_volumes_enabled
 		move.w	d5,n_currentvolume(a2)
@@ -1653,7 +1653,7 @@ pt_NoteDelay
 		move.b	d5,n_notetrigger(a2)
 	ENDC
 	move.l	n_start(a2),(a6)	; AUDxLCH
-	move.w	n_length(a2),LONGWORD_SIZE(a6)	; AUDxLEN
+	move.w	n_length(a2),ac_len(a6)	; AUDxLEN
 pt_NoteDelayEnd
 	rts
 	ENDM

@@ -54,7 +54,7 @@ pt_music_fader_skip2
 
 	IFD PROTRACKER_VERSION_2
 ; Input
-; a0.l	 temporary audio data
+; a0.l	 Temporary audio data
 ; Result
 		CNOP 0,4
 pt_decrease_channel_volume
@@ -67,7 +67,7 @@ pt_decrease_channel_volume
 		lsr.w	#6,d0
 pt_decrease_channel_volume_skip
 		move.w	d0,(a1)		; AUDxVOL
-		ADDF.W	16,a1		; next audio channel
+		ADDF.W	ac_SIZEOF,a1	; next audio channel
 		rts
 	ENDC
 	ENDM
