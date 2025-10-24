@@ -141,8 +141,8 @@ wait_coploop
 
 
 ; Input
-; a0.l	 copperlist
-; a1.l	 color table
+; a0.l	Copperlist
+; a1.l	Color table
 ; d3.w	Offset 1st color register
 ; d7.w	Number of colors
 ; Result
@@ -160,8 +160,8 @@ cop_init_high_colors_loop
 
 
 ; Input
-; a0.l	 copperlist
-; a1.l	 color table
+; a0.l	Copperlist
+; a1.l	Color table
 ; d3.w	Offset 1st color register
 ; d7.w	Number of colors
 ; Result
@@ -180,7 +180,7 @@ cop_init_low_colors_loop
 
 ; Input
 ; a0.l	Color register address
-; a1.l	 color table
+; a1.l	Color table
 ; d7.w	Number of colors
 ; Result
 	CNOP 0,4
@@ -196,7 +196,7 @@ cpu_init_high_colors_loop
 
 ; Input
 ; a0.l	Color register address
-; a1.l	 color table
+; a1.l	Color table
 ; d7.w	Number of colors
 ; Result
 	CNOP 0,4
@@ -215,7 +215,7 @@ cpu_init_low_colors_loop
 ; d0.l	RGB8 current value
 ; d6.l	RGB8 tartget value
 ; d7.w	Number of colors
-; a0.l	 color table
+; a0.l	Color table
 ; a1.l	Decrement/increment red
 ; a2.l	Decrement/increment green
 ; a4.w	Decrement/increment blue
@@ -239,16 +239,16 @@ init_color_gradient_rgb8_loop
 		clr.w	d3		; R8 destination
 		clr.b	d4		; G8 destination
 		cmp.l	d3,d0
-		bgt.s	decrease_red_rgb8
-		blt.s	increase_red_rgb8
+		bgt	decrease_red_rgb8
+		blt	increase_red_rgb8
 init_color_gradient_rgb8_skip1
 		cmp.l	d4,d1
-		bgt.s	decrease_green_rgb8
-		blt.s	increase_green_rgb8
+		bgt	decrease_green_rgb8
+		blt	increase_green_rgb8
 init_color_gradient_rgb8_skip2
 		cmp.w	d5,d2
-		bgt.s	decrease_blue_rgb8
-		blt.s	increase_blue_rgb8
+		bgt	decrease_blue_rgb8
+		blt	increase_blue_rgb8
 init_color_gradient_rgb8_skip3
 		move.w	d1,d0		; G8
 		move.b	d2,d0		; B8
@@ -258,42 +258,42 @@ init_color_gradient_rgb8_skip3
 decrease_red_rgb8
 		sub.l	a1,d0
 		cmp.l	d3,d0
-		bgt.s	init_color_gradient_rgb8_skip1
+		bgt	init_color_gradient_rgb8_skip1
 		move.l	d3,d0
-		bra.s	init_color_gradient_rgb8_skip1
+		bra	init_color_gradient_rgb8_skip1
 		CNOP 0,4
 increase_red_rgb8
 		add.l	a1,d0
 		cmp.l	d3,d0
-		blt.s	init_color_gradient_rgb8_skip1
+		blt	init_color_gradient_rgb8_skip1
 		move.l	d3,d0
-		bra.s	init_color_gradient_rgb8_skip1
+		bra	init_color_gradient_rgb8_skip1
 		CNOP 0,4
 decrease_green_rgb8
 		sub.l	a2,d1
 		cmp.l	d4,d1
-		bgt.s	init_color_gradient_rgb8_skip2
+		bgt	init_color_gradient_rgb8_skip2
 		move.l	d4,d1
-		bra.s	init_color_gradient_rgb8_skip2
+		bra	init_color_gradient_rgb8_skip2
 		CNOP 0,4
 increase_green_rgb8
 		add.l	a2,d1							;Grünanteil erhöhen
 		cmp.l	d4,d1							;Ist-Grünwert < Soll-Grünwert ?
-		blt.s	init_color_gradient_rgb8_skip2
+		blt	init_color_gradient_rgb8_skip2
 		move.l	d4,d1
-		bra.s	init_color_gradient_rgb8_skip2
+		bra	init_color_gradient_rgb8_skip2
 		CNOP 0,4
 decrease_blue_rgb8
 		sub.w	a4,d2
 		cmp.w	d5,d2
-		bgt.s	init_color_gradient_rgb8_skip3
+		bgt	init_color_gradient_rgb8_skip3
 		move.w	d5,d2
-		bra.s	init_color_gradient_rgb8_skip3
+		bra	init_color_gradient_rgb8_skip3
 		CNOP 0,4
 increase_blue_rgb8
 		add.w	a4,d2
 		cmp.w	d5,d2
-		blt.s	init_color_gradient_rgb8_skip3
+		blt	init_color_gradient_rgb8_skip3
 		move.w	d5,d2
-		bra.s	init_color_gradient_rgb8_skip3
+		bra	init_color_gradient_rgb8_skip3
 	ENDC

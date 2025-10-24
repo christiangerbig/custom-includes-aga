@@ -480,7 +480,7 @@ COP_INIT_COLOR00_SCREEN		MACRO
 		COP_WAIT CL_X_WRAPPING,CL_Y_WRAPPING ; patch cl
 \1_init_color00_skip
 	ENDC
-	add.l	d6,d0			; next line in cl
+	add.l	d6,d0			; next line
 	dbf	d7,\1_init_color00_loop
 	rts
 	ENDM
@@ -598,7 +598,7 @@ COP_INIT_BPLCON4_CHUNKY	MACRO
 \1_init_bplcon4_chunky_loop2
 		move.l	d1,(a0)+	; BPLCON4
 		dbf	d6,\1_init_bplcon4_chunky_loop2
-		add.l	d3,d0		; next line in cl
+		add.l	d3,d0		; next line
 		dbf	d7,\1_init_bplcon4_chunky_loop1
 		rts
 	ELSE
@@ -658,7 +658,7 @@ COP_INIT_BPLCON4_CHUNKY	MACRO
 \1_init_bplcon4_chunky_loop2
 		move.l	d4,(a0)+	; BPLCON4
 		dbf	d6,\1_init_bplcon4_chunky_loop2
-		add.l	d5,d0		; next line in cl
+		add.l	d5,d0		; next line
 		dbf	d7,\1_init_bplcon4_chunky_loop1
 		move.l	(a7)+,a4
 		rts
@@ -708,7 +708,7 @@ COP_INIT_BPLCON1_CHUNKY	MACRO
 \1_init_bplcon1_chunky_loop2
 	move.l	d1,(a0)+		; BPLCON1
 	dbf	d6,\1_init_bplcon1_chunky_loop2
-	add.l	d3,d0			; next line in cl
+	add.l	d3,d0			; next line
 	dbf	d7,\1_init_bplcon1_chunky_loop1
 	rts
 	ENDM
@@ -1503,7 +1503,7 @@ CLEAR_COLOR00_SCREEN		MACRO
 			move.w	d0,\2_\4_size*14(a0)
 			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*14)(a0)
 			move.w	d0,\2_\4_size*15(a0)
-			add.l	d2,a0	; next line in cl
+			add.l	d2,a0	; next line
 			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*15)-(\2_\4_size*16)(a0)
 			dbf	d7,\1_clear_first_copperlist_loop
 			rts
@@ -1579,7 +1579,7 @@ CLEAR_COLOR00_SCREEN		MACRO
 			move.w	d0,\2_\4_size*30(a0)
 			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*30)(a0)
 			move.w	d0,\2_\4_size*31(a0)
-			add.l	d2,a0	; next line in cl
+			add.l	d2,a0	; next line
 			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*31)-(\2_\4_size*32)(a0)
 			dbf	d7,\1_clear_first_copperlist_loop
 			rts
@@ -1626,7 +1626,7 @@ CLEAR_COLOR00_SCREEN		MACRO
 			move.w	d0,\2_\4_size*14(a0)
 			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*14)(a0)
 			move.w	d0,\2_\4_size*15(a0)
-			add.l	d2,a0	; next line in cl
+			add.l	d2,a0	; next line
 			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*15)-(\2_\4_size*16)(a0)
 			dbf	d7,\1_clear_second_copperlist_loop
 			rts
@@ -1702,7 +1702,7 @@ CLEAR_COLOR00_SCREEN		MACRO
 			move.w	d0,\2_\4_size*30(a0)
 			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*30)(a0)
 			move.w	d0,\2_\4_size*31(a0)
-			add.l	d2,a0	; next line in cl
+			add.l	d2,a0	; next line
 			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*31)-(\2_\4_size*32)(a0)
 			dbf	d7,\1_clear_second_copperlist_loop
 			rts
@@ -1744,7 +1744,7 @@ CLEAR_BPLCON4_CHUNKY		MACRO
 		move.l	\2_\3(a3),a0
 		ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
 		WAITBLIT
-		move.l	#(BC0F_DEST|ANBNC|ANBC|ABNC|ABC)<<16,BLTCON0-DMACONR(a6) ; minterm D=A
+		move.l	#(BC0F_DEST|ANBNC|ANBC|ABNC|ABC)<<16,BLTCON0-DMACONR(a6) ; minterm D = A
 		moveq	#-1,d0
 		move.l	d0,BLTAFWM-DMACONR(a6)
 		move.l	a0,BLTDPT-DMACONR(a6)
@@ -1767,7 +1767,7 @@ CLEAR_BPLCON4_CHUNKY		MACRO
 		move.l	\2_\3(a3),a0
 		ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
 		WAITBLIT
-		move.l	#(BC0F_DEST|ANBNC|ANBC|ABNC|ABC)<<16,BLTCON0-DMACONR(a6) ; minterm D=A
+		move.l	#(BC0F_DEST|ANBNC|ANBC|ABNC|ABC)<<16,BLTCON0-DMACONR(a6) ; minterm D = A
 		moveq	#-1,d0
 		move.l	d0,BLTAFWM-DMACONR(a6)
 		move.l	a0,BLTDPT-DMACONR(a6)
@@ -2080,7 +2080,7 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 	COPY_TWISTED_BAR.\0 \1,\2,\4,\5
 \1_set_background_bars_skip2
 	dbf	d6,\1_set_background_bars_loop2
-	addq.w	#LONGWORD_SIZE,a2	; next column in cl
+	addq.w	#LONGWORD_SIZE,a2	; next column
 	dbf	d7,\1_set_background_bars_loop1
 	movem.l	(a7)+,a4-a5
 	rts
@@ -2173,7 +2173,7 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 	COPY_TWISTED_BAR.\0 \1,\2,\4,\5
 \1_set_foreground_bars_skip2
 	dbf	d6,\1_set_foreground_bars_loop2
-	addq.w	#LONGWORD_SIZE,a2	; next column in cl
+	addq.w	#LONGWORD_SIZE,a2	; next column
 	dbf	d7,\1_set_foreground_bars_loop1
 	movem.l (a7)+,a4-a5
 	rts

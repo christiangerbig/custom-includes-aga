@@ -2153,7 +2153,7 @@ INIT_COLOR_GRADIENT_RGB8	MACRO
 		ENDC
 	ENDC
 	IFNC "","\7"
-		ADDF.W	(\7)*LONGWORD_SIZE,a0 ; offset table start
+		ADDF.L	(\7)*LONGWORD_SIZE,a0 ; offset table start
 	ENDC
 	IFNC "","\4"
 		move.l	#(\4)<<16,a1	; increase/decrease red
