@@ -991,9 +991,9 @@ pt_ArpFound
 	moveq	#((pt_PeriodTableEnd-pt_PeriodTable)/WORD_SIZE)-1,d3
 	sub.b	d7,d3			; number of periods - loopcounter = offset in periods table
 	add.b	d0,d3			; + 1st or 2nd halftone
-	cmp.b	#(pt_PeriodTableEnd-pt_PeriodTable)/WORD_SIZE,d3
+	cmp.b	#(pt_PeriodTableEnd-pt_PeriodTable)/WORD_SIZE,d3 ; unsupported Fasttracker period ?
 	blt.s	pt_ArpNoClip
-	moveq	#0,d0			; clip 1st or 2nd halftone
+	moveq	#0,d0			; clip 1st or 2nd halftone for PT compability
 pt_ArpNoClip
 	move.w	-WORD_SIZE(a1,d0.w*2),d2 ; original note period + 1st or 2nd halftone offset
 	bra.s	pt_ArpeggioSet
