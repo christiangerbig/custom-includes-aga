@@ -906,7 +906,7 @@ pt_DskipA
 	IFNE pt_usedefx&pt_ecmdbitjumptoloop
 		tst.b	pt_PBreakFlag(a3)
 		beq.s	pt_Nnpysk
-		move.b	d5,pt_PBreakFlag(a3)
+		sf.b	pt_PBreakFlag(a3)
 		moveq	#0,d0
 		move.b	pt_PBreakPosition(a3),d0
 		move.b	d5,pt_PBreakPosition(a3)
@@ -1393,10 +1393,10 @@ PT3_EFFECT_POSITION_JUMP	MACRO
 	CNOP 0,4
 pt_PositionJump
 	move.b	n_cmdlo(a2),d0		; command data: xx-song position
-	move.b	d5,pt_PBreakPosition(a3)
 	subq.b	#1,d0
 	move.w	d0,pt_SongPosition(a3)
-	move.b	d6,pt_PosJumpFlag(a3)
+	move.b	d5,pt_PBreakPosition(a3)
+	st.b	pt_PosJumpFlag(a3)
 	rts
 	ENDM
 
@@ -1425,19 +1425,19 @@ PT3_EFFECT_PATTERN_BREAK	MACRO
 pt_PatternBreak
 	move.b	n_cmdlo(a2),d0		; command data: xx-break position (decimal)
 	moveq	#NIBBLE_MASK_LOW,d2
-	and.b	d0,d2		 nibble: digits 0..9
+	and.b	d0,d2		 	; igits 0..9
 	lsr.b	#NIBBLE_SHIFT_BITS,d0	; adjust bits
-	MULUF.B	10,d0,d7 nibble:  digits 10..60
+	MULUF.B	10,d0,d7 		; digits 10..60
 	add.b	d2,d0			; decimal number
 	cmp.b	#pt_maxpattpos-1,d0	; break position > last position in pattern ?
 	bhi.s	pt_PB2
 	move.b	d0,pt_PBreakPosition(a3)
-	move.b	d6,pt_PosJumpFlag(a3)
+	st.b	pt_PosJumpFlag(a3)
 	rts
 	CNOP 0,4
 pt_PB2
 	move.b	d5,pt_PBreakPosition(a3)
-	move.b	d6,pt_PosJumpFlag(a3)
+	st.b	pt_PosJumpFlag(a3)
 	rts
 	ENDM
 
@@ -1554,7 +1554,7 @@ pt_JumpToLoop
 	beq.s	pt_JmpLoopEnd
 pt_JmpLoop
 	move.b	n_pattpos(a2),pt_PBreakPosition(a3)
-	move.b	d6,pt_PBreakFlag(a3)
+	st.b	pt_PBreakFlag(a3)
 pt_JmpLoopEnd
 	rts
 	CNOP 0,4

@@ -1592,7 +1592,11 @@ GET_NEW_CHAR_IMAGE		MACRO
 	IFNC "","\2"
 		bsr.s	\2
 		tst.l	d0
-		beq.s	\1_get_new_char_image_skip5
+		IFC "BACKWARDS","\4"
+			beq.s	\1_get_new_char_image_skip2
+		ELSE
+			beq.s	\1_get_new_char_image_skip5
+		ENDC
 	ENDC
 	IFNC "BACKWARDS","\4"
 		IFNC "NORESTART","\3"
