@@ -108,8 +108,8 @@ MOVEF				MACRO
 		FAIL Macro MOVEF: Target missing
 	ENDC
 	IFC "B","\0"
-		IFLE $80-(\1)
-			IFGE $ff-(\1)
+		IFGT (\1)-$80
+			IFLT (\1)-$ff
 				moveq #-((-(\1)&$ff)),\2
 			ENDC
 		ELSE
@@ -172,7 +172,7 @@ ADDF				MACRO
 		MEXIT
 	ENDC
 	IFC "B","\0"
-		IFGE (\1)-$8000
+		IFGE (\1)-$80
 			add.b	#\1,\2
 		ELSE
 			IFLE (\1)-8
@@ -216,9 +216,6 @@ ADDF				MACRO
 				ELSE
 					add.l	#\1,\2
 				ENDC
-			ENDC
-			IFGE (\1)-$8000
-				add.l	#\1,\2
 			ENDC
 		ENDC
 	ENDC
