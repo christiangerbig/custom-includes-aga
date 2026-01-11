@@ -107,15 +107,17 @@ MOVEF				MACRO
 	IFC "","\2"
 		FAIL Macro MOVEF: Target missing
 	ENDC
+
 	IFC "B","\0"
-		IFGT (\1)-$80
-			IFLT (\1)-$ff
+		IFGE (\1)-$80
+			IFLE (\1)-$ff
 				moveq #-((-(\1)&$ff)),\2
 			ENDC
 		ELSE
 			moveq #\1,\2
 		ENDC
 	ENDC
+
 	IFC "W","\0"
 		IFEQ (\1)&$ff00
 			IFEQ (\1)&$80
@@ -133,6 +135,7 @@ MOVEF				MACRO
 			move.w	#\1,\2
 		ENDC
 	ENDC
+
 	IFC "L","\0"
 		IFEQ (\1)&$ffffff00
 			IFEQ (\1)&$80
@@ -165,12 +168,13 @@ ADDF				MACRO
 	IFC "","\1"
 		FAIL Macro ADDF: Source missing
 	ENDC
-	IFC "","\2"
-		FAIL Macro ADDF: Destination missing
-	ENDC
 	IFEQ \1
 		MEXIT
 	ENDC
+	IFC "","\2"
+		FAIL Macro ADDF: Destination missing
+	ENDC
+
 	IFC "B","\0"
 		IFGE (\1)-$80
 			add.b	#\1,\2
@@ -187,6 +191,7 @@ ADDF				MACRO
 			ENDC
 		ENDC
 	ENDC
+
 	IFC "W","\0"
 		IFGE (\1)-$8000
 			add.w	#\1,\2
@@ -203,6 +208,7 @@ ADDF				MACRO
 			ENDC
 		ENDC
 	ENDC
+
 	IFC "L","\0"
 		IFGE (\1)-$8000
 			add.l	#\1,\2
@@ -234,12 +240,13 @@ SUBF				MACRO
 	IFC "","\1"
 		FAIL Macro SUBF: Source missing
 	ENDC
-	IFC "","\2"
-		FAIL Macro SUBF: Target missing
-	ENDC
 	IFEQ \1
 		MEXIT
 	ENDC
+	IFC "","\2"
+		FAIL Macro SUBF: Target missing
+	ENDC
+
 	IFC "B","\0"
 		IFLE (\1)-8
 			subq.b	#(\1),\2
@@ -252,6 +259,7 @@ SUBF				MACRO
 			ENDC
 		ENDC
 	ENDC
+
 	IFC "W","\0"
 		IFLE (\1)-8
 			subq.w	#(\1),\2
@@ -264,6 +272,7 @@ SUBF				MACRO
 			ENDC
 		ENDC
 	ENDC
+
 	IFC "L","\0"
 		IFLE (\1)-8
 			subq.l	#(\1),\2
@@ -292,17 +301,13 @@ MULUF				MACRO
 	IFC "","\1"
 		FAIL Macro MULUF: Factor missing
 	ENDC
-	IFC "","\2"
-		FAIL Macro MULUF: Product missing
-	ENDC
 	IFEQ \1
 		FAIL Macro MULUF: Factor is 0
 	ENDC
-	IFC "B","\0"
-		IFGT \1-128
-			FAIL Macro MULUF.B: Fcktor is greater than 128
-		ENDC
+	IFC "","\2"
+		FAIL Macro MULUF: Product missing
 	ENDC
+
 	IFEQ (\1)-2			; *2
 		add.\0	\2,\2
 	ENDC
@@ -1194,12 +1199,13 @@ MULSF				MACRO
 	IFC "","\1"
 		FAIL Macro MULSF: Factor missing
 	ENDC
-	IFC "","\2"
-		FAIL Macro MULSF: Product missing
-	ENDC
 	IFEQ \1
 		FAIL Macro MULSF: Factor is 0
 	ENDC
+	IFC "","\2"
+		FAIL Macro MULSF: Product missing
+	ENDC
+
 	ext.l	\2
 	MULUF.L \1,\2,\3
 	ENDM
@@ -1221,10 +1227,11 @@ DIVUF				MACRO
 	IFC "","\2"
 		FAIL Macro DIVUF: Divident missing
 	ENDC
+
 	moveq	#-1,\3			; counter for result
 divison_loop\@
 	addq.w	#1,\3
-	sub.w	\1,\2			; divisor - divident
+	sub.w	\1,\2			; substract divisor from divident
 	bge.s	divison_loop\@		; until dividend < divisor
 	ENDM
 
@@ -1244,6 +1251,7 @@ CMPF				MACRO
 	IFC "","\2"
 		FAIL Macro CMPF: Target missing
 	ENDC
+
 	IFEQ \1
 		tst.\0	\2
 	ELSE
