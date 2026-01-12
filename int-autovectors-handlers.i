@@ -12,7 +12,7 @@ level_1_handler
 			btst	#INTB_TBE,d0
 			beq.s	level_1_handler_skip1
 			move.l	d0,-(a7)
-			bsr	tbe_server
+			bsr	tbe_interrupt_server
 			move.l	(a7)+,d0
 level_1_handler_skip1
 		ENDC
@@ -20,7 +20,7 @@ level_1_handler_skip1
 			btst	#INTB_DSKBLK,d0
 			beq.s	level_1_handler_skip2
 			move.l	d0,-(a7)
-			bsr	dskblk_server
+			bsr	dskblk_interrupt_server
 			move.l	(a7)+,d0
 level_1_handler_skip2
 		ENDC
@@ -28,7 +28,7 @@ level_1_handler_skip2
 			btst	#INTB_SOFTINT,d0
 			beq.s	level_1_handler_skip3
 			move.l	d0,-(a7)
-			bsr	softserver
+			bsr	soft_interrupt_server
 			move.l	(a7)+,d0
 level_1_handler_skip3
 		ENDC
@@ -55,7 +55,7 @@ level_2_handler
 			bne.s	level_2_handler_skip1
 		ENDC
 		movem.l	d0-d1,-(a7)
-		bsr	ports_server
+		bsr	ports_interrupt_server
 		movem.l (a7)+,d0-d1
 level_2_handler_quit
 		move.w	d0,INTREQ-DMACONR(a6) ; clear level2 interrupts
@@ -69,7 +69,7 @@ level_2_handler_skip1
 				btst	#CIAICRB_TA,d1
 				beq.s	level_2_handler_skip2
 				movem.l	d0-d1,-(a7)
-				bsr	ciaa_ta_server
+				bsr	ciaa_ta_interrupt_server
 				movem.l	(a7)+,d0-d1
 level_2_handler_skip2
 			ENDC
@@ -77,7 +77,7 @@ level_2_handler_skip2
 				btst	#CIAICRB_TB,d1
 				beq.s	level_2_handler_skip3
 				movem.l	d0-d1,-(a7)
-				bsr	ciaa_tb_server
+				bsr	ciaa_tb_interrupt_server
 				movem.l	(a7)+,d0-d1
 level_2_handler_skip3
 			ENDC
@@ -85,7 +85,7 @@ level_2_handler_skip3
 				btst	#CIAICRB_ALRM,d1
 				beq.s	level_2_handler_skip4
 				movem.l	d0-d1,-(a7)
-				bsr	ciaa_alrm_server
+				bsr	ciaa_alrm_interrupt_server
 				movem.l	(a7)+,d0-d1
 level_2_handler_skip4
 			ENDC
@@ -93,7 +93,7 @@ level_2_handler_skip4
 				btst	#CIAICRB_SP,d1
 				beq.s	level_2_handler_skip5
 				movem.l	d0-d1,-(a7)
-				bsr	ciaa_sp_server
+				bsr	ciaa_sp_interrupt_server
 				movem.l	(a7)+,d0-d1
 level_2_handler_skip5
 			ENDC
@@ -101,7 +101,7 @@ level_2_handler_skip5
 				btst	#CIAICRB_FLG,d1
 				beq.s	level_2_handler_skip6
 				movem.l	d0-d1,-(a7)
-				bsr	ciaa_flg_server
+				bsr	ciaa_flg_interrupt_server
 				movem.l	(a7)+,d0-d1
 level_2_handler_skip6
 			ENDC
@@ -124,7 +124,7 @@ level_3_handler
 			btst	#INTB_COPER,d0
 			beq.s	level_3_handler_skip1
 			move.l	d0,-(a7)
-			bsr	coper_server
+			bsr	coper_interrupt_server
 			move.l	(a7)+,d0
 level_3_handler_skip1
 		ENDC
@@ -132,7 +132,7 @@ level_3_handler_skip1
 			btst	#INTB_VERTB,d0
 			beq.s	level_3_handler_skip2
 			move.l	d0,-(a7)
-			bsr	vertb_server
+			bsr	vertb_interrupt_server
 			move.l	(a7)+,d0
 level_3_handler_skip2
 		ENDC
@@ -140,7 +140,7 @@ level_3_handler_skip2
 			btst	#INTB_BLIT,d0
 			beq.s	level_3_handler_skip3
 			move.l	d0,-(a7)
-			bsr	blit_server
+			bsr	blit_interrupt_server
 			move.l	(a7)+,d0
 level_3_handler_skip3
 		ENDC
@@ -165,7 +165,7 @@ level_4_handler
 			btst	#INTB_AUD0,d0
 			beq.s	level_4_handler_skip1
 			move.l	d0,-(a7)
-			bsr	aud0_server
+			bsr	aud0_interrupt_server
 			move.l	(a7)+,d0
 level_4_handler_skip1
 		ENDC
@@ -173,7 +173,7 @@ level_4_handler_skip1
 			btst	#INTB_AUD1,d0
 			beq.s	level_4_handler_skip2
 			move.l	d0,-(a7)
-			bsr	aud1_server
+			bsr	aud1_interrupt_server
 			move.l	(a7)+,d0
 level_4_handler_skip2
 		ENDC
@@ -181,7 +181,7 @@ level_4_handler_skip2
 			btst	#INTB_AUD2,d0
 			beq.s	level_4_handler_skip3
 			move.l	d0,-(a7)
-			bsr	aud2_server
+			bsr	aud2_interrupt_server
 			move.l	(a7)+,d0
 level_4_handler_skip3
 		ENDC
@@ -189,7 +189,7 @@ level_4_handler_skip3
 			btst	#INTB_AUD3,d0
 			beq.s	level_4_handler_skip4
 			move.l	d0,-(a7)
-			bsr	aud3_server
+			bsr	aud3_interrupt_server
 			move.l	(a7)+,d0
 			bra.s	rt_level_4_int4
 level_4_handler_skip4
@@ -215,7 +215,7 @@ level_5_handler
 			btst	#INTB_RBF,d0
 			beq.s	level_5_handler_skip1
 			move.l	d0,-(a7)
-			bsr	rbf_server
+			bsr	rbf_interrupt_server
 			move.l	(a7)+,d0
 level_5_handler_skip1
 		ENDC
@@ -223,7 +223,7 @@ level_5_handler_skip1
 			btst	#INTB_DSKSYNC,d0
 			beq.s	level_5_handler_skip2
 			move.l	d0,-(a7)
-			bsr	dsksync_server
+			bsr	dsksync_interrupt_server
 			move.l	(a7)+,d0
 level_5_handler_skip2
 		ENDC
@@ -250,7 +250,7 @@ level_6_handler
 			bne.s	level_6_handler_skip1
 		ENDC
 		movem.l	d0-d1,-(a7)
-		bsr	exter_server
+		bsr	exter_interrupt_server
 		movem.l	(a7)+,d0-d1
 level_6_handler_quit
 		move.w	d0,INTREQ-DMACONR(a6) ; clear level6 interrupts
@@ -264,7 +264,7 @@ level_6_handler_skip1
 				btst	#CIAICRB_TA,d1
 				beq.s	level_6_handler_skip2
 				movem.l	d0-d1,-(a7)
-				bsr	ciab_ta_server
+				bsr	ciab_ta_interrupt_server
 				movem.l	(a7)+,d0-d1
 level_6_handler_skip2
 			ENDC
@@ -272,7 +272,7 @@ level_6_handler_skip2
 				btst	#CIAICRB_TB,d1
 				beq.s	level_6_handler_skip3
 				movem.l	d0-d1,-(a7)
-				bsr	ciab_tb_server
+				bsr	ciab_tb_interrupt_server
 				movem.l	(a7)+,d0-d1
 level_6_handler_skip3
 			ENDC
@@ -280,7 +280,7 @@ level_6_handler_skip3
 				btst	#CIAICRB_ALRM,d1
 				beq.s	level_6_handler_skip4
 				movem.l	d0-d1,-(a7)
-				bsr	ciab_alrm_server
+				bsr	ciab_alrm_interrupt_server
 				movem.l	(a7)+,d0-d1
 level_6_handler_skip4
 			ENDC
@@ -288,7 +288,7 @@ level_6_handler_skip4
 				btst	#CIAICRB_SP,d1
 				beq.s	level_6_handler_skip5
 				movem.l	d0-d1,-(a7)
-				bsr	ciab_sp_server
+				bsr	ciab_sp_interrupt_server
 				movem.l	(a7)+,d0-d1
 level_6_handler_skip5
 			ENDC
@@ -312,7 +312,7 @@ level_7_handler
 	move.l	#_CIAB,a5
 	lea	_CIAA-_CIAB(a5),a4	; CIA-A base
 	move.l	#_CUSTOM+DMACONR,a6
-	bsr	nmi_server
+	bsr	nmi_interrupt_server
 	movem.l	(a7)+,d0-d7/a0-a6
 	nop
 	rte
