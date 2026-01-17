@@ -1,3 +1,4 @@
+
 SET_SPRITE_POSITION		MACRO
 ; Input
 ; \1 WORD:	X position
