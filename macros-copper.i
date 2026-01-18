@@ -83,15 +83,10 @@ COP_SKIP			MACRO
 
 COP_LISTEND MACRO
 ; Input
-; \1 STRING:	["SAVETAIL"] (optional)
-; Global reference
-; cl_end
 ; Result
-	moveq	#-2,d0
+; a0.l	Pointer CWAIT for copperlist end
+	moveq	#-2,d0			; CWAIT impossible horizontal position
 	move.l	d0,(a0)
-	IFC "SAVETAIL","\1"
-		move.l	a0,cl_end(a3)
-	ENDC
 	ENDM
 
 

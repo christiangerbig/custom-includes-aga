@@ -18,7 +18,7 @@
 ;	TRAP0
 ;	TRAP1
 ;	TRAP2
-;	SET_SECOND_COPPERLIST
+;	START_SECOND_COPPERLIST
 ;	MEASURE_RASTERTIME
 
 
@@ -589,6 +589,8 @@ output_rasterlines_number
 ; Result
 	CNOP 0,4
 init_variables
+	lea	_SysBase(pc),a1
+	move.l	exec_base.w,(a1)
 	IFD SYS_TAKEN_OVER
 		IFD PASS_GLOBAL_REFERENCES
 			move.l	a0,global_references_table(a3)
@@ -628,9 +630,6 @@ init_variables
 		moveq	#RETURN_OK,d2
 		move.l	d2,dos_return_code(a3)
 		move.w	#NO_CUSTOM_ERROR,custom_error_code(a3)
-
-		lea	_SysBase(pc),a0
-		move.l	exec_base.w,(a0)
 	ENDC
 
 	IFD MEASURE_RASTERTIME
@@ -2980,7 +2979,7 @@ start_own_display
 	moveq	#copcon_bits,d0
 	move.w	d0,COPCON-DMACONR(a6)
 	IFNE cl2_size3
-		IFD SET_SECOND_COPPERLIST
+		IFD START_SECOND_COPPERLIST
 			move.l	cl2_display(a3),COP2LC-DMACONR(a6)
 		ENDC
 	ENDC
