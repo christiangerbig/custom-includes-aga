@@ -1815,7 +1815,7 @@ RESTORE_BPLCON4_CHUNKY		MACRO
 	CNOP 0,4
 	IFC "cl1","\2"
 restore_first_copperlist
-		IFEQ \1_cpu_restore_cl_enabled
+		IFEQ \1_restore_cl_cpu_enabled
 			IFC "","\6"
 				IFC "16","\5"
 					moveq	#-2,d0 ; 2nd word CWAIT
@@ -1889,7 +1889,7 @@ restore_first_copperlist_loop
 				ENDC
 			ENDC
 		ENDC
-		IFEQ \1_blitter_restore_cl_enabled
+		IFEQ \1_restore_cl_blitter_enabled
 			IFC "","\7"
 				move.l	\2_\3(a3),a0
 				ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
@@ -1904,7 +1904,7 @@ restore_first_copperlist_loop
 	ENDC
 	IFC "cl2","\2"
 restore_second_copperlist
-		IFEQ \1_cpu_restore_cl_enabled
+		IFEQ \1_restore_cl_cpu_enabled
 			IFC "","\6"
 				IFC "16","\5"
 					moveq	#-2,d0 ; 2nd word CWAIT
@@ -1978,7 +1978,7 @@ restore_second_copperlist_loop
 				ENDC
 			ENDC
 		ENDC
-		IFEQ \1_blitter_restore_cl_enabled
+		IFEQ \1_restore_cl_blitter_enabled
 			IFC "","\7"
 				move.l	\2_\3(a3),a0
 				ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
