@@ -310,7 +310,7 @@ PF_SOFTSCROLL_16PIXEL_SHIRES	MACRO
 	ENDM
 
 
-SWAP_PLAYFIELD			MACRO
+SWAP_PLAYFIELD_BUFFERS		MACRO
 ; Input
 ; \1 STRING:		Labels prefix
 ; \2 NUMBER:		Number of playfields [2,3]
@@ -320,12 +320,13 @@ SWAP_PLAYFIELD			MACRO
 ; _display
 ; Result
 	IFC "","\1"
-		FAIL Macro SWAP_PLAYFIELD: Labels prefix missing
+		FAIL Macro SWAP_PLAYFIELDS: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro SWAP_PLAYFIELD: Number of playfields missing
+		FAIL Macro SWAP_PLAYFIELDS: Number of playfields missing
 	ENDC
-swap_playfield\*RIGHT(\1,1)
+	CNOP 0,4
+\1_swap_playfields
 	IFEQ \2-2
 		move.l	\1_construction2(a3),a0
 		move.l	\1_display(a3),\1_construction2(a3)
@@ -359,31 +360,31 @@ SET_PLAYFIELD			MACRO
 		FAIL Macro SET_PLAYFIELD: Playfield depth missing
 	ENDC
 	CNOP 0,4
-set_playfield1
+\1_set_playfield
 	IFC "","\3"
 		move.l	cl1_display(a3),a0
 		ADDF.W	cl1_BPL1PTH+WORD_SIZE,a0
 		move.l	\1_display(a3),a1
 		moveq	#\2-1,d7	; playfield depth
-set_playfield1_loop
+\1_set_playfield_loop
 		move.w	(a1)+,(a0)	; BPLxPTH
 		addq.w	#QUADWORD_SIZE,a0
 		move.w	(a1)+,LONGWORD_SIZE-QUADWORD_SIZE(a0) ; BPLxPTL
-		dbf	d7,set_playfield1_loop
+		dbf	d7,\1_set_playfield_loop
 	ELSE
 		MOVEF.L (\3/8)+(\4*\1_plane_width*\2),d1
 		move.l	cl1_display(a3),a0
 		ADDF.W	cl1_BPL1PTH+WORD_SIZE,a0
 		move.l	\1_display(a3),a1
 		moveq	#\2-1,d7	; playfield depth
-set_playfield1_loop
+\1_set_playfield_loop
 		move.l	(a1)+,d0
 		add.l	d1,d0
 		move.w	d0,LONGWORD_SIZE(a0) ; BPLxPTL
 		swap	d0
 		move.w	d0,(a0)		; BPLxPTH
 		addq.w	#QUADWORD_SIZE,a0
-		dbf	d7,set_playfield1_loop
+		dbf	d7,\1_set_playfield_loop
 	ENDC
 	rts
 	ENDM
