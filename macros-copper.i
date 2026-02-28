@@ -206,14 +206,14 @@ COP_INIT_BITPLANE_POINTERS	MACRO
 		FAIL Macro COP_INIT_BITPLANE_POINTERS: Labels prefix missing
 	ENDC
 	CNOP 0,4
-\1_init_bitplane_pointers
+\1_init_plane_pointers
 	move.w	#BPL1PTH,d0
 	moveq	#(pf_depth*2)-1,d7
-\1_init_bitplane_pointers_loop
+\1_init_plane_pointers_loop
 	move.w	d0,(a0)			; BPLxPTH/L
 	addq.w	#WORD_SIZE,d0		; next register
 	addq.w	#LONGWORD_SIZE,a0	; next entry in cl
-	dbf	d7,\1_init_bitplane_pointers_loop
+	dbf	d7,\1_init_plane_pointers_loop
 	rts
 	ENDM
 
@@ -243,32 +243,32 @@ COP_SET_BITPLANE_POINTERS	MACRO
 		FAIL Macro COP_SET_BITPLANE_POINTERS: Number of bitplanes playfield1 missing
 	ENDC
 	CNOP 0,4
-\1_set_bitplane_pointers
+\1_set_plane_pointers
 	IFC "","\4"
 		IFC "","\5"
 			move.l	\1_\2(a3),a0
 			ADDF.W	\1_BPL1PTH+WORD_SIZE,a0
 			move.l	pf1_display(a3),a1
 			moveq	#\3-1,d7 ; number of bitplanes
-\1_set_bitplane_pointers_loop
+\1_set_plane_pointers_loop
 			move.w	(a1)+,(a0) ; BPLxPTH
 			addq.w	#QUADWORD_SIZE,a0
 			move.w	(a1)+,LONGWORD_SIZE-QUADWORD_SIZE(a0) ; BPLxPTL
-			dbf	d7,\1_set_bitplane_pointers_loop
+			dbf	d7,\1_set_plane_pointers_loop
 		ELSE
 			MOVEF.L	(\5/8)+(\6*pf1_plane_width*pf1_depth3),d1
 			move.l	\1_\2(a3),a0
 			ADDF.W	\1_BPL1PTH+WORD_SIZE,a0
 			move.l	pf1_display(a3),a1
 			moveq	#\3-1,d7 ; number of bitplanes
-\1_set_bitplane_pointers_loop
+\1_set_plane_pointers_loop
 			move.l	(a1)+,d0
 			add.l	d1,d0
 			move.w	d0,LONGWORD_SIZE(a0) ; BPLxPTL
 			swap	d0
 			move.w	d0,(a0)	; BPLxPTH
 			addq.w	#QUADWORD_SIZE,a0
-			dbf	d7,\1_set_bitplane_pointers_loop
+			dbf	d7,\1_set_plane_pointers_loop
 		ENDC
 	ELSE
 ; Playfield 1
@@ -277,19 +277,19 @@ COP_SET_BITPLANE_POINTERS	MACRO
 		ADDF.W	\1_BPL1PTH+WORD_SIZE,a0
 		move.l	pf1_display(a3),a2
 		moveq	#\3-1,d7	; number of bitplanes
-\1_set_bitplane_pointers_loop1
+\1_set_plane_pointers_loop1
 		move.w	(a2)+,(a0)	; BPLxPTH
 		ADDF.W	QUADWORD_SIZE*2,a0
 		move.w	(a2)+,LONGWORD_SIZE-(QUADWORD_SIZE*2)(a0) ; BPLxPTL
-		dbf	d7,\1_set_bitplane_pointers_loop1
+		dbf	d7,\1_set_plane_pointers_loop1
 ; Playfield 2
 		move.l	pf2_display(a3),a2
 		moveq	#\4-1,d7	; number of bitplanes
-\1_set_bitplane_pointers_loop2
+\1_set_plane_pointers_loop2
 		move.w	(a2)+,(a1)	; BPLxPTH
 		ADDF.W	QUADWORD_SIZE*2,a1
 		move.w	(a2)+,LONGWORD_SIZE-(QUADWORD_SIZE*2)(a1) ; BPLxPTL
-		dbf	d7,\1_set_bitplane_pointers_loop2
+		dbf	d7,\1_set_plane_pointers_loop2
 	ENDC
 	rts
 	ENDM
@@ -435,22 +435,22 @@ COP_INIT_COLOR_LOW		MACRO
 
 COP_INIT_COLOR00_SCREEN		MACRO
 ; Input
-; \1 STRING:	Labels prefix
+; \1 STRING:	["cl1", "cl2"] copperlist label prefix
 ; \2 STRING:	["YWRAP"] (optional)
 ; Global reference
 ; bplcon3_bits1
 ; bplcon3_bits2
 ; color00_high_bits
 ; color00_low_bits
-; _vstart1
-; _hstart1
-; _display_y_size
+; \1_vstart1
+; \1_hstart1
+; \1_display_y_size
 ; Result
 	IFC "","\1"
-		FAIL Macro COP_INIT_COLOR00_SCREEN: Labels prefix missing
+		FAIL Macro COP_INIT_COLOR00_SCREEN: cCopperlist label prefix missing
 	ENDC
 	CNOP 0,4
-\1_init_color00
+\1_init_color00_screen
 	move.l	#(((\1_vstart1<<24)|(((\1_hstart1/4)*2)<<16))|$10000)|$fffe,d0 ; CWAIT
 	move.l	#(BPLCON3<<16)+bplcon3_bits1,d1
 	move.l	#(COLOR00<<16)+color00_high_bits,d2
@@ -459,9 +459,9 @@ COP_INIT_COLOR00_SCREEN		MACRO
 	IFC "YWRAP","\2"
 		move.l	#(((CL_Y_WRAPPING<<24)|(((\1_hstart1/4)*2)<<16))|$10000)|$fffe,d5 ; CWAIT
 	ENDC
-	move.l	#$01000000,d6
+	move.l	#1<<24,d6		; next rasterline
 	MOVEF.W	\1_display_y_size-1,d7
-\1_init_color00_loop
+\1_init_color00_screen_loop
 	move.l	d0,(a0)+		; CWAIT
 	move.l	d1,(a0)+		; BPLCON3
 	move.l	d2,(a0)+		; COLOR00
@@ -475,15 +475,15 @@ COP_INIT_COLOR00_SCREEN		MACRO
 		COP_WAIT CL_X_WRAPPING,CL_Y_WRAPPING ; patch cl
 \1_init_color00_skip
 	ENDC
-	add.l	d6,d0			; next line
-	dbf	d7,\1_init_color00_loop
+	add.l	d6,d0			; next rasterline
+	dbf	d7,\1_init_color00_scree_loop
 	rts
 	ENDM
 
 
 COP_RESET_COLOR00		MACRO
 ; Input
-; \1 STRING:	["cl1", "cl2"] label prefix copperlist
+; \1 STRING:	["cl1", "cl2"] copperlist label prefix
 ; \2 WORD:	X position
 ; \3 WORD:	Y postion
 ; Global reference
@@ -493,7 +493,7 @@ COP_RESET_COLOR00		MACRO
 ; color00_low_bits
 ; Result
 	IFC "","\1"
-		FAIL Macro COP_RESET_COLOR00: Label prefix copperlist missing
+		FAIL Macro COP_RESET_COLOR00: Copperlist label prefix missing
 	ENDC
 	IFC "","\2"
 		FAIL Macro COP_RESET_COLOR00: X position missing
@@ -514,7 +514,7 @@ COP_RESET_COLOR00		MACRO
 
 COP_INIT_BPLCON4_CHUNKY	MACRO
 ; Input
-; \1 STRING:	["cl1", "cl2"] label prefix copperlist
+; \1 STRING:	["cl1", "cl2"] copperlist label prefix
 ; \2 NUMBER:	HSTART
 ; \3 NUMBER:	VSTART
 ; \4 NUMBER:	Width
@@ -535,7 +535,7 @@ COP_INIT_BPLCON4_CHUNKY	MACRO
 ; color00_low_bits
 ; Result
 	IFC "","\1"
-		FAIL Macro COP_INIT_BPLCON4_CHUNKY: Label prefix copperlist missing
+		FAIL Macro COP_INIT_BPLCON4_CHUNKY: Copperlist label prefix missing
 	ENDC
 	IFC "","\2"
 		FAIL Macro COP_INIT_BPLCON4_CHUNKY: HSTART missing
@@ -663,7 +663,7 @@ COP_INIT_BPLCON4_CHUNKY	MACRO
 
 COP_INIT_BPLCON1_CHUNKY	MACRO
 ; Input
-; \1 STRING:	["cl1", "cl2"] label prefix copperlist
+; \1 STRING:	["cl1", "cl2"] copperlist label prefix
 ; \2 NUMBER:	HSTART
 ; \3 NUMBER:	VSTART
 ; \4 NUMBER:	Width
@@ -673,7 +673,7 @@ COP_INIT_BPLCON1_CHUNKY	MACRO
 ; bplcon1_bits
 ; Result
 	IFC "","\1"
-		FAIL Macro COP_INIT_BPLCON1_CHUNKY: ["cl1", "cl2"] label prefix copperlist missing
+		FAIL Macro COP_INIT_BPLCON1_CHUNKY: Copperlist label prefix missing
 	ENDC
 	IFC "","\2"
 		FAIL Macro COP_INIT_BPLCON1_CHUNKY: HSTART missing
@@ -711,13 +711,13 @@ COP_INIT_BPLCON1_CHUNKY	MACRO
 
 COP_INIT_COPINT			MACRO
 ; Input
-; \1 STRING:	["cl1", "cl2"] label prefix copperlist
+; \1 STRING:	["cl1", "cl2"] copperlist label prefix
 ; \2 WORD:	X position (optional)
 ; \3 WORD:	Y postion (optional)
 ; \4 STRING:	["YWRAP"] (optional)
 ; Result
 	IFC "","\1"
-		FAIL Macro COP_INIT_COPINT: Label prefix copperlist missing
+		FAIL Macro COP_INIT_COPINT: Copperlist label prefix missing
 	ENDC
 	CNOP 0,4
 \1_init_copper_interrupt
@@ -736,66 +736,40 @@ COP_INIT_COPINT			MACRO
 
 COPY_COPPERLIST			MACRO
 ; Input
-; \1 STRING:	["cl1", "cl2"] label prefix copperlist
+; \1 STRING:	["cl1", "cl2"] copperlist label prefix
 ; \2 NUMBER:	[2, 3] number of copperlists
 ; Global reference
-; _construction1
-; _construction2
-; _display
+; \1_construction1
+; \1_construction2
+; \1_copperlist_size
 ; Result
 	IFC "","\1"
-		FAIL Macro COPY_COPPERLIST: Labels prefix copperlist missing
+		FAIL Macro COPY_COPPERLIST: Copperlist label prefix missing
 	ENDC
 	IFC "","\2"
 		FAIL Macro COPY_COPPERLIST: Number of copperlists missing
 	ENDC
 	CNOP 0,4
-	IFC "cl1","\1"
-copy_first_copperlist
-		IFEQ \2-2
-			move.l	\1_construction2(a3),a0 ; source
-			move.l	\1_display(a3),a1 ; destination
-			MOVEF.W	(copperlist1_size/LONGWORD_SIZE)-1,d7
-copy_first_copperlist_loop
-			move.l	(a0)+,(a1)+
-			dbf	d7,copy_first_copperlist_loop
-			rts
-		ENDC
-		IFEQ \2-3
-			move.l	\1_construction1(a3),a0 ; source
-			move.l	\1_construction2(a3),a1 ; 1st destination
-			move.l	\1_display(a3),a2 ; 2nd destination
-			MOVEF.W	(copperlist1_size/LONGWORD_SIZE)-1,d7 ; number of commands
-copy_first_copperlist_loop
-			move.l	(a0),(a1)+
-			move.l	(a0)+,(a2)+
-			dbf	d7,copy_first_copperlist_loop
-			rts
-		ENDC
+\1_copy_copperlist
+	IFEQ \2-2
+		move.l	\1_construction2(a3),a0 ; source
+		move.l	\1_display(a3),a1 ; destination
+		MOVEF.W	(\1_copperlist_size/LONGWORD_SIZE)-1,d7
+\1_copy_copperlist_loop
+		move.l	(a0)+,(a1)+
+		dbf	d7,\1_copy_copperlist_loop
 	ENDC
-	IFC "cl2","\1"
-copy_second_copperlist
-		IFEQ \2-2
-			move.l	\1_construction2(a3),a0 ; source
-			move.l	\1_display(a3),a1 ; destination
-			MOVEF.W	(copperlist2_size/LONGWORD_SIZE)-1,d7  ; number of commands
-copy_second_copperlist_loop
-			move.l	(a0)+,(a1)+
-			dbf	d7,copy_second_copperlist_loop
-			rts
-		ENDC
-		IFEQ \2-3
-			move.l	\1_construction1(a3),a0 ; source
-			move.l	\1_construction2(a3),a1 ; 1st destination
-			move.l	\1_display(a3),a2 ; 2nd destination
-			MOVEF.W	(copperlist2_size/LONGWORD_SIZE)-1,d7
-copy_second_copperlist_loop
-			move.l	(a0),(a1)+
-			move.l	(a0)+,(a2)+
-			dbf	d7,copy_second_copperlist_loop
-			rts
-		ENDC
+	IFEQ \2-3
+		move.l	\1_construction1(a3),a0 ; source
+		move.l	\1_construction2(a3),a1 ; 1st destination
+		move.l	\1_display(a3),a2 ; 2nd destination
+		MOVEF.W	(\1_copperlist_size/LONGWORD_SIZE)-1,d7 ; number of commands
+\1_copy_copperlist_loop
+		move.l	(a0),(a1)+
+		move.l	(a0)+,(a2)+
+		dbf	d7,\1_copy_copperlist_loop
 	ENDC
+	rts
 	ENDM
 
 
@@ -805,11 +779,11 @@ CONVERT_IMAGE_TO_RGB4_CHUNKY	MACRO
 ; \2 POINTER:	Color table
 ; \3 STRING:	["pc", "a3"] pointer base
 ; Global reference
-; _image_data
-; _image_plane_width
-; _image_depth
-; _image_y_size
-; _image_color_table
+; \1_image_data
+; \1_image_plane_width
+; \1_image_depth
+; \1_image_y_size
+; \1_image_color_table
 ; Result
 	IFC "","\1"
 		FAIL Macro CONVERT_IMAGE_TO_RGB4_CHUNKY: Labels prefix missing
@@ -886,11 +860,11 @@ CONVERT_IMAGE_TO_HAM6_CHUNKY	MACRO
 ; \2 POINTER:	Color table
 ; \3 STRING:	["pc", "a3"] pointer base
 ; Global reference
-; _image_data
-; _image_plane_width
-; _image_depth
-; _image_y_size
-; _image_color_table
+; \1_image_data
+; \1_image_plane_width
+; \1_image_depth
+; \1_image_y_size
+; \1_image_color_table
 ; Result
 	IFC "","\1"
 		FAIL Macro CONVERT_IMAGE_TO_HAM6_CHUNKY: Labels prefix missing
@@ -996,11 +970,11 @@ CONVERT_IMAGE_TO_RGB8_CHUNKY	MACRO
 ; \2 POINTER:	Color table
 ; \3 STRING:	["pc", "a3"] pointer base
 ; Global reference
-; _image_data
-; _image_plane_width
-; _image_depth
-; _image_y_size
-; _image_color_table
+; \1_image_data
+; \1_image_plane_width
+; \1_image_depth
+; \1_image_y_size
+; \1_image_color_table
 ; Result
 	IFC "","\1"
 		FAIL Macro CONVERT_IMAGE_TO_RGB8_CHUNKY: Labels-Prefix missing
@@ -1105,11 +1079,11 @@ CONVERT_IMAGE_TO_HAM8_CHUNKY	MACRO
 ; Global reference
 ; variables
 ; save_a7
-; _image_data
-; _image_plane_width
-; _image_depth
-; _image_y_size
-; _image_color_table
+; \1_image_data
+; \1_image_plane_width
+; \1_image_depth
+; \1_image_y_size
+; \1_image_color_table
 ; Result
 	IFC "","\1"
 		FAIL Macro CONVERT_IMAGE_TO_HAM8_CHUNKY: Labels-Prefix missing
@@ -1351,7 +1325,7 @@ CONVERT_IMAGE_TO_BPLCON4_CHUNKY	MACRO
 
 SWAP_COPPERLIST			MACRO
 ; Input
-; \1 STRING:	Labels prefix
+; \1 STRING:	["cl1", "cl2"] copperlist label prefix
 ; \2 NUMBER:	[2,3] number of copperlists
 ; Global reference
 ; _construction1
@@ -1359,69 +1333,49 @@ SWAP_COPPERLIST			MACRO
 ; _display
 ; Result
 	IFC "","\1"
-		FAIL Macro SWAP_COPPERLIST: Labels prefix missing
+		FAIL Macro SWAP_COPPERLIST: Copperlist label prefix missing
 	ENDC
 	IFC "","\2"
 		FAIL Macro SWAP_COPPERLIST: Number of copperlists missing
 	ENDC
-	IFC "cl1","\1"
 		CNOP 0,4
-swap_first_copperlist
-		IFEQ \2-2
-			move.l	\1_construction2(a3),a0
-			move.l	\1_display(a3),\1_construction2(a3)
-			move.l	a0,\1_display(a3)
-			rts
-		ENDC
-		IFEQ \2-3
-			move.l	\1_construction1(a3),a0
-			move.l	\1_display(a3),\1_construction1(a3)
-			move.l	\1_construction2(a3),a1
-			move.l	a0,\1_construction2(a3)
-			move.l	a1,\1_display(a3)
-			rts
-		ENDC
+\1_swap_copperlist
+	IFEQ \2-2
+		move.l	\1_construction2(a3),a0
+		move.l	\1_display(a3),\1_construction2(a3)
+		move.l	a0,\1_display(a3)
+		rts
 	ENDC
-	IFC "cl2","\1"
-		CNOP 0,4
-swap_second_copperlist
-		IFEQ \2-2
-			move.l	\1_construction2(a3),a0
-			move.l	\1_display(a3),\1_construction2(a3)
-			move.l	a0,\1_display(a3)
-			rts
-		ENDC
-		IFEQ \2-3
-			move.l	\1_construction1(a3),a0
-			move.l	\1_display(a3),\1_construction1(a3)
-			move.l	\1_construction2(a3),a1
-			move.l	a0,\1_construction2(a3)
-			move.l	a1,\1_display(a3)
-			rts
-		ENDC
+	IFEQ \2-3
+		move.l	\1_construction1(a3),a0
+		move.l	\1_display(a3),\1_construction1(a3)
+		move.l	\1_construction2(a3),a1
+		move.l	a0,\1_construction2(a3)
+		move.l	a1,\1_display(a3)
+		rts
 	ENDC
 	ENDM
 
 
 SET_COPPERLIST			MACRO
 ; Input
-; \1 STRING:	Labels prefix
+; \1 STRING:	["cl1", "cl2"] copperlist label prefix
 ; Global reference
 ; _display
 ; Result
 	IFC "","\1"
-		FAIL Macro SET_COPPERLIST: Labels prefix missing
+		FAIL Macro SET_COPPERLIST: Copperlist label prefix missing
 	ENDC
 	IFC "cl1","\1"
 		CNOP 0,4
-set_first_copperlist
-		move.l	\1_display(a3),COP1LC-DMACONR(a6)
+cl1_set_copperlist
+		move.l	cl1_display(a3),COP1LC-DMACONR(a6)
 		rts
 	ENDC
 	IFC "cl2","\1"
 		CNOP 0,4
-set_second_copperlist
-		move.l	\1_display(a3),COP2LC-DMACONR(a6)
+cl2_set_copperlist
+		move.l	cl2_display(a3),COP2LC-DMACONR(a6)
 		rts
 	ENDC
 	ENDM
@@ -1435,11 +1389,11 @@ CLEAR_COLOR00_SCREEN		MACRO
 ; \4 STRING:	"extension[1..n]"
 ; \5 NUMBER:	[16,32] number of commands per loop
 ; Global reference
-; color00_high_bits
-; color00_low_bits
-; _display_y_size
-; _COLOR00_low
-; _COLOR00_high
+; \1_color00_high_bits
+; \1_color00_low_bits
+; \1_display_y_size
+; \1_COLOR00_low
+; \1_COLOR00_high
 ; Result
 	IFC "","\1"
 		FAIL Macro CLEAR_COLOR00_SCREEN: Labels prefix missing
@@ -1457,272 +1411,146 @@ CLEAR_COLOR00_SCREEN		MACRO
 		FAIL Macro CLEAR_COLOR00_SCREEN: Number of commands per loop missing
 	ENDC
 	CNOP 0,4
-	IFC "cl1","\2"
-\1_clear_first_copperlist
-		IFC "16","\5"
-			move.w	#color00_high_bits,d0
-			move.w	#color00_low_bits,d1
-			MOVEF.L	\2_\4_size*16,d2
-			move.l	\2_\3(a3),a0
-			ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+WORD_SIZE,a0
-			moveq	#(\2_display_y_size/WORD_BITS)-1,d7
-\1_clear_first_copperlist_loop
-			move.w	d0,(a0)	; COLOR00 high
-			move.w	d1,\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high(a0) ; COLOR00 low
-			move.w	d0,\2_\4_size*1(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*1)(a0)
-			move.w	d0,\2_\4_size*2(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*2)(a0)
-			move.w	d0,\2_\4_size*3(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*3)(a0)
-			move.w	d0,\2_\4_size*4(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*4)(a0)
-			move.w	d0,\2_\4_size*5(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*5)(a0)
-			move.w	d0,\2_\4_size*6(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*6)(a0)
-			move.w	d0,\2_\4_size*7(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*7)(a0)
-			move.w	d0,\2_\4_size*8(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*8)(a0)
-			move.w	d0,\2_\4_size*9(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*9)(a0)
-			move.w	d0,\2_\4_size*10(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*10)(a0)
-			move.w	d0,\2_\4_size*11(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*11)(a0)
-			move.w	d0,\2_\4_size*12(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*12)(a0)
-			move.w	d0,\2_\4_size*13(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*13)(a0)
-			move.w	d0,\2_\4_size*14(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*14)(a0)
-			move.w	d0,\2_\4_size*15(a0)
-			add.l	d2,a0	; next line
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*15)-(\2_\4_size*16)(a0)
-			dbf	d7,\1_clear_first_copperlist_loop
-			rts
-		ENDC
-		IFC "32","\5"
-			move.w	#color00_high_bits,d0
-			move.w	#color00_low_bits,d1
-			MOVEF.L \2_\4_size*32,d2
-			move.l	\2_\3(a3),a0
-			ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+WORD_SIZE,a0
-			moveq	#(\2_display_y_size/32)-1,d7
-\1_clear_first_copperlist_loop
-			move.w	d0,(a0)	; COLOR00 high
-			move.w	d1,\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high(a0) ; COLOR00 low
-			move.w	d0,\2_\4_size*1(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*1)(a0)
-			move.w	d0,\2_\4_size*2(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*2)(a0)
-			move.w	d0,\2_\4_size*3(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*3)(a0)
-			move.w	d0,\2_\4_size*4(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*4)(a0)
-			move.w	d0,\2_\4_size*5(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*5)(a0)
-			move.w	d0,\2_\4_size*6(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*6)(a0)
-			move.w	d0,\2_\4_size*7(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*7)(a0)
-			move.w	d0,\2_\4_size*8(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*8)(a0)
-			move.w	d0,\2_\4_size*9(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*9)(a0)
-			move.w	d0,\2_\4_size*10(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*10)(a0)
-			move.w	d0,\2_\4_size*11(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*11)(a0)
-			move.w	d0,\2_\4_size*12(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*12)(a0)
-			move.w	d0,\2_\4_size*13(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*13)(a0)
-			move.w	d0,\2_\4_size*14(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*14)(a0)
-			move.w	d0,\2_\4_size*15(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*15)(a0)
-			move.w	d0,\2_\4_size*16(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*16)(a0)
-			move.w	d0,\2_\4_size*17(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*17)(a0)
-			move.w	d0,\2_\4_size*18(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*18)(a0)
-			move.w	d0,\2_\4_size*19(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*19)(a0)
-			move.w	d0,\2_\4_size*20(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*20)(a0)
-			move.w	d0,\2_\4_size*21(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*21)(a0)
-			move.w	d0,\2_\4_size*22(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*22)(a0)
-			move.w	d0,\2_\4_size*23(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*23)(a0)
-			move.w	d0,\2_\4_size*24(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*24)(a0)
-			move.w	d0,\2_\4_size*25(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*25)(a0)
-			move.w	d0,\2_\4_size*26(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*26)(a0)
-			move.w	d0,\2_\4_size*27(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*27)(a0)
-			move.w	d0,\2_\4_size*28(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*28)(a0)
-			move.w	d0,\2_\4_size*29(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*29)(a0)
-			move.w	d0,\2_\4_size*30(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*30)(a0)
-			move.w	d0,\2_\4_size*31(a0)
-			add.l	d2,a0	; next line
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*31)-(\2_\4_size*32)(a0)
-			dbf	d7,\1_clear_first_copperlist_loop
-			rts
-		ENDC
+\1_\2_clear_copperlist
+	IFC "16","\5"
+		move.w	#\1_clear_color00_high_bits,d0
+		move.w	#\1_clear_color00_low_bits,d1
+		MOVEF.L	\2_\4_size*16,d2
+		move.l	\2_\3(a3),a0
+		ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+WORD_SIZE,a0
+		moveq	#(\1_display_y_size/WORD_BITS)-1,d7
+\1_\2_clear_copperlist_loop
+		move.w	d0,(a0)		; COLOR00 high
+		move.w	d1,\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high(a0) ; COLOR00 low
+		move.w	d0,\2_\4_size*1(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*1)(a0)
+		move.w	d0,\2_\4_size*2(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*2)(a0)
+		move.w	d0,\2_\4_size*3(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*3)(a0)
+		move.w	d0,\2_\4_size*4(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*4)(a0)
+		move.w	d0,\2_\4_size*5(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*5)(a0)
+		move.w	d0,\2_\4_size*6(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*6)(a0)
+		move.w	d0,\2_\4_size*7(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*7)(a0)
+		move.w	d0,\2_\4_size*8(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*8)(a0)
+		move.w	d0,\2_\4_size*9(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*9)(a0)
+		move.w	d0,\2_\4_size*10(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*10)(a0)
+		move.w	d0,\2_\4_size*11(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*11)(a0)
+		move.w	d0,\2_\4_size*12(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*12)(a0)
+		move.w	d0,\2_\4_size*13(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*13)(a0)
+		move.w	d0,\2_\4_size*14(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*14)(a0)
+		move.w	d0,\2_\4_size*15(a0)
+		add.l	d2,a0		; next line
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*15)-(\2_\4_size*16)(a0)
+		dbf	d7,\1_\2_clear_copperlist_loop
 	ENDC
-	IFC "cl2","\2"
-\1_clear_second_copperlist
-		IFC "16","\5"
-			move.w	#color00_high_bits,d0
-			move.w	#color00_low_bits,d1
-			MOVEF.L	\2_\4_size*16,d2
-			move.l	\2_\3(a3),a0
-			ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+WORD_SIZE,a0
-			moveq	#(\2_display_y_size/WORD_BITS)-1,d7
-\1_clear_second_copperlist_loop
-			move.w	d0,(a0)	; COLOR00 high
-			move.w	d1,\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high(a0) ; COLOR00 low
-			move.w	d0,\2_\4_size*1(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*1)(a0)
-			move.w	d0,\2_\4_size*2(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*2)(a0)
-			move.w	d0,\2_\4_size*3(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*3)(a0)
-			move.w	d0,\2_\4_size*4(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*4)(a0)
-			move.w	d0,\2_\4_size*5(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*5)(a0)
-			move.w	d0,\2_\4_size*6(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*6)(a0)
-			move.w	d0,\2_\4_size*7(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*7)(a0)
-			move.w	d0,\2_\4_size*8(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*8)(a0)
-			move.w	d0,\2_\4_size*9(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*9)(a0)
-			move.w	d0,\2_\4_size*10(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*10)(a0)
-			move.w	d0,\2_\4_size*11(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*11)(a0)
-			move.w	d0,\2_\4_size*12(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*12)(a0)
-			move.w	d0,\2_\4_size*13(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*13)(a0)
-			move.w	d0,\2_\4_size*14(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*14)(a0)
-			move.w	d0,\2_\4_size*15(a0)
-			add.l	d2,a0	; next line
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*15)-(\2_\4_size*16)(a0)
-			dbf	d7,\1_clear_second_copperlist_loop
-			rts
-		ENDC
-		IFC "32","\5"
-			move.w	#color00_high_bits,d0
-			move.w	#color00_low_bits,d1
-			MOVEF.L	\2_\4_size*32,d2
-			move.l	\2_\3(a3),a0
-			ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+WORD_SIZE,a0
-			moveq	#(\2_display_y_size/32)-1,d7
-\1_clear_second_copperlist_loop
-			move.w	d0,(a0)	; COLOR00 high
-			move.w	d1,\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high(a0) ; COLOR00 low
-			move.w	d0,\2_\4_size*1(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*1)(a0)
-			move.w	d0,\2_\4_size*2(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*2)(a0)
-			move.w	d0,\2_\4_size*3(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*3)(a0)
-			move.w	d0,\2_\4_size*4(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*4)(a0)
-			move.w	d0,\2_\4_size*5(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*5)(a0)
-			move.w	d0,\2_\4_size*6(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*6)(a0)
-			move.w	d0,\2_\4_size*7(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*7)(a0)
-			move.w	d0,\2_\4_size*8(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*8)(a0)
-			move.w	d0,\2_\4_size*9(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*9)(a0)
-			move.w	d0,\2_\4_size*10(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*10)(a0)
-			move.w	d0,\2_\4_size*11(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*11)(a0)
-			move.w	d0,\2_\4_size*12(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*12)(a0)
-			move.w	d0,\2_\4_size*13(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*13)(a0)
-			move.w	d0,\2_\4_size*14(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*14)(a0)
-			move.w	d0,\2_\4_size*15(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*15)(a0)
-			move.w	d0,\2_\4_size*16(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*16)(a0)
-			move.w	d0,\2_\4_size*17(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*17)(a0)
-			move.w	d0,\2_\4_size*18(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*18)(a0)
-			move.w	d0,\2_\4_size*19(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*19)(a0)
-			move.w	d0,\2_\4_size*20(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*20)(a0)
-			move.w	d0,\2_\4_size*21(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*21)(a0)
-			move.w	d0,\2_\4_size*22(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*22)(a0)
-			move.w	d0,\2_\4_size*23(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*23)(a0)
-			move.w	d0,\2_\4_size*24(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*24)(a0)
-			move.w	d0,\2_\4_size*25(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*25)(a0)
-			move.w	d0,\2_\4_size*26(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*26)(a0)
-			move.w	d0,\2_\4_size*27(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*27)(a0)
-			move.w	d0,\2_\4_size*28(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*28)(a0)
-			move.w	d0,\2_\4_size*29(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*29)(a0)
-			move.w	d0,\2_\4_size*30(a0)
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*30)(a0)
-			move.w	d0,\2_\4_size*31(a0)
-			add.l	d2,a0	; next line
-			move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*31)-(\2_\4_size*32)(a0)
-			dbf	d7,\1_clear_second_copperlist_loop
-			rts
-		ENDC
+	IFC "32","\5"
+		move.w	#\1_clear_color00_high_bits,d0
+		move.w	#\1_clear_color00_low_bits,d1
+		MOVEF.L \2_\4_size*32,d2
+		move.l	\2_\3(a3),a0
+		ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+WORD_SIZE,a0
+		moveq	#(\1_display_y_size/32)-1,d7
+\1_\2_clear_copperlist_loop
+		move.w	d0,(a0)		; COLOR00 high
+		move.w	d1,\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high(a0) ; COLOR00 low
+		move.w	d0,\2_\4_size*1(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*1)(a0)
+		move.w	d0,\2_\4_size*2(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*2)(a0)
+		move.w	d0,\2_\4_size*3(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*3)(a0)
+		move.w	d0,\2_\4_size*4(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*4)(a0)
+		move.w	d0,\2_\4_size*5(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*5)(a0)
+		move.w	d0,\2_\4_size*6(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*6)(a0)
+		move.w	d0,\2_\4_size*7(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*7)(a0)
+		move.w	d0,\2_\4_size*8(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*8)(a0)
+		move.w	d0,\2_\4_size*9(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*9)(a0)
+		move.w	d0,\2_\4_size*10(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*10)(a0)
+		move.w	d0,\2_\4_size*11(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*11)(a0)
+		move.w	d0,\2_\4_size*12(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*12)(a0)
+		move.w	d0,\2_\4_size*13(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*13)(a0)
+		move.w	d0,\2_\4_size*14(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*14)(a0)
+		move.w	d0,\2_\4_size*15(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*15)(a0)
+		move.w	d0,\2_\4_size*16(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*16)(a0)
+		move.w	d0,\2_\4_size*17(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*17)(a0)
+		move.w	d0,\2_\4_size*18(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*18)(a0)
+		move.w	d0,\2_\4_size*19(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*19)(a0)
+		move.w	d0,\2_\4_size*20(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*20)(a0)
+		move.w	d0,\2_\4_size*21(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*21)(a0)
+		move.w	d0,\2_\4_size*22(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*22)(a0)
+		move.w	d0,\2_\4_size*23(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*23)(a0)
+		move.w	d0,\2_\4_size*24(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*24)(a0)
+		move.w	d0,\2_\4_size*25(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*25)(a0)
+		move.w	d0,\2_\4_size*26(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*26)(a0)
+		move.w	d0,\2_\4_size*27(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*27)(a0)
+		move.w	d0,\2_\4_size*28(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*28)(a0)
+		move.w	d0,\2_\4_size*29(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*29)(a0)
+		move.w	d0,\2_\4_size*30(a0)
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*30)(a0)
+		move.w	d0,\2_\4_size*31(a0)
+		add.l	d2,a0		; next line
+		move.w	d1,(\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high)+(\2_\4_size*31)-(\2_\4_size*32)(a0)
+		dbf	d7,\1_\2_clear_copperlist_loop
 	ENDC
+	rts
 	ENDM
 
 
 CLEAR_BPLCON4_CHUNKY		MACRO
 ; Input
 ; \1 STRING:	Labels prefix
-; \2 STRING:	["cl1", "cl2"] label prefix copperlist
+; \2 STRING:	["cl1", "cl2"] copperlist label prefix
 ; \3 STRING:	["construction1", "construction2"] name of copperlist
 ; \4 STRING:	"extension[1..n]"
 ; \5 BOOLEAN:	TRUE = quick clear enabled
 ; Global refgerence
 ; bplcon4_bits
-; 1_clear_blit_x_size
-; 1_clear_blit_y_size
+; \1_clear_blit_x_size
+; \1_clear_blit_y_size
 ; Result
 	IFC "","\1"
 		FAIL Macro CLEAR_CHUNKY: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro CLEAR_CHUNKY: Label prefix copperlist missing
+		FAIL Macro CLEAR_CHUNKY: Copperlist label prefix missing
 	ENDC
 	IFC "","\3"
 		FAIL Macro CLEAR_CHUNKY: Name of copperlist missing
@@ -1734,74 +1562,49 @@ CLEAR_BPLCON4_CHUNKY		MACRO
 		FAIL Macro CLEAR_CHUNKY: Boolean quick clear missing
 	ENDC
 	CNOP 0,4
-	IFC "cl1","\2"
-\1_clear_first_copperlist
-		move.l	\2_\3(a3),a0
-		ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
-		WAITBLIT
-		move.l	#(BC0F_DEST|ANBNC|ANBC|ABNC|ABC)<<16,BLTCON0-DMACONR(a6) ; minterm D = A
-		moveq	#-1,d0
-		move.l	d0,BLTAFWM-DMACONR(a6)
-		move.l	a0,BLTDPT-DMACONR(a6)
-		move.w	#WORD_SIZE,BLTDMOD-DMACONR(a6)
-		IFEQ \1_\5
-			move.w	#-2,BLTADAT-DMACONR(a6) ; source 2nd word CWAIT
+\1_\2_clear_copperlist
+	move.l	\2_\3(a3),a0
+	ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
+	WAITBLIT
+	move.l	#(BC0F_DEST|ANBNC|ANBC|ABNC|ABC)<<16,BLTCON0-DMACONR(a6) ; minterm D = A
+	moveq	#-1,d0
+	move.l	d0,BLTAFWM-DMACONR(a6)
+	move.l	a0,BLTDPT-DMACONR(a6)
+	move.w	#WORD_SIZE,BLTDMOD-DMACONR(a6)
+	IFEQ \1_\5
+		move.w	#-2,BLTADAT-DMACONR(a6) ; source 2nd word CWAIT
+	ELSE
+		IFEQ bplcon4_bits
+			moveq	#clear_bplcon4_bits,d0
+			move.w	d0,BLTADAT-DMACONR(a6)
 		ELSE
-			IFEQ bplcon4_bits
-				moveq	#bplcon4_bits,d0
-				move.w	d0,BLTADAT-DMACONR(a6)
-			ELSE
-				move.w	#bplcon4_bits,BLTADAT-DMACONR(a6)
+			move.w	#bplcon4_bits,BLTADAT-DMACONR(a6)
 	 	ENDC
-		ENDC
-		move.l	#(\1_clear_blit_y_size<<16)|(\1_clear_blit_x_size/WORD_BITS),BLTSIZV-DMACONR(a6)
-		rts
 	ENDC
-	IFC "cl2","\2"
-\1_clear_second_copperlist
-		move.l	\2_\3(a3),a0
-		ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
-		WAITBLIT
-		move.l	#(BC0F_DEST|ANBNC|ANBC|ABNC|ABC)<<16,BLTCON0-DMACONR(a6) ; minterm D = A
-		moveq	#-1,d0
-		move.l	d0,BLTAFWM-DMACONR(a6)
-		move.l	a0,BLTDPT-DMACONR(a6)
-		move.w	#WORD_SIZE,BLTDMOD-DMACONR(a6)
-		IFEQ \1_\5
-			move.w	#-2,BLTADAT-DMACONR(a6) ; source 2nd word CWAIT
-		ELSE
-			IFEQ bplcon4_bits
-				moveq	#bplcon4_bits,d0
-				move.w	d0,BLTADAT-DMACONR(a6)
-			ELSE
-				move.w	#bplcon4_bits,BLTADAT-DMACONR(a6)
-	 	ENDC
-		ENDC
-		move.l	#(\1_clear_blit_y_size<<16)|(\1_clear_blit_x_size/WORD_BITS),BLTSIZV-DMACONR(a6)
-		rts
-	ENDC
+	move.l	#(\1_clear_blit_y_size<<16)|(\1_clear_blit_x_size/WORD_BITS),BLTSIZV-DMACONR(a6)
+	rts
 	ENDM
 
 
 RESTORE_BPLCON4_CHUNKY		MACRO
 ; Input
 ; \1 STRING:	Labels prefix
-; \2 STRING:	["cl1", "cl2"] label prefix copperlist
+; \2 STRING:	["cl1", "cl2"] copperlist label prefix
 ; \3 STRING:	["construction1", "construction2"] name of copperlist
 ; \4 STRING:	Extension[1..n]
 ; \5 NUMBER:	[16, 32] number of commands per loop
 ; \6 LABEL:	Sub routine clear by cpu (optional)
 ; \7 LABEL:	Sub routine clear by blitter (optional)
 ; Global reference
-; _display_y_size
-; _restore_blit_x_size
-; _restore_blit_y_size
+; \2_display_y_size
+; \1_restore_blit_x_size
+; \1_restore_blit_y_size
 ; Result
 	IFC "","\1"
 		FAIL Macro RESTORE_BLCON4_CHUNKY: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro RESTORE_BLCON4_CHUNKY: Label prefix copperlist missing
+		FAIL Macro RESTORE_BLCON4_CHUNKY: Copperlist label prefix missing
 	ENDC
 	IFC "","\3"
 		FAIL Macro RESTORE_BLCON4_CHUNKY: Name of copperlist missing
@@ -1813,182 +1616,91 @@ RESTORE_BPLCON4_CHUNKY		MACRO
 		FAIL Macro RESTORE_BLCON4_CHUNKY: Number of commands per loop missing
 	ENDC
 	CNOP 0,4
-	IFC "cl1","\2"
-restore_first_copperlist
-		IFEQ \1_restore_cl_cpu_enabled
-			IFC "","\6"
-				IFC "16","\5"
-					moveq	#-2,d0 ; 2nd word CWAIT
-					MOVEF.L	\2_\4_size*16,d1
-					move.l	\2_\3(a3),a0
-					ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
-					moveq	#(\2_display_y_size/WORD_BITS)-1,d7
-restore_first_copperlist_loop
-					move.w	d0,(a0)	; restore CWAIT 2nd word
-					move.w	d0,\2_\4_size*1(a0)
-					move.w	d0,\2_\4_size*2(a0)
-					move.w	d0,\2_\4_size*3(a0)
-					move.w	d0,\2_\4_size*4(a0)
-					move.w	d0,\2_\4_size*5(a0)
-					move.w	d0,\2_\4_size*6(a0)
-					move.w	d0,\2_\4_size*7(a0)
-					move.w	d0,\2_\4_size*8(a0)
-					move.w	d0,\2_\4_size*9(a0)
-					move.w	d0,\2_\4_size*10(a0)
-					move.w	d0,\2_\4_size*11(a0)
-					move.w	d0,\2_\4_size*12(a0)
-					move.w	d0,\2_\4_size*13(a0)
-					move.w	d0,\2_\4_size*14(a0)
-					add.l	d1,a0 ; skip lines in cl
-					move.w	d0,(\2_\4_size*15)-(\2_\4_size*16)(a0)
-					dbf	d7,restore_first_copperlist_loop
-					rts
-				ENDC
-				IFC "32","\5"
-					moveq	#-2,d0 ; 2nd word CWAIT
-					MOVEF.L	\2_\4_size*32,d1
-					move.l	\2_\3(a3),a0
-					ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
-					moveq	#(\2_display_y_size/32)-1,d7
-restore_first_copperlist_loop
-					move.w	d0,(a0)	; restore 2nd word CWAIT
-					move.w	d0,\2_\4_size*1(a0)
-					move.w	d0,\2_\4_size*2(a0)
-					move.w	d0,\2_\4_size*3(a0)
-					move.w	d0,\2_\4_size*4(a0)
-					move.w	d0,\2_\4_size*5(a0)
-					move.w	d0,\2_\4_size*6(a0)
-					move.w	d0,\2_\4_size*7(a0)
-					move.w	d0,\2_\4_size*8(a0)
-					move.w	d0,\2_\4_size*9(a0)
-					move.w	d0,\2_\4_size*10(a0)
-					move.w	d0,\2_\4_size*11(a0)
-					move.w	d0,\2_\4_size*12(a0)
-					move.w	d0,\2_\4_size*13(a0)
-					move.w	d0,\2_\4_size*14(a0)
-					move.w	d0,\2_\4_size*15(a0)
-					move.w	d0,\2_\4_size*16(a0)
-					move.w	d0,\2_\4_size*17(a0)
-					move.w	d0,\2_\4_size*18(a0)
-					move.w	d0,\2_\4_size*19(a0)
-					move.w	d0,\2_\4_size*20(a0)
-					move.w	d0,\2_\4_size*21(a0)
-					move.w	d0,\2_\4_size*22(a0)
-					move.w	d0,\2_\4_size*23(a0)
-					move.w	d0,\2_\4_size*24(a0)
-					move.w	d0,\2_\4_size*25(a0)
-					move.w	d0,\2_\4_size*26(a0)
-					move.w	d0,\2_\4_size*27(a0)
-					move.w	d0,\2_\4_size*28(a0)
-					move.w	d0,\2_\4_size*29(a0)
-					move.w	d0,\2_\4_size*30(a0)
-					add.l	d1,a0 ; skip lines in cl
-					move.w	d0,(\2_\4_size*31)-(\2_\4_size*32)(a0)
-					dbf	d7,restore_first_copperlist_loop
-					rts
-				ENDC
-			ENDC
-		ENDC
-		IFEQ \1_restore_cl_blitter_enabled
-			IFC "","\7"
+\1_\2_restore_copperlist
+	IFEQ \1_restore_cl_cpu_enabled
+		IFC "","\6"
+			IFC "16","\5"
+				moveq	#-2,d0 ; 2nd word CWAIT
+				MOVEF.L	\2_\4_size*16,d1
 				move.l	\2_\3(a3),a0
 				ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
-				WAITBLIT
-				move.l	a0,BLTDPT-DMACONR(a6) ; destination
-				move.w	#\2_\4_size-\1_restore_blit_width,BLTDMOD-DMACONR(a6)
-				move.w	#$fffe,BLTADAT-DMACONR(a6) ; 2nd word CWAIT
-				move.w	#(((\1_restore_blit_y_size)<<6)|(\1_restore_blit_x_size/WORD_BITS),BLTSIZE-DMACONR(a6)
+				moveq	#(\2_display_y_size/WORD_BITS)-1,d7
+\1_\2_restore_copperlist_loop
+				move.w	d0,(a0)	; restore CWAIT 2nd word
+				move.w	d0,\2_\4_size*1(a0)
+				move.w	d0,\2_\4_size*2(a0)
+				move.w	d0,\2_\4_size*3(a0)
+				move.w	d0,\2_\4_size*4(a0)
+				move.w	d0,\2_\4_size*5(a0)
+				move.w	d0,\2_\4_size*6(a0)
+				move.w	d0,\2_\4_size*7(a0)
+				move.w	d0,\2_\4_size*8(a0)
+				move.w	d0,\2_\4_size*9(a0)
+				move.w	d0,\2_\4_size*10(a0)
+				move.w	d0,\2_\4_size*11(a0)
+				move.w	d0,\2_\4_size*12(a0)
+				move.w	d0,\2_\4_size*13(a0)
+				move.w	d0,\2_\4_size*14(a0)
+				add.l	d1,a0 ; skip lines in cl
+				move.w	d0,(\2_\4_size*15)-(\2_\4_size*16)(a0)
+				dbf	d7,\1_\2_restore_copperlist_loop
+				rts
+			ENDC
+			IFC "32","\5"
+				moveq	#-2,d0 ; 2nd word CWAIT
+				MOVEF.L	\2_\4_size*32,d1
+				move.l	\2_\3(a3),a0
+				ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
+				moveq	#(\2_display_y_size/32)-1,d7
+\1_\2_restore_copperlist_loop
+				move.w	d0,(a0)	; restore 2nd word CWAIT
+				move.w	d0,\2_\4_size*1(a0)
+				move.w	d0,\2_\4_size*2(a0)
+				move.w	d0,\2_\4_size*3(a0)
+				move.w	d0,\2_\4_size*4(a0)
+				move.w	d0,\2_\4_size*5(a0)
+				move.w	d0,\2_\4_size*6(a0)
+				move.w	d0,\2_\4_size*7(a0)
+				move.w	d0,\2_\4_size*8(a0)
+				move.w	d0,\2_\4_size*9(a0)
+				move.w	d0,\2_\4_size*10(a0)
+				move.w	d0,\2_\4_size*11(a0)
+				move.w	d0,\2_\4_size*12(a0)
+				move.w	d0,\2_\4_size*13(a0)
+				move.w	d0,\2_\4_size*14(a0)
+				move.w	d0,\2_\4_size*15(a0)
+				move.w	d0,\2_\4_size*16(a0)
+				move.w	d0,\2_\4_size*17(a0)
+				move.w	d0,\2_\4_size*18(a0)
+				move.w	d0,\2_\4_size*19(a0)
+				move.w	d0,\2_\4_size*20(a0)
+				move.w	d0,\2_\4_size*21(a0)
+				move.w	d0,\2_\4_size*22(a0)
+				move.w	d0,\2_\4_size*23(a0)
+				move.w	d0,\2_\4_size*24(a0)
+				move.w	d0,\2_\4_size*25(a0)
+				move.w	d0,\2_\4_size*26(a0)
+				move.w	d0,\2_\4_size*27(a0)
+				move.w	d0,\2_\4_size*28(a0)
+				move.w	d0,\2_\4_size*29(a0)
+				move.w	d0,\2_\4_size*30(a0)
+				add.l	d1,a0 ; skip lines in cl
+				move.w	d0,(\2_\4_size*31)-(\2_\4_size*32)(a0)
+				dbf	d7,\1_\2_restore_copperlist_loop
 				rts
 			ENDC
 		ENDC
 	ENDC
-	IFC "cl2","\2"
-restore_second_copperlist
-		IFEQ \1_restore_cl_cpu_enabled
-			IFC "","\6"
-				IFC "16","\5"
-					moveq	#-2,d0 ; 2nd word CWAIT
-					MOVEF.L	\2_\4_size*16,d1
-					move.l	\2_\3(a3),a0
-					ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
-					moveq	#(\2_display_y_size/WORD_BITS)-1,d7
-restore_second_copperlist_loop
-					move.w	d0,(a0) ; restore 2nd word CWAIT
-					move.w	d0,\2_\4_size*1(a0)
-					move.w	d0,\2_\4_size*2(a0)
-					move.w	d0,\2_\4_size*3(a0)
-					move.w	d0,\2_\4_size*4(a0)
-					move.w	d0,\2_\4_size*5(a0)
-					move.w	d0,\2_\4_size*6(a0)
-					move.w	d0,\2_\4_size*7(a0)
-					move.w	d0,\2_\4_size*8(a0)
-					move.w	d0,\2_\4_size*9(a0)
-					move.w	d0,\2_\4_size*10(a0)
-					move.w	d0,\2_\4_size*11(a0)
-					move.w	d0,\2_\4_size*12(a0)
-					move.w	d0,\2_\4_size*13(a0)
-					move.w	d0,\2_\4_size*14(a0)
-					add.l	d1,a0 ; skip lines in cl
-					move.w	d0,(\2_\4_size*15)-(\2_\4_size*16)(a0)
-					dbf	d7,restore_second_copperlist_loop
-					rts
-				ENDC
-				IFC "32","\5"
-					moveq	#-2,d0	; 2nd word CWAIT
-					MOVEF.L \2_\4_size*32,d1
-					move.l	\2_\3(a3),a0 
-					ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
-					moveq	#(\2_display_y_size/32)-1,d7
-restore_second_copperlist_loop
-					move.w	d0,(a0)	; restore CWAIT 2nd word
-					move.w	d0,\2_\4_size*1(a0)
-					move.w	d0,\2_\4_size*2(a0)
-					move.w	d0,\2_\4_size*3(a0)
-					move.w	d0,\2_\4_size*4(a0)
-					move.w	d0,\2_\4_size*5(a0)
-					move.w	d0,\2_\4_size*6(a0)
-					move.w	d0,\2_\4_size*7(a0)
-					move.w	d0,\2_\4_size*8(a0)
-					move.w	d0,\2_\4_size*9(a0)
-					move.w	d0,\2_\4_size*10(a0)
-					move.w	d0,\2_\4_size*11(a0)
-					move.w	d0,\2_\4_size*12(a0)
-					move.w	d0,\2_\4_size*13(a0)
-					move.w	d0,\2_\4_size*14(a0)
-					move.w	d0,\2_\4_size*15(a0)
-					move.w	d0,\2_\4_size*16(a0)
-					move.w	d0,\2_\4_size*17(a0)
-					move.w	d0,\2_\4_size*18(a0)
-					move.w	d0,\2_\4_size*19(a0)
-					move.w	d0,\2_\4_size*20(a0)
-					move.w	d0,\2_\4_size*21(a0)
-					move.w	d0,\2_\4_size*22(a0)
-					move.w	d0,\2_\4_size*23(a0)
-					move.w	d0,\2_\4_size*24(a0)
-					move.w	d0,\2_\4_size*25(a0)
-					move.w	d0,\2_\4_size*26(a0)
-					move.w	d0,\2_\4_size*27(a0)
-					move.w	d0,\2_\4_size*28(a0)
-					move.w	d0,\2_\4_size*29(a0)
-					move.w	d0,\2_\4_size*30(a0)
-					add.l	d1,a0 ; skip lines in cl
-					move.w	d0,(\2_\4_size*31)-(\2_\4_size*32)(a0)
-					dbf	d7,restore_second_copperlist_loop
-					rts
-				ENDC
-			ENDC
-		ENDC
-		IFEQ \1_restore_cl_blitter_enabled
-			IFC "","\7"
-				move.l	\2_\3(a3),a0
-				ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
-				WAITBLIT
-				move.l	a0,BLTDPT-DMACONR(a6)
-				move.w	#\2_\4_size-\1_restore_blit_width,BLTDMOD-DMACONR(a6)
-				move.w	#$fffe,BLTADAT-DMACONR(a6) ; 2nd word CWAIT
-				move.w	#((\1_restore_blit_y_size)<<6)|(\1_restore_blit_x_size/WORD_BITS),BLTSIZE-DMACONR(a6)
-				rts
-			ENDC
+	IFEQ \1_restore_cl_blitter_enabled
+		IFC "","\7"
+			move.l	\2_\3(a3),a0
+			ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
+			WAITBLIT
+			move.l	a0,BLTDPT-DMACONR(a6) ; destination
+			move.w	#\2_\4_size-\1_restore_blit_width,BLTDMOD-DMACONR(a6)
+			move.w	#$fffe,BLTADAT-DMACONR(a6) ; 2nd word CWAIT
+			move.w	#(((\1_restore_blit_y_size)<<6)|(\1_restore_blit_x_size/WORD_BITS),BLTSIZE-DMACONR(a6)
+			rts
 		ENDC
 	ENDC
 	ENDM
@@ -1998,7 +1710,7 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 ; Input
 ; \0 STRING:	["B", "W"] size
 ; \1 STRING:	Labels prefix
-; \2 STRING:	["cl1", "cl2"] label prefix copperlist
+; \2 STRING:	["cl1", "cl2"] copperlist label prefix
 ; \3 STRING:	["construction2", "construction3"] name of copperlist
 ; \4 STRING:	"extension[1..n]"
 ; \5 NUMBER:	[14, 15, 32, 48] bar height in lines
@@ -2007,9 +1719,9 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 ; \8 WORD:	Offset table start (optional)
 ; \9 STRING:	["45"] (optional)
 ; Global reference
-; _yz_coordinates
-; _display_width
-; _bars_number
+; \1_yz_coordinates
+; \2_display_width
+; \1_bars_number
 ; Result
 	IFC "","\0"
 		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Size missing
@@ -2018,7 +1730,7 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Label prefix copperlist missing
+		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Copperlist label prefix missing
 	ENDC
 	IFC "","\3"
 		FAIL Macro SET_TWISTED_BACKGROUND_BARS: Name of copperlist missing
@@ -2082,7 +1794,6 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 	IFC "B","\0"
 		CNOP 0,4
 \1_skip_background_bar
-
 	ENDC
 	ENDM
 
@@ -2091,7 +1802,7 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 ; Input
 ; \0 STRING:	["B", "W"] size
 ; \1 STRING:	Labels prefix
-; \2 STRING:	["cl1", "cl2"] label prefix copperlist
+; \2 STRING:	["cl1", "cl2"] copperlist label prefix
 ; \3 STRING:	["construction2", "construction3"] name of copperlist
 ; \4 STRING:	"extension[1..n]"
 ; \5 NUMBER:	[14, 15, 32, 48] bar height in lines
@@ -2100,9 +1811,9 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 ; \8 WORD:	Offset table start (optional)
 ; \9 STRING:	["45"] (optional)
 ; Global reference
-; _yz_coordinates
-; _display_width
-; _bars_number
+; \1_yz_coordinates
+; \2_display_width
+; \1_bars_number
 ; Result
 	IFC "","\0"
 		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Size missing
@@ -2111,7 +1822,7 @@ SET_TWISTED_FOREGROUND_BARS	MACRO
 		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Label prefix copperlist missing
+		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Copperlist label prefix missing
 	ENDC
 	IFC "","\3"
 		FAIL Macro SET_TWISTED_FOREGROUND_BARS: Name of coppwerelist missing
@@ -2179,7 +1890,7 @@ COPY_TWISTED_BAR		MACRO
 ; Input
 ; \0 STRING:	["B", "W"] size
 ; \1 STRING:	Labels prefix
-; \2 STRING:	["cl1","cl2"] label prefix copperlist
+; \2 STRING:	["cl1","cl2"] copperlist label prefix
 ; \3 STRING:	"extension[1..n]"
 ; \4 NUMBER:	[14, 15, 32, 48] bar height in lines
 ; Result
@@ -2190,7 +1901,7 @@ COPY_TWISTED_BAR		MACRO
 		FAIL Macro COPY_TWISTED_BAR: Labels prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro COPY_TWISTED_BAR: Label prefix copperlist missing
+		FAIL Macro COPY_TWISTED_BAR: Copperlist label prefix missing
 	ENDC
 	IFC "","\3"
 		FAIL Macro COPY_TWISTED_BAR: Extension missing

@@ -2961,3 +2961,193 @@ INIT_MIRROR_COLOR_TABLE		MACRO
 	dbf	d7,\1_init_mirror_color_table_loop1
 	rts
 	ENDM
+
+
+STONECRACKER_DECRUNCH		MACRO
+	addq.w	#QUADWORD_SIZE,a0	; skip ID string & security length
+	move.l	a1,a5
+	add.l	(a0)+,a1
+	moveq	#0,d4
+	add.l	(a0),a0
+	moveq	#16,d5
+	movem.w (a0),d2/d6/d7
+	not.w	d4
+	lea	sc_off6(pc),a3
+	lea	sc_len5a(pc),a4
+	moveq	#1,d0
+	moveq	#-1,d3
+	bra.s	sc_test1
+	CNOP 0,4
+sc_ins
+	subq.w	#QUADWORD_SIZE,d7
+	bpl.s	sc_ins2
+sc_ins1
+	move.w	d7,d1
+	addq.w	#QUADWORD_SIZE,d7
+	lsl.l	d7,d6
+	move.w	-(a0),d6
+	neg.w	d1
+	lsl.l	d1,d6
+	addq.w	#QUADWORD_SIZE,d7
+	swap	d6
+	move.b	d6,-(a1)
+	swap	d6
+	cmp.l	a1,a5
+	dbhs	d7,sc_main
+	bra.s	sc_exma
+	CNOP 0,4
+sc_ins2
+	rol.w	#8,d6
+	move.b	d6,-(a1)
+sc_test1
+	cmp.l	a1,a5
+	dbhs	d7,sc_main
+sc_exma
+	bhs.s	sc_exit
+
+sc_main1
+	move.w	-(a0),d6
+	moveq	#16-1,d7
+sc_main
+	add.w	d6,d6
+	bcc.s	sc_ins
+	dbf	d7,sc_len1
+	move.w	-(a0),d6
+	moveq	#16-1,d7
+sc_len1
+	add.w	d6,d6
+	bcs.s	sc_len6
+	dbf	d7,sc_len2
+	move.w	-(a0),d6
+	moveq	#16-1,d7
+sc_len2
+	moveq	#2,d1
+	moveq	#2,d3
+	add.w	d6,d6
+	bcs.s	sc_len5
+	dbf	d7,sc_len3
+	move.w	-(a0),d6
+	moveq	#16-1,d7
+sc_len3
+	add.w	d6,d6
+	bcc.s	sc_len4
+	moveq	#4,d1
+	moveq	#6,d3
+	lea	sc_len3a(pc),a6
+	bra.s	sc_bits
+	CNOP 0,4
+sc_len3a
+	add.w	d1,d3
+	cmp.w	#15,d1
+	blo.s	sc_off1
+	moveq	#5,d1
+	moveq	#14,d3
+	lea	sc_len3b(pc),a6
+	bra.s	sc_bits
+	CNOP 0,4
+sc_len4
+	moveq	#21,d3
+sc_loop
+	moveq	#8,d1
+sc_len5
+	move.l	a4,a6
+	bra.s	sc_bits
+	CNOP 0,4
+sc_len5a
+	add.w	d1,d3
+	not.b	d1
+	dbeq	d7,sc_off2
+	bne.s	sc_off2a
+	beq.s	sc_loop
+
+sc_off6
+	add.w	d1,a2
+	move.b	(a2),-(a1)
+sc_copy
+	move.b	-(a2),-(a1)
+	dbf	d3,sc_copy
+sc_test
+	cmp.l	a1,a5
+	dbhs	d7,sc_main
+	blo.s	sc_main1
+sc_exit
+	CALLEXECQ CacheClearU
+
+	CNOP 0,4
+sc_len6
+	dbf	d7,sc_len7
+	move.w	-(a0),d6
+	moveq	#16-1,d7
+sc_len7
+	add.w	d6,d6
+	addx.w	d0,d3
+sc_off1
+	dbf	d7,sc_off2
+sc_off2a
+	move.w	-(a0),d6
+	moveq	#16-1,d7
+sc_off2
+	add.w	d6,d6
+	bcs.s	sc_off3
+	dbf	d7,sc_off4
+	move.w	-(a0),d6
+	moveq	#16-1,d7
+sc_off4
+	moveq	#9,d1
+	lea	32(a1),a2
+	add.w	d6,d6
+	bcc.s	sc_off5
+	moveq	#5,d1
+	move.l	a1,a2
+	bra.s	sc_off5
+	CNOP 0,4
+sc_off3
+	lea	544(a1),a2
+	move.w	d2,d1
+sc_off5
+	move.l	a3,a6
+
+sc_bits
+	and.l	d4,d6
+	sub.w	d1,d7
+	bpl.s	sc_bits2
+	add.w	d7,d1
+	lsl.l	d1,d6
+	move.w	d7,d1
+	move.w	-(a0),d6
+	neg.w	d1
+	add.w	d5,d7
+sc_bits2
+	lsl.l	d1,d6
+	move.l	d6,d1
+	swap.w	d1
+	jmp	(a6)
+	CNOP	0,4
+sc_pins2
+	moveq	#-1,d3
+	bra.w	sc_ins2
+	CNOP 0,4
+sc_2ins2
+	rol.w	#8,d6
+	move.b	d6,-(a1)
+sc_2ins1
+	lsl.l	d7,d6
+	move.w	-(a0),d6
+	lsl.l	d1,d6
+	swap	d6
+	move.b	d6,-(a1)
+	swap	d6
+	subq.w	#2,d3
+	bgt.s	sc_2ins2
+	beq.s	sc_pins2
+	addq.w	#QUADWORD_SIZE,d7
+	bra	sc_test
+	CNOP 0,4
+sc_len3b
+	add.w	d1,d3
+	move.b	sc_newd1(pc,d7),d1
+	bpl.s	sc_2ins1
+	subq.w	#QUADWORD_SIZE,d7
+	dbf	d3,sc_2ins2
+	rts
+	ENDM

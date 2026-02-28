@@ -326,7 +326,7 @@ SWAP_PLAYFIELD_BUFFERS		MACRO
 		FAIL Macro SWAP_PLAYFIELDS: Number of playfields missing
 	ENDC
 	CNOP 0,4
-\1_swap_playfields
+\1_swap_playfield
 	IFEQ \2-2
 		move.l	\1_construction2(a3),a0
 		move.l	\1_display(a3),\1_construction2(a3)
