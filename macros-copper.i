@@ -1575,7 +1575,7 @@ CLEAR_BPLCON4_CHUNKY		MACRO
 		move.w	#-2,BLTADAT-DMACONR(a6) ; source 2nd word CWAIT
 	ELSE
 		IFEQ bplcon4_bits
-			moveq	#clear_bplcon4_bits,d0
+			moveq	#bplcon4_bits,d0
 			move.w	d0,BLTADAT-DMACONR(a6)
 		ELSE
 			move.w	#bplcon4_bits,BLTADAT-DMACONR(a6)
