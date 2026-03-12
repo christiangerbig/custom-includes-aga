@@ -144,21 +144,21 @@ spr_copy_structures
 	move.l	a4,-(a7)
 	lea	spr_pointers_construction(pc),a2
 	lea	spr_pointers_display(pc),a4
-	move.w	#(sprite0_size/LONGWORD_SIZE)-1,d7
+	MOVEF.W	(sprite0_size/LONGWORD_SIZE)-1,d7
 	bsr.s	spr_copy_data
-	move.w	#(sprite1_size/LONGWORD_SIZE)-1,d7
+	MOVEF.W	(sprite1_size/LONGWORD_SIZE)-1,d7
 	bsr.s	spr_copy_data
-	move.w	#(sprite2_size/LONGWORD_SIZE)-1,d7
+	MOVEF.W	(sprite2_size/LONGWORD_SIZE)-1,d7
 	bsr.s	spr_copy_data
-	move.w	#(sprite3_size/LONGWORD_SIZE)-1,d7
+	MOVEF.W	(sprite3_size/LONGWORD_SIZE)-1,d7
 	bsr.s	spr_copy_data
-	move.w	#(sprite4_size/LONGWORD_SIZE)-1,d7
+	MOVEF.W	(sprite4_size/LONGWORD_SIZE)-1,d7
 	bsr.s	spr_copy_data
-	move.w	#(sprite5_size/LONGWORD_SIZE)-1,d7
+	MOVEF.W	(sprite5_size/LONGWORD_SIZE)-1,d7
 	bsr.s	spr_copy_data
-	move.w	#(sprite6_size/LONGWORD_SIZE)-1,d7
+	MOVEF.W	(sprite6_size/LONGWORD_SIZE)-1,d7
 	bsr.s	spr_copy_data
-	move.w	#(sprite7_size/LONGWORD_SIZE)-1,d7
+	MOVEF.W	(sprite7_size/LONGWORD_SIZE)-1,d7
 	bsr.s	spr_copy_data
 	move.l	(a7)+,a4
 	rts

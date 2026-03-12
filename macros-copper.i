@@ -476,7 +476,7 @@ COP_INIT_COLOR00_SCREEN		MACRO
 \1_init_color00_skip
 	ENDC
 	add.l	d6,d0			; next rasterline
-	dbf	d7,\1_init_color00_scree_loop
+	dbf	d7,\1_init_color00_screen_loop
 	rts
 	ENDM
 
@@ -1389,11 +1389,9 @@ CLEAR_COLOR00_SCREEN		MACRO
 ; \4 STRING:	"extension[1..n]"
 ; \5 NUMBER:	[16,32] number of commands per loop
 ; Global reference
-; \1_color00_high_bits
-; \1_color00_low_bits
-; \1_display_y_size
-; \1_COLOR00_low
-; \1_COLOR00_high
+; color00_high_bits
+; color00_low_bits
+; \1_clear_y_size
 ; Result
 	IFC "","\1"
 		FAIL Macro CLEAR_COLOR00_SCREEN: Labels prefix missing
@@ -1413,12 +1411,12 @@ CLEAR_COLOR00_SCREEN		MACRO
 	CNOP 0,4
 \1_\2_clear_copperlist
 	IFC "16","\5"
-		move.w	#\1_clear_color00_high_bits,d0
-		move.w	#\1_clear_color00_low_bits,d1
+		move.w	#color00_high_bits,d0
+		move.w	#color00_low_bits,d1
 		MOVEF.L	\2_\4_size*16,d2
 		move.l	\2_\3(a3),a0
 		ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+WORD_SIZE,a0
-		moveq	#(\1_display_y_size/WORD_BITS)-1,d7
+		moveq	#(\1_clear_y_size/WORD_BITS)-1,d7
 \1_\2_clear_copperlist_loop
 		move.w	d0,(a0)		; COLOR00 high
 		move.w	d1,\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high(a0) ; COLOR00 low
@@ -1456,12 +1454,12 @@ CLEAR_COLOR00_SCREEN		MACRO
 		dbf	d7,\1_\2_clear_copperlist_loop
 	ENDC
 	IFC "32","\5"
-		move.w	#\1_clear_color00_high_bits,d0
-		move.w	#\1_clear_color00_low_bits,d1
+		move.w	#color00_high_bits,d0
+		move.w	#color00_low_bits,d1
 		MOVEF.L \2_\4_size*32,d2
 		move.l	\2_\3(a3),a0
 		ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_COLOR00_high+WORD_SIZE,a0
-		moveq	#(\1_display_y_size/32)-1,d7
+		moveq	#(\1_clear_y_size/32)-1,d7
 \1_\2_clear_copperlist_loop
 		move.w	d0,(a0)		; COLOR00 high
 		move.w	d1,\2_ext\*RIGHT(\4,1)_COLOR00_low-\2_ext\*RIGHT(\4,1)_COLOR00_high(a0) ; COLOR00 low
