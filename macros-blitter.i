@@ -20,9 +20,9 @@ wait_blitter_quick_loop\@
 GET_LINE_PARAMETERS		MACRO
 ; Input
 ; \1 STRING:	Labels prefix
-; \2 STRING:	["AREAFILL"] (optional)
-; \3 STRING:	["COPPERUSE"] (optional)
-; \4 WORD:	Multiplicator Y offset in playfield (optional)
+; \2 STRING:	"AREAFILL" (optional)
+; \3 STRING:	"COPPERUSE" (optional)
+; \4 WORD:	Multiplicator y offset in playfield (optional)
 ; \5 STRING:	Hook label for "AREAFILL" mode (optional)
 ; Global reference
 ; pf1_plane_width
@@ -51,14 +51,14 @@ GET_LINE_PARAMETERS		MACRO
 	neg.w	d2
 \1_get_line_parameters_skip2
 	sub.w	d1,d3			; dy = y2-y1
-	ror.l	#4,d0			; adjust shift bits
+	ror.l	#4,d0			; high word: shift bits, low word: word x offset
 	IFC "","\4"
 		MULUF.W	(pf1_plane_width*pf1_depth3)/2,d1,d4 ; y offset in playfield
 	ELSE
 		MULUF.W	(\4)/2,d1,d4	; y offset in playfield
 	ENDC
-	add.w	d0,d1			; x + y offset
-	MULUF.L	2,d1,d0			; adjust offset
+	add.w	d0,d1			; add y offset
+	MULUF.L	2,d1,d0			; byte x/y offset
 	cmp.w	d2,d3			; dx <= dy ?
 	ble.s	\1_get_line_parameters_skip3
 	SUBF.W	BLTCON1F_SUD,d5
@@ -66,7 +66,7 @@ GET_LINE_PARAMETERS		MACRO
 	MULUF.W	2,d5,d0			; octant #6,7
 \1_get_line_parameters_skip3
 	MULUF.W 4,d3,d0			; 4*dy
-	move.w	d5,d0			; octant
+	move.w	d5,d0			; store octant
 	move.w	d3,d4			; 4*dy
 	swap	d4			; high word: 4*dy
 	MULUF.W	2,d2,d4			; dx*2
