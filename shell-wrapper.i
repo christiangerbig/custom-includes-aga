@@ -62,6 +62,7 @@ quit
 
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 init_variables
 	move.l	a0,shell_parameters(a3)
@@ -168,6 +169,7 @@ free_RDArgs_skip
 
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 prerror_text
 	move.l  dos_return_code(a3),d1
@@ -188,6 +190,7 @@ prerror_text_skip
 ; d0.l	Error text length
 ; a0.l	Error text
 ; Result
+; no return value
 	CNOP 0,4
 print_text
 	move.l	output_handle(a3),d1
@@ -198,6 +201,7 @@ print_text
 
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 close_dos_library
 	move.l	_DOSBase(pc),d0

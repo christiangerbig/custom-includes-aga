@@ -3,6 +3,7 @@ PT_FADE_OUT_VOLUME		MACRO
 ; \1 STRING:	Label of additional variable set to TRUE if fader is finished (optional)
 ; \2 STRING:	"GLOBALVAR" if variables are pc relative (optional)
 ; Result
+; no return value
 	CNOP 0,4
 pt_music_fader
 	IFC "GLOBALVAR","\2"
@@ -54,7 +55,7 @@ pt_music_fader_skip2
 
 	IFD PROTRACKER_VERSION_2
 ; Input
-; a0.l	 Temporary audio data
+; a0.l	Pointer structure temporary audio data
 ; Result
 		CNOP 0,4
 pt_decrease_channel_volume
@@ -76,6 +77,7 @@ pt_decrease_channel_volume_skip
 PT_DETECT_SYS_FREQUENCY		MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_DetectSysFrequ
 	move.l	_GfxBase(pc),a0
@@ -114,6 +116,7 @@ PT_INIT_TIMERS			MACRO
 PT_INIT_REGISTERS		MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_InitRegisters
 	moveq	#CIAF_LED,d0
@@ -133,6 +136,7 @@ pt_InitRegisters
 PT_INIT_AUDIO_TEMP_STRUCTURES	MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_InitAudTempStrucs
 	moveq	#FALSE,d1
@@ -174,6 +178,7 @@ pt_InitAudTempStrucs
 PT_EXAMINE_SONG_STRUCTURE	MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_ExamineSongStruc
 	moveq	#0,d0			; 1st pattern number (count starts at 0)
@@ -226,6 +231,7 @@ pt_InitSkip2
 PT_INIT_FINETUNE_TABLE_STARTS	MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_InitFtuPeriodTableStarts
 	moveq	#pt_PeriodTableEnd-pt_PeriodTable,d0 ; period table length in bytes
@@ -348,7 +354,7 @@ pt_RtnInitChan4Loop
 
 
 ; Input
-; a0.l	 temporary audio data
+; a0.l	Pointer structure temporary audio data
 ; d0.w	DMACON bit audio channel [0,2,4,8]
 ; Result
 		CNOP 0,4
@@ -378,6 +384,7 @@ pt_RtnChkNextChanQuit
 
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_InitAllChanLoop
 	move.l	pt_audchan1temp+n_loopstart(pc),AUD0LCH-DMACONR(a6)
@@ -393,6 +400,7 @@ pt_InitAllChanLoop
 
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_SetAllChanDMA
 	move.w	pt_DMACONtemp(a3),d0

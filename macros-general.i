@@ -1278,7 +1278,7 @@ CPU_INIT_COLOR_HIGH		MACRO
 	IFNC "","\3"
 		lea	\3(pc),a1	; color table
 	ENDC
-	moveq	#\2-1,d7		; number of colors
+	moveq	#\2-1,d7		; number of colours
 	bsr	cpu_init_high_colors
 	ENDM
 
@@ -1301,7 +1301,7 @@ CPU_INIT_COLOR_LOW		MACRO
 	IFNC "","\3"
 		lea	\3(pc),a1	; color table
 	ENDC
-	moveq	#\2-1,d7		; number of colors
+	moveq	#\2-1,d7		; number of colours
 	bsr	cpu_init_low_colors
 	ENDM
 
@@ -1372,7 +1372,7 @@ RGB8_TO_RGB8_HIGH_LOW		MACRO
 \1_convert_color_table
 	move.w	#RB_NIBBLES_MASK,d3
 	lea	\1_color_table(pc),a0
-	move.w	#\2-1,d7		; number of colors
+	move.w	#\2-1,d7		; number of colours
 \1_convert_color_table_loop
 	move.l	(a0),d0			; RGB8
 	move.l	d0,d2					
@@ -1398,6 +1398,7 @@ INIT_CHARS_OFFSETS MACRO
 ; _ascii
 ; _ascii_end
 ; Result
+; no return value
 	CNOP 0,4
 \1_init_chars_offsets
 	IFC "","\0"
@@ -1458,6 +1459,7 @@ INIT_CHARS_X_POSITIONS	MACRO
 ; _chars_x_positions
 ; _text_chars_number
 ; Result
+; no return value
 	CNOP 0,4
 \1_init_chars_x_positions
 	IFC "","\1"
@@ -1511,6 +1513,7 @@ INIT_CHARS_Y_POSITIONS		MACRO
 ; _chars_y_positions
 ; _text_chars_number
 ; Result
+; no return value
 	CNOP 0,4
 \1_init_chars_y_positions
 	IFC "","\1"
@@ -1540,6 +1543,7 @@ INIT_CHARS_IMAGES		MACRO
 ; _text_chars_number
 ; _get_new_char_image
 ; Result
+; no return value
 	CNOP 0,4
 \1_init_chars_images
 	IFC "","\1"
@@ -1843,6 +1847,7 @@ INIT_MIRROR_BPLAM_TABLE		MACRO
 ; Global reference
 ; bplcon4_bits
 ; Result
+; no return value
 	CNOP 0,4
 \1_init_mirror_bplam_table
 	IFC "","\0"
@@ -1946,6 +1951,7 @@ INIT_NESTED_MIRROR_BPLAM_TABLE	MACRO
 ; Global reference
 ; bplcon4_bits
 ; Result
+; no return value
 	CNOP 0,4
 \1_init_nested_mirror_bplam_table
 	IFC "","\0"
@@ -2172,7 +2178,7 @@ INIT_COLOR_GRADIENT_RGB8	MACRO
 	IFNC "","\8"
 		move.w	#(\8)*LONGWORD_SIZE,a5 ; offset next color
 	ENDC
-	MOVEF.W	\3-1,d7			; number of colors
+	MOVEF.W	\3-1,d7			; number of colours
 	bsr	init_color_gradient_RGB8_loop
 	ENDM
 
@@ -2225,7 +2231,7 @@ init_color_gradients_rgb8_loop2\@
 	move.l	-((\1)*LONGWORD_SIZE*(\3-1))(a0),d6 ; RGB8 end = 1st value in section 1
 init_color_gradients_rgb8_skip\@
 	movem.l d5/d7,-(a7)
-	MOVEF.L	\1-1,d7			; number of colors
+	MOVEF.L	\1-1,d7			; number of colours
 	bsr	init_color_gradient_RGB8_loop
 	movem.l	(a7)+,d5/d7
 	dbf	d5,init_color_gradients_rgb8_loop2\@
@@ -2936,6 +2942,7 @@ INIT_MIRROR_COLOR_TABLE		MACRO
 ; \5 POINTER:		Destination: color table
 ; \6 STRING:		["pc", "a3"] pointer base for destination
 ; Result
+; no return value
 	CNOP 0,4
 \1_init_mirror_color_table
 	IFC "","\1"

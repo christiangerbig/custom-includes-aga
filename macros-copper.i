@@ -84,7 +84,7 @@ COP_SKIP			MACRO
 COP_LISTEND MACRO
 ; Input
 ; Result
-; a0.l	Pointer CWAIT for copperlist end
+; a0.l	Pointer CWAIT in cl for copperlist end
 	moveq	#-2,d0			; CWAIT impossible horizontal position
 	move.l	d0,(a0)
 	ENDM
@@ -390,7 +390,7 @@ COP_INIT_COLOR_HIGH		MACRO
 		FAIL Macro COP_INIT_COLOR_HIGH: Number of colors missing
 	ENDC
 	move.w	#\1,d3			; 1st color register offset
-	moveq	#\2-1,d7		; number of colors
+	moveq	#\2-1,d7		; number of colours
 	IFNC "","\3"
 		lea	\3(pc),a1	; color table
 	ENDC
@@ -413,7 +413,7 @@ COP_INIT_COLOR_LOW		MACRO
 		FAIL Macro COP_INIT_COLOR_LOW: Number of colors missing
 	ENDC
 	move.w	#\1,d3			; 1st color register offset
-	moveq	#\2-1,d7		; number of colors
+	moveq	#\2-1,d7		; number of colours
 	IFNC "","\3"
 		lea	\3(pc),a1	; color table
 	ENDC

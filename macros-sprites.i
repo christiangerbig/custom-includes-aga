@@ -400,12 +400,13 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 ; d0.w	X position
 ; d1.w	Y position
 ; d3.b	Attached bit
-; a0.l	 sprite structure
+; a0.l	Pointer structure sprite data
 ; Global reference
 ; spr_pixel_per_datafetch
 ; _image_plane_width
 ; _image_y_size
 ; Result
+; no return value
 	CNOP 0,4
 \1_init_sprite_header
 	IFNC "NOHEADER","\7"

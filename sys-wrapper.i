@@ -587,6 +587,7 @@ output_rasterlines_number
 
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 init_variables
 	lea	_SysBase(pc),a1
@@ -640,6 +641,7 @@ init_variables
 
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 init_structures
 	IFND SYS_TAKEN_OVER
@@ -2449,6 +2451,7 @@ sf_get_screen_colors_skip
 
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 sf_copy_screen_color_table
 			move.l	sf_screen_color_table(a3),a0 ; source
@@ -2673,6 +2676,7 @@ open_invisible_window_ok
 
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 clear_mouse_pointer
 		move.l	invisible_window(a3),a0
@@ -2782,6 +2786,7 @@ copy_exception_vectors_loop
 
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 init_exception_vectors
 	IFNE intena_bits&(~INTF_SETCLR)
@@ -2972,6 +2977,7 @@ turn_off_drive_motors
 
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 start_own_display
 	bsr	wait_vbi
@@ -3082,6 +3088,7 @@ stop_own_interrupts
 
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 stop_own_display
 	IFNE copcon_bits&COPCONF_CDANG
@@ -3340,6 +3347,7 @@ restore_sprite_resolution
 
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 close_invisible_window
 		move.l	invisible_window(a3),a0

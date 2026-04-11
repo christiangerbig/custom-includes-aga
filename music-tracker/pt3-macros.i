@@ -942,6 +942,7 @@ pt_NoNewPositionYet
 PT3_EFFECT_ARPEGGIO		MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_Arpeggio
 	move.w	pt_Counter(a3),d0
@@ -1004,6 +1005,7 @@ pt_ArpNoClip
 PT3_EFFECT_PORTAMENTO_UP	MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_PortamentoUp
 	move.b	n_cmdlo(a2),d0		; command data: xx-upspeed
@@ -1033,6 +1035,7 @@ pt_PortaUpEnd
 PT3_EFFECT_PORTAMENTO_DOWN	MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_PortamentoDown
 	move.b	n_cmdlo(a2),d0		; command data: xx-downspeed
@@ -1062,6 +1065,7 @@ pt_PortaDownEnd
 PT3_EFFECT_TONE_PORTAMENTO MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_TonePortamento
 	move.b	n_cmdlo(a2),d0		; command data: xx-up/down speed
@@ -1128,6 +1132,7 @@ pt_TonePortaEnd
 PT3_EFFECT_VIBRATO		MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_Vibrato
 	move.b	n_cmdlo(a2),d0		; command data: x-speed y-depth
@@ -1203,6 +1208,7 @@ pt_Vibrato3
 PT3_EFFECT_TONE_PORTA_VOL_SLIDE	MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_TonePortaPlusVolSlide
 	bsr.s	pt_TonePortaNoChange
@@ -1214,6 +1220,7 @@ pt_TonePortaPlusVolSlide
 PT3_EFFECT_VIB_VOL_SLIDE	MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_VibratoPlusVolSlide
 	bsr	pt_Vibrato2
@@ -1225,6 +1232,7 @@ pt_VibratoPlusVolSlide
 PT3_EFFECT_TREMOLO		MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_Tremolo
 	move.b	n_cmdlo(a2),d0		; command data: x-speed y-depth
@@ -1321,6 +1329,7 @@ pt_DecVolSkip3
 PT3_EFFECT_VOLUME_SLIDE		MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_VolumeSlide
 	move.b	n_cmdlo(a2),d0
@@ -1365,6 +1374,7 @@ pt_VsdEnd
 PT3_EFFECT_SET_SAMPLE_OFFSET MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_SetSampleOffset
 	move.b	n_cmdlo(a2),d0		; command data: xx-sample offset
@@ -1390,6 +1400,7 @@ pt_SetSoSkip
 PT3_EFFECT_POSITION_JUMP	MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_PositionJump
 	move.b	n_cmdlo(a2),d0		; command data: xx-song position
@@ -1405,6 +1416,7 @@ pt_PositionJump
 PT3_EFFECT_SET_VOLUME		MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_SetVolume
 	move.b	n_cmdlo(a2),d0		; command data: xx-volume
@@ -1421,6 +1433,7 @@ pt_MaxVolOk
 PT3_EFFECT_PATTERN_BREAK	MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_PatternBreak
 	move.b	n_cmdlo(a2),d0		; command data: xx-break position (decimal)
@@ -1446,6 +1459,7 @@ pt_PB2
 PT3_EFFECT_SET_FILTER		MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_SetFilter
 	moveq	#1,d0
@@ -1467,6 +1481,7 @@ pt_FilterOff
 PT3_EFFECT_FINE_PORTAMENTO_UP	MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_FinePortamentoUp
 	moveq	#NIBBLE_MASK_LOW,d0
@@ -1479,6 +1494,7 @@ pt_FinePortamentoUp
 PT3_EFFECT_FINE_PORTAMENTO_DOWN MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_FinePortamentoDown
 	moveq	#NIBBLE_MASK_LOW,d0
@@ -1491,6 +1507,7 @@ pt_FinePortamentoDown
 PT3_EFFECT_SET_GLISS_CONTROL	MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_SetGlissandoControl
 	MOVEF.B	NIBBLE_MASK_HIGH,d2
@@ -1514,6 +1531,7 @@ PT3_EFFECT_SET_VIB_WAVEFORM	MACRO
 ;	6   (without retrigger)
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_SetVibratoWaveform
 	MOVEF.B	NIBBLE_MASK_HIGH,d2
@@ -1530,6 +1548,7 @@ pt_SetVibratoWaveform
 PT3_EFFECT_SET_SAMPLE_FINETUNE	MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_SetSampleFinetune
 	moveq	#NIBBLE_MASK_LOW,d0
@@ -1543,6 +1562,7 @@ pt_SetSampleFinetune
 PT3_EFFECT_JUMP_TO_LOOP		MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_JumpToLoop
 	moveq	#NIBBLE_MASK_LOW,d0
@@ -1581,6 +1601,7 @@ PT3_EFFECT_SET_TRE_WAVEFORM MACRO
 ;	6   (without retrigger)
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_SetTremoloWaveform
 	move.b	n_cmdlo(a2),d0		; command data: tremolo waveform
@@ -1597,6 +1618,7 @@ pt_SetTremoloWaveform
 PT3_EFFECT_KARPLUS_STRONG	MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_KarplusStrong
 	move.w	n_replen(a2),d7
@@ -1631,6 +1653,7 @@ pt_KarpLoop
 PT3_EFFECT_RETRIG_NOTE		MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_RetrigNote
 	moveq	#NIBBLE_MASK_LOW,d0
@@ -1666,6 +1689,7 @@ pt_RtnEnd
 PT3_EFFECT_FINE_VOL_SLIDE_UP	MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_FineVolumeSlideUp
 	moveq	#NIBBLE_MASK_LOW,d0
@@ -1678,6 +1702,7 @@ pt_FineVolumeSlideUp
 PT3_EFFECT_FINE_VOL_SLIDE_DOWN	MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_FineVolumeSlideDown
 	bra	pt_VolSlideDown
@@ -1688,6 +1713,7 @@ pt_FineVolumeSlideDown
 PT3_EFFECT_NOTE_CUT		MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_NoteCut
 	moveq	#NIBBLE_MASK_LOW,d0
@@ -1704,6 +1730,7 @@ pt_NoteCutEnd
 PT3_EFFECT_NOTE_DELAY		MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_NoteDelay
 	moveq	#NIBBLE_MASK_LOW,d0
@@ -1731,6 +1758,7 @@ pt_NoteDelayEnd
 PT3_EFFECT_PATTERN_DELAY	MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_PatternDelay
 	moveq	#NIBBLE_MASK_LOW,d0
@@ -1748,6 +1776,7 @@ pt_PattDelayEnd
 PT3_EFFECT_INVERT_LOOP		MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_InvertLoop
 	move.b	n_cmdlo(a2),d0		; command data: x-speed
@@ -1788,6 +1817,7 @@ pt_InvertEnd
 PT3_EFFECT_SET_SPEED		MACRO
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 pt_SetSpeed
 	IFEQ pt_ciatiming_enabled

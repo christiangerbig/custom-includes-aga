@@ -91,6 +91,7 @@ write_VBR
 
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 wait_beam_position
 	move.l	#VERT_POSITION_MASK<<8,d1
@@ -116,6 +117,7 @@ wait_beam_position_loop2
 
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 wait_vbi
 	lea	INTREQR-DMACONR(a6),a0
@@ -129,6 +131,7 @@ wait_vbi_loop
 
 ; Input
 ; Result
+; no return value
 	CNOP 0,4
 wait_copint
 	lea	INTREQR-DMACONR(a6),a0
@@ -142,10 +145,11 @@ wait_coploop
 
 ; Input
 ; a0.l	Copperlist
-; a1.l	Color table
-; d3.w	Offset 1st color register
-; d7.w	Number of colors
+; a1.l	Pointer table RGB8 colours
+; d3.w	Offset 1st colour register
+; d7.w	Number of colours
 ; Result
+; no return value
 	CNOP 0,4
 cop_init_high_colors
 	move.w	#RB_NIBBLES_MASK,d2
@@ -161,10 +165,11 @@ cop_init_high_colors_loop
 
 ; Input
 ; a0.l	Copperlist
-; a1.l	Color table
-; d3.w	Offset 1st color register
-; d7.w	Number of colors
+; a1.l	Pointer table RGB8 colours
+; d3.w	Offset 1st colour register
+; d7.w	Number of colours
 ; Result
+; no return value
 	CNOP 0,4
 cop_init_low_colors
 	move.w	#RB_NIBBLES_MASK,d2
@@ -179,10 +184,11 @@ cop_init_low_colors_loop
 
 
 ; Input
-; a0.l	Color register address
-; a1.l	Color table
-; d7.w	Number of colors
+; a0.l	Colour register address
+; a1.l	Pointer table RGB8 colours
+; d7.w	Number of colours
 ; Result
+; no return value
 	CNOP 0,4
 cpu_init_high_colors
 	move.w	#RB_NIBBLES_MASK,d2
@@ -195,10 +201,11 @@ cpu_init_high_colors_loop
 
 
 ; Input
-; a0.l	Color register address
-; a1.l	Color table
-; d7.w	Number of colors
+; a0.l	Colour register address
+; a1.l	Pointer table RGB8 colours
+; d7.w	Number of colours
 ; Result
+; no return value
 	CNOP 0,4
 cpu_init_low_colors
 	move.w	#RB_NIBBLES_MASK,d2
@@ -212,10 +219,10 @@ cpu_init_low_colors_loop
 
 	IFD COLOR_GRADIENT_RGB8
 ; Input
-; d0.l	RGB8 current value
-; d6.l	RGB8 tartget value
-; d7.w	Number of colors
-; a0.l	Color table
+; d0.l	Current RGB8
+; d6.l	Destination RGB8
+; d7.w	Number of colours
+; a0.l	Pointer table RGB8 colours
 ; a1.l	Decrement/increment red
 ; a2.l	Decrement/increment green
 ; a4.w	Decrement/increment blue
