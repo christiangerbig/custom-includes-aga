@@ -361,31 +361,28 @@ SET_PLAYFIELD			MACRO
 	ENDC
 	CNOP 0,4
 \1_set_playfield
-	IFC "","\3"
-		move.l	cl1_display(a3),a0
-		ADDF.W	cl1_BPL1PTH+WORD_SIZE,a0
-		move.l	\1_display(a3),a1
-		moveq	#\2-1,d7	; playfield depth
-\1_set_playfield_loop
-		move.w	(a1)+,(a0)	; BPLxPTH
-		addq.w	#QUADWORD_SIZE,a0
-		move.w	(a1)+,LONGWORD_SIZE-QUADWORD_SIZE(a0) ; BPLxPTL
-		dbf	d7,\1_set_playfield_loop
-	ELSE
-		MOVEF.L (\3/8)+(\4*\1_plane_width*\2),d1
-		move.l	cl1_display(a3),a0
-		ADDF.W	cl1_BPL1PTH+WORD_SIZE,a0
-		move.l	\1_display(a3),a1
-		moveq	#\2-1,d7	; playfield depth
-\1_set_playfield_loop
-		move.l	(a1)+,d0
-		add.l	d1,d0
-		move.w	d0,LONGWORD_SIZE(a0) ; BPLxPTL
-		swap	d0
-		move.w	d0,(a0)		; BPLxPTH
-		addq.w	#QUADWORD_SIZE,a0
-		dbf	d7,\1_set_playfield_loop
+	move.l	\1_display(a3),a0
+	IFNC "","\3"
+		MOVEF.L	(\3/8)+(\4*\1_plane_width*\2),d1
 	ENDC
+	move.l	cl1_display(a3),a1
+	ADDF.W	cl1_BPL1PTH+WORD_SIZE,a1
+	moveq	#\2-1,d7		; playfield depth
+\1_set_playfield_loop
+	IFC "","\3"
+		move.w	(a0)+,(a1)	; BPLxPTH
+		addq.w	#QUADWORD_SIZE,a1
+		move.w	(a0)+,LONGWORD_SIZE-QUADWORD_SIZE(a1) ; BPLxPTL
+	ELSE
+		move.l	(a0)+,d0
+		add.l	d1,d0		; add xy offset
+		swap	d0
+		move.w	d0,(a1)		; BPLxPTH
+		addq.w	#QUADWORD_SIZE,a1
+		swap	d0
+		move.w	d0,LONGWORD_SIZE-QUADWORD_SIZE(a1) ; BPLxPTL
+	ENDC
+	dbf	d7,\1_set_playfield_loop
 	rts
 	ENDM
 
@@ -406,32 +403,28 @@ SET_DUAL_PLAYFIELD		MACRO
 		FAIL Macro SET_DUAL_PLAYFIELD: Playfield depth missing
 	ENDC
 	CNOP 0,4
-set_dual_playfield\*RIGHT(\1,1)
-	IFC "","\3"
-		move.l	cl1_display(a3),a0
-		ADDF.W	cl1_BPL\*RIGHT(\1,1)PTH+WORD_SIZE,a0
-		move.l	\1_display(a3),a1
-		moveq	#\2-1,d7	; Playfield depth
-set_dual_playfield\*RIGHT(\1,1)_loop
-		move.w	(a1)+,(a0)	; BPLxPTH
-		ADDF.W	QUADWORD_SIZE*2,a0
-		move.w	(a1)+,LONGWORD_SIZE-(QUADWORD_SIZE*2)(a0) ; BPLxPTL
-		dbf	d7,set_dual_playfield\*RIGHT(\1,1)_loop
-		rts
-	ELSE
-		MOVEF.L (\3/8)+(\4*\1_plane_width*\2),d1
-		move.l	cl1_display(a3),a0
-		ADDF.W	cl1_BPL\*RIGHT(\1,1)PTH+WORD_SIZE,a0
-		move.l	\1_display(a3),a1
-		moveq	#\1_depth3-1,d7 ; Playfield depth
-set_dual_playfield\*RIGHT(\1,1)_loop
-		move.l	(a1)+,d0
-		add.l	d1,d0
-		move.w	d0,LONGWORD_SIZE(a0) ; BPLxPTL
-		swap	d0
-		move.w	d0,(a0)		; BPLxPTH
-		ADDF.W	QUADWORD_SIZE*2,a0
-		dbf	d7,set_dual_playfield\*RIGHT(\1,1)_loop
-		rts
+\1_set_dual_playfield
+	move.l	\1_display(a3),a0
+	IFNC "","\3"
+		MOVEF.L	(\3/8)+(\4*\1_plane_width*\2),d1
 	ENDC
+	move.l	cl1_display(a3),a1
+	ADDF.W	cl1_BPL\*RIGHT(\1,1)PTH+WORD_SIZE,a1
+	moveq	#\2-1,d7		; playfield depth
+\1_set_dual_playfield_loop
+	IFC "","\3"
+		move.w	(a0)+,(a1)	; BPLxPTH
+		ADDF.W	QUADWORD_SIZE*2,a1
+		move.w	(a0)+,LONGWORD_SIZE-(QUADWORD_SIZE*2)(a1) ; BPLxPTL
+	ELSE
+		move.l	(a0)+,d0
+		add.l	d1,d0		; add xy offset
+		swap	d0
+		move.w	d0,(a1)		; BPLxPTH
+		ADDF.W	QUADWORD_SIZE*2,a1
+		swap	d0
+		move.w	d0,LONGWORD_SIZE-(QUADWORD_SIZE*2)(a1) ; BPLxPTL
+	ENDC
+	dbf	d7,\1_set_dual_playfield_loop
+	rts
 	ENDM

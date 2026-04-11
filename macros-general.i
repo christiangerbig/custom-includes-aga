@@ -2509,6 +2509,8 @@ GET_TWISTED_BARS_YZ_COORDINATES	MACRO
 ; \1 STRING:	Labels prefix
 ; \2 NUMBER:	[256, 360] sine table length
 ; \3 WORD:	Multiplier y offset in copperlist
+; \4 STRING	variable for y angle speed (optional)
+; \5 STRING	variable for y angle step (optional)
 ; Global reference
 ; sine_table
 ; sine_table_length
@@ -2535,8 +2537,12 @@ GET_TWISTED_BARS_YZ_COORDINATES	MACRO
 	IFEQ \2-256
 		move.w	\1_y_angle(a3),d2
 		move.w	d2,d0				
-		addq.b	#\1_y_angle_speed,d0
-		move.w	d0,\1_y_angle(a3) 
+		IFC "","\4"
+			addq.b	#\1_y_angle_speed,d0
+		ELSE
+			add.b	\4,d0
+		ENDC
+		move.w	d0,\1_y_angle(a3)
 		MOVEF.W \1_y_distance,d3
 		lea	sine_table(pc),a0
 		lea	\1_yz_coordinates(pc),a1
@@ -2557,10 +2563,14 @@ GET_TWISTED_BARS_YZ_COORDINATES	MACRO
 		move.w	d0,(a1)+	; y
 		add.b	d3,d2		; y distance to next bar
 		dbf	d6,\1_get_yz_coordinates_loop2
-		IFGE \1_y_angle_step
-			addq.b	#\1_y_angle_step,d2 ; next y angle
+		IFC "","\5"
+			IFGE \1_y_angle_step
+				addq.b	#\1_y_angle_step,d2 ; next y angle
+			ELSE
+				subq.b	#-\1_y_angle_step,d2 ; next y angle
+			ENDC
 		ELSE
-			subq.b	#-\1_y_angle_step,d2 ; next y angle
+			add.b	\5,d2	; next y angle
 		ENDC
 		dbf	d7,\1_get_yz_coordinates_loop1
 		rts
@@ -2569,7 +2579,11 @@ GET_TWISTED_BARS_YZ_COORDINATES	MACRO
 		move.w	\1_y_angle(a3),d2
 		move.w	d2,d0				
 		MOVEF.W sine_table_length,d3 ; overflow
-		addq.w	#\1_y_angle_speed,d0
+		IFC "","\4"
+			addq.w	#\1_y_angle_speed,d0
+		ELSE
+			add.w	\4,d0
+		ENDC
 		cmp.w	d3,d0		; 360° ?
 		blt.s	\1_get_yz_coordinates_skip1
 		sub.w	d3,d0		; reset y angle
@@ -2592,7 +2606,7 @@ GET_TWISTED_BARS_YZ_COORDINATES	MACRO
 		neg.w	d1
 \1_get_yz_coordinates_skip2
 		move.w	d1,(a1)+	; z vector
-		MULUF.L \1_y_radius*2,d0,d1 ; y'=(yr*sin(w))/2^15
+		MULUF.L \1_y_radius*2,d0,d1 ; y' = (yr*sin(w))/2^15
 		swap	d0
 		add.w	a2,d0		; y' + y center
 		MULUF.W	(\3)/4,d0,d1	; y offset in cl

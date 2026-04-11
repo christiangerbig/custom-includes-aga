@@ -221,7 +221,7 @@ COP_INIT_BITPLANE_POINTERS	MACRO
 COP_SET_BITPLANE_POINTERS	MACRO
 ; Input
 ; \1 STRING:		Labels prefix
-; \2 STRING:		["construction1","construction2","display"]
+; \2 STRING:		["construction1", "construction2", "display"] name of copperlist
 ; \3 BYTE SIGNED:	Number of bitplanes playfield1
 ; \4 BYTE SIGNED:	Number of bisplanes playfield2 (optional)
 ; \5 WORD:		X offset (optional)
@@ -232,6 +232,7 @@ COP_SET_BITPLANE_POINTERS	MACRO
 ; pf1_plane_width
 ; pf2_plane_width
 ; pf1_depth3
+; pf2_depth3
 ; Result
 	IFC "","\1"
 		FAIL Macro COP_SET_BITPLANE_POINTERS: Labels prefix missing
@@ -245,50 +246,37 @@ COP_SET_BITPLANE_POINTERS	MACRO
 	CNOP 0,4
 \1_set_plane_pointers
 	IFC "","\4"
-		IFC "","\5"
-			move.l	\1_\2(a3),a0
-			ADDF.W	\1_BPL1PTH+WORD_SIZE,a0
-			move.l	pf1_display(a3),a1
-			moveq	#\3-1,d7 ; number of bitplanes
-\1_set_plane_pointers_loop
-			move.w	(a1)+,(a0) ; BPLxPTH
-			addq.w	#QUADWORD_SIZE,a0
-			move.w	(a1)+,LONGWORD_SIZE-QUADWORD_SIZE(a0) ; BPLxPTL
-			dbf	d7,\1_set_plane_pointers_loop
-		ELSE
-			MOVEF.L	(\5/8)+(\6*pf1_plane_width*pf1_depth3),d1
-			move.l	\1_\2(a3),a0
-			ADDF.W	\1_BPL1PTH+WORD_SIZE,a0
-			move.l	pf1_display(a3),a1
-			moveq	#\3-1,d7 ; number of bitplanes
-\1_set_plane_pointers_loop
-			move.l	(a1)+,d0
-			add.l	d1,d0
-			move.w	d0,LONGWORD_SIZE(a0) ; BPLxPTL
-			swap	d0
-			move.w	d0,(a0)	; BPLxPTH
-			addq.w	#QUADWORD_SIZE,a0
-			dbf	d7,\1_set_plane_pointers_loop
+		move.l	pf1_display(a3),a0
+		IFNC "","\5"
+			ADDF.L	(\5/8)+(\6*pf1_plane_width*pf1_depth3),d0
 		ENDC
+		move.l	\1_\2(a3),a1
+		ADDF.W	\1_BPL1PTH+WORD_SIZE,a1
+		moveq	#\3-1,d7	; number of bitplanes
+\1_set_plane_pointers_loop
+		move.w	(a0)+,(a1) 	; BPLxPTH
+		addq.w	#QUADWORD_SIZE,a1
+		move.w	(a0)+,LONGWORD_SIZE-QUADWORD_SIZE(a1) ; BPLxPTL
+		dbf	d7,\1_set_plane_pointers_loop
 	ELSE
-; Playfield 1
-		move.l	\1_\2(a3),a0
-		lea	\1_BPL2PTH+2(a0),a1
-		ADDF.W	\1_BPL1PTH+WORD_SIZE,a0
-		move.l	pf1_display(a3),a2
+; Dual playfield 1
+		move.l	pf1_display(a3),a0
+		move.l	\1_\2(a3),a1
+		lea	\1_BPL2PTH+WORD_SIZE(a1),a2
+		ADDF.W	\1_BPL1PTH+WORD_SIZE,a1
 		moveq	#\3-1,d7	; number of bitplanes
 \1_set_plane_pointers_loop1
-		move.w	(a2)+,(a0)	; BPLxPTH
-		ADDF.W	QUADWORD_SIZE*2,a0
-		move.w	(a2)+,LONGWORD_SIZE-(QUADWORD_SIZE*2)(a0) ; BPLxPTL
+		move.w	(a0)+,(a1)	; BPLxPTH
+		ADDF.W	QUADWORD_SIZE*2,a1
+		move.w	(a0)+,LONGWORD_SIZE-(QUADWORD_SIZE*2)(a1) ; BPLxPTL
 		dbf	d7,\1_set_plane_pointers_loop1
-; Playfield 2
-		move.l	pf2_display(a3),a2
+; Dual playfield 2
+		move.l	pf2_display(a3),a0
 		moveq	#\4-1,d7	; number of bitplanes
 \1_set_plane_pointers_loop2
-		move.w	(a2)+,(a1)	; BPLxPTH
-		ADDF.W	QUADWORD_SIZE*2,a1
-		move.w	(a2)+,LONGWORD_SIZE-(QUADWORD_SIZE*2)(a1) ; BPLxPTL
+		move.w	(a0)+,(a2)		; BPLxPTH
+		ADDF.W	QUADWORD_SIZE*2,a2
+		move.w	(a0)+,LONGWORD_SIZE-(QUADWORD_SIZE*2)(a2) ; BPLxPTL
 		dbf	d7,\1_set_plane_pointers_loop2
 	ENDC
 	rts
@@ -337,19 +325,19 @@ COP_SET_SPRITE_POINTERS		MACRO
 	ENDC
 	CNOP 0,4
 \1_set_sprite_pointers
-	move.l	\1_\2(a3),a0
+	move.l	\1_\2(a3),a1
 	IFC "","\4"
-		lea	spr_pointers_display(pc),a1
-		ADDF.W	\1_SPR0PTH+WORD_SIZE,a0
+		lea	spr_pointers_display(pc),a0
+		ADDF.W	\1_SPR0PTH+WORD_SIZE,a1
 	ELSE
-		lea	spr_pointers_display+(\4*LONGWORD_SIZE)(pc),a1 ; with index
-		ADDF.W	\1_SPR\3PTH+WORD_SIZE,a0
+		lea	spr_pointers_display+(\4*LONGWORD_SIZE)(pc),a0 ; with index
+		ADDF.W	\1_SPR\3PTH+WORD_SIZE,a1
 	ENDC
 	moveq	#\3-1,d7		; number of sprites
 \1_set_sprite_pointers_loop
-	move.w	(a1)+,(a0)		; SPRxPTH
-	addq.w	#QUADWORD_SIZE,a0
-	move.w	(a1)+,LONGWORD_SIZE-QUADWORD_SIZE(a0) ; SPRxPTL
+	move.w	(a0)+,(a1)		; SPRxPTH
+	addq.w	#QUADWORD_SIZE,a1
+	move.w	(a0)+,LONGWORD_SIZE-QUADWORD_SIZE(a1) ; SPRxPTL
 	dbf	d7,\1_set_sprite_pointers_loop
 	rts
 	ENDM

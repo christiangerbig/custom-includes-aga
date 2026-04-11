@@ -28,6 +28,7 @@ GET_LINE_PARAMETERS		MACRO
 ; pf1_plane_width
 ; pf1_depth3
 ; Result
+; d0.l  high word: BLTCON0, low word BLTCON1
 	IFC "","\1"
 		FAIL Macro GET_LINE_PARAMETERS: Labels prefix missing
 	ENDC
