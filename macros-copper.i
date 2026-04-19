@@ -480,14 +480,15 @@ COP_RESET_COLOR00		MACRO
 ; color00_high_bits
 ; color00_low_bits
 ; Result
+; no return value
 	IFC "","\1"
-		FAIL Macro COP_RESET_COLOR00: Copperlist label prefix missing
+		FAIL Macro COP_RESET_COLOR: Copperlist label prefix missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro COP_RESET_COLOR00: X position missing
+		FAIL Macro COP_RESET_COLOR: X position missing
 	ENDC
 	IFC "","\3"
-		FAIL Macro COP_RESET_COLOR00: Y position missing
+		FAIL Macro COP_RESET_COLOR: Y position missing
 	ENDC
 	CNOP 0,4
 \1_reset_color00
@@ -562,8 +563,7 @@ COP_INIT_BPLCON4_CHUNKY	MACRO
 				move.l	#BPL1DAT<<16,d2
 			ENDC
 		ENDC
-		moveq	#1,d3
-		ror.l	#8,d3		; $01000000
+		move.l	#1<<24,d3	; next rasterline
 		MOVEF.W \5-1,d7		; number of lines
 \1_init_bplcon4_chunky_loop1
 		move.l	d0,(a0)+	; WAIT x,y
@@ -619,7 +619,7 @@ COP_INIT_BPLCON4_CHUNKY	MACRO
 				move.l	#BPL1DAT<<16,d2
 			ENDC
 		ENDC
-		move.l	#$01000000,d5
+		move.l	#1<<24,d5	; next rasterline
 		MOVEF.W	\5-1,d7		; number of lines
 \1_init_bplcon4_chunky_loop1
 		move.l	d0,(a0)+	; CWAIT
@@ -1699,7 +1699,7 @@ SET_TWISTED_BACKGROUND_BARS	MACRO
 ; \2 STRING:	["cl1", "cl2"] copperlist label prefix
 ; \3 STRING:	["construction2", "construction3"] name of copperlist
 ; \4 STRING:	"extension[1..n]"
-; \5 NUMBER:	[14, 15, 32, 48] bar height in lines
+; \5 NUMBER:	[14,15,32,48] bar height in lines
 ; \6 POINTER:	BPLAM table
 ; \7 STRING:	[pc,a3] pointer base
 ; \8 WORD:	Offset table start (optional)
