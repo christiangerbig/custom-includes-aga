@@ -10,7 +10,9 @@ cl1_DDFSTRT			RS.L 1
 	IFD ddfstop_bits
 cl1_DDFSTOP			RS.L 1
 	ENDC
+	IFD bplcon0_bits
 cl1_BPLCON0			RS.L 1
+	ENDC
 	IFD bplcon1_bits
 cl1_BPLCON1			RS.L 1
 	ENDC
@@ -162,11 +164,12 @@ cl1_COLOR30_high\2		RS.L 1
 cl1_COLOR31_high\2		RS.L 1
 	ENDC
 	IFNE spr_colors_number		; number of sprite colors > 0
-		IFEQ ((bplcon4_bits&$000f)-(\3&$000f)) & ((bplcon4_bits&$00f0)-(\3&$00f0)) ; sprite color table
-			IFLT pf_colors_number-(16+\1) ; number of playfield colors < 16
-				IFGT \2-1 ; playfield palette number > 1
+		IFD bplcon4_bits
+			IFEQ ((bplcon4_bits&$000f)-(\3&$000f)) & ((bplcon4_bits&$00f0)-(\3&$00f0)) ; sprite color table
+				IFLT pf_colors_number-(16+\1) ; number of playfield colors < 16
+					IFGT \2-1 ; playfield palette number > 1
 cl1_BPLCON3_high\2		RS.L 1
-				ENDC
+					ENDC
 cl1_COLOR00_high\2		RS.L 1
 cl1_COLOR01_high\2		RS.L 1
 cl1_COLOR02_high\2		RS.L 1
@@ -183,15 +186,17 @@ cl1_COLOR12_high\2		RS.L 1
 cl1_COLOR13_high\2		RS.L 1
 cl1_COLOR14_high\2		RS.L 1
 cl1_COLOR15_high\2		RS.L 1
+				ENDC
 			ENDC
 		ENDC
-		IFEQ ((bplcon4_bits&$000f)-(\4&$000f)) & ((bplcon4_bits&$00f0)-(\4&$00f0)) ; sprite color table 1
-			IFLT pf_colors_number-(32+\1) ; number of playfield colors < 32
-				IFGT \2-1 ; playfield palette number > 1
-					IFLT pf_colors_number-(1+\1) ; number of playfield colors < 1
+		IFD bplcon4_bits
+			IFEQ ((bplcon4_bits&$000f)-(\4&$000f)) & ((bplcon4_bits&$00f0)-(\4&$00f0)) ; sprite color table 1
+				IFLT pf_colors_number-(32+\1) ; number of playfield colors < 32
+					IFGT \2-1 ; playfield palette number > 1
+						IFLT pf_colors_number-(1+\1) ; number of playfield colors < 1
 cl1_BPLCON3_high\2		RS.L 1
+						ENDC
 					ENDC
-				ENDC
 cl1_COLOR16_high\2		RS.L 1
 cl1_COLOR17_high\2		RS.L 1
 cl1_COLOR18_high\2		RS.L 1
@@ -208,6 +213,7 @@ cl1_COLOR28_high\2		RS.L 1
 cl1_COLOR29_high\2		RS.L 1
 cl1_COLOR30_high\2		RS.L 1
 cl1_COLOR31_high\2		RS.L 1
+				ENDC
 			ENDC
 		ENDC
 	ENDC

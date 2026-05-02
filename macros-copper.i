@@ -93,7 +93,7 @@ COP_LISTEND MACRO
 COP_INIT_PLAYFIELD_REGISTERS	MACRO
 ; Input
 ; \1 STRING:	Labels prefix
-; \2 STRING:	["NOBITPLANES", "NOBITPLANESSPR", "BLANK", "BLANKSPR"] type of display
+; \2 STRING:	["BLANK", "BLANKSPR"] type of display
 ; \3 STRING:	["vp1", "vp2".."vpn"] viewport label prefix (optional)
 ; \4 STRING:	["TRIGGERBITPLANES"] to initialize BPLCON0 (optinal)
 ; Global reference
@@ -120,77 +120,97 @@ COP_INIT_PLAYFIELD_REGISTERS	MACRO
 	IFC "","\3"
 \1_init_playfield_props
 		IFC "","\2"
-			COP_MOVEQ diwstrt_bits,DIWSTRT
-			COP_MOVEQ diwstop_bits,DIWSTOP
-			COP_MOVEQ ddfstrt_bits,DDFSTRT
-			COP_MOVEQ ddfstop_bits,DDFSTOP
-			COP_MOVEQ bplcon0_bits,BPLCON0
-			COP_MOVEQ bplcon1_bits,BPLCON1
-			COP_MOVEQ bplcon2_bits,BPLCON2
-			COP_MOVEQ bplcon3_bits1,BPLCON3
-			COP_MOVEQ pf1_plane_moduli,BPL1MOD
-			IFGT pf_depth-1
-				IFD pf2_plane_moduli
-					COP_MOVEQ pf2_plane_moduli,BPL2MOD
-				ELSE
-					COP_MOVEQ pf1_plane_moduli,BPL2MOD
+			IFD diwstrt_bits
+				COP_MOVEQ diwstrt_bits,DIWSTRT
+			ENDC
+			IFD diwstop_bits
+				COP_MOVEQ diwstop_bits,DIWSTOP
+			ENDC
+			IFD ddfstrt_bits
+				COP_MOVEQ ddfstrt_bits,DDFSTRT
+			ENDC
+			IFD ddfstop_bits
+				COP_MOVEQ ddfstop_bits,DDFSTOP
+			ENDC
+			IFD bplcon0_bits
+				COP_MOVEQ bplcon0_bits,BPLCON0
+			ENDC
+			IFD bplcon1_bits
+				COP_MOVEQ bplcon1_bits,BPLCON1
+			ENDC
+			IFD bplcon2_bits
+				COP_MOVEQ bplcon2_bits,BPLCON2
+			ENDC
+			IFD bplcon3_bits1
+				COP_MOVEQ bplcon3_bits1,BPLCON3
+			ENDC
+			IFD pf1_plane_moduli
+				COP_MOVEQ pf1_plane_moduli,BPL1MOD
+				IFGT pf_depth-1
+					IFD pf2_plane_moduli
+						COP_MOVEQ pf2_plane_moduli,BPL2MOD
+					ELSE
+						COP_MOVEQ pf1_plane_moduli,BPL2MOD
+					ENDC
 				ENDC
 			ENDC
-			COP_MOVEQ bplcon4_bits,BPLCON4
-			COP_MOVEQ diwhigh_bits,DIWHIGH
-			COP_MOVEQ fmode_bits,FMODE
+			IFD bplcon4_bits
+				COP_MOVEQ bplcon4_bits,BPLCON4
+			ENDC
+			IFD diwhigh_bits
+				COP_MOVEQ diwhigh_bits,DIWHIGH
+			ENDC
+			IFD fmode_bits
+				COP_MOVEQ fmode_bits,FMODE
+			ENDC
 			rts
 		ELSE
-			IFC "NOBITPLANES","\2"
-				COP_MOVEQ diwstrt_bits,DIWSTRT
-				COP_MOVEQ diwstop_bits,DIWSTOP
-				COP_MOVEQ bplcon0_bits,BPLCON0
-				COP_MOVEQ bplcon3_bits1,BPLCON3
-				COP_MOVEQ bplcon4_bits,BPLCON4
-				COP_MOVEQ diwhigh_bits,DIWHIGH
-				rts
-			ENDC
-			IFC "NOBITPLANESSPR","\2"
-				COP_MOVEQ diwstrt_bits,DIWSTRT
-				COP_MOVEQ diwstop_bits,DIWSTOP
-				COP_MOVEQ bplcon0_bits,BPLCON0
-				COP_MOVEQ bplcon3_bits1,BPLCON3
-				COP_MOVEQ bplcon4_bits,BPLCON4
-				COP_MOVEQ diwhigh_bits,DIWHIGH
-				COP_MOVEQ fmode_bits,FMODE
-				rts
-			ENDC
 			IFC "BLANK","\2"
-				COP_MOVEQ bplcon0_bits,BPLCON0
-				COP_MOVEQ bplcon3_bits1,BPLCON3
-				rts
-			ENDC
-			IFC "BLANKSPR","\2"
-				COP_MOVEQ bplcon0_bits,BPLCON0
-				COP_MOVEQ bplcon3_bits1,BPLCON3
-				COP_MOVEQ bplcon4_bits,BPLCON4
-				COP_MOVEQ fmode_bits,FMODE
+				IFD bplcon0_bits
+					COP_MOVEQ bplcon0_bits,BPLCON0
+				ENDC
+				IFD bplcon3_bits1
+					COP_MOVEQ bplcon3_bits1,BPLCON3
+				ENDC
 				rts
 			ENDC
 		ENDC
 	ELSE
 \1_\3_init_playfield_props
-		COP_MOVEQ \3_ddfstrt_bits,DDFSTRT
-		COP_MOVEQ \3_ddfstop_bits,DDFSTOP
-		IFC "TRIGGERBITPLANES","\4"
-			COP_MOVEQ \3_bplcon0_bits,BPLCON0
+		IFD \3_ddfstrt_bits
+			COP_MOVEQ \3_ddfstrt_bits,DDFSTRT
 		ENDC
-		COP_MOVEQ \3_bplcon1_bits,BPLCON1
-		COP_MOVEQ \3_bplcon2_bits,BPLCON2
-		COP_MOVEQ \3_bplcon3_bits1,BPLCON3
-		COP_MOVEQ \3_pf1_plane_moduli,BPL1MOD
+		IFD \3_ddfstop_bits
+			COP_MOVEQ \3_ddfstop_bits,DDFSTOP
+		ENDC
+		IFC "TRIGGERBITPLANES","\4"
+			IFD \3_bplcon0_bits
+				COP_MOVEQ \3_bplcon0_bits,BPLCON0
+			ENDC
+		ENDC
+		IFD \3_bplcon1_bits
+			COP_MOVEQ \3_bplcon1_bits,BPLCON1
+		ENDC
+		IFD \3_bplcon2_bits
+			COP_MOVEQ \3_bplcon2_bits,BPLCON2
+		ENDC
+		IFD \3_bplcon3_bits1
+			COP_MOVEQ \3_bplcon3_bits1,BPLCON3
+		ENDC
+		IFD \3_pf1_plane_moduli
+			COP_MOVEQ \3_pf1_plane_moduli,BPL1MOD
+		ENDC
 		IFD \3_pf2_plane_moduli
 			COP_MOVEQ \3_pf2_plane_moduli,BPL2MOD
 		ELSE
 			COP_MOVEQ \3_pf1_plane_moduli,BPL2MOD
 		ENDC
-		COP_MOVEQ \3_bplcon4_bits,BPLCON4
-		COP_MOVEQ \3_fmode_bits,FMODE
+		IFD \3_bplcon4_bits
+			COP_MOVEQ \3_bplcon4_bits,BPLCON4
+		ENDC
+		IFD \3_fmode_bits
+			COP_MOVEQ \3_fmode_bits,FMODE
+		ENDC
 		rts
 	ENDC
 	ENDM
@@ -307,7 +327,7 @@ COP_INIT_SPRITE_POINTERS	MACRO
 
 COP_SET_SPRITE_POINTERS		MACRO
 ; Input
-; \1 STRING:		Labels prefix
+; \1 STRING:		Copperlist labels prefix
 ; \2 STRING:		["construction1", "construction2", "display"] name of copperlist
 ; \3 BYTE SIGNED:	[1..8] number of sprites
 ; \4 NUMBER:		[1..7] sprite structure index (optional)
@@ -315,7 +335,7 @@ COP_SET_SPRITE_POINTERS		MACRO
 ; spr_pointers_display
 ; Result
 	IFC "","\1"
-		FAIL Macro COP_SET_SPRITE_POINTERS: Labels prefix missing
+		FAIL Macro COP_SET_SPRITE_POINTERS: Copperlist labels prefix missing
 	ENDC
 	IFC "","\2"
 		FAIL Macro COP_SET_SPRITE_POINTERS: Name of copperlist missing

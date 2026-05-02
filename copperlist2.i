@@ -10,7 +10,9 @@ cl2_DDFSTRT			RS.L 1
 	IFD ddfstop_bits
 cl2_DDFSTOP			RS.L 1
 	ENDC
+	IFD bplcon0_bits
 cl2_BPLCON0			RS.L 1
+	ENDC
 	IFD bplcon1_bits
 cl2_BPLCON1			RS.L 1
 	ENDC

@@ -99,5 +99,5 @@ pt_ecmdbitnotedelay		EQU %0010000000000000
 pt_ecmdbitpattdelay		EQU %0100000000000000
 pt_ecmdbitinvertloop		EQU %1000000000000000
 
-pt_allusedfx			EQU %1111111011111111
-pt_allusedefx			EQU %1111111011111111
+pt_cmdbits			EQU %1111111011111111
+pt_ecmdbits			EQU %1111111011111111

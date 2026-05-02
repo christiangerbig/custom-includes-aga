@@ -1,4 +1,3 @@
-
 SET_SPRITE_POSITION		MACRO
 ; Input
 ; \1 WORD:	X position
@@ -218,13 +217,13 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		ENDC
 
 		IFNC "BLANK","\8"
-			lea	\1_image_data,a1 ; 1st column 64 pixel
+			lea	\1_image_data,a1 ; 1st column 64 pixel bitplane 1
 			bsr	\1_init_sprite_bitmap
 		ENDC
 		move.l	(a5)+,a0	; sprite1 structure
 		bsr	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(\1_image_plane_width*2),a1 ; 1st column 64 pixel
+			lea	\1_image_data+(\1_image_plane_width*2),a1 ; 1st column 64 pixel bitplane 3
 			bsr	\1_init_sprite_bitmap
 		ENDC
 
@@ -236,7 +235,7 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		move.l	(a5)+,a0	; sprite2 structure
 		bsr	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+QUADWORD_SIZE,a1 ; 2nd column 64 pixel
+			lea	\1_image_data+QUADWORD_SIZE,a1 ; 2nd column 64 pixel bitplane 1
 			bsr	\1_init_sprite_bitmap
 		ENDC
 		IFNC "NOHEADER","\7"
@@ -247,7 +246,7 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		move.l	(a5)+,a0	; sprite3 structure
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+QUADWORD_SIZE+(\1_image_plane_width*2),a1 ; 2nd column 64 pixel
+			lea	\1_image_data+QUADWORD_SIZE+(\1_image_plane_width*2),a1 ; 2nd column 64 pixel bitplane 3
 			bsr	\1_init_sprite_bitmap
 		ENDC
 
@@ -259,7 +258,7 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		move.l	(a5)+,a0	; sprite4 structure
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(QUADWORD_SIZE*2),a1 ; 3rd column 64 pixel
+			lea	\1_image_data+(QUADWORD_SIZE*2),a1 ; 3rd column 64 pixel bitplane 1
 			bsr	\1_init_sprite_bitmap
 		ENDC
 		IFNC "NOHEADER","\7"
@@ -270,7 +269,7 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		move.l	(a5)+,a0	; sprite 5 structure
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(QUADWORD_SIZE*2)+(\1_image_plane_width*2),a1 ; 3rd column 64 pixel
+			lea	\1_image_data+(QUADWORD_SIZE*2)+(\1_image_plane_width*2),a1 ; 3rd column 64 pixel bitplane 3
 			bsr.s	\1_init_sprite_bitmap
 		ENDC
 	
@@ -282,7 +281,7 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		ENDC
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(QUADWORD_SIZE*3),a1 ; 4th column 64 pixel
+			lea	\1_image_data+(QUADWORD_SIZE*3),a1 ; 4th column 64 pixel bitplane 1
 			bsr.s	\1_init_sprite_bitmap
 		ENDC
 		IFNC "NOHEADER","\7"
@@ -293,7 +292,7 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		move.l	(a5),a0		; sprite7 structure
 		bsr.s	\1_init_sprite_header
 		IFNC "BLANK","\8"
-			lea	\1_image_data+(QUADWORD_SIZE*3)+(\1_image_plane_width*2),a1 ; 4th column 64 pixel
+			lea	\1_image_data+(QUADWORD_SIZE*3)+(\1_image_plane_width*2),a1 ; 4th column 64 pixel bitplane 3
 			bsr.s	\1_init_sprite_bitmap
 		ENDC
 		movem.l (a7)+,a4-a5
@@ -424,15 +423,15 @@ INIT_ATTACHED_SPRITES_CLUSTER	MACRO
 		CNOP 0,4
 \1_init_sprite_bitmap
 		move.w	#\1_image_plane_width-QUADWORD_SIZE,a2
-		move.w	#(\1_image_plane_width*3)-QUADWORD_SIZE,a4
+		move.w	#(\1_image_plane_width*(\1_image_depth-1))-QUADWORD_SIZE,a4
 		MOVEF.W	\1_image_y_size-1,d7
 \1_init_sprite_bitmap_loop
-		move.l	(a1)+,(a0)+	; bitplane1 64 Bits
-		move.l	(a1)+,(a0)+
-		add.l	a2,a1		; skip remaining lines
-		move.l	(a1)+,(a0)+	; bitplane2 64 Bits
-		move.l	(a1)+,(a0)+
-		add.l	a4,a1		; skip remaining lines
+		move.l	(a1)+,(a0)+	; high longword: bitplane 1
+		move.l	(a1)+,(a0)+	; low longword: bitplane 1
+		add.l	a2,a1		; next bitplane
+		move.l	(a1)+,(a0)+	; high longword: bitplane 2
+		move.l	(a1)+,(a0)+	; low longword: bitplane 2
+		add.l	a4,a1		; next line
 		dbf	d7,\1_init_sprite_bitmap_loop
 	ENDC
 	rts
@@ -444,7 +443,7 @@ SWAP_SPRITES			MACRO
 ; \1 BYTE SIGNED:	Number of sprites
 ; \2 NUMBER:		[1..7] sprite structure pointer index (optional)
 ; Global reference
-; spr_pointers_construction
+; spr_pointeonstruction
 ; spr_pointers_display
 ; Result
 	IFC "","\1"
@@ -471,26 +470,31 @@ swap_sprite_structures_loop
 
 SET_SPRITES			MACRO
 ; Input
-; \1 BYTE SIGNED:	Number of sprites
-; \2 NUMBER:		[1..7] sprite structure pointer index (optional)
+; \1 STRING:		["cl1", "cl2"] copperlist label prefix
+; \2 BYTE SIGNED:	Number of sprites
+; \3 NUMBER:		[1..7] sprite structure pointer index (optional)
 ; Global reference
-; cl1_display
+; _display
 ; spr_pointers_display
 ; Result
 	IFC "","\1"
+		FAIL Macro SWAP_SPRITE_STRUCTURES: Copperlist label prefix missing
+	ENDC
+
+	IFC "","\2"
 		FAIL Macro SWAP_SPRITE_STRUCTURES: Number of sprites missing
 	ENDC
 	CNOP 0,4
 set_sprite_pointers
-	move.l	cl1_display(a3),a0 
-	IFC "","\2"
+	move.l	\1_display(a3),a0
+	IFC "","\3"
 		lea	spr_pointers_display(pc),a1
-		ADDF.W	cl1_SPR0PTH+WORD_SIZE,a0
+		ADDF.W	\1_SPR0PTH+WORD_SIZE,a0
 	ELSE
-		lea	spr_pointers_display+(\2*LONGWORD_SIZE)(pc),a1
-		ADDF.W	cl1_SPR\2PTH+WORD_SIZE,a0
+		lea	spr_pointers_display+(\3*LONGWORD_SIZE)(pc),a1
+		ADDF.W	\1_SPR\3PTH+WORD_SIZE,a0
 	ENDC
-	moveq	#\1-1,d7		; number of sprites
+	moveq	#\2-1,d7		; number of sprites
 set_sprite_pointers_loop
 	move.w	(a1)+,(a0)		; SPRxPTH
 	addq.w	#QUADWORD_SIZE,a0

@@ -58,6 +58,8 @@ PT2_REPLAY			MACRO
 ; Input
 ; \1 LABEL:	subroutine for effect command 8 called at tick #1 (optional)
 ; Result
+; no return value
+	CNOP 0,4
 pt_PlayMusic
 	movem.l	a5-a6,-(a7)
 	moveq	#0,d5			; for all clear operations
@@ -85,7 +87,7 @@ pt_NoNewNote
 	bsr.s	pt_NoNewAllChannels
 	bra	pt_NoNewPositionYet
  
-; Check for effect commands at ticks #2..#speedticks
+; Check for effect commands at ticks #2..# speedticks
 	CNOP 0,4
 pt_NoNewAllChannels
 	lea	pt_audchan1temp(pc),a2
@@ -111,7 +113,7 @@ pt_NoRtnSetTimer
 	ENDC
 	rts
 
-; Check effect commands at ticks #2..#speedticks
+; Check effect commands at ticks #2..# speedticks
 	CNOP 0,4
 pt_CheckEffects
 
@@ -251,7 +253,7 @@ pt_ChkEfxPerNop
 		PT2_EFFECT_VIB_VOL_SLIDE
 	ENDC
 
-; Exy "Extended commands" at ticks #2..#speed
+; Exy "Extended commands" at ticks #2..# speed
 	IFNE pt_usedefx
 		CNOP 0,4
 pt_ExtCommands
@@ -482,7 +484,7 @@ pt_CheckMoreEffects
 		and.b	n_cmd(a2),d0
 		cmp.b	#pt_cmdnotused,d0
 
-; 8xy "Not used/custom"
+; 8xy "Not used or custom"
 		IFEQ pt_usedfx&pt_cmdbitnotused
 			ble	pt_ChkMoreEfxPerNop
 		ELSE
@@ -987,7 +989,7 @@ PT2_EFFECT_TONE_PORTAMENTO	MACRO
 ; no return value
 	CNOP 0,4
 pt_TonePortamento
-	move.b	n_cmdlo(a2),d0		; command data: xx-up/down speed
+	move.b	n_cmdlo(a2),d0		; command data: xx-up or down speed
 	beq.s	pt_TonePortaNoChange
 	move.b	d0,n_toneportspeed(a2)
 	move.b	d5,n_cmdlo(a2)		; clear command data
@@ -995,7 +997,7 @@ pt_TonePortaNoChange
 	move.w	n_wantedperiod(a2),d2
 	beq.s	pt_TonePortaEnd
 	move.w	n_period(a2),d3
-	move.b	n_toneportspeed(a2),d0	; up/down speed
+	move.b	n_toneportspeed(a2),d0	; up or down speed
 	tst.b	n_toneportdirec(a2)	; check tone portamento direction
 	bne.s	pt_TonePortaUp
 pt_TonePortaDown
@@ -1028,7 +1030,7 @@ pt_TonePortaSetPer
 	lea	pt_FtuPeriodTableStarts(pc),a1
 	move.l	(a1,d0.w*4),a1		; period table address
 	move.l	a1,d2
-	moveq	#((pt_PeriodTableEnd-pt_PeriodTable)/2)-1,d7 ; number of periods
+	moveq	#((pt_PeriodTableEnd-pt_PeriodTable)/WORD_SIZE)-1,d7 ; number of periods
 pt_GlissLoop
 	cmp.w	(a1)+,d3		; note period >= table note period ?
 	dbhs	d7,pt_GlissLoop
@@ -1105,7 +1107,7 @@ pt_VibSet
 	and.b	n_vibratocmd(a2),d0	; depth
 	mulu.w	d0,d2			; depth * amplitude
 	move.w	n_period(a2),d0
-	lsr.w	#7,d2			; period amplitude = (depth * amplitude) / 128
+	lsr.w	#7,d2			; period amplitude
 	tst.b	n_vibratopos(a2)	; vibrato position negative ?
 	bmi.s	pt_VibratoNeg
 	add.w	d2,d0			; note period + period amplitude
@@ -1204,7 +1206,7 @@ pt_TreSine
 pt_TreSet
 	moveq	#NIBBLE_MASK_LOW,d0
 	and.b	n_tremolocmd(a2),d0	; depth
-	mulu.w	d0,d2			; (depth * amplitude) / 64
+	mulu.w	d0,d2
 	move.b	n_volume(a2),d0
 	lsr.w	#6,d2
 	tst.b	n_tremolopos(a2)	; tremolo position negative ?
@@ -1762,7 +1764,7 @@ pt_SetSpeed
 		CNOP 0,4
 pt_SetTempo
 		move.l	pt_125bpmrate(a3),d2
-		divu.w	d0,d2		; /tempo = counter value
+		divu.w	d0,d2		; counter value
 		move.b	d2,CIATALO-CIACRB(a5)
 		lsr.w	#BYTE_SHIFT_BITS,d2 ; adjust bits
 		move.b	d2,CIATAHI-CIACRB(a5)

@@ -252,7 +252,7 @@ PT_TIMER_INTERRUPT_SERVER	MACRO
 
 ; E9 "Retrig Note" or ED "Note Delay"
 	IFNE pt_usedefx&(pt_ecmdbitretrignote+pt_ecmdbitnotedelay)
-		tst.w	pt_RtnDMACONtemp(a3) ; any retrig/delay fx for a channel ?
+		tst.w	pt_RtnDMACONtemp(a3) ; any retrig or delay fx for a channel ?
 		beq.s	pt_RtnChannelsSkip
 		move.b	pt_audchan1temp+n_rtnsetchandma(pc),d0
 		beq	pt_RtnSetChan1DMA
