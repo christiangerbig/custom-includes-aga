@@ -268,15 +268,24 @@ COP_SET_BITPLANE_POINTERS	MACRO
 	IFC "","\4"
 		move.l	pf1_display(a3),a0
 		IFNC "","\5"
-			ADDF.L	(\5/8)+(\6*pf1_plane_width*pf1_depth3),d0
+			MOVEF.L	(\5/8)+(\6*pf1_plane_width*pf1_depth3),d1
 		ENDC
 		move.l	\1_\2(a3),a1
 		ADDF.W	\1_BPL1PTH+WORD_SIZE,a1
 		moveq	#\3-1,d7	; number of bitplanes
 \1_set_plane_pointers_loop
-		move.w	(a0)+,(a1) 	; BPLxPTH
-		addq.w	#QUADWORD_SIZE,a1
-		move.w	(a0)+,LONGWORD_SIZE-QUADWORD_SIZE(a1) ; BPLxPTL
+		IFC "","\5"
+			move.w	(a0)+,(a1) ; BPLxPTH
+			addq.w	#QUADWORD_SIZE,a1
+			move.w	(a0)+,LONGWORD_SIZE-QUADWORD_SIZE(a1) ; BPLxPTL
+		ELSE
+			move.l	(a0)+,d0
+			add.l	d1,d0	; add xy offset
+			move.w	d0,LONGWORD_SIZE(a1) ; BPLxPTL
+			swap	d0
+			move.w	d0,(a1)	; BPLxPTH
+			addq.w	#QUADWORD_SIZE,a1
+		ENDC
 		dbf	d7,\1_set_plane_pointers_loop
 	ELSE
 ; Dual playfield 1
@@ -286,17 +295,35 @@ COP_SET_BITPLANE_POINTERS	MACRO
 		ADDF.W	\1_BPL1PTH+WORD_SIZE,a1
 		moveq	#\3-1,d7	; number of bitplanes
 \1_set_plane_pointers_loop1
-		move.w	(a0)+,(a1)	; BPLxPTH
-		ADDF.W	QUADWORD_SIZE*2,a1
-		move.w	(a0)+,LONGWORD_SIZE-(QUADWORD_SIZE*2)(a1) ; BPLxPTL
+		IFC "","\5"
+			move.w	(a0)+,(a1) ; BPLxPTH
+			ADDF.W	QUADWORD_SIZE*2,a1
+			move.w	(a0)+,LONGWORD_SIZE-(QUADWORD_SIZE*2)(a1) ; BPLxPTL
+		ELSE
+			move.l	(a0)+,d0
+			add.l	d1,d0	; add xy offset
+			move.w	d0,LONGWORD_SIZE(a1) ; BPLxPTL
+			swap	d0
+			move.w	d0,(a1)	; BPLxPTH
+			ADDF.W	QUADWORD_SIZE*2,a1
+		ENDC
 		dbf	d7,\1_set_plane_pointers_loop1
 ; Dual playfield 2
 		move.l	pf2_display(a3),a0
 		moveq	#\4-1,d7	; number of bitplanes
 \1_set_plane_pointers_loop2
-		move.w	(a0)+,(a2)		; BPLxPTH
-		ADDF.W	QUADWORD_SIZE*2,a2
-		move.w	(a0)+,LONGWORD_SIZE-(QUADWORD_SIZE*2)(a2) ; BPLxPTL
+		IFC "","\5"
+			move.w	(a0)+,(a2) ; BPLxPTH
+			ADDF.W	QUADWORD_SIZE*2,a2
+			move.w	(a0)+,LONGWORD_SIZE-(QUADWORD_SIZE*2)(a2) ; BPLxPTL
+		ELSE
+			move.l	(a0)+,d0
+			add.l	d1,d0	; add xy offset
+			move.w	d0,LONGWORD_SIZE(a2) ; BPLxPTL
+			swap	d0
+			move.w	d0,(a2)	; BPLxPTH
+			ADDF.W	QUADWORD_SIZE*2,a2
+		ENDC
 		dbf	d7,\1_set_plane_pointers_loop2
 	ENDC
 	rts

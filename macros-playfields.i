@@ -378,9 +378,9 @@ SET_PLAYFIELD			MACRO
 		add.l	d1,d0		; add xy offset
 		swap	d0
 		move.w	d0,(a1)		; BPLxPTH
-		addq.w	#QUADWORD_SIZE,a1
 		swap	d0
-		move.w	d0,LONGWORD_SIZE-QUADWORD_SIZE(a1) ; BPLxPTL
+		move.w	d0,LONGWORD_SIZE(a1) ; BPLxPTL
+		addq.w	#QUADWORD_SIZE,a1
 	ENDC
 	dbf	d7,\1_set_playfield_loop
 	rts
