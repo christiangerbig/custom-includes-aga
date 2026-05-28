@@ -1260,7 +1260,7 @@ CMPF				MACRO
 	ENDM
 
 
-CPU_INIT_COLOR_HIGH		MACRO
+CPU_LOAD_COLORMAP_HIGH		MACRO
 ; Input
 ; \1 WORD:		First color register offset
 ; \2 BYTE_SIGNED:	Number of colors
@@ -1269,10 +1269,10 @@ CPU_INIT_COLOR_HIGH		MACRO
 ; cpu_init_high_colors
 ; Result
 	IFC "","\1"
-		FAIL Macro CPU_INIT_COLOR_HIGH: First color register offset missing
+		FAIL Macro CPU_LOAD_COLORMAP_HIGH: First color register offset missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro CPU_INIT_COLOR_HIGH: Number of colors missing
+		FAIL Macro CPU_LOAD_COLORMAP_HIGH: Number of colors missing
 	ENDC
 	lea		(\1)-DMACONR(a6),a0 ; 1st color register
 	IFNC "","\3"
@@ -1283,7 +1283,7 @@ CPU_INIT_COLOR_HIGH		MACRO
 	ENDM
 
 
-CPU_INIT_COLOR_LOW		MACRO
+CPU_LOAD_COLORMAP_LOW		MACRO
 ; Input
 ; \1 WORD:		First color register offset
 ; \2 BYTE_SIGNED:	Number of colors
@@ -1292,10 +1292,10 @@ CPU_INIT_COLOR_LOW		MACRO
 ; cpu_init_high_colors
 ; Result
 	IFC "","\1"
-		FAIL Macro CPU_INIT_COLOR_LOW: First color register offset missing
+		FAIL Macro CPU_LOAD_COLORMAP_LOW: First color register offset missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro CPU_INIT_COLOR_LOW: Number of colors missing
+		FAIL Macro CPU_LOAD_COLORMAP_LOW: Number of colors missing
 	ENDC
 	lea		(\1)-DMACONR(a6),a0 ; first color register
 	IFNC "","\3"

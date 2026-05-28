@@ -869,7 +869,7 @@ init_pal_screen_rgb32_colors
 			move.w	#pal_screen_colors_number,(a0)+
 			moveq	#0,d0
 			move.w	d0,(a0)+	; start with COLOR00
-			lea	  pf1_rgb8_color_table(pc),a1
+			lea	pf1_rgb8_color_table(pc),a1
 			moveq	#0,d1
 			move.b	1(a1),d1	; R8
 			lsl.w	#8,d1

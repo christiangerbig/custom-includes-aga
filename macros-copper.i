@@ -422,7 +422,7 @@ COP_SELECT_COLOR_LOW_BANK	MACRO
 	ENDM
 
 
-COP_INIT_COLOR_HIGH		MACRO
+COP_LOAD_COLORMAP_HIGH		MACRO
 ; Input
 ; \1 WORD:		First color register offset
 ; \2 BYTE_SIGNED:	Number of colors
@@ -431,10 +431,10 @@ COP_INIT_COLOR_HIGH		MACRO
 ; cop_init_colors
 ; Result
 	IFC "","\1"
-		FAIL Macro COP_INIT_COLOR_HIGH: First color register offset missing
+		FAIL Macro COP_LOAD_COLORMAP_HIGH: First color register offset missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro COP_INIT_COLOR_HIGH: Number of colors missing
+		FAIL Macro COP_LOAD_COLORMAP_HIGH: Number of colors missing
 	ENDC
 	move.w	#\1,d3			; 1st color register offset
 	moveq	#\2-1,d7		; number of colours
@@ -445,7 +445,7 @@ COP_INIT_COLOR_HIGH		MACRO
 	ENDM
 
 
-COP_INIT_COLOR_LOW		MACRO
+COP_LOAD_COLORMAP_LOW		MACRO
 ; Input
 ; \1 WORD:		First color register offset
 ; \2 BYTE_SIGNED:	  Number of colors
@@ -454,10 +454,10 @@ COP_INIT_COLOR_LOW		MACRO
 ; cop_init_colors
 ; Result
 	IFC "","\1"
-		FAIL Macro COP_INIT_COLOR_LOW: First color register offset missing
+		FAIL Macro COP_LOAD_COLORMAP_LOW: First color register offset missing
 	ENDC
 	IFC "","\2"
-		FAIL Macro COP_INIT_COLOR_LOW: Number of colors missing
+		FAIL Macro COP_LOAD_COLORMAP_LOW: Number of colors missing
 	ENDC
 	move.w	#\1,d3			; 1st color register offset
 	moveq	#\2-1,d7		; number of colours
@@ -1729,10 +1729,11 @@ RESTORE_BPLCON4_CHUNKY		MACRO
 			move.l	\2_\3(a3),a0
 			ADDF.W	\2_\4_entry+\2_ext\*RIGHT(\4,1)_WAIT+WORD_SIZE,a0
 			WAITBLIT
+			move.l	#(BC0F_DEST|ANBNC|ANBC|ABNC|ABC)<<16,BLTCON0-DMACONR(a6) ; Minterm D = A
 			move.l	a0,BLTDPT-DMACONR(a6) ; destination
 			move.w	#\2_\4_size-\1_restore_blit_width,BLTDMOD-DMACONR(a6)
 			move.w	#$fffe,BLTADAT-DMACONR(a6) ; 2nd word CWAIT
-			move.w	#(((\1_restore_blit_y_size)<<6)|(\1_restore_blit_x_size/WORD_BITS),BLTSIZE-DMACONR(a6)
+			move.w	#((\1_restore_blit_y_size)<<6)|(\1_restore_blit_x_size/WORD_BITS),BLTSIZE-DMACONR(a6)
 			rts
 		ENDC
 	ENDC
@@ -2176,5 +2177,113 @@ COPY_TWISTED_BAR		MACRO
 			swap	d3
 			move.w	d3,\2_\3_size*14(a4)
 		ENDC
+	ENDC
+	ENDM
+
+
+CL_COLORMAP_HIGH		MACRO
+; Input
+; \1	STRING: Label_prefix
+; \2	NUMBER: Colour bank number [1..8]
+; \3	NUMBER: Start colour number is not 00 (optional)
+; \4	NUMBER: Number of colours [16] (optional)
+; Result
+; no return value
+	IFC "","\1"
+		FAIL FULL_COLOR_PALETTE_HIGH: Label prefix missing
+	ENDC
+	IFC "","\2"
+		FAIL FULL_COLOR_PALETTE_HIGH: Colour bank number missing
+	ENDC
+
+	IFC "","\3"		; start with COLOR00
+\1_COLOR00_high\2		RS.L 1
+	ENDC
+\1_COLOR01_high\2		RS.L 1
+\1_COLOR02_high\2		RS.L 1
+\1_COLOR03_high\2		RS.L 1
+\1_COLOR04_high\2		RS.L 1
+\1_COLOR05_high\2		RS.L 1
+\1_COLOR06_high\2		RS.L 1
+\1_COLOR07_high\2		RS.L 1
+\1_COLOR08_high\2		RS.L 1
+\1_COLOR09_high\2		RS.L 1
+\1_COLOR10_high\2		RS.L 1
+\1_COLOR11_high\2		RS.L 1
+\1_COLOR12_high\2		RS.L 1
+\1_COLOR13_high\2		RS.L 1
+\1_COLOR14_high\2		RS.L 1
+\1_COLOR15_high\2		RS.L 1
+	IFNC "16","\4"
+\1_COLOR16_high\2		RS.L 1
+\1_COLOR17_high\2		RS.L 1
+\1_COLOR18_high\2		RS.L 1
+\1_COLOR19_high\2		RS.L 1
+\1_COLOR20_high\2		RS.L 1
+\1_COLOR21_high\2		RS.L 1
+\1_COLOR22_high\2		RS.L 1
+\1_COLOR23_high\2		RS.L 1
+\1_COLOR24_high\2		RS.L 1
+\1_COLOR25_high\2		RS.L 1
+\1_COLOR26_high\2		RS.L 1
+\1_COLOR27_high\2		RS.L 1
+\1_COLOR28_high\2		RS.L 1
+\1_COLOR39_high\2		RS.L 1
+\1_COLOR30_high\2		RS.L 1
+\1_COLOR31_high\2		RS.L 1
+	ENDC
+	ENDM
+
+
+CL_COLORMAP_LOW			MACRO
+; Input
+; \1	STRING: Label_prefix
+; \2	NUMBER: Colour bank number [1..8]
+; \3	NUMBER: Start colour number is not 00 (optional)
+; \4	NUMBER: Number of colours [16] (optional)
+; Result
+; no return value
+	IFC "","\1"
+		FAIL FULL_COLOR_PALETTE_LOW: Label prefix missing
+	ENDC
+	IFC "","\2"
+		FAIL FULL_COLOR_PALETTE_LOW: Colour bank number missing
+	ENDC
+
+	IFC "","\3"		; start with COLOR00
+\1_COLOR00_low\2		RS.L 1
+	ENDC
+\1_COLOR01_low\2		RS.L 1
+\1_COLOR02_low\2		RS.L 1
+\1_COLOR03_low\2		RS.L 1
+\1_COLOR04_low\2		RS.L 1
+\1_COLOR05_low\2		RS.L 1
+\1_COLOR06_low\2		RS.L 1
+\1_COLOR07_low\2		RS.L 1
+\1_COLOR08_low\2		RS.L 1
+\1_COLOR09_low\2		RS.L 1
+\1_COLOR10_low\2		RS.L 1
+\1_COLOR11_low\2		RS.L 1
+\1_COLOR12_low\2		RS.L 1
+\1_COLOR13_low\2		RS.L 1
+\1_COLOR14_low\2		RS.L 1
+\1_COLOR15_low\2		RS.L 1
+	IFNC "16","\4"
+\1_COLOR16_low\2		RS.L 1
+\1_COLOR17_low\2		RS.L 1
+\1_COLOR18_low\2		RS.L 1
+\1_COLOR19_low\2		RS.L 1
+\1_COLOR20_low\2		RS.L 1
+\1_COLOR21_low\2		RS.L 1
+\1_COLOR22_low\2		RS.L 1
+\1_COLOR23_low\2		RS.L 1
+\1_COLOR24_low\2		RS.L 1
+\1_COLOR25_low\2		RS.L 1
+\1_COLOR26_low\2		RS.L 1
+\1_COLOR27_low\2		RS.L 1
+\1_COLOR28_low\2		RS.L 1
+\1_COLOR39_low\2		RS.L 1
+\1_COLOR30_low\2		RS.L 1
+\1_COLOR31_low\2		RS.L 1
 	ENDC
 	ENDM

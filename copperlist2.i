@@ -1,3 +1,348 @@
+CL2_COLORMAP_HIGH		MACRO
+; Input
+; \1	NUMBER: Colour number base in 32 steps [0..224]
+; \2	NUMBER: Playfield colour bank number [1..8]
+; \3	HEXNUMBER: Sprite even colour bank number in 32 steps [$00..$ee]
+; \4	HEXNUMBER: Sprite odd colour bank number in 32 steps [$11..$ff]
+; Result
+; no return value
+	IFC "","\1"
+		FAIL Macro CL2_COLORMAP_HIGH: Colour number base missing
+	ENDC
+	IFC "","\2"
+		FAIL Macro CL2_COLORMAP_HIGH: Playfield colour bank number missing
+	ENDC
+	IFC "","\3"
+		FAIL Macro CL2_COLORMAP_HIGH: Sprite even colour bank number missing
+	ENDC
+	IFC "","\4"
+		FAIL Macro CL2_COLORMAP_HIGH: Sprite odd colour bank number missing
+	ENDC
+
+	IFGE pf_colors_number-(1+\1)	; number of playfield colors >= 1
+		IFGT \2-1		; playfield palette number > 1
+cl2_BPLCON3_colormap_high\2	RS.L 1
+		ENDC
+cl2_COLOR00_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(2+\1)	; number of playfield colors >= 2
+cl2_COLOR01_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(3+\1)	; number of playfield colors >= 3
+cl2_COLOR02_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(4+\1)	; number of playfield colors >= 4
+cl2_COLOR03_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(5+\1)	; number of playfield colors >= 5
+cl2_COLOR04_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(6+\1)	; number of playfield colors >= 6
+cl2_COLOR05_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(7+\1)	; number of playfield colors >= 7
+cl2_COLOR06_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(8+\1)	; number of playfield colors >= 8
+cl2_COLOR07_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(9+\1)	; number of playfield colors >= 9
+cl2_COLOR08_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(10+\1)	; number of playfield colors >= 10
+cl2_COLOR09_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(11+\1)	; number of playfield colors >= 11
+cl2_COLOR10_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(12+\1)	; number of playfield colors >= 12
+cl2_COLOR11_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(13+\1)	; number of playfield colors >= 13
+cl2_COLOR12_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(14+\1)	; number of playfield colors >= 14
+cl2_COLOR13_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(15+\1)	; number of playfield colors >= 15
+cl2_COLOR14_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(16+\1)	; number of playfield colors >= 16
+cl2_COLOR15_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(17+\1)	; number of playfield colors >= 17
+cl2_COLOR16_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(18+\1)	; number of playfield colors >= 18
+cl2_COLOR17_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(19+\1)	; number of playfield colors >= 19
+cl2_COLOR18_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(20+\1)	; number of playfield colors >= 20
+cl2_COLOR19_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(21+\1)	; number of playfield colors >= 21
+cl2_COLOR20_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(22+\1)	; number of playfield colors >= 22
+cl2_COLOR21_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(23+\1)	; number of playfield colors >= 23
+cl2_COLOR22_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(24+\1)	; number of playfield colors >= 24
+cl2_COLOR23_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(25+\1)	; number of playfield colors >= 25
+cl2_COLOR24_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(26+\1)	; number of playfield colors >= 26
+cl2_COLOR25_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(27+\1)	; number of playfield colors >= 27
+cl2_COLOR26_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(28+\1)	; number of playfield colors >= 28
+cl2_COLOR27_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(29+\1)	; number of playfield colors >= 29
+cl2_COLOR28_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(30+\1)	; number of playfield colors >= 30
+cl2_COLOR29_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(31+\1)	; number of playfield colors >= 31
+cl2_COLOR30_high\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(32+\1)	; number of playfield colors >= 32
+cl2_COLOR31_high\2		RS.L 1
+	ENDC
+	IFNE spr_colors_number		; number of sprite colors > 0
+		IFD bplcon4_bits
+			IFEQ ((bplcon4_bits&$000f)-(\3&$000f)) & ((bplcon4_bits&$00f0)-(\3&$00f0)) ; sprite color table
+				IFLT pf_colors_number-(16+\1) ; number of playfield colors < 16
+					IFGT \2-1 ; playfield palette number > 1
+cl2_BPLCON3_colormap_high\2		RS.L 1
+					ENDC
+cl2_COLOR00_high\2		RS.L 1
+cl2_COLOR01_high\2		RS.L 1
+cl2_COLOR02_high\2		RS.L 1
+cl2_COLOR03_high\2		RS.L 1
+cl2_COLOR04_high\2		RS.L 1
+cl2_COLOR05_high\2		RS.L 1
+cl2_COLOR06_high\2		RS.L 1
+cl2_COLOR07_high\2		RS.L 1
+cl2_COLOR08_high\2		RS.L 1
+cl2_COLOR09_high\2		RS.L 1
+cl2_COLOR10_high\2		RS.L 1
+cl2_COLOR11_high\2		RS.L 1
+cl2_COLOR12_high\2		RS.L 1
+cl2_COLOR13_high\2		RS.L 1
+cl2_COLOR14_high\2		RS.L 1
+cl2_COLOR15_high\2		RS.L 1
+				ENDC
+			ENDC
+		ENDC
+		IFD bplcon4_bits
+			IFEQ ((bplcon4_bits&$000f)-(\4&$000f)) & ((bplcon4_bits&$00f0)-(\4&$00f0)) ; sprite color table 1
+				IFLT pf_colors_number-(32+\1) ; number of playfield colors < 32
+					IFGT \2-1 ; playfield palette number > 1
+						IFLT pf_colors_number-(1+\1) ; number of playfield colors < 1
+cl2_BPLCON3_colormap_high\2		RS.L 1
+						ENDC
+					ENDC
+cl2_COLOR16_high\2		RS.L 1
+cl2_COLOR17_high\2		RS.L 1
+cl2_COLOR18_high\2		RS.L 1
+cl2_COLOR19_high\2		RS.L 1
+cl2_COLOR20_high\2		RS.L 1
+cl2_COLOR21_high\2		RS.L 1
+cl2_COLOR22_high\2		RS.L 1
+cl2_COLOR23_high\2		RS.L 1
+cl2_COLOR24_high\2		RS.L 1
+cl2_COLOR25_high\2		RS.L 1
+cl2_COLOR26_high\2		RS.L 1
+cl2_COLOR27_high\2		RS.L 1
+cl2_COLOR28_high\2		RS.L 1
+cl2_COLOR29_high\2		RS.L 1
+cl2_COLOR30_high\2		RS.L 1
+cl2_COLOR31_high\2		RS.L 1
+				ENDC
+			ENDC
+		ENDC
+	ENDC
+	ENDM
+
+
+CL2_COLORMAP_LOW		MACRO
+; Input
+; \1	NUMBER: Colour number base in 32 steps [0..224]
+; \2	NUMBER: Playfield colour bank number [1..8]
+; \3	HEXNUMBER: Sprite even colour bank number in 32 steps [$00..$ee]
+; \4	HEXNUMBER: Sprite odd colour bank number in 32 steps [$11..$ff]
+; Result
+; no return value
+	IFC "","\1"
+		FAIL Macro CL2_COLORMAP_LOW: Colour number base missing
+	ENDC
+	IFC "","\2"
+		FAIL Macro CL2_COLORMAP_LOW: Playfield colour bank number missing
+	ENDC
+	IFC "","\3"
+		FAIL Macro CL2_COLORMAP_LOW: Sprite even colour bank number missing
+	ENDC
+	IFC "","\4"
+		FAIL Macro CL2_COLORMAP_LOW: Sprite odd colour bank number missing
+	ENDC
+
+	IFGE pf_colors_number-(1+\1)	; number of playfield colors >= 1
+cl2_BPLCON3_colormap_low\2	RS.L 1
+cl2_COLOR00_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(2+\1)	; number of playfield colors >= 2
+cl2_COLOR01_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(3+\1)	; number of playfield colors >= 3
+cl2_COLOR02_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(4+\1)	; number of playfield colors >= 4
+cl2_COLOR03_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(5+\1)	; number of playfield colors >= 5
+cl2_COLOR04_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(6+\1)	; number of playfield colors >= 6
+cl2_COLOR05_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(7+\1)	; number of playfield colors >= 7
+cl2_COLOR06_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(8+\1)	; number of playfield colors >= 8
+cl2_COLOR07_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(9+\1)	; number of playfield colors >= 9
+cl2_COLOR08_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(10+\1)	; number of playfield colors >= 10
+cl2_COLOR09_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(11+\1)	; number of playfield colors >= 11
+cl2_COLOR10_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(12+\1)	; number of playfield colors >= 12
+cl2_COLOR11_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(13+\1)	; number of playfield colors >= 13
+cl2_COLOR12_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(14+\1)	; number of playfield colors >= 14
+cl2_COLOR13_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(15+\1)	; number of playfield colors >= 15
+cl2_COLOR14_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(16+\1)	; number of playfield colors >= 16
+cl2_COLOR15_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(17+\1)	; number of playfield colors >= 17
+cl2_COLOR16_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(18+\1)	; number of playfield colors >= 18
+cl2_COLOR17_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(19+\1)	; number of playfield colors >= 19
+cl2_COLOR18_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(20+\1)	; number of playfield colors >= 20
+cl2_COLOR19_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(21+\1)	; number of playfield colors >= 21
+cl2_COLOR20_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(22+\1)	; number of playfield colors >= 22
+cl2_COLOR21_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(23+\1)	; number of playfield colors >= 23
+cl2_COLOR22_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(24+\1)	; number of playfield colors >= 24
+cl2_COLOR23_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(25+\1)	; number of playfield colors >= 25
+cl2_COLOR24_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(26+\1)	; number of playfield colors >= 26
+cl2_COLOR25_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(27+\1)	; number of playfield colors >= 27
+cl2_COLOR26_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(28+\1)	; number of playfield colors >= 28
+cl2_COLOR27_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(29+\1)	; number of playfield colors >= 29
+cl2_COLOR28_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(30+\1)	; number of playfield colors >= 30
+cl2_COLOR29_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(31+\1)	; number of playfield colors >= 31
+cl2_COLOR30_low\2		RS.L 1
+	ENDC
+	IFGE pf_colors_number-(32+\1)	; number of playfield colors >= 32
+cl2_COLOR31_low\2		RS.L 1
+	ENDC
+	IFNE spr_colors_number		; number of sprite colors > 0
+		IFEQ ((bplcon4_bits&$000f)-(\3&$000f)) & ((bplcon4_bits&$00f0)-(\3&$00f0)) ; sprite color table
+			IFLT pf_colors_number-(16+\1) ; number of playfield colors < 16
+cl2_BPLCON3_colormap_low\2		RS.L 1
+cl2_COLOR00_low\2		RS.L 1
+cl2_COLOR01_low\2		RS.L 1
+cl2_COLOR02_low\2		RS.L 1
+cl2_COLOR03_low\2		RS.L 1
+cl2_COLOR04_low\2		RS.L 1
+cl2_COLOR05_low\2		RS.L 1
+cl2_COLOR06_low\2		RS.L 1
+cl2_COLOR07_low\2		RS.L 1
+cl2_COLOR08_low\2		RS.L 1
+cl2_COLOR09_low\2		RS.L 1
+cl2_COLOR10_low\2		RS.L 1
+cl2_COLOR11_low\2		RS.L 1
+cl2_COLOR12_low\2		RS.L 1
+cl2_COLOR13_low\2		RS.L 1
+cl2_COLOR14_low\2		RS.L 1
+cl2_COLOR15_low\2		RS.L 1
+			ENDC
+		ENDC
+		IFEQ ((bplcon4_bits&$000f)-(\4&$000f)) & ((bplcon4_bits&$00f0)-(\4&$00f0)) ; sprite color table 1
+			IFLT pf_colors_number-(32+\1) ; number of playfield colors < 32
+				IFLT pf_colors_number-(1+\1) ; number of playfield colors < 1
+cl2_BPLCON3_colormap_low\2		RS.L 1
+				ENDC
+cl2_COLOR16_low\2		RS.L 1
+cl2_COLOR17_low\2		RS.L 1
+cl2_COLOR18_low\2		RS.L 1
+cl2_COLOR19_low\2		RS.L 1
+cl2_COLOR20_low\2		RS.L 1
+cl2_COLOR21_low\2		RS.L 1
+cl2_COLOR22_low\2		RS.L 1
+cl2_COLOR23_low\2		RS.L 1
+cl2_COLOR24_low\2		RS.L 1
+cl2_COLOR25_low\2		RS.L 1
+cl2_COLOR26_low\2		RS.L 1
+cl2_COLOR27_low\2		RS.L 1
+cl2_COLOR28_low\2		RS.L 1
+cl2_COLOR29_low\2		RS.L 1
+cl2_COLOR30_low\2		RS.L 1
+cl2_COLOR31_low\2		RS.L 1
+			ENDC
+		ENDC
+	ENDC
+	ENDM
+
+
+; First Copperlist
 	IFD diwstrt_bits
 cl2_DIWSTRT			RS.L 1
 	ENDC
@@ -19,7 +364,7 @@ cl2_BPLCON1			RS.L 1
 	IFD bplcon2_bits
 cl2_BPLCON2			RS.L 1
 	ENDC
-cl2_BPLCON3_1			RS.L 1
+cl2_BPLCON3_colormap_high			RS.L 1
 	IFNE pf_depth
 cl2_BPL1MOD			RS.L 1
 	ENDC
@@ -59,329 +404,23 @@ cl2_SPR7PTH			RS.L 1
 cl2_SPR7PTL			RS.L 1
 	ENDC
 
-COLOR_PALETTE_HIGH		MACRO
-; \1:	color number base in 32 steps 0/32/../224
-; \2:	playfield palette number 1..8
-; \3:	sprite palette number $00/$22/$44,$66,$88,$aa,$cc,$ee
-; \4:	sprite palette number $11/$33/$55,$77,$99,$bb,$dd,$ff
-	IFGE pf_colors_number-(1+\1)	; number of playfield colors >= 1
-		IFGT \2-1		; playfield palette number > 1
-cl2_BPLCON3_high\2		RS.L 1
-		ENDC
-cl2_COLOR00_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(2+\1)	; number of playfield colors >= 2
-cl2_COLOR01_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(3+\1)	; number of playfield colors >= 3
-cl2_COLOR02_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(4+\1)	; number of playfield colors >= 4
-cl2_COLOR03_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(5+\1)	; number of playfield colors >= 5
-cl2_COLOR04_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(6+\1)	; number of playfield colors >= 6
-cl2_COLOR05_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(7+\1)	; number of playfield colors >= 7
-cl2_COLOR06_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(8+\1)	; number of playfield colors >= 8
-cl2_COLOR07_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(9+\1)	; number of playfield colors >= 9
-cl2_COLOR08_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(10+\1)	; number of playfield colors >= 10
-cl2_COLOR09_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(11+\1)	; number of playfield colors >= 11
-cl2_COLOR10_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(12+\1)	; number of playfield colors >= 12
-cl2_COLOR11_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(13+\1)	; number of playfield colors >= 13
-cl2_COLOR12_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(14+\1)	; number of playfield colors >= 14
-cl2_COLOR13_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(15+\1)	; number of playfield colors >= 15
-cl2_COLOR14_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(16+\1)	; number of playfield colors >= 16
-cl2_COLOR15_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(17+\1)	; number of playfield colors >= 17
-cl2_COLOR16_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(18+\1)	; number of playfield colors >= 18
-cl2_COLOR17_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(19+\1)	; number of playfield colors >= 19
-cl2_COLOR18_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(20+\1)	; number of playfield colors >= 20
-cl2_COLOR19_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(21+\1)	; number of playfield colors >= 21
-cl2_COLOR20_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(22+\1)	; number of playfield colors >= 22
-cl2_COLOR21_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(23+\1)	; number of playfield colors >= 23
-cl2_COLOR22_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(24+\1)	; number of playfield colors >= 24
-cl2_COLOR23_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(25+\1)	; number of playfield colors >= 25
-cl2_COLOR24_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(26+\1)	; number of playfield colors >= 26
-cl2_COLOR25_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(27+\1)	; number of playfield colors >= 27
-cl2_COLOR26_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(28+\1)	; number of playfield colors >= 28
-cl2_COLOR27_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(29+\1)	; number of playfield colors >= 29
-cl2_COLOR28_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(30+\1)	; number of playfield colors >= 30
-cl2_COLOR29_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(31+\1)	; number of playfield colors >= 31
-cl2_COLOR30_high\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(32+\1)	; number of playfield colors >= 32
-cl2_COLOR31_high\2		RS.L 1
-	ENDC
-	IFNE spr_colors_number		; number of sprite colors > 0
-		IFEQ ((bplcon4_bits&$000f)-(\3&$000f)) & ((bplcon4_bits&$00f0)-(\3&$00f0)) ; sprite color table
-			IFLT pf_colors_number-(16+\1) ; number of playfield colors < 16
-				IFGT \2-1 ; playfield palette number > 1
-cl2_BPLCON3_high\2		RS.L 1
-				ENDC
-cl2_COLOR00_high\2		RS.L 1
-cl2_COLOR01_high\2		RS.L 1
-cl2_COLOR02_high\2		RS.L 1
-cl2_COLOR03_high\2		RS.L 1
-cl2_COLOR04_high\2		RS.L 1
-cl2_COLOR05_high\2		RS.L 1
-cl2_COLOR06_high\2		RS.L 1
-cl2_COLOR07_high\2		RS.L 1
-cl2_COLOR08_high\2		RS.L 1
-cl2_COLOR09_high\2		RS.L 1
-cl2_COLOR10_high\2		RS.L 1
-cl2_COLOR11_high\2		RS.L 1
-cl2_COLOR12_high\2		RS.L 1
-cl2_COLOR13_high\2		RS.L 1
-cl2_COLOR14_high\2		RS.L 1
-cl2_COLOR15_high\2		RS.L 1
-			ENDC
-		ENDC
-		IFEQ ((bplcon4_bits&$000f)-(\4&$000f)) & ((bplcon4_bits&$00f0)-(\4&$00f0)) ; sprite color table 1
-			IFLT pf_colors_number-(32+\1) ; number of playfield colors < 32
-				IFGT \2-1 ; playfield palette number > 1
-					IFLT pf_colors_number-(1+\1) ; number of playfield colors < 1
-cl2_BPLCON3_high\2		RS.L 1
-					ENDC
-				ENDC
-cl2_COLOR16_high\2		RS.L 1
-cl2_COLOR17_high\2		RS.L 1
-cl2_COLOR18_high\2		RS.L 1
-cl2_COLOR19_high\2		RS.L 1
-cl2_COLOR20_high\2		RS.L 1
-cl2_COLOR21_high\2		RS.L 1
-cl2_COLOR22_high\2		RS.L 1
-cl2_COLOR23_high\2		RS.L 1
-cl2_COLOR24_high\2		RS.L 1
-cl2_COLOR25_high\2		RS.L 1
-cl2_COLOR26_high\2		RS.L 1
-cl2_COLOR27_high\2		RS.L 1
-cl2_COLOR28_high\2		RS.L 1
-cl2_COLOR29_high\2		RS.L 1
-cl2_COLOR30_high\2		RS.L 1
-cl2_COLOR31_high\2		RS.L 1
-			ENDC
-		ENDC
-	ENDC
-	ENDM
+	CL2_COLORMAP_HIGH 0,1,$0000,$0011
+	CL2_COLORMAP_HIGH 32,2,$0022,$0033
+	CL2_COLORMAP_HIGH 64,3,$0044,$0055
+	CL2_COLORMAP_HIGH 96,4,$0066,$0077
+	CL2_COLORMAP_HIGH 128,5,$0088,$0099
+	CL2_COLORMAP_HIGH 160,6,$00aa,$00bb
+	CL2_COLORMAP_HIGH 192,7,$00cc,$00dd
+	CL2_COLORMAP_HIGH 224,8,$00ee,$00ff
 
-	COLOR_PALETTE_HIGH 0,1,$0000,$0011
-	COLOR_PALETTE_HIGH 32,2,$0022,$0033
-	COLOR_PALETTE_HIGH 64,3,$0044,$0055
-	COLOR_PALETTE_HIGH 96,4,$0066,$0077
-	COLOR_PALETTE_HIGH 128,5,$0088,$0099
-	COLOR_PALETTE_HIGH 160,6,$00aa,$00bb
-	COLOR_PALETTE_HIGH 192,7,$00cc,$00dd
-	COLOR_PALETTE_HIGH 224,8,$00ee,$00ff
-
-COLOR_PALETTE_LOW		MACRO
-; \1:	color number base in 32steps 0/32/../224
-; \2:	playfield palette number 1..8
-; \3:	sprite palette number $00/$22/$44,$66,$88,$aa,$cc,$ee
-; \4:	sprite palette number $11/$33/$55,$77,$99,$bb,$dd,$ff
-	IFGE pf_colors_number-(1+\1)	; number of playfield colors >= 1
-cl2_BPLCON3_low\2		RS.L 1
-cl2_COLOR00_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(2+\1)	; number of playfield colors >= 2
-cl2_COLOR01_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(3+\1)	; number of playfield colors >= 3
-cl2_COLOR02_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(4+\1)	; number of playfield colors >= 4
-cl2_COLOR03_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(5+\1)	; number of playfield colors >= 5
-cl2_COLOR04_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(6+\1)	; number of playfield colors >= 6
-cl2_COLOR05_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(7+\1)	; number of playfield colors >= 7
-cl2_COLOR06_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(8+\1)	; number of playfield colors >= 8
-cl2_COLOR07_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(9+\1)	; number of playfield colors >= 9
-cl2_COLOR08_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(10+\1)	; number of playfield colors >= 10
-cl2_COLOR09_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(11+\1)	; number of playfield colors >= 11
-cl2_COLOR10_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(12+\1)	; number of playfield colors >= 12
-cl2_COLOR11_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(13+\1)	; number of playfield colors >= 13
-cl2_COLOR12_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(14+\1)	; number of playfield colors >= 14
-cl2_COLOR13_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(15+\1)	; number of playfield colors >= 15
-cl2_COLOR14_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(16+\1)	; number of playfield colors >= 16
-cl2_COLOR15_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(17+\1)	; number of playfield colors >= 17
-cl2_COLOR16_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(18+\1)	; number of playfield colors >= 18
-cl2_COLOR17_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(19+\1)	; number of playfield colors >= 19
-cl2_COLOR18_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(20+\1)	; number of playfield colors >= 20
-cl2_COLOR19_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(21+\1)	; number of playfield colors >= 21
-cl2_COLOR20_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(22+\1)	; number of playfield colors >= 22
-cl2_COLOR21_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(23+\1)	; number of playfield colors >= 23
-cl2_COLOR22_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(24+\1)	; number of playfield colors >= 24
-cl2_COLOR23_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(25+\1)	; number of playfield colors >= 25
-cl2_COLOR24_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(26+\1)	; number of playfield colors >= 26
-cl2_COLOR25_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(27+\1)	; number of playfield colors >= 27
-cl2_COLOR26_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(28+\1)	; number of playfield colors >= 28
-cl2_COLOR27_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(29+\1)	; number of playfield colors >= 29
-cl2_COLOR28_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(30+\1)	; number of playfield colors >= 30
-cl2_COLOR29_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(31+\1)	; number of playfield colors >= 31
-cl2_COLOR30_low\2		RS.L 1
-	ENDC
-	IFGE pf_colors_number-(32+\1)	; number of playfield colors >= 32
-cl2_COLOR31_low\2		RS.L 1
-	ENDC
-	IFNE spr_colors_number		; number of sprite colors > 0
-		IFEQ ((bplcon4_bits&$000f)-(\3&$000f)) & ((bplcon4_bits&$00f0)-(\3&$00f0)) ; sprite color table
-			IFLT pf_colors_number-(16+\1) ; number of playfield colors < 16
-cl2_BPLCON3_low\2		RS.L 1
-cl2_COLOR00_low\2		RS.L 1
-cl2_COLOR01_low\2		RS.L 1
-cl2_COLOR02_low\2		RS.L 1
-cl2_COLOR03_low\2		RS.L 1
-cl2_COLOR04_low\2		RS.L 1
-cl2_COLOR05_low\2		RS.L 1
-cl2_COLOR06_low\2		RS.L 1
-cl2_COLOR07_low\2		RS.L 1
-cl2_COLOR08_low\2		RS.L 1
-cl2_COLOR09_low\2		RS.L 1
-cl2_COLOR10_low\2		RS.L 1
-cl2_COLOR11_low\2		RS.L 1
-cl2_COLOR12_low\2		RS.L 1
-cl2_COLOR13_low\2		RS.L 1
-cl2_COLOR14_low\2		RS.L 1
-cl2_COLOR15_low\2		RS.L 1
-			ENDC
-		ENDC
-		IFEQ ((bplcon4_bits&$000f)-(\4&$000f)) & ((bplcon4_bits&$00f0)-(\4&$00f0)) ; sprite color table 1
-			IFLT pf_colors_number-(32+\1) ; number of playfield colors < 32
-				IFLT pf_colors_number-(1+\1) ; number of playfield colors < 1
-cl2_BPLCON3_low\2		RS.L 1
-				ENDC
-cl2_COLOR16_low\2		RS.L 1
-cl2_COLOR17_low\2		RS.L 1
-cl2_COLOR18_low\2		RS.L 1
-cl2_COLOR19_low\2		RS.L 1
-cl2_COLOR20_low\2		RS.L 1
-cl2_COLOR21_low\2		RS.L 1
-cl2_COLOR22_low\2		RS.L 1
-cl2_COLOR23_low\2		RS.L 1
-cl2_COLOR24_low\2		RS.L 1
-cl2_COLOR25_low\2		RS.L 1
-cl2_COLOR26_low\2		RS.L 1
-cl2_COLOR27_low\2		RS.L 1
-cl2_COLOR28_low\2		RS.L 1
-cl2_COLOR29_low\2		RS.L 1
-cl2_COLOR30_low\2		RS.L 1
-cl2_COLOR31_low\2		RS.L 1
-			ENDC
-		ENDC
-	ENDC
-	ENDM
-
-	COLOR_PALETTE_LOW 0,1,$0000,$0011
-	COLOR_PALETTE_LOW 32,2,$0022,$0033
-	COLOR_PALETTE_LOW 64,3,$0044,$0055
-	COLOR_PALETTE_LOW 96,4,$0066,$0077
-	COLOR_PALETTE_LOW 128,5,$0088,$0099
-	COLOR_PALETTE_LOW 160,6,$00aa,$00bb
-	COLOR_PALETTE_LOW 192,7,$00cc,$00dd
-	COLOR_PALETTE_LOW 224,8,$00ee,$00ff
+	CL2_COLORMAP_LOW 0,1,$0000,$0011
+	CL2_COLORMAP_LOW 32,2,$0022,$0033
+	CL2_COLORMAP_LOW 64,3,$0044,$0055
+	CL2_COLORMAP_LOW 96,4,$0066,$0077
+	CL2_COLORMAP_LOW 128,5,$0088,$0099
+	CL2_COLORMAP_LOW 160,6,$00aa,$00bb
+	CL2_COLORMAP_LOW 192,7,$00cc,$00dd
+	CL2_COLORMAP_LOW 224,8,$00ee,$00ff
 
 	IFGE pf_depth-1
 cl2_BPL1PTH			RS.L 1
