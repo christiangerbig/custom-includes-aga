@@ -14,7 +14,7 @@ pt_RtnDMACONtemp		RS.W 1
 	ENDC
 	IFEQ pt_music_fader_enabled
 pt_music_fader_active		RS.W 1
-pt_fade_out_delay_counter	RS.W 1
+pt_fade_out_counter	RS.W 1
 pt_master_volume		RS.W 1
 	ENDC
 pt_SongLength			RS.B 1

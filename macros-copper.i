@@ -613,7 +613,7 @@ COP_INIT_BPLCON4_CHUNKY	MACRO
 		move.l	#1<<24,d3	; next rasterline
 		MOVEF.W \5-1,d7		; number of lines
 \1_init_bplcon4_chunky_loop1
-		move.l	d0,(a0)+	; WAIT x,y
+		move.l	d0,(a0)+	; CWAIT
 		IFEQ \6
 			IFC "OVERSCAN","\9"
 				COP_MOVEQ fmode_bits2,FMODE

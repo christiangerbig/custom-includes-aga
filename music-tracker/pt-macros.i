@@ -23,7 +23,7 @@ pt_music_fader
 		lea	pt_audchan4temp(pc),a0
 		bsr.s	pt_decrease_channel_volume
 	ENDC
-	move.w	pt_fade_out_delay_counter(a3),d0
+	move.w	pt_fade_out_counter(a3),d0
 	subq.w	#1,d0
 	bne.s	pt_music_fader_skip1
 	move.w	pt_master_volume(a3),d1
@@ -32,7 +32,7 @@ pt_music_fader
 	move.w	d1,pt_master_volume(a3)
 	moveq	#pt_fade_out_delay,d0
 pt_music_fader_skip1
-	move.w	d0,pt_fade_out_delay_counter(a3)
+	move.w	d0,pt_fade_out_counter(a3)
 pt_music_fader_quit
 	rts
 	CNOP 0,4

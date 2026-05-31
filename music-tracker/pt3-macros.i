@@ -26,7 +26,7 @@ PT3_INIT_VARIABLES		MACRO
 	moveq	#FALSE,d1
 	IFEQ pt_music_fader_enabled
 		move.w	d1,pt_music_fader_active(a3) ; deactivate volume fader
-		move.w	#pt_fade_out_delay,pt_fade_out_delay_counter(a3)
+		move.w	#pt_fade_out_delay,pt_fade_out_counter(a3)
 		move.w	#pt_maxvol,pt_master_volume(a3)
 	ENDC
 	IFEQ pt_metronome_enabled
