@@ -482,7 +482,7 @@ COP_INIT_COLOR00_SCREEN		MACRO
 ; \1_display_y_size
 ; Result
 	IFC "","\1"
-		FAIL Macro COP_INIT_COLOR00_SCREEN: cCopperlist label prefix missing
+		FAIL Macro COP_INIT_COLOR00_SCREEN: Copperlist label prefix missing
 	ENDC
 	CNOP 0,4
 \1_init_color00_screen

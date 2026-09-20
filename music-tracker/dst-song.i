@@ -1,5 +1,5 @@
 dst_songname_size		EQU 20
-dst_samplename_size		EQU 22
+dst_samplename_size		EQU 22
 dst_pattpos_size		EQU 128
 
 
