@@ -293,7 +293,7 @@ MULUF				MACRO
 ; \0 STRING:	["B", "W", "L"] size
 ; \1 NUMBER:	16/32 bit factor
 ; \2 NUMBER:	Product
-; \3 STRING:	Scratch register
+; \3 STRING:	Scratch register (optional)
 ; Result
 	IFC "","\0"
 		FAIL Macro MULUF: Size missing
@@ -1194,7 +1194,7 @@ MULSF				MACRO
 ; Input
 ; \1 NUMBER:	16 bit signed factor
 ; \2 NUMBER:	Product
-; \3 STRING:	Scratch register
+; \3 STRING:	Scratch register (optional)
 ; Result
 	IFC "","\1"
 		FAIL Macro MULSF: Factor missing
@@ -1684,7 +1684,7 @@ GET_NEW_CHAR_IMAGE		MACRO
 				moveq	#0,d3
 				move.w	\1_char_words_counter(a3),d3
 				move.l	d3,d4
-				MULUF.W	WORD_SIZE,d4,d2 ; character image word offset
+				MULUF.W	WORD_SIZE,d4 ; character image word offset
 				addq.w	#1,d3 ; next character image
 				add.l	d4,d0 ; offset in character image
 				cmp.w	#\1_origin_char_x_size/16,d3 ; new character image ?
@@ -2925,7 +2925,7 @@ INIT_CUSTOM_ERROR_ENTRY		MACRO
 		FAIL Macro INIT_CUSTOM_ERROR_ENTRY: Error text length missing
 	ENDC
 	moveq	#\1-1,d0
-	MULUF.W	8,d0,d1			; offset in error texts
+	MULUF.W	8,d0			; offset in error texts
 	lea	\2(pc),a1		; error text
 	move.l	a1,(a0,d0.w)
 	moveq	#\3,d1			; error text length
