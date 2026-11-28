@@ -2839,73 +2839,79 @@ COPY_RGB8_COLORS_TO_COPPERLIST	MACRO
 
 ROTATE_X_AXIS			MACRO
 ; Input
-; d1.w	y
-; d2.w	z
+; d1.w	Y
+; d2.w	Z
+; Scratch registers
+; d0..d7
 ; Result
-; d1.w	y position
-; d2.w	z position
-	move.w	d1,d3			; save y
+; d1.w	New y
+; d2.w	New z
+	move.w	d1,d3			; store y
 	muls.w	d4,d1			; y*cos(a)
 	swap	d4			; sin(w)
-	move.w	d2,d7			; save z
+	move.w	d2,d7			; store z
 	muls.w	d4,d3			; y*sin(a)
 	muls.w	d4,d7			; z*sin(a)
 	swap	d4			; cos(a)
-	sub.l	d7,d1			; y*cos(a)-z*sin(a)
+	sub.l	d7,d1			; [y*cos(a)]-[z*sin(a)]
 	muls.w	d4,d2			; z*cos(a)
-	MULUF.L 2,d1			; y'=(y*cos(a)-z*sin(a))/2^15
-	add.l	d3,d2			; y*sin(a)+z*cos(a)
-	swap	d1			; y position
-	MULUF.L 2,d2			; z'=(y*sin(a)+z*cos(a))/2^15
-	swap	d2			; z position
+	MULUF.L 2,d1			; /2^15
+	add.l	d3,d2			; y*sin(a)+[z*cos(a)]
+	swap	d1			; new y
+	MULUF.L 2,d2			; /2^15
+	swap	d2			; new z
 	ENDM
 
 
 ROTATE_Y_AXIS			MACRO
 ; Input
-; d0.w	x
-; d2.w	z
+; d0.w	X
+; d2.w	Z
+; Scratch registers
+; d0..d7
 ; Result
-; d0.w	x position
-; d2.w	z position
-	move.w	d0,d3			; save x
+; d0.w	New x
+; d2.w	New z
+	move.w	d0,d3			; store x
 	muls.w	d5,d0			; x*cos(b)
 	swap	d5			; sin(b)
-	move.w	d2,d7			; save z
+	move.w	d2,d7			; store z
 	muls.w	d5,d3			; x*sin(b)
 	muls.w	d5,d7			; z*sin(b)
 	swap	d5			; cos(b)
-	add.l	d7,d0			; x*cos(b)+z*sin(b)
+	add.l	d7,d0			; [x*cos(b)]+[z*sin(b)]
 	muls.w	d5,d2			; z*cos(b)
-	MULUF.L 2,d0			; x'=(x*cos(b)+z*sin(b))/2^15
+	MULUF.L 2,d0			; /2^15
 	sub.l	d3,d2			; z*cos(b)-x*sin(b)
-	swap	d0			; x position
-	MULUF.L 2,d2			; z'=(z*cos(b)-x*sin(b))/2^15
-	swap	d2			; z position
+	swap	d0			; new x
+	MULUF.L 2,d2			; /2^15
+	swap	d2			; new z
 	ENDM
 
 
 ROTATE_Z_AXIS			MACRO
 ; Input
-; d0.w	x
-; d1.w	y
+; d0.w	X
+; d1.w	Y
+; Scratch registers
+; d0..d7
 ; Result
-; d0.w	x position
-; d1.w	y position
-	move.w	d0,d3			; save x
+; d0.w	New x
+; d1.w	New y
+	move.w	d0,d3			; store x
 	muls.w	d6,d0			; x*cos(c)
 	swap	d6			; sin(c)
-	move.w	d1,d7			; save y
+	move.w	d1,d7			; store y
 	muls.w	d6,d3			; x*sin(c)
 	muls.w	d6,d7			; y*sin(c)
 	swap	d6			; cos(c)
-	sub.l	d7,d0			; x*cos(c)-y*sin(c)
+	sub.l	d7,d0			; [x*cos(c)]-[y*sin(c)]
 	muls.w	d6,d1			; y*cos(c)
-	MULUF.L 2,d0			; x'=(x*cos(c)-y*sin(c))/2^15
-	add.l	d3,d1			; x*sin(c)+y*cos(c)
-	swap	d0			; x position
-	MULUF.L 2,d1			; y'=(x*sin(c)+y*cos(c))/2^15
-	swap	d1			; y position
+	MULUF.L 2,d0			; /2^15
+	add.l	d3,d1			; [x*sin(c)]+[y*cos(c)]
+	swap	d0			; new x
+	MULUF.L 2,d1			; /2^15
+	swap	d1			; new y
 	ENDM
 
 
